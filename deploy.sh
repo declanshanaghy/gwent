@@ -4,5 +4,8 @@ set -e
 
 source ~/gwent-venv/bin/activate
 
-cd ~/gwent/software/py3
+cd ~/gwent/software/gaugette
+pip3 install --no-deps -e .
+
+cd ~/gwent/software/gwent
 pip3 install --no-deps -e .

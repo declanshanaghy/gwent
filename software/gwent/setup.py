@@ -19,6 +19,9 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.7.3',
+    install_requires=[
+        'wiringpi==2.60.0',
+    ],
     entry_points={
         'console_scripts': ['gwent=main:run'],
     }
