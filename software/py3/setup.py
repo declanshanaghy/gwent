@@ -18,7 +18,7 @@ setuptools.setup(
         "License :: OSI Approved :: Apache 2",
         "Operating System :: OS Independent",
     ],
-    python_requires='>=3.7.5',
+    python_requires='>=3.7.3',
     entry_points={
         'console_scripts': ['gwent=main:run'],
     }
