@@ -2,7 +2,7 @@
 
 set -e
 
-source ~/venv-gwent/bin/activate
+source ~/gwent-venv/bin/activate
 
 cd ~/gwent/software/py3
 pip3 install --no-deps -e .
