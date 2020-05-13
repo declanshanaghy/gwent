@@ -5,12 +5,12 @@ import time
 
 import log
 
-import board
+import game.board
 
 class Gwent(object):
     running = True
     log = logging.getLogger(__name__)
-    brd = board.New()
+    brd = game.board.New()
 
     def sig(self, signum, frame):
         self.log.info({
