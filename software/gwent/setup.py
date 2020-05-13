@@ -20,13 +20,14 @@ setuptools.setup(
     ],
     python_requires='>=3.7.3',
     install_requires=[
+        'mfrc522==0.0.7',
         'wiringpi==2.60.0',
-        'websockets==8.1'
+        'websockets==8.1',
     ],
     entry_points={
         'console_scripts': [
             'gwent-game=game.main:run',
-            'gwent-server=server.main:run',
+            'gwent-server=server.async:run',
         ],
     }
 )
