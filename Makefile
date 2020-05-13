@@ -2,7 +2,10 @@ DEPLOY_USER := pi
 DEPLOY_TGT := gwent
 DEPLOY_TGT := 192.168.1.185
 
-deploy:
-	@echo "Deploying to $(DEPLOY_TGT)"
+rsync:
+	@echo "rsync to $(DEPLOY_TGT)"
 	@rsync -avzl --delete --exclude=*.pyc -e ssh software ${DEPLOY_USER}@${DEPLOY_TGT}:~/gwent/
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -s < deploy.sh
+
+install:
+	@echo "Install to $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -s < install.sh
