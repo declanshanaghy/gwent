@@ -20,14 +20,16 @@ setuptools.setup(
     ],
     python_requires='>=3.7.3',
     install_requires=[
-        'mfrc522==0.0.7',
-        'wiringpi==2.60.0',
+        # 'mfrc522==0.0.7',
+        # 'wiringpi==2.60.0',
         'websockets==8.1',
+        'django==3.0.6',
+        'uvicorn==0.11.5',
     ],
     entry_points={
         'console_scripts': [
-            'gwent-game=game.main:run',
-            'gwent-server=server.async:run',
+            'gwent=game.main:run',
+            'novigrad=novigrad.server:run',
         ],
     }
 )
