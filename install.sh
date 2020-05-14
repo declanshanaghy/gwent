@@ -8,4 +8,4 @@ source ~/gwent-venv/bin/activate
 #pip3 install .
 
 cd ~/gwent/software/gwent
-pip3 install -e .
+pip3 install --no-deps -e .

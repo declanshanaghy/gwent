@@ -53,8 +53,7 @@ def setup(stdout=True, log_file=None, level='info'):
         '%(asctime)s',
         '%(levelname)s',
         '%(threadName)s',
-        '%(name)s',
-        '%(module)s:%(lineno)d',
+        '%(name)s:%(lineno)d',
         '%(message)s',
     ]
     format = ' '.join(fragments)
