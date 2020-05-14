@@ -1,8 +1,8 @@
 import React, {Component} from 'react'
 import Card from './Card'
 
-// const URL = 'ws://192.168.1.185:8888';
-const URL = 'ws://localhost:8888';
+const URL = 'ws://192.168.1.185:8888';
+// const URL = 'ws://localhost:8888';
 
 class GloryGate extends Component {
     state = {

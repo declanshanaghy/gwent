@@ -11,8 +11,12 @@ class Reader(object):
         try:
             import mfrc522
             import RPi.GPIO as GPIO
-            self.reader = mfrc522.SimpleMFRC522()
-        except:
+            self._reader = mfrc522.SimpleMFRC522()
+        except Exception as ex:
+            self._log.error({
+                'action': 'error setting up reader',
+                'ex': ex,
+            })
             random.seed()
 
     def read(self):

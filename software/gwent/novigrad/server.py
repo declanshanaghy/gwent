@@ -207,6 +207,9 @@ class Server(object):
             while True:
                 id, text = await loop.run_in_executor(
                     None, self._card_reader.read)
+                if id is None:
+                    continue
+
                 details = {}
                 try:
                     details = json.loads(text)
@@ -220,19 +223,19 @@ class Server(object):
                         'action': 'read a blank card. No details',
                         'id': id,
                     })
+                    details = {'text': text}
 
-                if id:
-                    message = self._new_message(
-                        'card_read',
-                        payload={
-                            'id': id,
-                            'details': details,
-                        })
+                message = self._new_message(
+                    'card_read',
+                    payload={
+                        'id': id,
+                        'details': details,
+                    })
 
-                    n_clients = len(self._clients.keys())
-                    if n_clients > 0:
-                        await self._send_all(message)
-                    await asyncio.sleep(1.0)
+                n_clients = len(self._clients.keys())
+                if n_clients > 0:
+                    await self._send_all(message)
+                await asyncio.sleep(1.0)
         finally:
             self._log.info({
                 'action': '_read_card_loop',
@@ -267,7 +270,7 @@ class Server(object):
             # self._start_card_reader()
 
             address = {
-                'host': '127.0.0.1',
+                'host': '0.0.0.0',
                 'port': 8888
             }
             self._log.info({
