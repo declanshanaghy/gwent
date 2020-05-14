@@ -2,20 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/software/glory-gate/src/Card.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/glory-gate/src/GloryGate.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/gwent/cards/io.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gwent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gwent.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/log.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/log.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/rfid/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/cards/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/rfid/io.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/server/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/server/async.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/server/time.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/glory-gate/src/GloryGate.js" beforeDir="false" afterPath="$PROJECT_DIR$/software/glory-gate/src/GloryGate.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/cards/io.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/cards/io.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/novigrad/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/novigrad/server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -232,7 +222,7 @@
       <updated>1589237419294</updated>
       <workItem from="1589402416578" duration="100000" />
       <workItem from="1589402535194" duration="3209000" />
-      <workItem from="1589406726683" duration="21345000" />
+      <workItem from="1589406726683" duration="22384000" />
     </task>
     <servers />
   </component>
