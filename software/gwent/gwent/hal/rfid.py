@@ -7,13 +7,17 @@ import gwent.game.cards
 import gwent.game.cards.starters
 import gwent.log
 
-MIN_SECTOR = 1
-MAX_SECTOR = 16
-ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR)
 BLOCK_SIZE = 16
 SECTOR_SIZE = 4
 SECTOR_WRITABLE = 3
 
+MIN_SECTOR = 1
+MAX_SECTOR = 15
+ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR + 1)
+
+
+class RFIDError(Exception):
+    pass
 
 def get_blocks(sector) -> (int, [int]):
     s = sector * 4
@@ -42,9 +46,15 @@ class Reader(object):
     def read(self, block: bool = False, trailer: int = 11,
              blocks: [int] = (8, 9, 10)) -> (int, str):
         if self._rfid is not None:
-            return self.read_real(block=block, trailer=trailer, blocks=blocks)
+            id, text = self.read_real(block=block, trailer=trailer, blocks=blocks)
         else:
-            return self.read_fake()
+            id, text = self.read_fake()
+
+        if id:
+            return id, text
+        else:
+            raise RFIDError(f'Error reading sector: '
+                            f'trailer={trailer}, blocks={blocks}')
 
     def read_fake(self) -> (int, str):
         t = float(random.randint(0, 100)) / 100
@@ -78,13 +88,20 @@ class Writer(Reader):
                      blocks: [int] = (8, 9, 10)) -> (int, str):
         if self._rfid is not None:
             if block:
-                return self._rfid.write(text, trailer=trailer, blocks=blocks)
+                id, text = self._rfid.write(text, trailer=trailer,
+                                            blocks=blocks)
             else:
-                return self._rfid.write_no_block(text, trailer=trailer,
-                                                 blocks=blocks)
+                id, text = self._rfid.write_no_block(text, trailer=trailer,
+                                                     blocks=blocks)
         else:
-            return self._write_fake(text, block=block, trailer=trailer,
-                                    blocks=blocks)
+            id, text = self._write_fake(text, block=block, trailer=trailer,
+                                        blocks=blocks)
+
+        if id:
+            return id, text
+        else:
+            raise RFIDError(f'Error writing sector: '
+                            f'trailer={trailer}, blocks={blocks}')
 
     def _write_fake(self, text: str, block: bool = False,
                     trailer: int = 11,
@@ -115,6 +132,7 @@ class Writer(Reader):
         card_details = str(card)
         if write_all:
             sectors = ALL_SECTORS
+        start = time.time()
         if self._log.isEnabledFor(logging.INFO):
             self._log.info({
                 'action': 'write_card',
@@ -125,8 +143,20 @@ class Writer(Reader):
                 'max_sector': card.max_sector,
                 'sectors': sectors,
                 'block': block,
+                'start': start,
             })
-        return self.write_str(card_details, block=block, sectors=sectors)
+        id, text = self.write_str(card_details, block=block, sectors=sectors)
+        end = time.time()
+        elapsed = end - start
+        if self._log.isEnabledFor(logging.INFO):
+            self._log.info({
+                'action': 'write_card_complete',
+                'id': id,
+                'text': text,
+                'start': start,
+                'end': end,
+                'elapsed': elapsed,
+            })
 
     def write_str(self, text: str, block: bool = False,
                   sectors: [int] = None) -> (int, str):
@@ -150,7 +180,6 @@ class Writer(Reader):
 
             id, sector_written = self.write_sector(
                 sector_data, block=block, trailer=trailer, blocks=blocks)
-            total_written += sector_written
 
             if self._log.isEnabledFor(logging.DEBUG):
                 self._log.debug({
@@ -165,6 +194,7 @@ class Writer(Reader):
                     'len(sector_written)': len(sector_written),
                 })
 
+            total_written += sector_written
             s = e
 
         if id:

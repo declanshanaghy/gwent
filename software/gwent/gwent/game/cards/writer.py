@@ -81,6 +81,10 @@ class CardWriterUtil(object):
         loop.stop()
 
     def run(self):
+        # import pydevd_pycharm
+        # pydevd_pycharm.settrace('192.168.1.143', port=31337,
+        #                         stdoutToServer=True, stderrToServer=True)
+
         biggest_card = self.log_card_info()
         loop = asyncio.get_event_loop()
 
