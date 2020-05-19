@@ -20,7 +20,7 @@ def mfrc522_read_all_sectors():
                 f'Reading sector={sector}, trailer={trailer}, blocks={blocks}')
         id, text = mfrc522.read(block=True, trailer=trailer, blocks=blocks)
         if log.isEnabledFor(logging.DEBUG):
-            logging.debug(f"id={id}, text='{text}'")
+            logging.debug(f"id={id}, sector={sector}, text='{text}'")
     end = time.time()
     log.info(f'elapsed={end - start}, start={start}, end={end}')
 

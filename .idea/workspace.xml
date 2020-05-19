@@ -2,14 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gwent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gwent.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522x.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,7 +76,7 @@
       <recent name="$PROJECT_DIR$/software/gwent/cards" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.write_biggest_card">
+  <component name="RunManager" selected="Python Debug Server.remote debug gwent">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -162,6 +159,19 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="remote debug gwent" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
+      <module name="gwent" />
+      <option name="PORT" value="31337" />
+      <option name="HOST" value="192.168.1.143" />
+      <PathMappingSettings>
+        <option name="pathMappings">
+          <list />
+        </option>
+      </PathMappingSettings>
+      <option name="REDIRECT_OUTPUT" value="true" />
+      <option name="SUSPEND_AFTER_CONNECT" value="true" />
       <method v="2" />
     </configuration>
     <configuration name="Board Game" type="PythonConfigurationType" factoryName="Python" singleton="true">
@@ -344,6 +354,7 @@
       <item itemvalue="Python.write_biggest_card" />
       <item itemvalue="Python.Board Game" />
       <item itemvalue="Python.Novigrad" />
+      <item itemvalue="Python Debug Server.remote debug gwent" />
     </list>
   </component>
   <component name="SvnConfiguration">
@@ -360,7 +371,7 @@
       <workItem from="1589402535194" duration="3209000" />
       <workItem from="1589406726683" duration="37602000" />
       <workItem from="1589728899621" duration="617000" />
-      <workItem from="1589840998754" duration="31587000" />
+      <workItem from="1589840998754" duration="34075000" />
     </task>
     <servers />
   </component>
@@ -376,46 +387,50 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="320" y="109" key="#Plugins/0.23.1440.877@0.23.1440.877" timestamp="1589402516332" />
-    <state x="184" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589872769986">
+    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589875855086">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="184" y="123" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.877@0.23.1440.877" timestamp="1589872769986" />
+    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.877@0.23.1440.877" timestamp="1589875855086" />
     <state x="475" y="359" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog" timestamp="1589871649428">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="475" y="359" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/0.23.1440.877@0.23.1440.877" timestamp="1589871649428" />
-    <state width="1398" height="296" key="GridCell.Tab.0.bottom" timestamp="1589874107291">
+    <state width="1398" height="106" key="GridCell.Tab.0.bottom" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="296" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589874107291" />
-    <state width="1398" height="296" key="GridCell.Tab.0.center" timestamp="1589874107290">
+    <state width="1398" height="106" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.0.center" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="296" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1589874107290" />
-    <state width="1398" height="296" key="GridCell.Tab.0.left" timestamp="1589874107290">
+    <state width="1398" height="106" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.0.left" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="296" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1589874107290" />
-    <state width="1398" height="296" key="GridCell.Tab.0.right" timestamp="1589874107291">
+    <state width="1398" height="106" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.0.right" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="296" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1589874107291" />
-    <state width="1398" height="432" key="GridCell.Tab.1.bottom" timestamp="1589872261392">
+    <state width="1398" height="106" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.1.bottom" timestamp="1589876574400">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="432" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589872261392" />
-    <state width="1398" height="432" key="GridCell.Tab.1.center" timestamp="1589872261391">
+    <state width="1398" height="106" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589876574400" />
+    <state width="1398" height="106" key="GridCell.Tab.1.center" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="432" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1589872261391" />
-    <state width="1398" height="432" key="GridCell.Tab.1.left" timestamp="1589872261391">
+    <state width="1398" height="106" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.1.left" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="432" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1589872261391" />
-    <state width="1398" height="432" key="GridCell.Tab.1.right" timestamp="1589872261392">
+    <state width="1398" height="106" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state width="1398" height="106" key="GridCell.Tab.1.right" timestamp="1589876574399">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="432" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1589872261392" />
+    <state width="1398" height="106" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
+    <state x="354" y="199" key="PyMappingSimpleResolveDialog" timestamp="1589876211632">
+      <screen x="0" y="23" width="1440" height="877" />
+    </state>
+    <state x="354" y="199" key="PyMappingSimpleResolveDialog/0.23.1440.877@0.23.1440.877" timestamp="1589876211632" />
     <state x="229" y="100" key="SettingsEditor" timestamp="1589407812971">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
@@ -443,6 +458,16 @@
           <line>31</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py</url>
+          <line>180</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py</url>
+          <line>74</line>
+          <option name="timeStamp" value="46" />
+        </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
         <breakpoint type="python-exception">
@@ -453,6 +478,9 @@
       </default-breakpoints>
     </breakpoint-manager>
     <watches-manager>
+      <configuration name="PyRemoteDebugConfigurationType">
+        <watch expression="len(sector_data)" language="Python" />
+      </configuration>
       <configuration name="PythonConfigurationType">
         <watch expression="s,e" language="Python" />
         <watch expression="BLOCK_SIZE * len(blocks)" language="Python" />
@@ -468,7 +496,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/gwent$Server.coverage" NAME="Novigrad Coverage Results" MODIFIED="1589496592627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/novigrad" />
-    <SUITE FILE_PATH="coverage/gwent$write_cards.coverage" NAME="write_biggest_card Coverage Results" MODIFIED="1589874091161" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
+    <SUITE FILE_PATH="coverage/gwent$write_cards.coverage" NAME="write_biggest_card Coverage Results" MODIFIED="1589875129702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
     <SUITE FILE_PATH="coverage/gwent$mfrc522_entrypoints.coverage" NAME="mfrc522_write_all_sectors Coverage Results" MODIFIED="1589874084269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/hal" />
   </component>
 </project>
