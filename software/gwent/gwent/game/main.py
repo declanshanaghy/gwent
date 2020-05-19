@@ -3,14 +3,13 @@ import os
 import signal
 import time
 
-import log
-
-import game.board
+import gwent.game.board
+import gwent.log
 
 class Gwent(object):
     running = True
     log = logging.getLogger(__name__)
-    brd = game.board.New()
+    brd = gwent.game.board.New()
 
     def sig(self, signum, frame):
         self.log.info({
@@ -22,8 +21,6 @@ class Gwent(object):
 
 
     def setup(self):
-        log.setup()
-
         signal.signal(signal.SIGTERM, self.sig)
         signal.signal(signal.SIGABRT, self.sig)
         signal.signal(signal.SIGINT, self.sig)
@@ -46,8 +43,10 @@ class Gwent(object):
 
 
 def run():
-    gwent = Gwent()
-    gwent.run()
+    gwent.log.setup()
+
+    g = Gwent()
+    g.run()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,107 @@
+{
+  "id": "https://gwent.shanaghy.com/card.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "A representation of a gwent card",
+  "type": "object",
+  "required": [
+    "name",
+    "faction"
+  ],
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "The RFID tag ID that this card has been written to. Can be used to prevent accidental overwriting"
+    },
+    "name": {
+      "type": "string",
+      "description": "The character's name"
+    },
+    "faction": {
+      "type": "string",
+      "description": "The character's faction",
+      "enum": [
+        "Northern Realms",
+        "Monsters",
+        "Nilfgaardian",
+        "Scoia'tael",
+        "Skellige"
+      ]
+    },
+    "image": {
+      "type": "string",
+      "description": "URL for image of the card"
+    },
+    "range": {
+      "type": "array",
+      "description": "Determines which row(s) the card applies to. Cards with agile ability can have more than one range and are placed in a row upon playing. The row chosen cannot change after placing.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "close",
+          "ranged",
+          "siege"
+        ]
+      }
+    },
+    "strength": {
+      "type": "integer",
+      "description": "How many points this character carries",
+      "minimum": 0
+    },
+    "starter": {
+      "type": "boolean",
+      "description": "Whether this card is a member the starter deck",
+      "default": false
+    },
+    "leader": {
+      "type": "object",
+      "properties": {
+        "instructions": {
+          "type": "string",
+          "description": "Instructions to be shown on screen when this leader is played"
+        },
+        "weather": {
+          "type": "string",
+          "description": "If this leader enables a weather card to be played from the deck, this indicates what kind of weather it is",
+          "enum": [
+            "close",
+            "ranged",
+            "siege"
+          ]
+        }
+      }
+    },
+    "specialty": {
+      "type": "string",
+      "description": "Determines if a special ability is applied from this card. If the specialty is weather the range determines if it's frost, fog or rain. The scorch specialty applies to the entire board (which is also indicated by it having all ranges), as opposed to the scorch ability which applies only to the opponent's row of the same single range. Similarly the commander specialty means the card can be applied to any single row (indicated by the ranges it posseses) as opposed to the commander ability which only applies to a single row",
+      "enum": [
+        "commander",
+        "decoy",
+        "leader",
+        "scorch",
+        "weather",
+        "hero",
+        "mardroeme"
+      ]
+    },
+    "transforms_to": {
+      "description": "Name of the card that a berserker transforms to",
+      "type": "string"
+    },
+    "ability": {
+      "type": "string",
+      "enum": [
+        "agile",
+        "berserker",
+        "commander",
+        "morale boost",
+        "medic",
+        "muster",
+        "scorch",
+        "spy",
+        "summon avenger",
+        "tight bond"
+      ]
+    }
+  }
+}

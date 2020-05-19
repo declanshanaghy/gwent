@@ -11,15 +11,15 @@ import datetime
 
 import websockets
 
-import log
-import cards.io
+import gwent.log
+import gwent.hal.card
 
 
 class Server(object):
     _log = logging.getLogger(__name__)
     _clients = dict()
     _reading_card_task = None
-    _card_reader = cards.io.Reader()
+    _card_reader = gwent.hal.card.Reader()
 
     async def _producer(self, websocket: websockets.WebSocketServerProtocol,
                         client_q: asyncio.Queue):
@@ -286,8 +286,8 @@ class Server(object):
 
 
 def run():
-    # log.setup(level='debug')
-    log.setup()
+    # gwent.log.setup(level='debug')
+    gwent.log.setup()
     server = Server()
     server.run()
 
