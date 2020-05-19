@@ -6,6 +6,6 @@ rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
 	@rsync -avzl --delete --exclude=*.pyc -e ssh software ${DEPLOY_USER}@${DEPLOY_TGT}:~/gwent/
 
-install:
+install: rsync
 	@echo "Install to $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -s < install.sh

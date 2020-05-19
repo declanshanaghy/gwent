@@ -5,16 +5,19 @@ const URL = 'ws://192.168.1.185:8888';
 // const URL = 'ws://localhost:8888';
 
 class GloryGate extends Component {
-    state = {
-        status: {
-            code: 0,
-            reading_card: false
-        },
-        card: null,
-        connected: false,
-    };
-
     ws = new WebSocket(URL);
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            status: {
+                code: 0,
+                reading_card: false
+            },
+            card: null,
+            connected: false,
+        };
+    }
 
     componentDidMount() {
         this.ws.onopen = () => {
@@ -25,22 +28,17 @@ class GloryGate extends Component {
             })
         };
 
-        this.onStatus = status => {
-            console.log('Handled status update');
-            this.setState({
-                status: status,
-            })
-            console.log(this.state.status);
-        };
-
         this.ws.onmessage = evt => {
             const message = JSON.parse(evt.data);
             switch (message.action) {
-            case 'status':
-                this.onStatus(message.payload);
-                break;
-            default:
-                console.log(`Unhandled message action: ${message.action}`);
+                case 'status':
+                    this.onStatus(message.payload);
+                    break;
+                case 'card_read':
+                    this.onCardRead(message.payload);
+                    break;
+                default:
+                    console.log(`Unhandled message action: ${message.action}`);
             }
         };
 
@@ -56,27 +54,56 @@ class GloryGate extends Component {
         }
     }
 
+    onStatus = status => {
+        this.setState({
+            status: status,
+        })
+        console.log(`Completed onStatus: reading_card=${this.state.status.reading_card}`);
+    };
+
+    onCardRead = card => {
+        this.setState({
+            card: card,
+        })
+        console.log(`Completed onCardRead: id=${this.state.card.id}`);
+
+        this.disableCardReader();
+    };
+
+    isReadingCard = () => {
+        return this.state.status.reading_card;
+    }
+
+    disableCardReader = () => {
+        if ( this.isReadingCard() ) {
+            this.toggleCardReaderState()
+        }
+    };
+
+    enableCardReader = () => {
+        if ( !this.isReadingCard() ) {
+            this.toggleCardReaderState()
+        }
+    };
+
     toggleCardReaderState = () => {
+        const newState = !this.state.status.reading_card
+        console.log(`toggleCardReaderState: ${newState}`);
         const message = {
             action: 'set_state',
             payload: {
-                'reading_card': !this.state.status.reading_card,
+                'reading_card': newState,
             }
         };
         this.ws.send(JSON.stringify(message));
     };
 
-    saveCard = (id, name, faction) => {
-        // on submitting the ChatInput form, send the message, add it to the list and reset the input
+    onSaveCard = (card) => {
+        console.log('About to save card');
+        console.log(this.state.card);
         const message = {
-            action: 'card_save',
-            payload: {
-                id: id,
-                details: {
-                    name: name,
-                    faction: faction
-                }
-            }
+            action: 'save_card',
+            payload: card,
         };
         this.ws.send(JSON.stringify(message));
     };
@@ -104,7 +131,8 @@ class GloryGate extends Component {
                 </div>
                 <p/><p/>
                 <Card
-                    onSubmit={(id, name, faction) => this.saveCard(id, name, faction)}
+                    card={this.state.card}
+                    onSaveCard={(card) => this.onSaveCard(card)}
                 />
             </div>
         )
