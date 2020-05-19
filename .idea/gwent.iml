@@ -18,6 +18,7 @@
       <sourceFolder url="file://$MODULE_DIR$/software/gaugette" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/software/poc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/software/gwent/novigrad/novigrad" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/software/MFRC522-python" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.7.5 virtualenv at ~/.pyenv/versions/3.7.5/envs/gwent" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
