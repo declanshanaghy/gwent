@@ -5,7 +5,6 @@ import logging
 
 import gwent.game.cards
 import gwent.game.cards.starters
-import gwent.hal.mfrc522x
 import gwent.log
 
 MIN_SECTOR = 1
@@ -31,7 +30,8 @@ class Reader(object):
 
     def __init__(self):
         try:
-            self._rfid = gwent.hal.mfrc522x.SimpleMFRC522()
+            import mfrc522
+            self._rfid = mfrc522.SimpleMFRC522()
         except Exception as ex:
             self._log.error({
                 'action': 'error setting up MFRC522. Using fake mode',
