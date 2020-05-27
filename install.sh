@@ -4,9 +4,9 @@ set -e
 
 source ~/gwent-venv/bin/activate
 
-#cd ~/gwent/software/gaugette
-#pip3 install .
+ROOT=~/gwent/software
 
-cd ~/gwent/software/gwent
-pip3 install --no-deps -e .
-#pip3 install -e .
+#pip3 install $ROOT/gaugette
+#pip3 install $ROOT/MFRC522-python
+#pip3 install -e $ROOT/gwent
+pip3 install --no-deps -e $ROOT/gwent

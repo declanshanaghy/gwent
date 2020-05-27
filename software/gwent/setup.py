@@ -20,7 +20,11 @@ setuptools.setup(
     ],
     python_requires='>=3.7.3',
     install_requires=[
-        'mfrc522==0.0.8',
+        'gTTS==2.1.1',
+        'pydub==0.24.0',
+        'simpleaudio==1.0.4',
+        'jsonschema==3.2.0',
+        # 'mfrc522==0.0.9',
         'websockets==8.1',
     ],
     entry_points={
@@ -29,7 +33,8 @@ setuptools.setup(
             'novigrad=gwent.novigrad.server:run',
             'mfrc522_read_all_sectors=gwent.hal.mfrc522_entrypoints:mfrc522_read_all_sectors',
             'mfrc522_write_all_sectors=gwent.hal.mfrc522_entrypoints:mfrc522_write_all_sectors',
-            'write_biggest_card=gwent.game.cards.writer:write_biggest_card',
+            'write_card=gwent.game.cards.util:write_card',
+            'read_card=gwent.game.cards.util:read_card',
         ],
     }
 )
