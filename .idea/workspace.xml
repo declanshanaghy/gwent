@@ -2,11 +2,22 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/all.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/skellige.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards/skellige.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/starters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -36,12 +47,8 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="877" />
-  </component>
   <component name="ProjectId" id="1bruCrKsRRcMcDQDId9i5GvLZ9B" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="autoscrollFromSource" value="true" />
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -51,7 +58,7 @@
     <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/software/gwent/gwent/hal" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -60,10 +67,11 @@
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.django.DjangoModulesConfigurable" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.appearance" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
       <recent name="$PROJECT_DIR$/software/gwent/gwent/hal" />
       <recent name="$PROJECT_DIR$/software/py3/logging" />
       <recent name="$PROJECT_DIR$/software/cmd" />
@@ -167,7 +175,9 @@
       <option name="HOST" value="192.168.1.143" />
       <PathMappingSettings>
         <option name="pathMappings">
-          <list />
+          <list>
+            <mapping local-root="$PROJECT_DIR$/software/gwent" remote-root="/home/pi/gwent/software/gwent" />
+          </list>
         </option>
       </PathMappingSettings>
       <option name="REDIRECT_OUTPUT" value="true" />
@@ -292,7 +302,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="write_biggest_card" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="read_card" type="PythonConfigurationType" factoryName="Python">
       <module name="gwent" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -315,8 +325,40 @@
           <ENTRY IS_ENABLED="true" PARSER="runconfig" />
         </ENTRIES>
       </EXTENSION>
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/software/gwent/gwent/game/cards/writer.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/software/gwent/gwent/game/cards/util.py" />
       <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="write_card" type="PythonConfigurationType" factoryName="Python">
+      <module name="gwent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <EXTENSION ID="net.ashald.envfile">
+        <option name="IS_ENABLED" value="false" />
+        <option name="IS_SUBST" value="false" />
+        <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
+        <option name="IS_IGNORE_MISSING_FILES" value="false" />
+        <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
+        <ENTRIES>
+          <ENTRY IS_ENABLED="true" PARSER="runconfig" />
+        </ENTRIES>
+      </EXTENSION>
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/software/gwent/gwent/game/cards/util.py" />
+      <option name="PARAMETERS" value="write" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -351,7 +393,8 @@
     <list>
       <item itemvalue="Django tests.Test: software.gwent.rotary" />
       <item itemvalue="Python.mfrc522_write_all_sectors" />
-      <item itemvalue="Python.write_biggest_card" />
+      <item itemvalue="Python.write_card" />
+      <item itemvalue="Python.read_card" />
       <item itemvalue="Python.Board Game" />
       <item itemvalue="Python.Novigrad" />
       <item itemvalue="Python Debug Server.remote debug gwent" />
@@ -371,7 +414,8 @@
       <workItem from="1589402535194" duration="3209000" />
       <workItem from="1589406726683" duration="37602000" />
       <workItem from="1589728899621" duration="617000" />
-      <workItem from="1589840998754" duration="34075000" />
+      <workItem from="1589840998754" duration="58056000" />
+      <workItem from="1590085653020" duration="25724000" />
     </task>
     <servers />
   </component>
@@ -387,58 +431,62 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="320" y="109" key="#Plugins/0.23.1440.877@0.23.1440.877" timestamp="1589402516332" />
-    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1589875855086">
+    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1590560309555">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.877@0.23.1440.877" timestamp="1589875855086" />
+    <state x="184" y="123" width="1061" height="676" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1440.877@0.23.1440.877" timestamp="1590560309555" />
     <state x="475" y="359" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog" timestamp="1589871649428">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="475" y="359" key="#com.jetbrains.python.refactoring.move.PyMoveModuleMembersDialog/0.23.1440.877@0.23.1440.877" timestamp="1589871649428" />
-    <state width="1398" height="106" key="GridCell.Tab.0.bottom" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.0.bottom" timestamp="1590563958360">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.0.center" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1590563958360" />
+    <state width="1398" height="403" key="GridCell.Tab.0.center" timestamp="1590563958360">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.0.left" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1590563958360" />
+    <state width="1398" height="403" key="GridCell.Tab.0.left" timestamp="1590563958359">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.0.right" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1590563958359" />
+    <state width="1398" height="403" key="GridCell.Tab.0.right" timestamp="1590563958360">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.1.bottom" timestamp="1589876574400">
+    <state width="1398" height="403" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1590563958360" />
+    <state width="1398" height="403" key="GridCell.Tab.1.bottom" timestamp="1590563958361">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1589876574400" />
-    <state width="1398" height="106" key="GridCell.Tab.1.center" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1590563958361" />
+    <state width="1398" height="403" key="GridCell.Tab.1.center" timestamp="1590563958361">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.1.left" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1590563958361" />
+    <state width="1398" height="403" key="GridCell.Tab.1.left" timestamp="1590563958360">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state width="1398" height="106" key="GridCell.Tab.1.right" timestamp="1589876574399">
+    <state width="1398" height="403" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1590563958360" />
+    <state width="1398" height="403" key="GridCell.Tab.1.right" timestamp="1590563958361">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1398" height="106" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1589876574399" />
-    <state x="354" y="199" key="PyMappingSimpleResolveDialog" timestamp="1589876211632">
+    <state width="1398" height="403" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1590563958361" />
+    <state x="354" y="199" key="PyMappingSimpleResolveDialog" timestamp="1590544181994">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="354" y="199" key="PyMappingSimpleResolveDialog/0.23.1440.877@0.23.1440.877" timestamp="1589876211632" />
-    <state x="229" y="100" key="SettingsEditor" timestamp="1589407812971">
+    <state x="354" y="199" key="PyMappingSimpleResolveDialog/0.23.1440.877@0.23.1440.877" timestamp="1590544181994" />
+    <state x="229" y="100" key="SettingsEditor" timestamp="1590563017979">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="229" y="100" key="SettingsEditor/0.23.1440.877@0.23.1440.877" timestamp="1589407812971" />
-    <state x="421" y="187" width="598" height="548" key="find.popup" timestamp="1589869344425">
+    <state x="229" y="100" key="SettingsEditor/0.23.1440.877@0.23.1440.877" timestamp="1590563017979" />
+    <state width="720" height="436" key="XDebugger.FullValuePopup" timestamp="1590544702236">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="421" y="187" width="598" height="548" key="find.popup/0.23.1440.877@0.23.1440.877" timestamp="1589869344425" />
+    <state width="720" height="436" key="XDebugger.FullValuePopup/0.23.1440.877@0.23.1440.877" timestamp="1590544702236" />
+    <state x="421" y="187" width="598" height="548" key="find.popup" timestamp="1590564101076">
+      <screen x="0" y="23" width="1440" height="877" />
+    </state>
+    <state x="421" y="187" width="598" height="548" key="find.popup/0.23.1440.877@0.23.1440.877" timestamp="1590564101076" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -459,14 +507,39 @@
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py</url>
-          <line>180</line>
-          <option name="timeStamp" value="45" />
+          <url>file://$PROJECT_DIR$/software/gwent/gwent/game/cards/util.py</url>
+          <line>66</line>
+          <option name="timeStamp" value="54" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py</url>
-          <line>74</line>
-          <option name="timeStamp" value="46" />
+          <url>file://$USER_HOME$/.pyenv/versions/3.7.5/envs/gwent/lib/python3.7/site-packages/pydub/utils.py</url>
+          <line>281</line>
+          <option name="timeStamp" value="79" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/.pyenv/versions/3.7.5/envs/gwent/lib/python3.7/site-packages/pydub/utils.py</url>
+          <line>278</line>
+          <option name="timeStamp" value="80" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$USER_HOME$/.pyenv/versions/3.7.5/envs/gwent/lib/python3.7/site-packages/pydub/playback.py</url>
+          <line>55</line>
+          <option name="timeStamp" value="81" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py</url>
+          <line>157</line>
+          <option name="timeStamp" value="82" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py</url>
+          <line>243</line>
+          <option name="timeStamp" value="83" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py</url>
+          <line>148</line>
+          <option name="timeStamp" value="84" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -479,15 +552,9 @@
     </breakpoint-manager>
     <watches-manager>
       <configuration name="PyRemoteDebugConfigurationType">
-        <watch expression="len(sector_data)" language="Python" />
-      </configuration>
-      <configuration name="PythonConfigurationType">
-        <watch expression="s,e" language="Python" />
-        <watch expression="BLOCK_SIZE * len(blocks)" language="Python" />
-        <watch expression="len(sector_data)" language="Python" />
-        <watch expression="len(sector_data) &lt; BLOCK_SIZE * len(blocks)" language="Python" />
-        <watch expression="str(arr)" language="Python" />
-        <watch expression="len(str(arr))" language="Python" />
+        <watch expression="len(body)" language="Python" />
+        <watch expression="body[:bytes]" language="Python" />
+        <watch expression="body[0:bytes]" language="Python" />
       </configuration>
       <configuration name="Python.DjangoServer">
         <watch expression="settings" language="Python" />
@@ -496,7 +563,9 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/gwent$Server.coverage" NAME="Novigrad Coverage Results" MODIFIED="1589496592627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/novigrad" />
-    <SUITE FILE_PATH="coverage/gwent$write_cards.coverage" NAME="write_biggest_card Coverage Results" MODIFIED="1589875129702" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
+    <SUITE FILE_PATH="coverage/gwent$write_cards.coverage" NAME="write_biggest_card Coverage Results" MODIFIED="1589947342780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
     <SUITE FILE_PATH="coverage/gwent$mfrc522_entrypoints.coverage" NAME="mfrc522_write_all_sectors Coverage Results" MODIFIED="1589874084269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/hal" />
+    <SUITE FILE_PATH="coverage/gwent$write_biggest_card.coverage" NAME="write_card Coverage Results" MODIFIED="1590551553854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
+    <SUITE FILE_PATH="coverage/gwent$read_card.coverage" NAME="read_card Coverage Results" MODIFIED="1590563101596" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
   </component>
 </project>
