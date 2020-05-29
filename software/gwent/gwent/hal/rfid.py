@@ -3,8 +3,8 @@ import random
 import time
 import logging
 
-import gwent.game.cards
-import gwent.game.cards.all
+import gwent.cards
+import gwent.cards.all
 import gwent.log
 
 BLOCK_SIZE = 16
@@ -62,7 +62,7 @@ class Reader(object):
         t = float(random.randint(0, 100)) / 100
         self._log.info(f'Will produce a fake tag in {t} seconds')
         time.sleep(t)
-        details = gwent.game.cards.all.random_card_details()
+        details = gwent.cards.all.random_card_details()
         return random.randint(10000000, 999999999), json.dumps(details), 1
 
     def read_real(self, block: bool = False, trailer: int = 11,
@@ -82,7 +82,7 @@ class Reader(object):
     def _read_card_header(self, block: bool = False) -> dict:
         if self._rfid is not None:
             # Assumes the header only takes up 1 sector
-            header_sector = gwent.game.cards.Card.header_sector_start()
+            header_sector = gwent.cards.Card.header_sector_start()
             trailer, blocks = Reader.get_blocks(header_sector)
             id, header, tries = self.read_sector(
                 block=block, trailer=trailer, blocks=blocks)
@@ -100,8 +100,8 @@ class Reader(object):
         return header
 
     def _read_card_body(self, bytes: int, block: bool = False) -> (dict, int):
-        sectors = gwent.game.cards.Card.sector_range(
-            gwent.game.cards.Card.body_sector_start(), bytes)
+        sectors = gwent.cards.Card.sector_range(
+            gwent.cards.Card.body_sector_start(), bytes)
         body = ""
         id = 0
 
@@ -157,7 +157,7 @@ class Reader(object):
 
         return json.loads(body), id
 
-    def read_card(self, block: bool = False) -> gwent.game.cards.Card:
+    def read_card(self, block: bool = False) -> gwent.cards.Card:
         start = time.time()
         self._log.info({
             'action': 'read_card',
@@ -171,7 +171,7 @@ class Reader(object):
         end = time.time()
         elapsed = end - start
 
-        card = gwent.game.cards.Card(details, id=id)
+        card = gwent.cards.Card(details, id=id)
 
         self._log.info({
             'action': 'read_card',
@@ -230,7 +230,7 @@ class Writer(Reader):
         id = random.randint(10000000, 999999999)
         return id, text, 1
 
-    def write_card(self, card: gwent.game.cards.Card,
+    def write_card(self, card: gwent.cards.Card,
                    block: bool = False) -> int:
 
         start = time.time()
@@ -262,7 +262,7 @@ class Writer(Reader):
 
         return id1
 
-    def _write_card_header(self, card: gwent.game.cards.Card,
+    def _write_card_header(self, card: gwent.cards.Card,
                            block: bool = False) -> (int, str, int):
         self._log.info({
             'action': '_write_card_header',
@@ -272,7 +272,7 @@ class Writer(Reader):
         return self._write_str(
             card.header, block=block, sectors=card.header_sectors())
 
-    def _write_card_body(self, card: gwent.game.cards.Card,
+    def _write_card_body(self, card: gwent.cards.Card,
                          block: bool = False) -> (int, str, int):
         self._log.info({
             'action': '_write_card_body',

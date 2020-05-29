@@ -1,4 +1,4 @@
-from gwent.game.cards import SKELLIGE
+from gwent.cards import SKELLIGE
 
 FACTION = SKELLIGE
 CARDS_BY_FACTION = {

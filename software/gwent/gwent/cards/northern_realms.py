@@ -1,4 +1,4 @@
-from gwent.game.cards import NORTHERN_REALMS
+from gwent.cards import NORTHERN_REALMS
 
 FACTION = NORTHERN_REALMS
 CARDS_BY_FACTION = {

@@ -1,4 +1,4 @@
-from gwent.game.cards import SCOIATAEL
+from gwent.cards import SCOIATAEL
 
 FACTION = SCOIATAEL
 CARDS_BY_FACTION = {

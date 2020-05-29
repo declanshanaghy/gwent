@@ -12,14 +12,14 @@ import datetime
 import websockets
 
 import gwent.log
-import gwent.hal.card
+import gwent.hal.rfid
 
 
 class Server(object):
     _log = logging.getLogger(__name__)
     _clients = dict()
     _reading_card_task = None
-    _card_reader = gwent.hal.card.Reader()
+    _card_reader = gwent.hal.rfid.Reader()
 
     async def _producer(self, websocket: websockets.WebSocketServerProtocol,
                         client_q: asyncio.Queue):
@@ -206,7 +206,7 @@ class Server(object):
         try:
             while True:
                 id, text = await loop.run_in_executor(
-                    None, self._card_reader.read)
+                    None, self._card_reader.read_card)
                 if id is None:
                     continue
 
