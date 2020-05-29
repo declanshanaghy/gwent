@@ -1,4 +1,4 @@
-from gwent.game.cards import MONSTERS
+from gwent.cards import MONSTERS
 
 FACTION = MONSTERS
 CARDS_BY_FACTION = {

@@ -1,4 +1,4 @@
-from gwent.game.cards import NILFGAARDIAN
+from gwent.cards import NILFGAARDIAN
 
 FACTION = NILFGAARDIAN
 

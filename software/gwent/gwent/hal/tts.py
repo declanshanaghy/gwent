@@ -6,16 +6,16 @@ import pydub
 import pydub.playback
 
 import gtts
-import gwent.game.cards
+import gwent.cards
 
 
 class TTS(object):
     _log = logging.getLogger(__name__)
 
-    def tts_name_file(self, card: gwent.game.cards.Card) -> str:
+    def tts_name_file(self, card: gwent.cards.Card) -> str:
         return os.path.join(tempfile.gettempdir(), f'{card.id}.mp3')
 
-    def clear_cache(self, card: gwent.game.cards.Card):
+    def clear_cache(self, card: gwent.cards.Card):
         f = self.tts_name_file(card)
         if os.path.exists(f):
             self._log.debug({
@@ -24,7 +24,7 @@ class TTS(object):
             })
             os.unlink(f)
 
-    def read_card(self, card: gwent.game.cards.Card):
+    def read_card(self, card: gwent.cards.Card):
         f = self.tts_name_file(card)
 
         if not os.path.exists(f):
