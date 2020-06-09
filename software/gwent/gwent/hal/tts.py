@@ -2,8 +2,7 @@ import logging
 import os
 import tempfile
 
-import pydub
-import pydub.playback
+import pygame.mixer
 
 import gtts
 import gwent.cards
@@ -24,7 +23,7 @@ class TTS(object):
             })
             os.unlink(f)
 
-    def read_card(self, card: gwent.cards.Card):
+    async def read_card(self, card: gwent.cards.Card):
         f = self.tts_name_file(card)
 
         if not os.path.exists(f):
@@ -44,7 +43,8 @@ class TTS(object):
             'tts_name_file': f,
         })
 
-        song = pydub.AudioSegment.from_mp3(f)
-        pydub.playback.play(song)
+        speech = pygame.mixer.Sound(f)
+        pygame.mixer.Sound.play(speech)
+        # speech.get_length()
 
 

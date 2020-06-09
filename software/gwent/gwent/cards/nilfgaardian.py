@@ -181,7 +181,7 @@ CARDS_BY_FACTION = {
             "ranges": ["close"],
             "starter": True,
         },
-        "Commander's Horn #1": {
+        "Commander's Horn: 1": {
             "ranges": ["close","ranged","siege"],
             "specialty": "commander",
             "owner": "Declan Shanaghy"

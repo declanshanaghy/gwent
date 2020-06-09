@@ -1,53 +1,71 @@
+import asyncio
 import logging
-import os
 import signal
-import time
 
-import gwent.game.board
+import aioredis
+
+import pygame.mixer
+import pygame
+
 import gwent.log
+import gwent.game.cards
+import gwent.hal.tts
+
 
 class Gwent(object):
-    running = True
-    log = logging.getLogger(__name__)
-    brd = gwent.game.board.New()
+    _log = logging.getLogger(__name__)
+    _redis = None
 
-    def sig(self, signum, frame):
-        self.log.info({
-            'message': 'Received signal',
-            'signum': signum,
-            'frame': frame,
-        })
-        self.running = False
+    async def close_redis(self):
+        self._redis.close()
+        self._log.info('closing redis')
+        await self._redis.wait_closed()
 
+    async def shutdown(self, signal, loop):
+        """Cleanup tasks tied to the service's shutdown."""
+        logging.info(f'Received exit signal {signal.name}...')
+        logging.info('Nacking outstanding tasks')
+        tasks = [t for t in asyncio.all_tasks() if t is not
+                 asyncio.current_task()]
 
-    def setup(self):
-        signal.signal(signal.SIGTERM, self.sig)
-        signal.signal(signal.SIGABRT, self.sig)
-        signal.signal(signal.SIGINT, self.sig)
+        logging.info(f'Cancelling {len(tasks)} outstanding tasks')
+        [task.cancel() for task in tasks]
 
-    def run(self):
-        self.log.info('PID is: %s', os.getpid())
+        tasks.append(self.close_redis())
+        await asyncio.gather(*tasks, return_exceptions=True)
 
-        self.setup()
-        self.brd.setup()
+        loop.stop()
 
-        while self.running:
-            self.loop()
-            self.brd.loop()
-            time.sleep(1)
+    def setup_signal_handlers(self, loop):
+        # Setup signal handlers for graceful exit
+        for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
+                  signal.SIGQUIT, signal.SIGTERM):
+            loop.add_signal_handler(
+                s, lambda s=s: asyncio.create_task(self.shutdown(s, loop)))
 
-        self.log.info('exiting...')
+    def setup_pygame(self):
+        pygame.mixer.init(frequency=44100, size=-16, channels=2)
+        pygame.init()
 
-    def loop(self):
-        self.log.info('loop...')
+    async def main(self):
+        loop = asyncio.get_running_loop()
 
+        self.setup_pygame()
+        self.setup_signal_handlers(loop)
 
-def run():
-    gwent.log.setup()
+        self._redis = await aioredis.create_redis_pool('redis://localhost')
+        reader = gwent.game.cards.Reader(loop, self._redis)
+        announcer = gwent.game.cards.Announcer(loop, self._redis)
 
-    g = Gwent()
-    g.run()
+        await  asyncio.gather(
+            reader.run(),
+            announcer.run(),
+        )
 
 
 if __name__ == '__main__':
-    run()
+    gwent.log.setup()
+    try:
+        asyncio.run(Gwent().main())
+    except asyncio.CancelledError as ex:
+        logging.info(str(ex))

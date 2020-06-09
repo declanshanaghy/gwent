@@ -3,10 +3,6 @@ import json
 import jsonschema
 import logging
 import math
-import tempfile
-import time
-
-import gtts
 
 
 SKELLIGE = "Skellige"
@@ -15,6 +11,7 @@ MONSTERS = "Monsters"
 NILFGAARDIAN = "Nilfgaardian"
 NORTHERN_REALMS = "Northern Realms"
 
+ID = 'id'
 NAME = 'name'
 FACTION = 'faction'
 RANGES = 'ranges'
@@ -71,7 +68,12 @@ class Card(object):
             details[FACTION] = faction
 
         self.details = details
-        self.id = id
+
+        if id is not None:
+            self.id = id
+            self.details[ID] = id
+        elif ID in self.details:
+            self.id = self.details[ID]
 
         self._log.info({
             'action': 'validate card',

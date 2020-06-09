@@ -52,16 +52,16 @@ class Reader(object):
         else:
             id, text, tries = self.read_fake()
 
-        if id:
-            return id, text, tries
-        else:
-            raise RFIDError(f'Error reading sector: '
-                            f'trailer={trailer}, blocks={blocks}')
+        return id, text, tries
 
     def read_fake(self) -> (int, str, int):
         t = float(random.randint(0, 100)) / 100
+        # t = 0
         self._log.info(f'Will produce a fake tag in {t} seconds')
-        time.sleep(t)
+
+        if t > 0:
+            time.sleep(t)
+
         details = gwent.cards.all.random_card_details()
         return random.randint(10000000, 999999999), json.dumps(details), 1
 
@@ -201,11 +201,7 @@ class Writer(Reader):
             id, text, tries = self._write_fake(text, block=block,
                                                trailer=trailer, blocks=blocks)
 
-        if id:
-            return id, text, tries
-        else:
-            raise RFIDError(f'Error writing sector: '
-                            f'trailer={trailer}, blocks={blocks}')
+        return id, text, tries
 
     def _write_fake(self, text: str, block: bool = False,
                     trailer: int = 11,
