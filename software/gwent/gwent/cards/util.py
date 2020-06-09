@@ -26,8 +26,7 @@ class AsyncApp(object):
 
         loop.stop()
 
-    def setup_signal_handlers(self):
-        loop = asyncio.get_event_loop()
+    def setup_signal_handlers(self, loop):
         # Setup signal handlers for graceful exit
         for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
                   signal.SIGQUIT, signal.SIGTERM):
@@ -150,11 +149,10 @@ class CardWriterUtil(AsyncApp):
 
 
     def run(self):
-        self.setup_signal_handlers()
+        loop = asyncio.get_event_loop()
+        self.setup_signal_handlers(loop)
 
         card = gwent.cards.all.random_card()
-
-        loop = asyncio.get_event_loop()
         task = loop.create_task(self._write_card(card))
         loop.run_until_complete(task)
 
@@ -185,14 +183,14 @@ class CardReaderUtil(AsyncApp):
         return card
 
     def run(self):
-        self.setup_signal_handlers()
-
         loop = asyncio.get_event_loop()
+        self.setup_signal_handlers(loop)
+
         task = loop.create_task(self._read_card())
         loop.run_until_complete(task)
 
 
-# entrypoint to write the biggest hardcoded card
+# entrypoint to write a card
 def write_card():
     # import pydevd_pycharm
     # pydevd_pycharm.settrace('192.168.1.143', port=31337,
