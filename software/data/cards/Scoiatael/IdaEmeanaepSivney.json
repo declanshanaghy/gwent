@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Ida Emean aep Sivney",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

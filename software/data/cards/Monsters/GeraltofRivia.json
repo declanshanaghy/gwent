@@ -1,0 +1,11 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Geralt of Rivia",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "strength": 15
+}

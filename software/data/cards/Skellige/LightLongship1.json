@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "muster"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Light Longship: 1",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 4
+}

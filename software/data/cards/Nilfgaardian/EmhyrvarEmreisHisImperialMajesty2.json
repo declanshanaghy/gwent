@@ -1,0 +1,12 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "leader": {
+        "draw_opponent_discard": true,
+        "instructions": "Draw a card from your opponents discard pile"
+    },
+    "name": "Emhyr var Emreis - His Imperial Majesty: 2",
+    "owner": "Declan Shanaghy",
+    "specialty": "leader",
+    "starter": true
+}

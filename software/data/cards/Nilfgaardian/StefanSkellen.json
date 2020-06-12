@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "spy"
+    ],
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Stefan Skellen",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 9
+}

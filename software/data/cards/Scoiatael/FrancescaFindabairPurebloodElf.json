@@ -1,0 +1,13 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "leader": {
+        "instructions": "Pick a biting frost card from your deck and play it instantly",
+        "weather_ranges": [
+            "close"
+        ]
+    },
+    "name": "Francesca Findabair - Pureblood Elf",
+    "specialty": "leader",
+    "starter": true
+}

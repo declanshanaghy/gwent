@@ -1,11 +1,17 @@
+import asyncio
+
+import hashlib
+import os.path
 import json
 import random
+import tempfile
 import time
 import logging
 
-import gwent.cards
-import gwent.cards.all
-import gwent.log
+import gwent.hal
+import gwent.messaging.base
+import gwent.messaging.cards.card
+import gwent.messaging.cards.util
 
 BLOCK_SIZE = 16
 SECTOR_SIZE = 4
@@ -15,25 +21,86 @@ MIN_SECTOR = 1
 MAX_SECTOR = 15
 ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR + 1)
 
+LOG_FREQ_SECS = 5
+
+
+def instance():
+    if gwent.hal.REAL:
+        return _RealWriter()
+    else:
+        return _FakeWriter()
+
 
 class RFIDError(Exception):
     pass
 
 
-class Reader(object):
-    _log = logging.getLogger(__name__)
+class _BaseReader(gwent.hal.Component):
+    last_log = 0
+
+    def should_log(self) -> bool:
+        r = time.time() > self.last_log + LOG_FREQ_SECS
+        if r:
+            self.last_log = time.time()
+        return r
+
+    def read_card(self) -> gwent.messaging.cards.card.Message:
+        start = time.time()
+        s_details, id = self.read_card_impl()
+
+        card = None
+        if id is not None:
+            j_details = json.loads(s_details)
+            card = gwent.messaging.cards.card.Message.from_properties(j_details,
+                                                                 rfid=id)
+
+        if self.should_log():
+            end = time.time()
+            elapsed = end - start
+            self._log.debug({
+                'action': 'read_card',
+                'start': start,
+                'end': end,
+                'success': card is not None,
+                'elapsed': elapsed,
+            })
+
+        return card
+
+    def read_card_impl(self) -> (str, int):
+        raise NotImplementedError('subclass must implement read_card_impl')
+
+
+class _FakeReader(_BaseReader):
+    flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
+
+    def read_card_impl(self) -> (str, int):
+        exists = os.path.exists(self.flag_read_file)
+        if exists:
+            with open(self.flag_read_file) as f:
+                details = f.read()
+                id = hashlib.md5(details.encode()).hexdigest()
+            os.unlink(self.flag_read_file)
+            return details, id
+        else:
+            return None, None
+
+
+class _RealReader(_BaseReader):
     _rfid = None
 
     def __init__(self):
-        try:
+        super().__init__()
+        if gwent.hal.REAL:
             import mfrc522
             self._rfid = mfrc522.SimpleMFRC522()
-        except Exception as ex:
-            self._log.error({
-                'action': 'error setting up MFRC522. Using fake mode',
-                'ex': ex,
-            })
-            random.seed()
+
+    def read_card_impl(self) -> (str, int):
+        header = self._read_card_header()
+        if header is not None:
+            return self._read_card_body(bytes=header['bytes'])
+        else:
+            return None, None
 
     @staticmethod
     def get_blocks(sector: int) -> (int, [int]):
@@ -44,82 +111,45 @@ class Reader(object):
             blocks.append(b)
         return e, blocks
 
-    def read_sector(self, block: bool = False, trailer: int = 11,
-                    blocks: [int] = (8, 9, 10)) -> (int, str, int):
-        if self._rfid is not None:
-            id, text, tries = self.read_real(block=block, trailer=trailer,
-                                             blocks=blocks)
-        else:
-            id, text, tries = self.read_fake()
-
-        return id, text, tries
-
-    def read_fake(self) -> (int, str, int):
-        t = float(random.randint(0, 100)) / 100
-        # t = 0
-        self._log.info(f'Will produce a fake tag in {t} seconds')
-
-        if t > 0:
-            time.sleep(t)
-
-        details = gwent.cards.all.random_card_details()
-        return random.randint(10000000, 999999999), json.dumps(details), 1
-
-    def read_real(self, block: bool = False, trailer: int = 11,
-                  blocks: [int] = (8, 9, 10)) -> (int, str, int):
-        if block:
-            id, text, tries = self._rfid.read(trailer=trailer, blocks=blocks,
-                                              attempts=10)
-        else:
-            id, text, tries = self._rfid.read_no_block(trailer=trailer,
-                                                       blocks=blocks)
+    def read_sector(self, trailer: int = 11,
+                    blocks: [int] = (8, 9, 10)) -> (int, str):
+        id, text, _ = self._rfid.read(trailer=trailer,
+                                      blocks=blocks, attempts=3)
         if id:
             text = text.strip()
-            return id, text, tries
+            return id, text
         else:
-            return None, None, None
+            return None, None
 
-    def _read_card_header(self, block: bool = False) -> dict:
-        if self._rfid is not None:
-            # Assumes the header only takes up 1 sector
-            header_sector = gwent.cards.Card.header_sector_start()
-            trailer, blocks = Reader.get_blocks(header_sector)
-            id, header, tries = self.read_sector(
-                block=block, trailer=trailer, blocks=blocks)
+    def _read_card_header(self) -> dict:
+        # Assumes the header only takes up 1 sector
+        header_sector = gwent.messaging.cards.card.Message.header_sector_start()
+        trailer, blocks = _RealReader.get_blocks(header_sector)
+        id, header = self.read_sector(trailer=trailer, blocks=blocks)
+
+        if id is not None and header is not None:
             last = header.find('}') + 1
             header = json.loads(header[:last])
-        else:
-            # Must be 48 or less, so only 1 fake sector is read
-            header = {"bytes": 48}
 
-        self._log.info({
-            'action': '_read_card_header',
-            'header': header,
-        })
+            self._log.info({
+                'action': '_read_card_header',
+                'header': header,
+            })
 
         return header
 
-    def _read_card_body(self, bytes: int, block: bool = False) -> (dict, int):
-        sectors = gwent.cards.Card.sector_range(
-            gwent.cards.Card.body_sector_start(), bytes)
+    def _read_card_body(self, bytes: int) -> (str, int):
+        sectors = gwent.messaging.cards.card.Message.sector_range(
+            gwent.messaging.cards.card.Message.body_sector_start(), bytes)
         body = ""
         id = 0
 
         debug_enabled = self._log.isEnabledFor(logging.DEBUG)
         start = time.time()
 
-        self._log.info({
-            'action': '_read_card_body',
-            'stage': 'start',
-            'start': start,
-            'bytes': bytes,
-            'sectors': sectors,
-        })
-
         for sector in sectors:
-            trailer, blocks = Reader.get_blocks(sector)
-            id, sector_data, tries = self.read_sector(
-                block=block, trailer=trailer, blocks=blocks)
+            trailer, blocks = _RealReader.get_blocks(sector)
+            id, sector_data = self.read_sector(trailer=trailer, blocks=blocks)
             if debug_enabled:
                 self._log.debug({
                     'action': 'sector read',
@@ -129,7 +159,6 @@ class Reader(object):
                     'id': id,
                     'sector_data': sector_data,
                     'len(sector_data)': len(sector_data),
-                    'tries': tries,
                 })
             body += sector_data
 
@@ -142,159 +171,107 @@ class Reader(object):
             'end': end,
         })
 
-        if self._rfid is not None:
-            # In real mode we will have read the entire sector but the JSON
-            # will most likely only take up a portion of it.
-            # slice to the correct size
-            trunc = body[:bytes]
-            self._log.debug({
-                'action': 'truncate body',
-                'body': body,
-                'trunc': trunc,
-                'bytes': bytes,
-            })
-            body = trunc
+        # We will have read the entire sector but the JSON
+        # will most likely only take up a portion of it.
+        # slice to the correct size
+        return body[:bytes], id
 
-        return json.loads(body), id
 
-    def read_card(self, block: bool = False) -> gwent.cards.Card:
+class _BaseWriter(_BaseReader):
+    def write_card(self, card: gwent.messaging.cards.card.Message) -> int:
         start = time.time()
-        self._log.info({
-            'action': 'read_card',
-            'stage': 'start',
-            'start': start,
-        })
+        id = self.write_card_impl(card)
 
-        header = self._read_card_header(block=block)
-        details, id = self._read_card_body(block=block, bytes=header['bytes'])
+        if id is not None:
+            card.rfid = id
 
-        end = time.time()
-        elapsed = end - start
-
-        card = gwent.cards.Card(details, id=id)
-
-        self._log.info({
-            'action': 'read_card',
-            'stage': 'end',
-            'id': card.id,
-            'name': card.name,
-            'start': start,
-            'end': end,
-            'elapsed': elapsed,
-        })
-
-        return card
-
-
-class Writer(Reader):
-    def write_sector(self, text: str, block: bool = False,
-                     trailer: int = 11,
-                     blocks: [int] = (8, 9, 10)) -> (int, str, int):
-        if self._rfid is not None:
-            if block:
-                id, text, tries = self._rfid.write(text, trailer=trailer,
-                                                   blocks=blocks, attempts=10)
-            else:
-                id, text, tries = self._rfid.write_no_block(
-                    text, trailer=trailer, blocks=blocks)
-        else:
-            id, text, tries = self._write_fake(text, block=block,
-                                               trailer=trailer, blocks=blocks)
-
-        return id, text, tries
-
-    def _write_fake(self, text: str, block: bool = False,
-                    trailer: int = 11,
-                    blocks: [int] = (8, 9, 10)) -> (int, str):
-        if block:
-            t = float(random.randint(0, 100)) / 100
-        else:
-            t = 0
-
-        if self._log.isEnabledFor(logging.DEBUG):
+        if self.should_log():
+            end = time.time()
+            elapsed = end - start
             self._log.debug({
-                'action': f'Will fake a write to a tag in {t} seconds',
-                'len(text)': len(text),
-                'text': text,
-                'trailer': trailer,
-                'blocks': blocks,
+                'action': 'write_card',
+                'success': card.rfid is not None,
+                'rfid': card.rfid,
+                'start': start,
+                'end': end,
+                'elapsed': elapsed,
             })
 
-        if t > 0:
-            time.sleep(t)
+        return card.rfid
 
-        id = random.randint(10000000, 999999999)
-        return id, text, 1
+    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+        raise NotImplementedError('subclass must implement write_card_impl')
 
-    def write_card(self, card: gwent.cards.Card,
-                   block: bool = False) -> int:
 
-        start = time.time()
-        self._log.info({
-            'action': 'write_card',
-            'stage': 'start',
-            'id': card.id,
-            'start': start,
-        })
+class _FakeWriter(_BaseWriter, _FakeReader):
+    flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
 
-        id1, _, _ = self._write_card_header(card, block=block)
-        id2, _, _ = self._write_card_body(card, block=block)
+    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+        exists = os.path.exists(self.flag_write_file)
+        if exists:
+            os.unlink(self.flag_write_file)
+            return random.randint(10000000, 999999999)
+        else:
+            return None
 
-        if self._rfid is not None and id1 != id2:
-            raise RFIDError(f'Wrote to 2 different cards, id1={id1} id2={id2}')
 
-        card.id = id1
+class _RealWriter(_BaseWriter, _RealReader):
+    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+        # import pydevd_pycharm
+        # pydevd_pycharm.settrace('192.168.1.143', port=31337,
+        #                         stdoutToServer=True, stderrToServer=True)
 
-        end = time.time()
-        elapsed = end - start
-        self._log.info({
-            'action': 'write_card',
-            'stage': 'end',
-            'id': card.id,
-            'start': start,
-            'end': end,
-            'elapsed': elapsed,
-        })
+        id1, _ = self._write_card_header(card)
+        if id1 is not None:
+            id2, _ = self._write_card_body(card)
+
+            if id1 != id2:
+                raise RFIDError(
+                    f'Wrote to 2 different cards, id1={id1} id2={id2}')
 
         return id1
 
-    def _write_card_header(self, card: gwent.cards.Card,
-                           block: bool = False) -> (int, str, int):
-        self._log.info({
+    def _write_card_header(self, card: gwent.messaging.cards.card.Message) -> (
+            int, str):
+        self._log.debug({
             'action': '_write_card_header',
             'header': card.header,
-            'header_sectors': card.header_sectors,
+            'header_sectors': card.header_sectors(),
         })
         return self._write_str(
-            card.header, block=block, sectors=card.header_sectors())
+            card.header, sectors=card.header_sectors())
 
-    def _write_card_body(self, card: gwent.cards.Card,
-                         block: bool = False) -> (int, str, int):
-        self._log.info({
+    def _write_card_body(self, card: gwent.messaging.cards.card.Message) -> (
+    int, str):
+        self._log.debug({
             'action': '_write_card_body',
             'body': card.body,
             'len(card.body)': len(card.body),
             'sectors': card.body_sectors,
             'num_sectors': len(card.body_sectors),
         })
-
         return self._write_str(
-            card.body, block=block, sectors=card.body_sectors)
+            card.body, sectors=card.body_sectors)
 
-    def _write_str(self, text: str, block: bool = False,
-                   sectors: [int] = None) -> (int, str, int):
-        if sectors is None:
-            sectors = ALL_SECTORS
-        id = None
-        total_written = ""
-        total_tries = 0
+    def _write_str(self, text: str,
+                   sectors: [int] = ALL_SECTORS) -> (int, str):
 
+        id, _ = self._rfid.read_id(attempts=3)
+        if id is None:
+            return None, None
+
+        self._log.info({
+            'action': 'card present',
+            'id': id,
+        })
+
+        s = 0
+        written = ""
+        maxlen = len(text)
         debug_enabled = self._log.isEnabledFor(logging.DEBUG)
 
-        maxlen = len(text)
-        s = 0
         for sector in sectors:
-            trailer, blocks = Reader.get_blocks(sector)
+            trailer, blocks = _RealReader.get_blocks(sector)
             e1 = s + (SECTOR_WRITABLE * BLOCK_SIZE)
             e = min(maxlen, e1)
             sector_data = text[s:e]
@@ -304,8 +281,8 @@ class Writer(Reader):
                 npad = BLOCK_SIZE * len(blocks) - len(sector_data)
                 sector_data += "\0" * npad
 
-            id, sector_written, tries = self.write_sector(
-                sector_data, block=block, trailer=trailer, blocks=blocks)
+            id, sector_written, _ = self._rfid.write(
+                sector_data, trailer=trailer, blocks=blocks, attempts=3)
 
             if debug_enabled:
                 self._log.debug({
@@ -320,21 +297,17 @@ class Writer(Reader):
                     'len(sector_written)': len(sector_written),
                 })
 
-            total_written += sector_written
-            total_tries += tries
+            written += sector_written
             s = e
 
-        if id:
-            total_written = total_written.strip()
-            if self._log.isEnabledFor(logging.DEBUG):
-                self._log.debug({
-                    'action': 'string written',
-                    'id': id,
-                    'len(text)': len(text),
-                    'text': text,
-                    'len(total_written)': len(total_written),
-                    'total_written': total_written,
-                })
-            return id, total_written, total_tries
-        else:
-            return None, None, None
+        written = written.strip()
+        if self._log.isEnabledFor(logging.DEBUG):
+            self._log.debug({
+                'action': 'string written',
+                'id': id,
+                'len(text)': len(text),
+                'text': text,
+                'len(total_written)': len(written),
+                'total_written': written,
+            })
+        return id, written

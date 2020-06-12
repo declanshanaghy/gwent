@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Wyvern",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

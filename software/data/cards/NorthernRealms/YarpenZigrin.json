@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Yarpen Zigrin",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 2
+}

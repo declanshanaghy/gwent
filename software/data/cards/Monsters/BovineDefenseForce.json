@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Bovine Defense Force",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 8
+}

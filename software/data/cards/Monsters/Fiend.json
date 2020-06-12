@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Fiend",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 6
+}

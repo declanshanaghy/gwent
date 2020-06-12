@@ -1,0 +1,11 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "leader": {
+        "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+        "reshuffle_graveyards": true
+    },
+    "name": "Crach an Craite",
+    "specialty": "leader",
+    "starter": true
+}

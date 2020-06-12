@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "scorch"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Villentretenmerth",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 7
+}

@@ -1,0 +1,12 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Scorch: 2",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close",
+        "ranged",
+        "siege"
+    ],
+    "specialty": "scorch"
+}

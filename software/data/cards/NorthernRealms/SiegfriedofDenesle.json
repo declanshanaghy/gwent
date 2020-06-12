@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Siegfried of Denesle",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

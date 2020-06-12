@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Dol Blathanna Archer: 1",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 4
+}

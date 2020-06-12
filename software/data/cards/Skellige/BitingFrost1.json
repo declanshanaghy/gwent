@@ -1,0 +1,10 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Biting Frost: 1",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "weather",
+    "starter": true
+}

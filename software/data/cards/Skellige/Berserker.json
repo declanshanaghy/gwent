@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "berserker"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Berserker",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 4,
+    "transforms_to": "Transformed Vildkaarl"
+}

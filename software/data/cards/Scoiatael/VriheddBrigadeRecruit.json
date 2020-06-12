@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Vrihedd Brigade Recruit",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 4
+}

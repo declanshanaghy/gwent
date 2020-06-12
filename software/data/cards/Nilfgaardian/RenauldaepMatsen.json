@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Renauld aep Matsen",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 5
+}

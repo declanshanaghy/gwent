@@ -1,0 +1,10 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Zoltan Chivay",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 5
+}

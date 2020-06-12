@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "agile"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Celaeno Harpy",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

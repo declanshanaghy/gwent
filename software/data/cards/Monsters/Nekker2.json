@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Nekker: 2",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 2
+}

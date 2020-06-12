@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "morale"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Kaedweni Siege Expert: 3",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 1
+}

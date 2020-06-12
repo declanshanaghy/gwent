@@ -1,0 +1,11 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Cirilla Fiona Elen Riannon",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "strength": 15
+}

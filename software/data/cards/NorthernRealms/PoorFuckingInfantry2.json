@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Poor Fucking Infantry: 2",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 1
+}

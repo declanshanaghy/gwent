@@ -1,0 +1,13 @@
+{
+    "abililties": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Vampire: Garkhain",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 4
+}

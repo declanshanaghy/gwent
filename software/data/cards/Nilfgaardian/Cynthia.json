@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Cynthia",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 4
+}

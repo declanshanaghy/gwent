@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "medic"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Yennefer of Vengerberg",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero",
+    "strength": 7
+}

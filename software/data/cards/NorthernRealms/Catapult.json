@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Catapult",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "strength": 8
+}

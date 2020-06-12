@@ -1,0 +1,13 @@
+{
+    "abililties": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Nekker: 1",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 2
+}

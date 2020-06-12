@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "medic"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Dun Banner Medic",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 5
+}

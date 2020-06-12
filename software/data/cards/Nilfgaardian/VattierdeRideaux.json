@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "spy"
+    ],
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Vattier de Rideaux",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 4
+}

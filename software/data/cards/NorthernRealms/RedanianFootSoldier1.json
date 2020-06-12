@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Redanian Foot Soldier: 1",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 1
+}

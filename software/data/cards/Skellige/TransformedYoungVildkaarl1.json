@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Transformed Young Vildkaarl: 1",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 8
+}

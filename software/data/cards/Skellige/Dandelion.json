@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "commander"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Dandelion",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 2
+}

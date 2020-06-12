@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "War Longship: 2",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 6
+}

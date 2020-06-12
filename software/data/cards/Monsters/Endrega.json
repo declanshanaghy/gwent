@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Endrega",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

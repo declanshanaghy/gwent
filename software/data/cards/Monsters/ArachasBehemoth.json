@@ -1,0 +1,13 @@
+{
+    "abililties": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Arachas: Behemoth",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 6
+}

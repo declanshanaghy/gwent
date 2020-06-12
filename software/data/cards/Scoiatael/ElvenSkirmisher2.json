@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "muster"
+    ],
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Elven Skirmisher: 2",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

@@ -1,0 +1,11 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Philippa Eilhart",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero",
+    "strength": 10
+}

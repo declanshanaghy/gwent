@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Rainfarn",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 4
+}

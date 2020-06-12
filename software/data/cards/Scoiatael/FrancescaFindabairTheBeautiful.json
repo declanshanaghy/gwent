@@ -1,0 +1,14 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "leader": {
+        "commander_ranges": [
+            "ranged"
+        ],
+        "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+    },
+    "name": "Francesca Findabair - The Beautiful",
+    "owner": "Declan Shanaghy",
+    "specialty": "leader",
+    "starter": true
+}

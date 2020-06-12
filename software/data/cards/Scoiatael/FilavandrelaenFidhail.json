@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "agile"
+    ],
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Filavandrel aen Fidhail",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

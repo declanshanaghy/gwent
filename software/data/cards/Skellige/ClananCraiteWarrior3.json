@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Clan an Craite Warrior: 3",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 6
+}

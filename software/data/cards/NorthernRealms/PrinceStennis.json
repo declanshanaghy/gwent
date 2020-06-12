@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "spy"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Prince Stennis",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "commander"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Draig Bon-Dhu",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "siege"
+    ],
+    "strength": 2
+}

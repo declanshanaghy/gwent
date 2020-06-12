@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Zerrikanian Fire Scorpion",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 5
+}

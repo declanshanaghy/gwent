@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Gargoyle",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

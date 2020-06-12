@@ -1,0 +1,11 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Triss Merigold",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "strength": 7
+}
