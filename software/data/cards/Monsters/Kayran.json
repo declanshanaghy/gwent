@@ -1,0 +1,16 @@
+{
+    "abilities": [
+        "agile",
+        "morale"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Kayran",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "specialty": "hero",
+    "starter": true,
+    "strength": 8
+}

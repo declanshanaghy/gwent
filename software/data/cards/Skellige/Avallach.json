@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "spy"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Avallac'h",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 0
+}

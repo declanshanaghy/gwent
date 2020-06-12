@@ -1,0 +1,11 @@
+{
+    "abilities": "medic",
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Menno Coehoorn",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 10
+}

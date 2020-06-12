@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "agile"
+    ],
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Dol Blathanna Scout: 2",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

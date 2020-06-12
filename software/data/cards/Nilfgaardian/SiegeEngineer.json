@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Siege Engineer",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 6
+}

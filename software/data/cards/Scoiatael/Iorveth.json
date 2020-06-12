@@ -1,0 +1,11 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Iorveth",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero",
+    "starter": true,
+    "strength": 10
+}

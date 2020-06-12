@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Fringilla Vigo",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "strength": 6
+}

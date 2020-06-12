@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Toruviel",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 2
+}

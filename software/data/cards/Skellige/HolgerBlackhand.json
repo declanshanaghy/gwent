@@ -1,0 +1,10 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Holger Blackhand",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 4
+}

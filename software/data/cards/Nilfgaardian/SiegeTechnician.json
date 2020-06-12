@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "medic"
+    ],
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Siege Technician",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 0
+}

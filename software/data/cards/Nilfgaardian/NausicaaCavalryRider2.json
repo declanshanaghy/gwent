@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Nausicaa Cavalry Rider: 2",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 2
+}

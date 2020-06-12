@@ -1,0 +1,12 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Scorch",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close",
+        "ranged",
+        "siege"
+    ],
+    "specialty": "scorch"
+}

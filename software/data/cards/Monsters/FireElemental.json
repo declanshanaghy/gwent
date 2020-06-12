@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Fire Elemental",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

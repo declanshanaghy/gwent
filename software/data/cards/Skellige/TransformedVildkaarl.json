@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "morale"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Transformed Vildkaarl",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 14
+}

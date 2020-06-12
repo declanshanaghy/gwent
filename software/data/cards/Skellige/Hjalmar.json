@@ -1,0 +1,11 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Hjalmar",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero",
+    "starter": true,
+    "strength": 10
+}

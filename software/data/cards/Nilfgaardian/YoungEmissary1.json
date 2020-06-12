@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "bond"
+    ],
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Young Emissary: 1",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

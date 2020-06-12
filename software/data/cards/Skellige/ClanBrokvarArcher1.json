@@ -1,0 +1,10 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Clan Brokvar Archer: 1",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

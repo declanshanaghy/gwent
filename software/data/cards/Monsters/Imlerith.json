@@ -1,0 +1,11 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Imlerith",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "starter": true,
+    "strength": 10
+}

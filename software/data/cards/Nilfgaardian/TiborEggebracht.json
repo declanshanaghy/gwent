@@ -1,0 +1,11 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Tibor Eggebracht",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero",
+    "starter": true,
+    "strength": 10
+}

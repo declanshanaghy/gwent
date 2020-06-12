@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Gaunter O'Dimm: Darkness 2",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "strength": 4
+}

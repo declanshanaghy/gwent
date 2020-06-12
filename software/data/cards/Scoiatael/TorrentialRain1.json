@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Torrential Rain: 1",
+    "ranges": [
+        "siege"
+    ],
+    "specialty": "weather",
+    "starter": true
+}

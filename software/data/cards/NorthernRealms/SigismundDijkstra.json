@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "spy"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Sigismund Dijkstra",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 4
+}

@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Frightener",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

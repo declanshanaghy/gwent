@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Cahir Mawr Dyffryn aep Ceallach",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 6
+}

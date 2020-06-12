@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Assire var Anahid",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "commander"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Dandelion",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "strength": 2
+}

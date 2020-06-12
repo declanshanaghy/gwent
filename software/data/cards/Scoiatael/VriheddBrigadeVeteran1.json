@@ -1,0 +1,14 @@
+{
+    "abilities": [
+        "agile"
+    ],
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Vrihedd Brigade Veteran: 1",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 5
+}

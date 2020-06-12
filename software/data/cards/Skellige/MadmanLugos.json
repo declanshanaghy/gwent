@@ -1,0 +1,10 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Madman Lugos",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 6
+}

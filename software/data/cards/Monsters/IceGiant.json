@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Ice Giant",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 5
+}

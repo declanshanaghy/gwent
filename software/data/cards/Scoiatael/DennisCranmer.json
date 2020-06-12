@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Dennis Cranmer",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 6
+}

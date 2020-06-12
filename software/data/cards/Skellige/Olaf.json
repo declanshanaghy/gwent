@@ -1,0 +1,15 @@
+{
+    "abilities": [
+        "agile",
+        "morale"
+    ],
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Olaf",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "strength": 12
+}

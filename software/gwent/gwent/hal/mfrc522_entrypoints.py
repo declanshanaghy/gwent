@@ -49,8 +49,8 @@ def mfrc522_write_all_sectors():
         if log.isEnabledFor(logging.DEBUG):
             log.debug(f"Writing sector={sector}, trailer={trailer}, "
                       f"blocks={blocks}, text='{text}'")
-        id, text, tries = mfrc522.write_sector(text, block=True,
-                                               trailer=trailer, blocks=blocks)
+        id, text, tries = mfrc522._write_sector(text, block=True,
+                                                trailer=trailer, blocks=blocks)
         if log.isEnabledFor(logging.DEBUG):
             logging.debug(f"Wrote id={id}, sector={sector}, "
                           f"tries={tries}, text='{text}'")

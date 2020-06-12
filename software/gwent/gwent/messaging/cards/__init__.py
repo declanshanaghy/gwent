@@ -1,0 +1,5 @@
+SKELLIGE = "Skellige"
+SCOIATAEL = "Scoia'tael"
+MONSTERS = "Monsters"
+NILFGAARDIAN = "Nilfgaardian"
+NORTHERN_REALMS = "Northern Realms"

@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Biting Frost: 2",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "weather",
+    "starter": true
+}

@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Mahakaman Defender: 1",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

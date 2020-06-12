@@ -1,0 +1,13 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "leader": {
+        "instructions": "Pick a torrential rain card from your deck and play it instantly",
+        "weather_ranges": [
+            "siege"
+        ]
+    },
+    "name": "Emhyr var Emreis - His Imperial Majesty: 1",
+    "specialty": "leader",
+    "starter": true
+}

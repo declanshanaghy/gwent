@@ -1,0 +1,10 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Rotten Mangonel",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 3
+}

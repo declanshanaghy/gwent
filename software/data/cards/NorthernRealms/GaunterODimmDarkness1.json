@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "muster"
+    ],
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Gaunter O'Dimm: Darkness 1",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "strength": 4
+}

@@ -1,0 +1,13 @@
+{
+    "abilities": [
+        "medic"
+    ],
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Havekar Healer",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 0
+}

@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Dethmold",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 6
+}

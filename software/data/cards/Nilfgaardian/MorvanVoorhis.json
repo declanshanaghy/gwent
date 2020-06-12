@@ -1,0 +1,11 @@
+{
+    "faction": "Nilfgaardian",
+    "kind": "card",
+    "name": "Morvan Voorhis",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "siege"
+    ],
+    "specialty": "hero",
+    "strength": 10
+}

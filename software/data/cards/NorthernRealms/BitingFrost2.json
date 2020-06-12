@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Biting Frost: 2",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "weather",
+    "starter": true
+}

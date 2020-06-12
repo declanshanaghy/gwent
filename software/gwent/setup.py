@@ -20,6 +20,7 @@ setuptools.setup(
     ],
     python_requires='>=3.7.3',
     install_requires=[
+        'aioconsole-0.2.0',
         'gTTS==2.1.1',
         'aioredis==1.3.1',
         'pygame==1.9.6',
@@ -31,10 +32,8 @@ setuptools.setup(
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'mfrc522_read_all_sectors=gwent.hal.mfrc522_entrypoints:mfrc522_read_all_sectors',
-            'mfrc522_write_all_sectors=gwent.hal.mfrc522_entrypoints:mfrc522_write_all_sectors',
-            'write_card=gwent.cards.util:write_card',
-            'read_card=gwent.cards.util:read_card',
+            'write_card=gwent.game.poc:write_card',
+            'read_card=gwent.game.poc:read_card',
         ],
     }
 )

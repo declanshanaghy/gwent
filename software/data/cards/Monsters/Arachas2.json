@@ -1,0 +1,13 @@
+{
+    "abililties": [
+        "muster"
+    ],
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Arachas: 2",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 4
+}

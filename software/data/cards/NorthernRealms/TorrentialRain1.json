@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Torrential Rain: 1",
+    "ranges": [
+        "siege"
+    ],
+    "specialty": "weather",
+    "starter": true
+}

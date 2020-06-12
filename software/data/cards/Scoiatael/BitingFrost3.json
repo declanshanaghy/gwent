@@ -1,0 +1,10 @@
+{
+    "faction": "Scoia'tael",
+    "kind": "card",
+    "name": "Biting Frost: 3",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close"
+    ],
+    "specialty": "weather"
+}

@@ -1,0 +1,12 @@
+{
+    "faction": "Skellige",
+    "kind": "card",
+    "name": "Commander's Horn",
+    "owner": "Declan Shanaghy",
+    "ranges": [
+        "close",
+        "ranged",
+        "siege"
+    ],
+    "specialty": "commander"
+}

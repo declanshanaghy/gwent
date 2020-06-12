@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Siege Tower: 1",
+    "ranges": [
+        "siege"
+    ],
+    "starter": true,
+    "strength": 6
+}

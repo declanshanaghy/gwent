@@ -1,0 +1,10 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "S\u00edle de Tansarville",
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true,
+    "strength": 5
+}

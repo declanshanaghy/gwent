@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Forktail",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}

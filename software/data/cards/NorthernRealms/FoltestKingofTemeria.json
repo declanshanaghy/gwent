@@ -1,0 +1,13 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "leader": {
+        "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+        "weather_ranges": [
+            "ranged"
+        ]
+    },
+    "name": "Foltest - King of Temeria",
+    "specialty": "leader",
+    "starter": true
+}

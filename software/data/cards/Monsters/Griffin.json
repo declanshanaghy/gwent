@@ -1,0 +1,10 @@
+{
+    "faction": "Monsters",
+    "kind": "card",
+    "name": "Griffin",
+    "ranges": [
+        "close"
+    ],
+    "starter": true,
+    "strength": 5
+}
