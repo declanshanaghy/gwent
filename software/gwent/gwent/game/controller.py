@@ -1,5 +1,9 @@
+import collections
+from typing import Callable
+
 import aioredis
 
+import gwent.game.errors
 import gwent.messaging.base
 import gwent.messaging.cards.card
 import gwent.messaging.factory
@@ -10,54 +14,142 @@ import gwent.game
 import gwent.hal.tts
 
 
+class IGameStage(gwent.game.Component):
+    async def activate(self, completed:Callable, cancel:Callable):
+        self.completed = completed
+        self.cancel = cancel
+
+    async def deactivate(self):
+        pass
+
+    async def process_card(self, card: gwent.messaging.cards.card.Message):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement '
+                                  f'process_card')
+
+    async def process_choice(self, choice: gwent.messaging.mfd.choice.Message):
+        raise NotImplementedError(f'{self.__class__.__name__} must implement '
+                                  f'process_card')
+
+
 class Controller(gwent.game.Component):
     active_state = None
-    registration = None
+    register_players = None
 
     def __init__(self, loop, redis: aioredis.Redis):
         super().__init__(loop, redis)
-        self.registration = RegisterPlayers(self._loop, self._redis)
-        self.active_state = self.registration
+        self.main_menu = MainMenuStage(self._loop, self._redis)
+        self.register_players = RegisterPlayersStage(self._loop, self._redis)
+
+    async def init(self):
+        await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
+                             gwent.messaging.cards.card.KIND,
+                             self.process_card)
+        await self.subscribe(gwent.game.CH_MFD_CHOICE,
+                             gwent.messaging.mfd.choice.KIND,
+                             self.process_choice)
+
+    async def shutdown(self):
+        await self.unsubscribe(gwent.game.CH_CARDS_RAW_READ)
+        await self.unsubscribe(gwent.game.CH_MFD_CHOICE)
 
     async def run(self):
-        await self.subscribe(self.process,
-                             gwent.game.CH_CARDS_RAW_READ,
-                             gwent.game.CH_MFD_CHOICE,
-                             expect=[gwent.messaging.cards.card.KIND,
-                                     gwent.messaging.mfd.choice.KIND])
+        await self.start_main_menu()
+        await super().run()
 
-    async def process(self, message: gwent.messaging.cards.card.Message):
-        await self.active_state.process(message)
+    async def set_active_state(self, st: IGameStage, completed:Callable, cancel:Callable):
+        if self.active_state is not None:
+            await self.active_state.deactivate()
+
+        self.active_state = st
+        await self.active_state.activate(completed, cancel)
+
+    async def start_main_menu(self):
+        self._log.info('Starting main menu stage')
+        async def completed():
+            self._log.info('main menu completed')
+            await self.start_register_players()
+
+        async def cancel():
+            self._log.error("main menu can't be canceled")
+            pass
+
+        await self.set_active_state(self.main_menu, completed, cancel)
+
+    async def start_register_players(self):
+        self._log.info('Starting register players stage')
+        async def completed():
+            raise NotImplementedError('next stage not implemented')
+
+        async def cancel():
+            self._log.info('Register players canceled')
+            await self.start_main_menu()
+
+        await self.set_active_state(self.register_players, completed, cancel)
+
+    async def process_card(self, message: gwent.messaging.cards.card.Message):
+        await self.active_state.process_card(message)
+
+    async def process_choice(self, message: gwent.messaging.mfd.choice.Message):
+        await self.active_state.process_choice(message)
 
 
-class CameControllerState(gwent.game.Component):
-    pass
+class MainMenuStage(IGameStage):
+    async def activate(self, completed:Callable, cancel:Callable):
+        await super().activate(completed, cancel)
+        await self.publish_main_menu()
+
+    async def publish_main_menu(self):
+        choices = [
+            gwent.messaging.mfd.choice.Message.from_properties(
+                '1', 'Start Game')
+        ]
+        mfd = gwent.messaging.mfd.mfd.Message.with_choices(choices)
+        await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
+
+    async def process_choice(self, message: gwent.messaging.mfd.choice.Message):
+        await self.completed()
 
 
-class RegisterPlayers(CameControllerState):
-    async def process(self, message: gwent.messaging.base.Message):
-        if message.kind == gwent.messaging.cards.card.KIND:
-            await self.process_card(message)
-        elif message.kind == gwent.messaging.mfd.choice.KIND:
-            await self.process_choice(message)
+class RegisterPlayersStage(IGameStage):
+    PlayerDeck = collections.namedtuple('PlayerDeck',
+                                        'faction leader cards')
+    players = []
+
+    async def activate(self, completed:Callable, cancel:Callable):
+        await super().activate(completed, cancel)
+        self.players = []
+        await self.publish_main_prompt()
+
+    async def publish_main_prompt(self):
+        mfd = gwent.messaging.mfd.mfd.Message.with_prompt(
+            prompt="Players...register your decks", ok=True, cancel=True)
+        await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
+
+    async def deactivate(self):
+        pass
+
+    def find_deck(self, faction: str):
+        for deck in self.players:
+            if deck.faction == faction:
+                return deck
+
+        if len(self.players) == 2:
+            raise gwent.game.errors.InvalidFactionError(
+                f'{faction} is not participating in this game')
+        else:
+            self.players.append(self.PlayerDeck(faction=faction,
+                                                leader=None, cards=[]))
 
     async def process_card(self, card: gwent.messaging.cards.card.Message):
-        self._log.info({
+        self._log.debug({
             'action': 'received card',
             'kind': card.kind,
+            'faction': card.faction,
+            'full_name': card.full_name,
             'rfid': card.rfid,
         })
 
-        choices = [
-            gwent.messaging.mfd.choice.Message.from_properties('1', 'hello world'),
-            gwent.messaging.mfd.choice.Message.from_properties('2', 'goodbye world')
-        ]
-        mfd = gwent.messaging.mfd.mfd.Message.from_properties(choices)
-        await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
-
-    async def process_choice(self, choice: gwent.messaging.mfd.choice.KIND):
-        self._log.info({
-            'action': 'received choice',
-            'kind': choice.kind,
-            'id': choice.id,
-        })
+        try:
+            deck = self.find_deck(card.faction)
+        except gwent.game.errors.InvalidFactionError as ex:
+            await self.publish_error(ex.message)

@@ -27,12 +27,12 @@ _constructors = {
     gwent.messaging.sfx.sfx.KIND: gwent.messaging.sfx.sfx.Message,
 }
 
-def unmarshall(msg: str, expect:List=None) -> gwent.messaging.base.Message:
+def unmarshall(msg: str, expect_kind:str=None) -> gwent.messaging.base.Message:
     instance = json.loads(msg)
 
     kind = instance[gwent.messaging.base.KIND]
-    if expect is not None and not kind in expect:
-        error = f'Expected {expect} but received {kind}, {instance}'
+    if expect_kind is not None and not kind == expect_kind:
+        error = f'Expected {expect_kind} but received {kind}, {instance}'
         _log.error({
             'error': error,
             'instance': instance,

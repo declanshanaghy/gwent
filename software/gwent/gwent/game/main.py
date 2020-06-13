@@ -22,17 +22,24 @@ class Gwent(object):
         self._log.info('closing redis')
         await self._redis.wait_closed()
 
-    async def shutdown(self, signal, loop):
+    async def shutdown_components(self):
+        if self.components is not None:
+            logging.info('Shutting down components')
+            await asyncio.gather(*[c.shutdown() for c in self.components])
+
+    async def shutdown(self):
+        await self.close_redis()
+
+    async def sighandler(self, signal, loop):
         """Cleanup tasks tied to the service's shutdown."""
         logging.info(f'Received exit signal {signal.name}...')
-        logging.info('Nacking outstanding tasks')
+
         tasks = [t for t in asyncio.all_tasks() if t is not
                  asyncio.current_task()]
-
-        logging.info(f'Cancelling {len(tasks)} outstanding tasks')
+        logging.info(f'Canceling {len(tasks)} outstanding tasks')
         [task.cancel() for task in tasks]
 
-        tasks.append(self.close_redis())
+        tasks.append(self.shutdown())
         await asyncio.gather(*tasks, return_exceptions=True)
 
         loop.stop()
@@ -42,7 +49,7 @@ class Gwent(object):
         for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
                   signal.SIGQUIT, signal.SIGTERM):
             loop.add_signal_handler(
-                s, lambda s=s: loop.create_task(self.shutdown(s, loop)))
+                s, lambda s=s: loop.create_task(self.sighandler(s, loop)))
 
     async def main(self):
         loop = asyncio.get_running_loop()
@@ -50,18 +57,22 @@ class Gwent(object):
         self.setup_signal_handlers(loop)
 
         self._redis = await aioredis.create_redis_pool('redis://localhost')
-        reader = gwent.game.cards.Reader(loop, self._redis)
-        controller = gwent.game.controller.Controller(loop, self._redis)
-        sfx = gwent.game.sfx.SFX(loop, self._redis)
-        mfd = gwent.game.mfd.MFD(loop, self._redis)
 
-        await asyncio.gather(
-            reader.run(),
-            controller.run(),
-            sfx.run(),
-            mfd.run(),
-        )
+        self.components = [
+            gwent.game.cards.Reader(loop, self._redis),
+            gwent.game.controller.Controller(loop, self._redis),
+            gwent.game.sfx.SFX(loop, self._redis),
+            gwent.game.mfd.MFD(loop, self._redis),
+        ]
 
+        logging.info('Init components')
+        results = await asyncio.gather(*[c.init() for c in self.components])
+
+        logging.info('Run components')
+        results = await asyncio.gather(*[c.run() for c in self.components])
+
+        await self.shutdown_components()
+        await self.shutdown()
 
 if __name__ == '__main__':
     gwent.log.setup(level='debug')

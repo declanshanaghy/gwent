@@ -8,7 +8,9 @@ import gwent.hal.tts
 
 
 class Reader(gwent.game.Component):
-    _rfid = gwent.hal.rfid.instance()
+
+    async def init(self):
+        self._rfid = gwent.hal.rfid.instance()
 
     async def run(self):
         while True:
