@@ -6,6 +6,7 @@ import signal
 import gwent.log
 import gwent.messaging.base
 import gwent.messaging.cards.all
+import gwent.messaging.cards.card
 import gwent.messaging.cards.util
 import gwent.messaging.cards.scoiatael
 import gwent.hal.rfid

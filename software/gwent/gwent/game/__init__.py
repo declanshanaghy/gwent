@@ -1,11 +1,12 @@
 import logging
 import asyncio
-from typing import List, Callable
+from typing import Any, Callable
 
 import aioredis
 
 import gwent.messaging.base
 import gwent.messaging.factory
+import gwent.messaging.mfd.mfd
 
 
 SEP = '.'
@@ -39,26 +40,48 @@ class Component(object):
             'action': 'publish',
             'kind': message.kind,
             'content_id': message.content_id,
+            'body': message.body,
         })
         await self._redis.publish(channel, message.body)
 
-    async def subscribe(self, process:Callable, ch:str or aioredis.Channel,
-                        *chs:str or aioredis.Channel, expect:List=None) -> List[aioredis.Channel]:
-        channels = await self._redis.subscribe(ch, *chs)
-        channel_names = [ch.name.decode() for ch in channels]
+    async def publish_error(self, error: str):
+        mfd = gwent.messaging.mfd.mfd.Message.from_properties(error=error)
+        await self.publish(CH_MFD_PRESENT, mfd)
+
+    async def unsubscribe(self, channel:str):
+        self._log.info({
+            'action': 'unsubscribe',
+            'channel': channel,
+        })
+        await self._redis.unsubscribe(channel)
+
+    async def subscribe(self, ch:str, expect_kind:str,
+                        callback:Callable[[gwent.messaging.base.Message],Any]):
+        channel, = await self._redis.subscribe(ch)
         self._log.info({
             'action': 'subscribed',
-            'channels': channel_names,
+            'channel': channel.name.decode(),
         })
 
         async def reader(channel):
             async for msg in channel.iter():
-                message = gwent.messaging.factory.unmarshall(msg, expect=expect)
-                await process(message)
+                self._log.info({
+                    'action': 'reader received',
+                    'msg': msg,
+                })
+                message = gwent.messaging.factory.unmarshall(
+                    msg, expect_kind=expect_kind)
+                await callback(message)
 
-        for ch in channels:
-            self._loop.create_task(reader(ch))
+        self._loop.create_task(reader(channel))
 
-        return channels
+    async def init(self):
+        pass
 
+    async def shutdown(self):
+        pass
+
+    async def run(self):
+        while True:
+            await asyncio.sleep(1)
 

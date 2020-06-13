@@ -7,7 +7,7 @@ import random
 REAL = True
 try:
     import mfrc522
-except Exception as ex:
+except ImportError as ex:
     REAL = False
 
 

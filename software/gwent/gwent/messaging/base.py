@@ -6,16 +6,24 @@ import logging
 
 
 KIND = 'kind'
+SUBKIND = 'subkind'
+
+
+class InvalidSubkind(Exception):
+    pass
 
 
 class Message(object):
     _schema = None
     instance = None
 
-    def __init__(self, instance):
+    def __init__(self, instance, subkind=None):
         self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
         self.instance = instance
         self.instance[KIND] = self.kind
+
+        if subkind is not None:
+            self.instance[SUBKIND] = subkind
 
         if self.should_validate():
             self.validate()
@@ -62,6 +70,10 @@ class Message(object):
     @property
     def kind(self):
         raise NotImplementedError(f'{self.__class__} must implement kind property')
+
+    @property
+    def subkind(self):
+        return self.instance.get(SUBKIND)
 
     @property
     def speech(self):

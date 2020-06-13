@@ -4,16 +4,66 @@
   "description": "Multi-funciton display message",
   "type": "object",
   "required": [
-    "choices"
+    "subkind"
   ],
   "properties": {
-    "choices": {
-      "description": "The choices to be presented to the user",
-      "type": "array",
-      "items": { "$ref": "#/definitions/choice" }
+    "subkind": {
+      "type": "string",
+      "description": "An informative prompt to the user",
+      "enum": [
+        "prompt",
+        "error",
+        "choices"
+      ]
     }
   },
+  "oneOf": [
+    { "$ref": "#/definitions/prompt" },
+    { "$ref": "#/definitions/error" },
+    { "$ref": "#/definitions/choices" }
+  ],
   "definitions": {
+    "error": {
+      "type": "object",
+      "required": ["error"],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "An error message to present to the user"
+        }
+      }
+    },
+    "prompt": {
+      "type": "object",
+      "required": ["prompt", "ok", "cancel"],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "An informative prompt to the user"
+        },
+        "ok": {
+          "type": "boolean",
+          "description": "Flag insicating whether to show an OK selection"
+        },
+        "cancel": {
+          "type": "boolean",
+          "description": "Flag insicating whether to show a CANCEL selection"
+        }
+      }
+    },
+    "choices": {
+      "type": "object",
+      "required": ["choices"],
+      "properties": {
+        "choices": {
+          "type": "array",
+          "description": "The choices to be presented to the user",
+          "items": {
+            "$ref": "#/definitions/choice"
+          }
+        }
+      }
+    },
     "choice": {
       "type": "object",
       "required": [ "id", "text" ],
