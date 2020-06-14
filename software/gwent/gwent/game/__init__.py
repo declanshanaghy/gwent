@@ -2,14 +2,13 @@ import logging
 import asyncio
 from typing import Any, Callable
 
-import aioredis
+import asyncio_mqtt
 
 import gwent.messaging.base
 import gwent.messaging.factory
 import gwent.messaging.mfd.mfd
 
-
-SEP = '.'
+SEP = '/'
 MAIN_CHANNEL = 'gwent'
 
 CH_CARDS = SEP.join((MAIN_CHANNEL, 'cards'))
@@ -28,52 +27,18 @@ CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
 
 class Component(object):
     _loop = None
-    _redis = None
+    _pubsub = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, redis: aioredis.Redis):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+    def __init__(self, loop: asyncio.AbstractEventLoop,
+                 pubsub: asyncio_mqtt.Client):
+        self._log = logging.getLogger(
+            f'{self.__class__.__module__}.{self.__class__.__name__}')
         self._loop = loop
-        self._redis = redis
-
-    async def publish(self, channel, message: gwent.messaging.base.Message):
-        self._log.info({
-            'action': 'publish',
-            'kind': message.kind,
-            'content_id': message.content_id,
-            'body': message.body,
-        })
-        await self._redis.publish(channel, message.body)
+        self._pubsub = pubsub
 
     async def publish_error(self, error: str):
         mfd = gwent.messaging.mfd.mfd.Message.from_properties(error=error)
         await self.publish(CH_MFD_PRESENT, mfd)
-
-    async def unsubscribe(self, channel:str):
-        self._log.info({
-            'action': 'unsubscribe',
-            'channel': channel,
-        })
-        await self._redis.unsubscribe(channel)
-
-    async def subscribe(self, ch:str, expect_kind:str,
-                        callback:Callable[[gwent.messaging.base.Message],Any]):
-        channel, = await self._redis.subscribe(ch)
-        self._log.info({
-            'action': 'subscribed',
-            'channel': channel.name.decode(),
-        })
-
-        async def reader(channel):
-            async for msg in channel.iter():
-                self._log.info({
-                    'action': 'reader received',
-                    'msg': msg,
-                })
-                message = gwent.messaging.factory.unmarshall(
-                    msg, expect_kind=expect_kind)
-                await callback(message)
-
-        self._loop.create_task(reader(channel))
 
     async def init(self):
         pass
@@ -85,3 +50,50 @@ class Component(object):
         while True:
             await asyncio.sleep(1)
 
+    async def subscribe(self, topic_filter: str, expect_kind: str,
+                        callback: Callable[
+                            [gwent.messaging.base.Message], Any]):
+        async def processor():
+            async with self._pubsub.filtered_messages(topic_filter) as messages:
+                self._log.debug({
+                    'action': 'listening to',
+                    'topic_filter': topic_filter,
+                    'expect_kind': expect_kind,
+                    'messages': messages,
+                })
+                async for message in messages:
+                    decoded = message.payload.decode()
+                    self._log.debug({
+                        'action': 'received message',
+                        'topic': message.topic,
+                        'message': decoded,
+                    })
+                    message = gwent.messaging.factory.unmarshall(
+                        decoded, expect_kind=expect_kind)
+                    await callback(message)
+
+        self._loop.create_task(processor())
+
+        self._log.info({
+            'action': 'subscribe',
+            'topic_filter': topic_filter,
+            'expect_kind': expect_kind,
+        })
+        await self._pubsub.subscribe(topic_filter)
+
+    async def unsubscribe(self, topic: str):
+        self._log.info({
+            'action': 'unsubscribe',
+            'topic': topic,
+        })
+        await self._pubsub.unsubscribe(topic)
+
+    async def publish(self, topic, message: gwent.messaging.base.Message):
+        self._log.info({
+            'action': 'publish',
+            'topic': topic,
+            'kind': message.kind,
+            'content_id': message.content_id,
+            'body': message.body,
+        })
+        await self._pubsub.publish(topic, message.body, qos=1)

@@ -9,8 +9,8 @@ class SFX(gwent.game.Component):
     _tts = gwent.hal.tts.instance()
 
     async def init(self):
-        await self.subscribe(gwent.messaging.sfx.sfx.KIND,
-                             gwent.game.CH_SFX,
+        await self.subscribe(gwent.game.CH_SFX,
+                             gwent.messaging.sfx.sfx.KIND,
                              self.process_sfx)
 
     async def shutdown(self):

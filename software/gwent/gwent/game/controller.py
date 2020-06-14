@@ -1,7 +1,7 @@
 import collections
 from typing import Callable
 
-import aioredis
+import asyncio_mqtt
 
 import gwent.game.errors
 import gwent.messaging.base
@@ -35,10 +35,10 @@ class Controller(gwent.game.Component):
     active_state = None
     register_players = None
 
-    def __init__(self, loop, redis: aioredis.Redis):
-        super().__init__(loop, redis)
-        self.main_menu = MainMenuStage(self._loop, self._redis)
-        self.register_players = RegisterPlayersStage(self._loop, self._redis)
+    def __init__(self, loop, pubsub: asyncio_mqtt.Client):
+        super().__init__(loop, pubsub)
+        self.main_menu = MainMenuStage(self._loop, self._pubsub)
+        self.register_players = RegisterPlayersStage(self._loop, self._pubsub)
 
     async def init(self):
         await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
