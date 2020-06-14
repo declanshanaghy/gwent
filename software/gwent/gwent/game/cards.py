@@ -1,6 +1,6 @@
 import asyncio
 
-import aioredis
+import asyncio_mqtt
 
 import gwent.game
 import gwent.hal.rfid

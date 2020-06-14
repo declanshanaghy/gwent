@@ -2,7 +2,8 @@ import asyncio
 import logging
 import signal
 
-import aioredis
+import asyncio_mqtt
+import asyncio_mqtt
 
 import gwent.log
 import gwent.game.cards
@@ -12,15 +13,14 @@ import gwent.game.sfx
 
 
 class Gwent(object):
-    _redis = None
+    pubsub = None
 
     def __init__(self):
         self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
 
     async def close_redis(self):
-        self._redis.close()
-        self._log.info('closing redis')
-        await self._redis.wait_closed()
+        self._log.info('closing pubsub')
+        await self.pubsub.disconnect()
 
     async def shutdown_components(self):
         if self.components is not None:
@@ -34,11 +34,12 @@ class Gwent(object):
         """Cleanup tasks tied to the service's shutdown."""
         logging.info(f'Received exit signal {signal.name}...')
 
+        await self.shutdown_components()
+
         tasks = [t for t in asyncio.all_tasks() if t is not
                  asyncio.current_task()]
         logging.info(f'Canceling {len(tasks)} outstanding tasks')
         [task.cancel() for task in tasks]
-
         tasks.append(self.shutdown())
         await asyncio.gather(*tasks, return_exceptions=True)
 
@@ -56,20 +57,21 @@ class Gwent(object):
 
         self.setup_signal_handlers(loop)
 
-        self._redis = await aioredis.create_redis_pool('redis://localhost')
+        self.pubsub = asyncio_mqtt.Client('localhost')
+        await self.pubsub.connect()
 
         self.components = [
-            gwent.game.cards.Reader(loop, self._redis),
-            gwent.game.controller.Controller(loop, self._redis),
-            gwent.game.sfx.SFX(loop, self._redis),
-            gwent.game.mfd.MFD(loop, self._redis),
+            # gwent.game.cards.Reader(loop, self.pubsub),
+            gwent.game.controller.Controller(loop, self.pubsub),
+            # gwent.game.sfx.SFX(loop, self.pubsub),
+            gwent.game.mfd.MFD(loop, self.pubsub),
         ]
 
         logging.info('Init components')
-        results = await asyncio.gather(*[c.init() for c in self.components])
+        await asyncio.gather(*[c.init() for c in self.components])
 
         logging.info('Run components')
-        results = await asyncio.gather(*[c.run() for c in self.components])
+        await asyncio.gather(*[c.run() for c in self.components])
 
         await self.shutdown_components()
         await self.shutdown()

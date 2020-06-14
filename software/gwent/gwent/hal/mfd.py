@@ -38,7 +38,7 @@ class IChooser():
     def __init__(self):
         self._log = logging.getLogger(self.__class__.__name__)
 
-    async def await_choice(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def choice(self, mfd: gwent.messaging.mfd.mfd.Message):
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'await_choice')
 
@@ -64,9 +64,7 @@ class _MFD(gwent.hal.Component):
         await self.choice_presenter.clear()
         await self.error_presenter.present_line(mfd.prompt)
 
-    async def present_choices(
-            self, receiver: Callable[[gwent.messaging.mfd.choice.Message], Any],
-            mfd: gwent.messaging.mfd.mfd.Message):
+    async def present_choices(self, mfd: gwent.messaging.mfd.mfd.Message):
         if self._task_await_choice is not None and not self._task_await_choice.done():
             self._log.info("Previous choices being replaced")
             self._task_await_choice.cancel()
@@ -76,25 +74,11 @@ class _MFD(gwent.hal.Component):
             await self.choice_presenter.present_line(
                 f'{choice.id}: {choice.text}')
 
-        choice = await self.chooser.await_choice(mfd)
-        if choice:
-            await receiver(choice)
-
-    async def await_choice(
-            self, receiver:Callable[[gwent.messaging.mfd.choice.Message],Any],
-            mfd: gwent.messaging.mfd.mfd.Message):
-        for choice in mfd.choice_iter():
-            if choice.id == id:
-                self._log.info({
-                    'action': 'valid choice',
-                    'id': choice.id,
-                    'text': choice.text
-                })
-                await receiver(choice)
+        return await self.chooser.choice(mfd)
 
 
 class ConsoleChooser(IChooser):
-    async def await_choice(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def choice(self, mfd: gwent.messaging.mfd.mfd.Message):
         while True:
             id = await aioconsole.ainput("Enter choice: ")
             for choice in mfd.choice_iter():

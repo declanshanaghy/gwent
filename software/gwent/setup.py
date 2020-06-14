@@ -22,7 +22,7 @@ setuptools.setup(
     install_requires=[
         'aioconsole-0.2.0',
         'gTTS==2.1.1',
-        'aioredis==1.3.1',
+        'asyncio-mqtt 0.5.0',
         'pygame==1.9.6',
         'jsonschema==3.2.0',
         # 'mfrc522==0.0.9',
