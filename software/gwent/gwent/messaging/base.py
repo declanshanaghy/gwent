@@ -35,8 +35,7 @@ class Message(object):
     def get_schema(self):
         if self._schema is None:
             top = os.path.abspath(os.path.dirname(__file__))
-            mod, = self.__class__.__module__.split('.')[2:3]
-            abs_schema = os.path.join(top, mod, f'schema_{self.kind}.json')
+            abs_schema = os.path.join(top, f'{self.kind}_schema.json')
             with open(abs_schema) as fd:
                 self._schema = json.load(fd)
         return self._schema

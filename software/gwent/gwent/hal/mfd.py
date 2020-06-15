@@ -1,13 +1,12 @@
 import asyncio
 import aioconsole
-from typing import Callable, Any
 import logging
 
 import gwent.hal
 import gwent.messaging.base
 
-import gwent.messaging.mfd.mfd
-import gwent.messaging.mfd.choice
+import gwent.messaging.mfd
+import gwent.messaging.choice
 
 
 def instance(loop: asyncio.AbstractEventLoop):
@@ -38,7 +37,7 @@ class IChooser():
     def __init__(self):
         self._log = logging.getLogger(self.__class__.__name__)
 
-    async def choice(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def choice(self, mfd: gwent.messaging.mfd.Message):
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'await_choice')
 
@@ -54,17 +53,17 @@ class _MFD(gwent.hal.Component):
         self.error_presenter = error_presenter
         self.chooser = chooser
 
-    async def present_error(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def present_error(self, mfd: gwent.messaging.mfd.Message):
         await self.error_presenter.clear()
         await self.error_presenter.present_line(mfd.error)
         await asyncio.sleep(5)
         await self.choice_presenter.redisplay()
 
-    async def present_prompt(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def present_prompt(self, mfd: gwent.messaging.mfd.Message):
         await self.choice_presenter.clear()
         await self.error_presenter.present_line(mfd.prompt)
 
-    async def present_choices(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def present_choices(self, mfd: gwent.messaging.mfd.Message):
         if self._task_await_choice is not None and not self._task_await_choice.done():
             self._log.info("Previous choices being replaced")
             self._task_await_choice.cancel()
@@ -78,7 +77,7 @@ class _MFD(gwent.hal.Component):
 
 
 class ConsoleChooser(IChooser):
-    async def choice(self, mfd: gwent.messaging.mfd.mfd.Message):
+    async def choice(self, mfd: gwent.messaging.mfd.Message):
         while True:
             id = await aioconsole.ainput("Enter choice: ")
             for choice in mfd.choice_iter():

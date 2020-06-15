@@ -5,10 +5,10 @@ import signal
 
 import gwent.log
 import gwent.messaging.base
-import gwent.messaging.cards.all
-import gwent.messaging.cards.card
-import gwent.messaging.cards.util
-import gwent.messaging.cards.scoiatael
+import gwent.cards.all
+import gwent.messaging.card
+import gwent.cards.util
+import gwent.cards.scoiatael
 import gwent.hal.rfid
 import gwent.hal.tts
 
@@ -49,15 +49,15 @@ class CardWriterUtil(AsyncApp):
         self.cards_by_faction = cards_by_faction
         self._writer = gwent.hal.rfid.instance()
 
-    def some_card(self) -> gwent.messaging.cards.card.Message:
+    def some_card(self) -> gwent.messaging.card.Message:
         # Known biggest card
         name = "Francesca Findabair: The Beautiful"
-        faction = gwent.messaging.cards.SCOIATAEL
-        details = gwent.messaging.cards.scoiatael.CARDS_BY_FACTION[faction][name]
-        return gwent.messaging.cards.card.Message.from_properties(
+        faction = gwent.cards.SCOIATAEL
+        details = gwent.cards.scoiatael.CARDS_BY_FACTION[faction][name]
+        return gwent.messaging.card.Message.from_properties(
             rfid=None, details=details, name=name, faction=faction)
 
-    def validate_cards(self) -> gwent.messaging.cards.card.Message:
+    def validate_cards(self) -> gwent.messaging.card.Message:
         biggest_card = None
         total_cards = 0
         for faction, cards in self.cards_by_faction.items():
@@ -68,7 +68,7 @@ class CardWriterUtil(AsyncApp):
 
             total_cards += len(cards.keys())
             for name, details in cards.items():
-                card = gwent.messaging.cards.card.Message.from_properties(
+                card = gwent.messaging.card.Message.from_properties(
                     rfid=None, details=details, name=name, faction=faction)
 
                 if card.is_starter:
@@ -130,7 +130,7 @@ class CardWriterUtil(AsyncApp):
 
         return biggest_card
 
-    async def _write_card(self, card: gwent.messaging.cards.card.Message):
+    async def _write_card(self, card: gwent.messaging.card.Message):
         loop = asyncio.get_running_loop()
         self._log.info({
             'action': 'Hold a tag near the writer to receive the data',
@@ -155,7 +155,7 @@ class CardWriterUtil(AsyncApp):
         loop = asyncio.get_event_loop()
         self.setup_signal_handlers(loop)
 
-        card = gwent.messaging.cards.util.random_card()
+        card = gwent.cards.util.random_card()
         task = loop.create_task(self._write_card(card))
         loop.run_until_complete(task)
 
@@ -167,7 +167,7 @@ class CardReaderUtil(AsyncApp):
         super().__init__()
         self._reader = gwent.hal.rfid.instance()
 
-    async def _read_card(self) -> gwent.messaging.cards.card.Message:
+    async def _read_card(self) -> gwent.messaging.card.Message:
         loop = asyncio.get_running_loop()
         card = None
         while card is None:
@@ -204,10 +204,10 @@ def write_card():
     gwent.log.setup(level='debug')
 
     log = logging.getLogger(__name__)
-    for faction, cards in gwent.messaging.cards.all.CARDS_BY_FACTION.items():
+    for faction, cards in gwent.cards.all.CARDS_BY_FACTION.items():
         log.info(f"{faction} has {len(cards.keys())} cards")
 
-    u = CardWriterUtil(gwent.messaging.cards.all.CARDS_BY_FACTION)
+    u = CardWriterUtil(gwent.cards.all.CARDS_BY_FACTION)
     u.run()
 
 

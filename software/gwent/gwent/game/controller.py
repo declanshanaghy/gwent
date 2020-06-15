@@ -5,10 +5,10 @@ import asyncio_mqtt
 
 import gwent.game.errors
 import gwent.messaging.base
-import gwent.messaging.cards.card
+import gwent.messaging.card
 import gwent.messaging.factory
-import gwent.messaging.mfd.mfd
-import gwent.messaging.mfd.choice
+import gwent.messaging.mfd
+import gwent.messaging.choice
 import gwent.messaging.sfx
 import gwent.game
 import gwent.hal.tts
@@ -22,11 +22,11 @@ class IGameStage(gwent.game.Component):
     async def deactivate(self):
         pass
 
-    async def process_card(self, card: gwent.messaging.cards.card.Message):
+    async def process_card(self, card: gwent.messaging.card.Message):
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'process_card')
 
-    async def process_choice(self, choice: gwent.messaging.mfd.choice.Message):
+    async def process_choice(self, choice: gwent.messaging.choice.Message):
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'process_card')
 
@@ -42,10 +42,10 @@ class Controller(gwent.game.Component):
 
     async def init(self):
         await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
-                             gwent.messaging.cards.card.KIND,
+                             gwent.messaging.card.KIND,
                              self.process_card)
         await self.subscribe(gwent.game.CH_MFD_CHOICE,
-                             gwent.messaging.mfd.choice.KIND,
+                             gwent.messaging.choice.KIND,
                              self.process_choice)
 
     async def shutdown(self):
@@ -86,10 +86,10 @@ class Controller(gwent.game.Component):
 
         await self.set_active_state(self.register_players, completed, cancel)
 
-    async def process_card(self, message: gwent.messaging.cards.card.Message):
+    async def process_card(self, message: gwent.messaging.card.Message):
         await self.active_state.process_card(message)
 
-    async def process_choice(self, message: gwent.messaging.mfd.choice.Message):
+    async def process_choice(self, message: gwent.messaging.choice.Message):
         await self.active_state.process_choice(message)
 
 
@@ -100,13 +100,13 @@ class MainMenuStage(IGameStage):
 
     async def publish_main_menu(self):
         choices = [
-            gwent.messaging.mfd.choice.Message.from_properties(
+            gwent.messaging.choice.Message.from_properties(
                 '1', 'Start Game')
         ]
-        mfd = gwent.messaging.mfd.mfd.Message.with_choices(choices)
+        mfd = gwent.messaging.mfd.Message.with_choices(choices)
         await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
 
-    async def process_choice(self, message: gwent.messaging.mfd.choice.Message):
+    async def process_choice(self, message: gwent.messaging.choice.Message):
         await self.completed()
 
 
@@ -121,7 +121,7 @@ class RegisterPlayersStage(IGameStage):
         await self.publish_main_prompt()
 
     async def publish_main_prompt(self):
-        mfd = gwent.messaging.mfd.mfd.Message.with_prompt(
+        mfd = gwent.messaging.mfd.Message.with_prompt(
             prompt="Players...register your decks", ok=True, cancel=True)
         await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
 
@@ -140,7 +140,7 @@ class RegisterPlayersStage(IGameStage):
             self.players.append(self.PlayerDeck(faction=faction,
                                                 leader=None, cards=[]))
 
-    async def process_card(self, card: gwent.messaging.cards.card.Message):
+    async def process_card(self, card: gwent.messaging.card.Message):
         self._log.debug({
             'action': 'received card',
             'kind': card.kind,

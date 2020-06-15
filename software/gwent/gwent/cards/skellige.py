@@ -1,8 +1,8 @@
-import gwent.messaging.cards
+import gwent.cards
 
-FACTION = gwent.messaging.cards.SKELLIGE
+FACTION = gwent.cards.SKELLIGE
 CARDS_BY_FACTION = {
-    gwent.messaging.cards.SKELLIGE: {
+    gwent.cards.SKELLIGE: {
         "Crach an Craite": {
             "specialty": "leader",
             "leader": {

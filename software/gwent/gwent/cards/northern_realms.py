@@ -1,8 +1,8 @@
-import gwent.messaging.cards
+import gwent.cards
 
-FACTION = gwent.messaging.cards.NORTHERN_REALMS
+FACTION = gwent.cards.NORTHERN_REALMS
 CARDS_BY_FACTION = {
-    gwent.messaging.cards.NORTHERN_REALMS: {
+    gwent.cards.NORTHERN_REALMS: {
         "Foltest - King of Temeria": {
             "specialty": "leader",
             "leader": {
