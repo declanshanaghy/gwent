@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" afterDir="false" />
@@ -9,30 +12,10 @@
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/mfd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/poc.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/poc.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/all.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/all.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/card.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/monsters.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/monsters.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/nilfgaardian.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/nilfgaardian.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/northern_realms.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/northern_realms.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/schema_card.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_schema.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/scoiatael.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/scoiatael.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/skellige.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/skellige.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/cards/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/util.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/factory.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd/choice.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd/schema_choice.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice_schema.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd/schema_mfd.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd_schema.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx/schema_sfx.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx_schema.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd_schema.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +85,7 @@
       <recent name="$PROJECT_DIR$/software/gwent/messaging" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.write card">
+  <component name="RunManager" selected="Python.Gwent">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -412,7 +395,7 @@
       <workItem from="1591379102746" duration="483000" />
       <workItem from="1591560208597" duration="255000" />
       <workItem from="1591562086854" duration="5371000" />
-      <workItem from="1591726892867" duration="61184000" />
+      <workItem from="1591726892867" duration="68790000" />
     </task>
     <servers />
   </component>
@@ -440,38 +423,38 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="285" y="123" width="1055" height="612" key="DirDiffDialog/0.23.1440.877@0.23.1440.877" timestamp="1591736383536" />
-    <state width="1213" height="306" key="GridCell.Tab.0.bottom" timestamp="1592192153799">
+    <state width="1213" height="315" key="GridCell.Tab.0.bottom" timestamp="1592199714859">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="306" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592192153799" />
-    <state width="1213" height="306" key="GridCell.Tab.0.center" timestamp="1592192153798">
+    <state width="1213" height="315" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592199714859" />
+    <state width="1213" height="315" key="GridCell.Tab.0.center" timestamp="1592199714858">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="306" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1592192153798" />
-    <state width="1213" height="306" key="GridCell.Tab.0.left" timestamp="1592192153798">
+    <state width="1213" height="315" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1592199714858" />
+    <state width="1213" height="315" key="GridCell.Tab.0.left" timestamp="1592199714857">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="306" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1592192153798" />
-    <state width="1213" height="306" key="GridCell.Tab.0.right" timestamp="1592192153799">
+    <state width="1213" height="315" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1592199714857" />
+    <state width="1213" height="315" key="GridCell.Tab.0.right" timestamp="1592199714858">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="306" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1592192153799" />
-    <state width="1213" height="314" key="GridCell.Tab.1.bottom" timestamp="1592192059784">
+    <state width="1213" height="315" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1592199714858" />
+    <state width="1213" height="246" key="GridCell.Tab.1.bottom" timestamp="1592197340270">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="314" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592192059784" />
-    <state width="1213" height="314" key="GridCell.Tab.1.center" timestamp="1592192059783">
+    <state width="1213" height="246" key="GridCell.Tab.1.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592197340270" />
+    <state width="1213" height="246" key="GridCell.Tab.1.center" timestamp="1592197340269">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="314" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1592192059783" />
-    <state width="1213" height="314" key="GridCell.Tab.1.left" timestamp="1592192059783">
+    <state width="1213" height="246" key="GridCell.Tab.1.center/0.23.1440.877@0.23.1440.877" timestamp="1592197340269" />
+    <state width="1213" height="246" key="GridCell.Tab.1.left" timestamp="1592197340269">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="314" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1592192059783" />
-    <state width="1213" height="314" key="GridCell.Tab.1.right" timestamp="1592192059784">
+    <state width="1213" height="246" key="GridCell.Tab.1.left/0.23.1440.877@0.23.1440.877" timestamp="1592197340269" />
+    <state width="1213" height="246" key="GridCell.Tab.1.right" timestamp="1592197340270">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="314" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1592192059784" />
+    <state width="1213" height="246" key="GridCell.Tab.1.right/0.23.1440.877@0.23.1440.877" timestamp="1592197340270" />
     <state x="354" y="199" key="PyMappingSimpleResolveDialog" timestamp="1591904354826">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
@@ -492,10 +475,10 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="604" y="350" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.23.1440.877@0.23.1440.877" timestamp="1591834813860" />
-    <state x="421" y="187" width="598" height="576" key="find.popup" timestamp="1592100635402">
+    <state x="421" y="187" width="598" height="576" key="find.popup" timestamp="1592195678924">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state x="421" y="187" width="598" height="576" key="find.popup/0.23.1440.877@0.23.1440.877" timestamp="1592100635402" />
+    <state x="421" y="187" width="598" height="576" key="find.popup/0.23.1440.877@0.23.1440.877" timestamp="1592195678924" />
     <state x="750" y="126" key="ftp.server.browser" timestamp="1591728059602">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
@@ -504,6 +487,10 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state width="600" height="428" key="javadoc.popup/0.23.1440.877@0.23.1440.877" timestamp="1592087024840" />
+    <state x="642" y="253" key="refactoring.ChangeSignatureDialog" timestamp="1592196632933">
+      <screen x="0" y="23" width="1440" height="877" />
+    </state>
+    <state x="642" y="253" key="refactoring.ChangeSignatureDialog/0.23.1440.877@0.23.1440.877" timestamp="1592196632933" />
     <state x="477" y="197" width="670" height="676" key="search.everywhere.popup" timestamp="1591898782124">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
@@ -551,11 +538,11 @@
     <SUITE FILE_PATH="coverage/gwent$redispoc.coverage" NAME="redispoc Coverage Results" MODIFIED="1591728168128" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/poc" />
     <SUITE FILE_PATH="coverage/gwent$read_card.coverage" NAME="read_card Coverage Results" MODIFIED="1590631058259" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/cards" />
     <SUITE FILE_PATH="coverage/gwent$rxecho.coverage" NAME="rxecho Coverage Results" MODIFIED="1590630399711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/poc" />
-    <SUITE FILE_PATH="coverage/gwent$main.coverage" NAME="Gwent Coverage Results" MODIFIED="1592192118320" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />
+    <SUITE FILE_PATH="coverage/gwent$main.coverage" NAME="Gwent Coverage Results" MODIFIED="1592199856289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />
     <SUITE FILE_PATH="coverage/gwent$Server.coverage" NAME="Novigrad Coverage Results" MODIFIED="1589496592627" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/novigrad" />
     <SUITE FILE_PATH="coverage/gwent$write_cards.coverage" NAME="write_biggest_card Coverage Results" MODIFIED="1589947342780" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game/cards" />
     <SUITE FILE_PATH="coverage/gwent$Novigrad.coverage" NAME="Novigrad Coverage Results" MODIFIED="1590630301637" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/novigrad" />
-    <SUITE FILE_PATH="coverage/gwent$write_card.coverage" NAME="write card Coverage Results" MODIFIED="1592192172347" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />
+    <SUITE FILE_PATH="coverage/gwent$write_card.coverage" NAME="write card Coverage Results" MODIFIED="1592193834755" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />
     <SUITE FILE_PATH="coverage/gwent$rx.coverage" NAME="rxpoc Coverage Results" MODIFIED="1590629783904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/poc" />
     <SUITE FILE_PATH="coverage/gwent$Gwent.coverage" NAME="Gwent Coverage Results" MODIFIED="1591728117876" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />
     <SUITE FILE_PATH="coverage/gwent$util.coverage" NAME="read card Coverage Results" MODIFIED="1592192153793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/software/gwent/gwent/game" />

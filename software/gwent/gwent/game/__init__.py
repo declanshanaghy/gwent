@@ -11,6 +11,7 @@ import gwent.messaging.mfd
 SEP = '/'
 MAIN_CHANNEL = 'gwent'
 
+CH_CTRL = SEP.join((MAIN_CHANNEL, 'ctrl'))
 CH_CARDS = SEP.join((MAIN_CHANNEL, 'cards'))
 CH_CARDS_RAW = SEP.join((CH_CARDS, 'raw'))
 CH_CARDS_RAW_READ = SEP.join((CH_CARDS_RAW, 'read'))
@@ -23,6 +24,8 @@ CH_MFD_PRESENT = SEP.join((CH_MFD, 'present'))
 CH_MFD_CHOICE = SEP.join((CH_MFD, 'choice'))
 
 CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
+
+DEFAULT_ERROR_TIME = 3
 
 
 class Component(object):

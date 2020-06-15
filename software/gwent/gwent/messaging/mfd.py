@@ -5,31 +5,38 @@ import gwent.messaging.choice
 
 KIND = 'mfd'
 
-PROMPT = 'prompt'
 OK = 'ok'
 CANCEL = 'cancel'
+CLEAR_CHOICES = 'clear_choices'
+CLEAR_PROMPT = 'clear_prompt'
 
+PROMPT = 'prompt'
 ERROR = 'error'
 CHOICES = 'choices'
 
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
-    def with_prompt(prompt: str, ok: bool = False, cancel: bool = False):
+    def with_prompt(prompt: str, ok: bool = False, cancel: bool = False,
+                    clear_choices: bool = False):
         return Message({
             PROMPT: prompt,
             OK: ok,
             CANCEL: cancel,
+            CLEAR_CHOICES: clear_choices,
         }, subkind=PROMPT)
 
     @staticmethod
-    def with_error(error:str):
+    def with_error(error: str):
         return Message({ERROR: error}, subkind=ERROR)
 
     @staticmethod
-    def with_choices(choices:List[gwent.messaging.choice.Message]):
-        return Message({CHOICES: [c.instance for c in choices]},
-                       subkind=CHOICES)
+    def with_choices(choices: List[gwent.messaging.choice.Message],
+                     clear_prompt: bool = False):
+        return Message({
+            CHOICES: [c.instance for c in choices],
+            CLEAR_PROMPT: clear_prompt
+        }, subkind=CHOICES)
 
     @property
     def kind(self):
@@ -42,6 +49,22 @@ class Message(gwent.messaging.base.Message):
     @property
     def error(self):
         return self.instance.get(ERROR)
+
+    @property
+    def clear_choices(self):
+        return self.instance.get(CLEAR_CHOICES) == True
+
+    @property
+    def clear_prompt(self):
+        return self.instance.get(CLEAR_PROMPT) == True
+
+    @property
+    def has_ok(self):
+        return self.instance.get(OK) == True
+
+    @property
+    def has_cancel(self):
+        return self.instance.get(CANCEL) == True
 
     @property
     def choices(self):
