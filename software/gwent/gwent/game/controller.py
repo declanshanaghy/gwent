@@ -66,13 +66,13 @@ class Controller(gwent.game.Component):
         await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
                              gwent.messaging.card.KIND,
                              self.process_card)
-        await self.subscribe(gwent.game.CH_MFD_CHOICE,
+        await self.subscribe(gwent.game.CH_MFD_CHOOSE,
                              gwent.messaging.choice.KIND,
                              self.process_choice)
 
     async def shutdown(self):
         await self.unsubscribe(gwent.game.CH_CARDS_RAW_READ)
-        await self.unsubscribe(gwent.game.CH_MFD_CHOICE)
+        await self.unsubscribe(gwent.game.CH_MFD_CHOOSE)
 
     async def run(self):
         await self.start_main_menu()
