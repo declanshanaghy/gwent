@@ -17,14 +17,17 @@ CHOICES = 'choices'
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
-    def with_prompt(prompt: str, ok: bool = False, cancel: bool = False,
-                    clear_choices: bool = False):
-        return Message({
-            PROMPT: prompt,
-            OK: ok,
-            CANCEL: cancel,
-            CLEAR_CHOICES: clear_choices,
-        }, subkind=PROMPT)
+    def with_prompt(prompt: str, ok: bool = None, cancel: bool = None,
+                    clear_choices: bool = None):
+        m = { PROMPT: prompt }
+        if ok is not None:
+            m[OK] = ok
+        if cancel is not None:
+            m[CANCEL] = cancel
+        if clear_choices is not None:
+            m[CLEAR_CHOICES] = clear_choices
+
+        return Message(m, subkind=PROMPT)
 
     @staticmethod
     def with_error(error: str):
@@ -60,11 +63,19 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def has_ok(self):
-        return self.instance.get(OK) == True
+        return OK in self.instance
+
+    @property
+    def ok(self):
+        return self.instance[OK]
 
     @property
     def has_cancel(self):
-        return self.instance.get(CANCEL) == True
+        return CANCEL in self.instance
+
+    @property
+    def cancel(self):
+        return self.instance[CANCEL]
 
     @property
     def choices(self):

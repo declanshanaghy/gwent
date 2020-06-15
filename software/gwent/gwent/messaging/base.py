@@ -44,10 +44,6 @@ class Message(object):
         return True
 
     def validate(self):
-        self._log.debug({
-            'action': 'validate',
-            'kind': self.kind,
-        })
         jsonschema.validate(instance=self.instance, schema=self.get_schema())
         self.validate_xtra()
 

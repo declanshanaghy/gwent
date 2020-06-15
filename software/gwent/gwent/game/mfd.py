@@ -11,6 +11,7 @@ import gwent.hal.mfd
 
 
 class MFD(gwent.game.Component):
+    _task_chooser = None
 
     def __init__(self, loop: asyncio.AbstractEventLoop,
                  pubsub: asyncio_mqtt.Client):
@@ -25,24 +26,33 @@ class MFD(gwent.game.Component):
     async def shutdown(self):
         await self.unsubscribe(gwent.game.CH_MFD_PRESENT)
 
+    async def cancel_chooser(self):
+        if (self._task_chooser is not None and
+                not self._task_chooser.done()):
+            self._log.debug("Previous chooser being canceled")
+            self._task_chooser.cancel()
+
     async def process_mfd(self, mfd: gwent.messaging.mfd.Message):
         self._log.info({
             'action': 'received mfd',
             'kind': mfd.kind,
-            'subkind': mfd.subkind,
-            'prompt': mfd.prompt,
-            'choices': mfd.choices,
+            'body': mfd.body,
         })
+        await self.cancel_chooser()
 
-        choice = None
+        async def receive_choice(mfd_method):
+            choice = await mfd_method(mfd)
+            await self.publish(gwent.game.CH_MFD_CHOICE, choice)
+
         if mfd.subkind == gwent.messaging.mfd.ERROR:
-            choice = await self._mfd.present_error(mfd)
+            self._task_chooser = self._loop.create_task(
+                receive_choice(self._mfd.present_error))
         elif mfd.subkind == gwent.messaging.mfd.PROMPT:
-            choice = await self._mfd.present_prompt(mfd)
+            self._task_chooser = self._loop.create_task(
+                receive_choice(self._mfd.present_prompt))
         elif mfd.subkind == gwent.messaging.mfd.CHOICES:
-            choice = await self._mfd.present_choices(mfd)
+            self._task_chooser = self._loop.create_task(
+                receive_choice(self._mfd.present_choices))
         else:
             self._log._error(f'Unhandled subkind {mfd.subkind}')
 
-        if choice:
-            await self.publish(gwent.game.CH_MFD_CHOICE, choice)

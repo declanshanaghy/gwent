@@ -77,7 +77,7 @@ class Gwent(object):
         await self.shutdown()
 
 if __name__ == '__main__':
-    gwent.log.setup(level='info')
+    gwent.log.setup(level='debug')
     try:
         asyncio.run(Gwent().main())
     except asyncio.CancelledError as ex:

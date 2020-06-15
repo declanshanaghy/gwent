@@ -115,7 +115,6 @@ class IChooser(object):
 
 
 class _MFD(gwent.hal.Component):
-    _task_await_choice = None
 
     def __init__(self, choice_presenter: IPresenter, chooser: IChooser,
                  loop: asyncio.AbstractEventLoop = None):
@@ -144,22 +143,23 @@ class _MFD(gwent.hal.Component):
             self._presenter.clear_choices()
 
         if mfd.has_ok:
-            ok = gwent.messaging.choice.Message.new_ok()
+            if mfd.ok:
+                ok = gwent.messaging.choice.Message.new_ok()
+            else:
+                ok = None
             self._presenter.ok = ok
 
         if mfd.has_cancel:
-            cancel = gwent.messaging.choice.Message.new_cancel()
+            if mfd.cancel:
+                cancel = gwent.messaging.choice.Message.new_cancel()
+            else:
+                cancel = None
             self._presenter.cancel = cancel
 
         await self._presenter.redraw()
         return await self._chooser.choose(self._presenter.all_choices)
 
     async def present_choices(self, mfd: gwent.messaging.mfd.Message):
-        if (self._task_await_choice is not None and
-                not self._task_await_choice.done()):
-            self._log.info("Previous choices being replaced")
-            self._task_await_choice.cancel()
-
         if mfd.clear_prompt:
             self._presenter.clear_prompt()
 
@@ -193,8 +193,8 @@ class ConsolePresenter(IPresenter):
 
             for cid, choice in self._choices.items():
                 await aioconsole.aprint(f'{cid}:\t{choice.text}')
-            if self._ok:
+            if self._ok is not None:
                 await aioconsole.aprint(f'{self._ok.id}:\t{self._ok.text}')
-            if self._cancel:
+            if self._cancel is not None:
                 await aioconsole.aprint(
                     f'{self._cancel.id}:\t{self._cancel.text}')

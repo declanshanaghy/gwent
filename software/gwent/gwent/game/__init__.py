@@ -12,6 +12,8 @@ SEP = '/'
 MAIN_CHANNEL = 'gwent'
 
 CH_CTRL = SEP.join((MAIN_CHANNEL, 'ctrl'))
+CH_GAMESTAGE = SEP.join((CH_CTRL, 'stage'))
+
 CH_CARDS = SEP.join((MAIN_CHANNEL, 'cards'))
 CH_CARDS_RAW = SEP.join((CH_CARDS, 'raw'))
 CH_CARDS_RAW_READ = SEP.join((CH_CARDS_RAW, 'read'))
@@ -67,7 +69,7 @@ class Component(object):
                 async for message in messages:
                     decoded = message.payload.decode()
                     self._log.debug({
-                        'action': 'received message',
+                        'action': 'received raw message',
                         'topic': message.topic,
                         'message': decoded,
                     })
