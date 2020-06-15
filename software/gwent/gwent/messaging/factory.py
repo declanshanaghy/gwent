@@ -1,12 +1,11 @@
 import json
 import logging
-from typing import List
 
 import gwent.messaging.base
-import gwent.messaging.cards.card
-import gwent.messaging.mfd.choice
-import gwent.messaging.mfd.mfd
-import gwent.messaging.sfx.sfx
+import gwent.messaging.card
+import gwent.messaging.choice
+import gwent.messaging.mfd
+import gwent.messaging.sfx
 
 
 _log = logging.getLogger('factory')
@@ -21,10 +20,10 @@ class UnhandledFactoryKind(Exception):
 
 
 _constructors = {
-    gwent.messaging.cards.card.KIND: gwent.messaging.cards.card.Message,
-    gwent.messaging.mfd.choice.KIND: gwent.messaging.mfd.choice.Message,
-    gwent.messaging.mfd.mfd.KIND: gwent.messaging.mfd.mfd.Message,
-    gwent.messaging.sfx.sfx.KIND: gwent.messaging.sfx.sfx.Message,
+    gwent.messaging.card.KIND: gwent.messaging.card.Message,
+    gwent.messaging.choice.KIND: gwent.messaging.choice.Message,
+    gwent.messaging.mfd.KIND: gwent.messaging.mfd.Message,
+    gwent.messaging.sfx.KIND: gwent.messaging.sfx.Message,
 }
 
 def unmarshall(msg: str, expect_kind:str=None) -> gwent.messaging.base.Message:

@@ -1,8 +1,8 @@
-import gwent.messaging.cards
+import gwent.cards
 
-FACTION = gwent.messaging.cards.SCOIATAEL
+FACTION = gwent.cards.SCOIATAEL
 CARDS_BY_FACTION = {
-    gwent.messaging.cards.SCOIATAEL: {
+    gwent.cards.SCOIATAEL: {
         "Francesca Findabair - Pureblood Elf": {
             "specialty": "leader",
             "leader": {

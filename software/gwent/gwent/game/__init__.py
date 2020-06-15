@@ -6,7 +6,7 @@ import asyncio_mqtt
 
 import gwent.messaging.base
 import gwent.messaging.factory
-import gwent.messaging.mfd.mfd
+import gwent.messaging.mfd
 
 SEP = '/'
 MAIN_CHANNEL = 'gwent'
@@ -37,7 +37,7 @@ class Component(object):
         self._pubsub = pubsub
 
     async def publish_error(self, error: str):
-        mfd = gwent.messaging.mfd.mfd.Message.from_properties(error=error)
+        mfd = gwent.messaging.mfd.Message.from_properties(error=error)
         await self.publish(CH_MFD_PRESENT, mfd)
 
     async def init(self):

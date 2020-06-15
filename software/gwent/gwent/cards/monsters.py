@@ -1,8 +1,8 @@
-import gwent.messaging.cards
+import gwent.cards
 
-FACTION = gwent.messaging.cards.MONSTERS
+FACTION = gwent.cards.MONSTERS
 CARDS_BY_FACTION = {
-    gwent.messaging.cards.MONSTERS: {
+    gwent.cards.MONSTERS: {
         "Eredin - King of the Wild Hunt": {
             "specialty": "leader",
             "leader": {

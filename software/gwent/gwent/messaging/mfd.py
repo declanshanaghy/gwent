@@ -1,7 +1,7 @@
 from typing import List, Iterable
 
 import gwent.messaging.base
-import gwent.messaging.mfd.choice
+import gwent.messaging.choice
 
 KIND = 'mfd'
 
@@ -27,7 +27,7 @@ class Message(gwent.messaging.base.Message):
         return Message({ERROR: error}, subkind=ERROR)
 
     @staticmethod
-    def with_choices(choices:List[gwent.messaging.mfd.choice.Message]):
+    def with_choices(choices:List[gwent.messaging.choice.Message]):
         return Message({CHOICES: [c.instance for c in choices]},
                        subkind=CHOICES)
 
@@ -54,6 +54,6 @@ class Message(gwent.messaging.base.Message):
         for c in self.choice_iter():
             yield c.id
 
-    def choice_iter(self) -> Iterable[gwent.messaging.mfd.choice.Message]:
+    def choice_iter(self) -> Iterable[gwent.messaging.choice.Message]:
         for choice in self.choices:
-            yield gwent.messaging.mfd.choice.Message(choice)
+            yield gwent.messaging.choice.Message(choice)

@@ -8,8 +8,8 @@ import logging
 
 import gwent.hal
 import gwent.messaging.base
-import gwent.messaging.cards.card
-import gwent.messaging.cards.util
+import gwent.messaging.card
+import gwent.cards.util
 
 BLOCK_SIZE = 16
 SECTOR_SIZE = 4
@@ -42,15 +42,15 @@ class _BaseReader(gwent.hal.Component):
             self.last_log = time.time()
         return r
 
-    def read_card(self) -> gwent.messaging.cards.card.Message:
+    def read_card(self) -> gwent.messaging.card.Message:
         start = time.time()
         s_details, id = self.read_card_impl()
 
         card = None
         if id is not None:
             j_details = json.loads(s_details)
-            card = gwent.messaging.cards.card.Message.from_properties(j_details,
-                                                                 rfid=id)
+            card = gwent.messaging.card.Message.from_properties(j_details,
+                                                                rfid=id)
 
         if self.should_log():
             end = time.time()
@@ -121,7 +121,7 @@ class _RealReader(_BaseReader):
 
     def _read_card_header(self) -> dict:
         # Assumes the header only takes up 1 sector
-        header_sector = gwent.messaging.cards.card.Message.header_sector_start()
+        header_sector = gwent.messaging.card.Message.header_sector_start()
         trailer, blocks = _RealReader.get_blocks(header_sector)
         id, header = self.read_sector(trailer=trailer, blocks=blocks)
 
@@ -137,8 +137,8 @@ class _RealReader(_BaseReader):
         return header
 
     def _read_card_body(self, bytes: int) -> (str, int):
-        sectors = gwent.messaging.cards.card.Message.sector_range(
-            gwent.messaging.cards.card.Message.body_sector_start(), bytes)
+        sectors = gwent.messaging.card.Message.sector_range(
+            gwent.messaging.card.Message.body_sector_start(), bytes)
         body = ""
         id = 0
 
@@ -176,7 +176,7 @@ class _RealReader(_BaseReader):
 
 
 class _BaseWriter(_BaseReader):
-    def write_card(self, card: gwent.messaging.cards.card.Message) -> int:
+    def write_card(self, card: gwent.messaging.card.Message) -> int:
         start = time.time()
         id = self.write_card_impl(card)
 
@@ -197,14 +197,14 @@ class _BaseWriter(_BaseReader):
 
         return card.rfid
 
-    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+    def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         raise NotImplementedError('subclass must implement write_card_impl')
 
 
 class _FakeWriter(_BaseWriter, _FakeReader):
     flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
 
-    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+    def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         exists = os.path.exists(self.flag_write_file)
         if exists:
             os.unlink(self.flag_write_file)
@@ -214,7 +214,7 @@ class _FakeWriter(_BaseWriter, _FakeReader):
 
 
 class _RealWriter(_BaseWriter, _RealReader):
-    def write_card_impl(self, card: gwent.messaging.cards.card.Message) -> int:
+    def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         # import pydevd_pycharm
         # pydevd_pycharm.settrace('192.168.1.143', port=31337,
         #                         stdoutToServer=True, stderrToServer=True)
@@ -229,7 +229,7 @@ class _RealWriter(_BaseWriter, _RealReader):
 
         return id1
 
-    def _write_card_header(self, card: gwent.messaging.cards.card.Message) -> (
+    def _write_card_header(self, card: gwent.messaging.card.Message) -> (
             int, str):
         self._log.debug({
             'action': '_write_card_header',
@@ -239,7 +239,7 @@ class _RealWriter(_BaseWriter, _RealReader):
         return self._write_str(
             card.header, sectors=card.header_sectors())
 
-    def _write_card_body(self, card: gwent.messaging.cards.card.Message) -> (
+    def _write_card_body(self, card: gwent.messaging.card.Message) -> (
     int, str):
         self._log.debug({
             'action': '_write_card_body',

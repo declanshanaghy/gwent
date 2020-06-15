@@ -1,8 +1,8 @@
-import gwent.messaging.cards
+import gwent.cards
 
-FACTION = gwent.messaging.cards.NILFGAARDIAN
+FACTION = gwent.cards.NILFGAARDIAN
 CARDS_BY_FACTION = {
-    gwent.messaging.cards.NILFGAARDIAN: {
+    gwent.cards.NILFGAARDIAN: {
         "Emhyr var Emreis - His Imperial Majesty: 1": {
             "specialty": "leader",
             "leader": {
