@@ -23,7 +23,7 @@ CH_CARDS_PLAY = SEP.join((CH_CARDS, 'play'))
 
 CH_MFD = SEP.join((MAIN_CHANNEL, 'mfd'))
 CH_MFD_PRESENT = SEP.join((CH_MFD, 'present'))
-CH_MFD_CHOICE = SEP.join((CH_MFD, 'choice'))
+CH_MFD_CHOOSE = SEP.join((CH_MFD, 'choose'))
 
 CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
 

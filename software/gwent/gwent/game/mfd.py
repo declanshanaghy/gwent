@@ -42,7 +42,7 @@ class MFD(gwent.game.Component):
 
         async def receive_choice(mfd_method):
             choice = await mfd_method(mfd)
-            await self.publish(gwent.game.CH_MFD_CHOICE, choice)
+            await self.publish(gwent.game.CH_MFD_CHOOSE, choice)
 
         if mfd.subkind == gwent.messaging.mfd.ERROR:
             self._task_chooser = self._loop.create_task(
