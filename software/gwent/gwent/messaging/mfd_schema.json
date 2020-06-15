@@ -33,17 +33,14 @@
         },
         "ok": {
           "type": "boolean",
-          "default": false,
           "description": "Flag insicating whether to show an OK selection"
         },
         "cancel": {
           "type": "boolean",
-          "default": false,
           "description": "Flag insicating whether to show a CANCEL selection"
         },
         "clear_choices": {
           "type": "boolean",
-          "default": false,
           "description": "Flag indicating whether to clear out the existing choices"
         }
       }

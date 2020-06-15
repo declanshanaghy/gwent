@@ -11,25 +11,28 @@
       "description": "Indicates the content of this message",
       "type": "string",
       "enum": [
-        "state"
+        "stage"
       ]
     }
   },
   "oneOf": [
-    { "$ref": "#/definitions/State" }
+    { "$ref": "#/definitions/Stage" }
   ],
   "definitions": {
-    "State": {
+    "Stage": {
       "type": "object",
-      "required": [
-        "state"
-      ],
+      "required": ["stage", "active"],
       "properties": {
-        "state": {
+        "stage": {
           "type": "string",
           "enum": [
-            "NewGame"
+            "MainMenu",
+            "RegisterLeaders",
+            "RegisterDecks"
           ]
+        },
+        "active": {
+          "type": "boolean"
         }
       }
     }

@@ -43,8 +43,10 @@ class _BaseReader(gwent.hal.Component):
         return r
 
     def read_card(self) -> gwent.messaging.card.Message:
+        should_log = self.should_log()
+
         start = time.time()
-        s_details, id = self.read_card_impl()
+        s_details, id = self.read_card_impl(should_log)
 
         card = None
         if id is not None:
@@ -65,15 +67,25 @@ class _BaseReader(gwent.hal.Component):
 
         return card
 
-    def read_card_impl(self) -> (str, int):
+    def read_card_impl(self, should_log:bool) -> (str, int):
         raise NotImplementedError('subclass must implement read_card_impl')
 
 
 class _FakeReader(_BaseReader):
     flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
 
-    def read_card_impl(self) -> (str, int):
+    def __init__(self):
+        super().__init__()
+        self._log.debug({'flag_read_file': self.flag_read_file})
+
+    def read_card_impl(self, should_log:bool) -> (str, int):
         exists = os.path.exists(self.flag_read_file)
+        if should_log:
+            self._log.debug({
+                'action': 'read_card_impl',
+                'flag_read_file': self.flag_read_file,
+                'exists': exists,
+            })
         if exists:
             with open(self.flag_read_file) as f:
                 details = f.read()
@@ -93,8 +105,13 @@ class _RealReader(_BaseReader):
             import mfrc522
             self._rfid = mfrc522.SimpleMFRC522()
 
-    def read_card_impl(self) -> (str, int):
+    def read_card_impl(self, should_log:bool) -> (str, int):
         header = self._read_card_header()
+        if should_log:
+            self._log.debug({
+                'action': 'read_card_impl',
+                'header': header,
+            })
         if header is not None:
             return self._read_card_body(bytes=header['bytes'])
         else:
@@ -203,6 +220,10 @@ class _BaseWriter(_BaseReader):
 
 class _FakeWriter(_BaseWriter, _FakeReader):
     flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
+
+    def __init__(self):
+        super().__init__()
+        self._log.debug({'flag_write_file': self.flag_write_file})
 
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         exists = os.path.exists(self.flag_write_file)

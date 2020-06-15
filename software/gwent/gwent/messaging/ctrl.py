@@ -5,21 +5,30 @@ import gwent.messaging.choice
 
 KIND = 'ctrl'
 
-STATE = 'state'
-STATE_NEWGAME = 'NewGame'
+STAGE = 'stage'
+ACTIVE = 'active'
+
+STAGE_MAIN_MENU = 'MainMenu'
+STAGE_REGSITER_LEADERS = 'RegisterLeaders'
+STAGE_REGSITER_DECKS = 'RegisterDecks'
 
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
-    def with_state(state: str):
+    def with_stage(state: str, active: bool):
         return Message({
-            STATE: state,
-        }, subkind=STATE)
+            STAGE: state,
+            ACTIVE: active,
+        }, subkind=STAGE)
 
     @property
     def kind(self):
         return KIND
 
     @property
-    def state(self):
-        return self.instance.get(STATE)
+    def stage(self):
+        return self.instance[STAGE]
+
+    @property
+    def active(self):
+        return self.instance[ACTIVE]

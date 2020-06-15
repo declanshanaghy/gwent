@@ -18,8 +18,7 @@ class SFX(gwent.game.Component):
     async def process_sfx(self, sfx: gwent.messaging.sfx.Message):
         self._log.info({
             'action': 'received sfx',
-            'sfx.action': sfx.action,
-            'speech': sfx.speech,
+            'body': sfx.body,
         })
         await self._tts.announce(sfx)
 
