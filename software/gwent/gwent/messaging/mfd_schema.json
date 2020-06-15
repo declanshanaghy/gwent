@@ -9,7 +9,7 @@
   "properties": {
     "subkind": {
       "type": "string",
-      "description": "An informative prompt to the user",
+      "description": "Indicates the content of this message",
       "enum": [
         "prompt",
         "error",
@@ -18,12 +18,37 @@
     }
   },
   "oneOf": [
-    { "$ref": "#/definitions/prompt" },
-    { "$ref": "#/definitions/error" },
-    { "$ref": "#/definitions/choices" }
+    { "$ref": "#/definitions/Prompt" },
+    { "$ref": "#/definitions/Error" },
+    { "$ref": "#/definitions/Choices" }
   ],
   "definitions": {
-    "error": {
+    "Prompt": {
+      "type": "object",
+      "required": ["prompt"],
+      "properties": {
+        "prompt": {
+          "type": "string",
+          "description": "An informative prompt to the user"
+        },
+        "ok": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag insicating whether to show an OK selection"
+        },
+        "cancel": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag insicating whether to show a CANCEL selection"
+        },
+        "clear_choices": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag indicating whether to clear out the existing choices"
+        }
+      }
+    },
+    "Error": {
       "type": "object",
       "required": ["error"],
       "properties": {
@@ -33,25 +58,7 @@
         }
       }
     },
-    "prompt": {
-      "type": "object",
-      "required": ["prompt", "ok", "cancel"],
-      "properties": {
-        "prompt": {
-          "type": "string",
-          "description": "An informative prompt to the user"
-        },
-        "ok": {
-          "type": "boolean",
-          "description": "Flag insicating whether to show an OK selection"
-        },
-        "cancel": {
-          "type": "boolean",
-          "description": "Flag insicating whether to show a CANCEL selection"
-        }
-      }
-    },
-    "choices": {
+    "Choices": {
       "type": "object",
       "required": ["choices"],
       "properties": {
@@ -61,6 +68,11 @@
           "items": {
             "$ref": "#/definitions/choice"
           }
+        },
+        "clear_prompt": {
+          "type": "boolean",
+          "default": false,
+          "description": "Flag indicating whether to clear the prompt"
         }
       }
     },

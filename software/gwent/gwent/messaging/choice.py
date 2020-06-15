@@ -6,6 +6,8 @@ KIND = 'choice'
 ID = 'id'
 TEXT = 'text'
 
+OK = 'ok'
+CANCEL = 'cancel'
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
@@ -13,6 +15,30 @@ class Message(gwent.messaging.base.Message):
         instance = {
             ID: id,
             TEXT: text
+        }
+        return Message(instance)
+
+    @staticmethod
+    def from_dict(obj: dict):
+        instance = {
+            ID: obj[ID],
+            TEXT: obj[TEXT]
+        }
+        return Message(instance)
+
+    @staticmethod
+    def new_ok():
+        instance = {
+            ID: OK,
+            TEXT: OK
+        }
+        return Message(instance)
+
+    @staticmethod
+    def new_cancel():
+        instance = {
+            ID: CANCEL,
+            TEXT: CANCEL
         }
         return Message(instance)
 

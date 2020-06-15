@@ -1,3 +1,4 @@
+import asyncio
 import collections
 from typing import Callable
 
@@ -6,6 +7,7 @@ import asyncio_mqtt
 import gwent.game.errors
 import gwent.messaging.base
 import gwent.messaging.card
+import gwent.messaging.ctrl
 import gwent.messaging.factory
 import gwent.messaging.mfd
 import gwent.messaging.choice
@@ -15,7 +17,7 @@ import gwent.hal.tts
 
 
 class IGameStage(gwent.game.Component):
-    async def activate(self, completed:Callable, cancel:Callable):
+    async def activate(self, completed: Callable, cancel: Callable):
         self.completed = completed
         self.cancel = cancel
 
@@ -38,7 +40,7 @@ class Controller(gwent.game.Component):
     def __init__(self, loop, pubsub: asyncio_mqtt.Client):
         super().__init__(loop, pubsub)
         self.main_menu = MainMenuStage(self._loop, self._pubsub)
-        self.register_players = RegisterPlayersStage(self._loop, self._pubsub)
+        self.register_players = RegisterLeadersStage(self._loop, self._pubsub)
 
     async def init(self):
         await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
@@ -56,7 +58,8 @@ class Controller(gwent.game.Component):
         await self.start_main_menu()
         await super().run()
 
-    async def set_active_state(self, st: IGameStage, completed:Callable, cancel:Callable):
+    async def set_active_state(self, st: IGameStage, completed: Callable,
+                               cancel: Callable):
         if self.active_state is not None:
             await self.active_state.deactivate()
 
@@ -65,20 +68,22 @@ class Controller(gwent.game.Component):
 
     async def start_main_menu(self):
         self._log.info('Starting main menu stage')
+
         async def completed():
             self._log.info('main menu completed')
             await self.start_register_players()
 
         async def cancel():
-            self._log.error("main menu can't be canceled")
+            self._log._error("main menu can't be canceled")
             pass
 
         await self.set_active_state(self.main_menu, completed, cancel)
 
     async def start_register_players(self):
         self._log.info('Starting register players stage')
+
         async def completed():
-            raise NotImplementedError('next stage not implemented')
+            await self.start_main_menu()
 
         async def cancel():
             self._log.info('Register players canceled')
@@ -94,7 +99,7 @@ class Controller(gwent.game.Component):
 
 
 class MainMenuStage(IGameStage):
-    async def activate(self, completed:Callable, cancel:Callable):
+    async def activate(self, completed: Callable, cancel: Callable):
         await super().activate(completed, cancel)
         await self.publish_main_menu()
 
@@ -103,30 +108,51 @@ class MainMenuStage(IGameStage):
             gwent.messaging.choice.Message.from_properties(
                 '1', 'Start Game')
         ]
-        mfd = gwent.messaging.mfd.Message.with_choices(choices)
+        mfd = gwent.messaging.mfd.Message.with_choices(
+            choices, clear_prompt=True)
         await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
 
-    async def process_choice(self, message: gwent.messaging.choice.Message):
+    async def process_choice(self, choice: gwent.messaging.choice.Message):
+        ctrl = gwent.messaging.ctrl.Message.with_state(
+            gwent.messaging.ctrl.STATE_NEWGAME)
+        await self.publish(gwent.game.CH_CTRL, ctrl)
         await self.completed()
 
 
-class RegisterPlayersStage(IGameStage):
+class RegisterLeadersStage(IGameStage):
     PlayerDeck = collections.namedtuple('PlayerDeck',
                                         'faction leader cards')
     players = []
 
-    async def activate(self, completed:Callable, cancel:Callable):
+    async def activate(self, completed: Callable, cancel: Callable):
         await super().activate(completed, cancel)
         self.players = []
-        await self.publish_main_prompt()
-
-    async def publish_main_prompt(self):
-        mfd = gwent.messaging.mfd.Message.with_prompt(
-            prompt="Players...register your decks", ok=True, cancel=True)
-        await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
+        await self.publish_start_prompt()
 
     async def deactivate(self):
         pass
+
+    async def publish_start_prompt(self):
+        prompt = gwent.messaging.mfd.Message.with_prompt(
+            prompt="Players...Register your leaders",
+            ok=True, cancel=True, clear_choices=True)
+        await self.publish(gwent.game.CH_MFD_PRESENT, prompt)
+
+    async def publish_error(self, err: str):
+        error = gwent.messaging.mfd.Message.with_error(error=err)
+        await self.publish(gwent.game.CH_MFD_PRESENT, error)
+
+    async def process_choice(self, choice: gwent.messaging.choice.Message):
+        self._log.debug({
+            'action': 'received choice',
+            'subkind': choice.subkind,
+            'id': choice.id,
+            'text': choice.text,
+        })
+        if choice.id == gwent.messaging.choice.OK:
+            await self.publish_error('Leaders are not registered yet!')
+        elif choice.id == gwent.messaging.choice.CANCEL:
+            await self.cancel()
 
     def find_deck(self, faction: str):
         for deck in self.players:

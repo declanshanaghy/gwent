@@ -27,21 +27,22 @@ class MFD(gwent.game.Component):
 
     async def process_mfd(self, mfd: gwent.messaging.mfd.Message):
         self._log.info({
-            'action': 'received message',
+            'action': 'received mfd',
             'kind': mfd.kind,
             'subkind': mfd.subkind,
             'prompt': mfd.prompt,
             'choices': mfd.choices,
         })
 
+        choice = None
         if mfd.subkind == gwent.messaging.mfd.ERROR:
-            await self._mfd.present_error(mfd)
+            choice = await self._mfd.present_error(mfd)
         elif mfd.subkind == gwent.messaging.mfd.PROMPT:
-          await self._mfd.present_prompt(mfd)
+            choice = await self._mfd.present_prompt(mfd)
         elif mfd.subkind == gwent.messaging.mfd.CHOICES:
             choice = await self._mfd.present_choices(mfd)
-            if choice:
-                await self.publish(gwent.game.CH_MFD_CHOICE, choice)
         else:
-            self._log.error(f'Unhandled subkind {mfd.subkind}')
+            self._log._error(f'Unhandled subkind {mfd.subkind}')
 
+        if choice:
+            await self.publish(gwent.game.CH_MFD_CHOICE, choice)
