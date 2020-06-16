@@ -1,5 +1,6 @@
 import logging
 import asyncio
+import time
 from typing import Any, Callable
 
 import asyncio_mqtt
@@ -28,17 +29,38 @@ CH_MFD_CHOOSE = SEP.join((CH_MFD, 'choose'))
 CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
 
 DEFAULT_ERROR_TIME = 3
+LOG_FREQ_SECS = 5
 
 
-class Component(object):
+class BaseComponent(object):
+    _last_log = time.time() - LOG_FREQ_SECS - 1
+    _log = None
+
+    def __init__(self):
+        self._log = logging.getLogger(
+            f'{self.__class__.__module__}.{self.__class__.__name__}')
+
+    def should_log(self) -> bool:
+        r = time.time() > self._last_log + LOG_FREQ_SECS
+        if r:
+            self._last_log = time.time()
+        return r
+
+
+class GameComponent(BaseComponent):
     _loop = None
+
+    def __init__(self, loop: asyncio.AbstractEventLoop):
+        super().__init__()
+        self._loop = loop
+
+
+class PubSubComponent(GameComponent):
     _pubsub = None
 
     def __init__(self, loop: asyncio.AbstractEventLoop,
                  pubsub: asyncio_mqtt.Client):
-        self._log = logging.getLogger(
-            f'{self.__class__.__module__}.{self.__class__.__name__}')
-        self._loop = loop
+        super().__init__(loop)
         self._pubsub = pubsub
 
     async def publish_error(self, error: str):
@@ -64,7 +86,6 @@ class Component(object):
                     'action': 'listening to',
                     'topic_filter': topic_filter,
                     'expect_kind': expect_kind,
-                    'messages': messages,
                 })
                 async for message in messages:
                     decoded = message.payload.decode()

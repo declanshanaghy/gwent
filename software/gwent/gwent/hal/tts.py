@@ -6,17 +6,18 @@ import pygame.mixer
 import gtts
 
 import gwent.hal
+import gwent.game
 import gwent.messaging.base
 
 
 def instance():
-    if gwent.hal.REAL:
+    if gwent.hal.real_mode():
         return _TTSReal()
     else:
         return _TTSFake()
 
 
-class _TTSFake(gwent.hal.Component):
+class _TTSFake(gwent.game.BaseComponent):
     async def announce(self, msg: gwent.messaging.base.Message):
         self._log.info({
             'action': 'announce',

@@ -15,7 +15,7 @@ import gwent.game
 import gwent.hal.tts
 
 
-class IGameStage(gwent.game.Component):
+class IGameStage(gwent.game.PubSubComponent):
     async def activate(self, complete: Callable, cancel: Callable):
         self.complete = complete
         self.cancel = cancel
@@ -51,7 +51,7 @@ class IGameStage(gwent.game.Component):
         })
 
 
-class Controller(gwent.game.Component):
+class Controller(gwent.game.PubSubComponent):
     active_stage = None
     register_leaders = None
     register_decks = None
@@ -147,7 +147,7 @@ class RegisterDecksStage(IGameStage):
 
     @property
     def stage(self):
-        return gwent.messaging.ctrl.STAGE_REGSITER_DECKS
+        return gwent.messaging.ctrl.STAGE_REGISTER_DECKS
 
     async def activate(self, complete: Callable, cancel: Callable):
         await super().activate(complete, cancel)
@@ -160,13 +160,21 @@ class RegisterDecksStage(IGameStage):
             ok=True, cancel=True, clear_choices=True)
         await self.publish(gwent.game.CH_MFD_PRESENT, prompt)
 
+    async def process_choice(self, choice: gwent.messaging.choice.Message):
+        await super().process_choice(choice)
+        self.complete()
+
+    async def process_card(self, card: gwent.messaging.card.Message):
+        await super().process_card(card)
+        self.complete()
+
 
 class RegisterLeadersStage(IGameStage):
     _leaders = None
 
     @property
     def stage(self):
-        return gwent.messaging.ctrl.STAGE_REGSITER_LEADERS
+        return gwent.messaging.ctrl.STAGE_REGISTER_LEADERS
 
     async def activate(self, complete: Callable, cancel: Callable):
         await super().activate(complete, cancel)
@@ -190,13 +198,13 @@ class RegisterLeadersStage(IGameStage):
     async def process_choice(self, choice: gwent.messaging.choice.Message):
         await super().process_choice(choice)
 
-        if choice.id == gwent.messaging.choice.OK:
+        if choice.id == gwent.messaging.choice.OK_ID:
             if len(self._leaders) < 2:
                 await self.publish_error('2 Leaders are not registered yet!')
             else:
                 leaders = [l for l in self._leaders.values()]
                 await self.complete(leaders[0], leaders[1])
-        elif choice.id == gwent.messaging.choice.CANCEL:
+        elif choice.id == gwent.messaging.choice.CANCEL_ID:
             await self.cancel()
 
     async def process_card(self, card: gwent.messaging.card.Message):
@@ -223,6 +231,8 @@ class RegisterLeadersStage(IGameStage):
 
 
 class MainMenuStage(IGameStage):
+    CHOICE_START_GAME_ID = '1'
+
     @property
     def stage(self):
         return gwent.messaging.ctrl.STAGE_MAIN_MENU
@@ -234,7 +244,11 @@ class MainMenuStage(IGameStage):
     async def publish_main_menu(self):
         choices = [
             gwent.messaging.choice.Message.from_properties(
-                '1', 'Start Game')
+                self.CHOICE_START_GAME_ID, 'Start Game'),
+            gwent.messaging.choice.Message.from_properties(
+                '2', 'Dummy 1'),
+            gwent.messaging.choice.Message.from_properties(
+                '3', 'Dummy 2'),
         ]
         mfd = gwent.messaging.mfd.Message.with_choices(
             choices, clear_prompt=True)
@@ -242,4 +256,11 @@ class MainMenuStage(IGameStage):
 
     async def process_choice(self, choice: gwent.messaging.choice.Message):
         await super().process_choice(choice)
-        await self.complete()
+        if choice.id == self.CHOICE_START_GAME_ID:
+            await self.complete()
+        else:
+            self._log.error({
+                'action': 'dummy_choice',
+                'text': choice.text,
+            })
+            await self.publish_main_menu()

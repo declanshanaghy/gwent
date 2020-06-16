@@ -9,8 +9,8 @@ STAGE = 'stage'
 ACTIVE = 'active'
 
 STAGE_MAIN_MENU = 'MainMenu'
-STAGE_REGSITER_LEADERS = 'RegisterLeaders'
-STAGE_REGSITER_DECKS = 'RegisterDecks'
+STAGE_REGISTER_LEADERS = 'RegisterLeaders'
+STAGE_REGISTER_DECKS = 'RegisterDecks'
 
 
 class Message(gwent.messaging.base.Message):

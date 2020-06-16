@@ -1,22 +1,24 @@
-import asyncio
-
 import logging
 import random
 
 
-REAL = True
-try:
-    import mfrc522
-except ImportError as ex:
-    REAL = False
+_REAL = None
 
+def real_mode():
+    if _REAL is None:
+        init()
 
-random.seed()
+    return _REAL
 
+def init():
+    log = logging.getLogger('hal')
+    random.seed()
+    global _REAL
 
-class Component(object):
-    _loop = None
+    try:
+        import mfrc522
+        _REAL = True
+    except ImportError:
+        _REAL = False
 
-    def __init__(self, loop: asyncio.AbstractEventLoop=None):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
-        self._loop = loop
+    log.info({'real_mode': _REAL})

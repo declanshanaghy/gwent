@@ -3,6 +3,7 @@ import logging
 
 import gwent.messaging.base
 import gwent.messaging.card
+import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.mfd
 import gwent.messaging.sfx
@@ -21,6 +22,7 @@ class UnhandledFactoryKind(Exception):
 
 _constructors = {
     gwent.messaging.card.KIND: gwent.messaging.card.Message,
+    gwent.messaging.ctrl.KIND: gwent.messaging.ctrl.Message,
     gwent.messaging.choice.KIND: gwent.messaging.choice.Message,
     gwent.messaging.mfd.KIND: gwent.messaging.mfd.Message,
     gwent.messaging.sfx.KIND: gwent.messaging.sfx.Message,

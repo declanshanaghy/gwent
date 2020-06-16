@@ -104,7 +104,7 @@ class RotaryEncoder:
             cycles = self.get_cycles()
             if(cycles != 0):
                 self.callback(cycles)
-            
+
 
     def get_steps(self):
         steps = self.steps

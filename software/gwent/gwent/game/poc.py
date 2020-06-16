@@ -2,6 +2,7 @@ import asyncio
 import functools
 import logging
 import signal
+import sys
 
 import gwent.log
 import gwent.messaging.base
@@ -15,7 +16,8 @@ import gwent.hal.tts
 
 class AsyncApp(object):
     def __init__(self):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._log = logging.getLogger(
+            f'{self.__class__.__module__}.{self.__class__.__name__}')
 
     async def shutdown(self, signal, loop):
         """Cleanup tasks tied to the service's shutdown."""
@@ -150,12 +152,20 @@ class CardWriterUtil(AsyncApp):
                 'id': id,
             })
 
-
-    def run(self):
+    def run(self, card: str = None):
         loop = asyncio.get_event_loop()
         self.setup_signal_handlers(loop)
 
-        card = gwent.cards.util.random_card()
+        if card is None:
+            card = gwent.cards.util.random_card()
+        else:
+            card = gwent.cards.util.read_card(card)
+
+        self._log.info({
+            'action': 'run',
+            'full_name': card.full_name,
+            'faction': card.faction,
+        })
         task = loop.create_task(self._write_card(card))
         loop.run_until_complete(task)
 
@@ -195,7 +205,7 @@ class CardReaderUtil(AsyncApp):
 
 
 # entrypoint to write a card
-def write_card():
+def write_card(card: str = None):
     # import pydevd_pycharm
     # pydevd_pycharm.settrace('192.168.1.143', port=31337,
     #                         stdoutToServer=True, stderrToServer=True)
@@ -207,8 +217,11 @@ def write_card():
     for faction, cards in gwent.cards.all.CARDS_BY_FACTION.items():
         log.info(f"{faction} has {len(cards.keys())} cards")
 
+    if card is None and len(sys.argv) == 2:
+        card = sys.argv[1]
+
     u = CardWriterUtil(gwent.cards.all.CARDS_BY_FACTION)
-    u.run()
+    u.run(card)
 
 
 # entrypoint to read a card
@@ -227,12 +240,13 @@ def read_card():
 if __name__ == '__main__':
     import pygame.mixer
     pygame.mixer.pre_init(frequency=44100, size=-16, channels=2)
-
     import pygame
     pygame.init()
 
-    import sys
     if len(sys.argv) > 1 and sys.argv[1] == 'write':
-        write_card()
+        card = None
+        if len(sys.argv) == 3:
+            card = sys.argv[2]
+        write_card(card)
     else:
         read_card()

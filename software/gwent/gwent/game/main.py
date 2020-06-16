@@ -3,13 +3,13 @@ import logging
 import signal
 
 import asyncio_mqtt
-import asyncio_mqtt
 
 import gwent.log
 import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
 import gwent.game.sfx
+import gwent.hal
 
 
 class Gwent(object):
@@ -76,9 +76,14 @@ class Gwent(object):
         await self.shutdown_components()
         await self.shutdown()
 
-if __name__ == '__main__':
-    gwent.log.setup(level='debug')
+
+def run():
+    gwent.log.setup(level='info')
     try:
         asyncio.run(Gwent().main())
     except asyncio.CancelledError as ex:
         logging.info(str(ex))
+
+
+if __name__ == '__main__':
+    run()
