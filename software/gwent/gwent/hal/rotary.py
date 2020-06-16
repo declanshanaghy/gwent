@@ -43,17 +43,7 @@ class RotaryEncoder(gwent.game.GameComponent):
     async def loop(self) -> (int, int, bool, bool):
         should_log = self.should_log()
 
-        start = time.time()
         self._delta = self._encoder.get_cycles()
-        end = time.time()
-        if should_log:
-            self._log.debug({
-                'action': 'get_cycles',
-                'start': start,
-                'end': end,
-                'duration': end - start,
-            })
-
         if self._delta != 0:
             self._counter += self._delta
             self._log.debug(f'count is {self._counter}')

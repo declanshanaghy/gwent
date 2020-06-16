@@ -28,8 +28,9 @@ CH_MFD_CHOOSE = SEP.join((CH_MFD, 'choose'))
 
 CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
 
-DEFAULT_ERROR_TIME = 3
-LOG_FREQ_SECS = 5
+DEFAULT_YIELD_TIME = 1.0
+LOG_FREQ_SECS = 1.0
+DEFAULT_ERROR_TIME = 3.0
 
 
 class BaseComponent(object):
@@ -41,6 +42,7 @@ class BaseComponent(object):
             f'{self.__class__.__module__}.{self.__class__.__name__}')
 
     def should_log(self) -> bool:
+        # return True
         r = time.time() > self._last_log + LOG_FREQ_SECS
         if r:
             self._last_log = time.time()
@@ -75,7 +77,7 @@ class PubSubComponent(GameComponent):
 
     async def run(self):
         while True:
-            await asyncio.sleep(1)
+            await asyncio.sleep(DEFAULT_YIELD_TIME)
 
     async def subscribe(self, topic_filter: str, expect_kind: str,
                         callback: Callable[

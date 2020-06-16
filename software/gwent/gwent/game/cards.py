@@ -52,7 +52,7 @@ class Reader(gwent.game.PubSubComponent):
                 #         'action': 'read_enabled',
                 #         'read_enabled': self._read_enabled,
                 #     })
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
             else:
                 card = await self._loop.run_in_executor(
                     None, self._rfid.read_card)

@@ -78,9 +78,9 @@ class Gwent(object):
 
 
 def run():
-    gwent.log.setup(level='info')
+    gwent.log.setup(level='debug')
     try:
-        asyncio.run(Gwent().main())
+        asyncio.run(Gwent().main(), debug=False)
     except asyncio.CancelledError as ex:
         logging.info(str(ex))
 
