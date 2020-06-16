@@ -5,6 +5,8 @@ import gaugette.gpio
 import gaugette.rotary_encoder
 import gaugette.switch
 
+# https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
+
 # Pin numbers are Wiring pin numbers.
 # They differ from hardware pin or GPIO ids.
 # Connect your C pin of the encoder to Ground.

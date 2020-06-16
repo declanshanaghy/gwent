@@ -1,11 +1,11 @@
 import asyncio
 import aioconsole
 import collections
-import logging
-from typing import List
+from typing import Any, Callable, List
 
 import gwent.game
 import gwent.hal
+import gwent.hal.rotary
 import gwent.messaging.base
 
 import gwent.messaging.mfd
@@ -13,16 +13,18 @@ import gwent.messaging.choice
 
 
 def instance(loop: asyncio.AbstractEventLoop):
-    if gwent.hal.REAL:
-        raise NotImplementedError('Real mode not implemented')
+    if gwent.hal.real_mode():
+        presenter = ConsolePresenter()
+        chooser = RotaryChooser(loop)
+        # chooser = ConsoleChooser(loop)
     else:
         presenter = ConsolePresenter()
-        chooser = ConsoleChooser()
+        chooser = ConsoleChooser(loop)
 
-    return _MFD(presenter, chooser, loop=loop)
+    return _MFD(presenter, chooser)
 
 
-class IPresenter(object):
+class IPresenter(gwent.game.BaseComponent):
     # Error properties
     _display_error = False
     _error = ''
@@ -34,8 +36,11 @@ class IPresenter(object):
 
     # Choice properties
     _choices = collections.OrderedDict()
+    _selected = None
+    _selected_idx = None
 
     def clear_choices(self):
+        self._selected = None
         self._choices = collections.OrderedDict()
 
     def clear_prompt(self):
@@ -103,27 +108,64 @@ class IPresenter(object):
     async def redraw(self):
         pass
 
+    @property
+    def selected_idx(self):
+        return self._selected_idx
 
-class IChooser(object):
-    def __init__(self):
-        self._log = logging.getLogger(self.__class__.__name__)
+    @property
+    def selected(self):
+        return self._selected
 
-    async def choose(self, choices: List[gwent.messaging.choice.Message]) -> \
+    async def select(self, choice: gwent.messaging.choice.Message):
+        self._selected_idx = 0
+        self._selected = choice
+        for choice2 in self.all_choices:
+            if choice.id == choice2.id:
+                break
+            self._selected_idx += 1
+
+        self._log.debug({
+            'action': 'select',
+            'selected': self._selected.body,
+            'selected_idx': self._selected_idx,
+            'id': choice.id,
+            'text': choice.text,
+        })
+        await self.redraw()
+
+    def is_selected(self, choice: gwent.messaging.choice.Message) -> bool:
+        return self._selected is not None and self._selected.id == choice.id
+
+    def selector_symbol(self, choice: gwent.messaging.choice.Message) -> str:
+        sel = "-"
+        if self.is_selected(choice):
+            sel = ">"
+        return sel
+
+
+class IChooser(gwent.game.GameComponent):
+    async def choose(self, choices: List[gwent.messaging.choice.Message],
+                     selected_idx: int,
+                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'await_choice')
 
 
-class _MFD(gwent.hal.Component):
+class _MFD(gwent.game.BaseComponent):
 
-    def __init__(self, choice_presenter: IPresenter, chooser: IChooser,
-                 loop: asyncio.AbstractEventLoop = None):
-        super().__init__(loop=loop)
+    def __init__(self, choice_presenter: IPresenter, chooser: IChooser):
+        super().__init__()
         self._presenter = choice_presenter
         self._chooser = chooser
 
     async def present_error(self, mfd: gwent.messaging.mfd.Message,
                             delay: int = gwent.game.DEFAULT_ERROR_TIME):
+        self._log.debug({
+            'action': 'present_error',
+            'error': mfd.error,
+        })
+
         self._presenter.error = mfd.error
         self._presenter.display_error()
         await self._presenter.redraw()
@@ -133,9 +175,16 @@ class _MFD(gwent.hal.Component):
             self._presenter.display_prompt()
             await self._presenter.redraw()
 
-        return await self._chooser.choose(self._presenter.all_choices)
+        if len(self._presenter.all_choices) > 0:
+            return await self._chooser.choose(self._presenter.all_choices,
+                                              self._presenter.selected_idx,
+                                              self._presenter.select)
 
     async def present_prompt(self, mfd: gwent.messaging.mfd.Message):
+        self._log.debug({
+            'action': 'present_prompt',
+            'prompt': mfd.prompt,
+        })
         self._presenter.prompt = mfd.prompt
         self._presenter.display_prompt()
 
@@ -156,10 +205,22 @@ class _MFD(gwent.hal.Component):
                 cancel = None
             self._presenter.cancel = cancel
 
-        await self._presenter.redraw()
-        return await self._chooser.choose(self._presenter.all_choices)
+        all_choices = self._presenter.all_choices
+        if self._presenter.selected is None and len(all_choices) > 0:
+            await self._presenter.select(all_choices[0])
+        else:
+            await self._presenter.redraw()
+
+        if len(all_choices) > 0:
+            return await self._chooser.choose(all_choices,
+                                              self._presenter.selected_idx,
+                                              self._presenter.select)
 
     async def present_choices(self, mfd: gwent.messaging.mfd.Message):
+        self._log.debug({
+            'action': 'present_choices',
+            'choices': mfd.choices,
+        })
         if mfd.clear_prompt:
             self._presenter.clear_prompt()
 
@@ -167,20 +228,90 @@ class _MFD(gwent.hal.Component):
         self._presenter.choices = [gwent.messaging.choice.Message.from_dict(c)
                                    for c in mfd.choices]
 
-        await self._presenter.redraw()
-        return await self._chooser.choose(self._presenter.all_choices)
+        all_choices = self._presenter.all_choices
+        if self._presenter.selected is None and len(all_choices) > 0:
+            await self._presenter.select(all_choices[0])
+        else:
+            await self._presenter.redraw()
+
+        if len(all_choices) > 0:
+            return await self._chooser.choose(all_choices,
+                                              self._presenter.selected_idx,
+                                              self._presenter.select)
 
 
 class ConsoleChooser(IChooser):
-    async def choose(self, choices: List[gwent.messaging.choice.Message]) -> \
+    async def choose(self, choices: List[gwent.messaging.choice.Message],
+                     selected_idx: int,
+                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
+        idx = selected_idx
         while True:
             cid = await aioconsole.ainput("Enter choice: ")
-            for choice in choices:
-                if cid == choice.id:
-                    self._log.info(f'{cid} has been chosen')
-                    return choice
-            self._log.error(f"'{cid}' is not a valid choice")
+            if cid == 's':
+                return choices[idx]
+            elif cid == 'u' or cid == 'd':
+                if cid == 'u':
+                    idx -= 1
+                if cid == 'd':
+                    idx += 1
+                self._log.debug({
+                    'action': 'set idx unbounded',
+                    'idx': idx,
+                })
+
+                if idx < 0:
+                    idx = len(choices)-1
+                    self._log.debug({
+                        'action': 'idx wrapped down',
+                        'idx': idx,
+                    })
+                elif idx >= len(choices):
+                    idx = 0
+                    self._log.debug({
+                        'action': 'idx wrapped up',
+                        'idx': idx,
+                    })
+                await select(choices[idx])
+            else:
+                for choice in choices:
+                    if cid == choice.id:
+                        self._log.info(f'{cid} has been chosen')
+                        return choice
+                self._log.error(f"'{cid}' is not a valid choice")
+
+
+class RotaryChooser(IChooser):
+    def __init__(self, loop:asyncio.AbstractEventLoop):
+        super().__init__(loop)
+        self.rotary = gwent.hal.rotary.RotaryEncoder(loop)
+
+
+    async def choose(self, choices: List[gwent.messaging.choice.Message],
+                     selected_idx: int,
+                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
+            gwent.messaging.choice.Message:
+        await self.rotary.start()
+
+        choice = choices[selected_idx]
+        while True:
+            delta, count, sw_changed, sw_state = await self.rotary.loop()
+            if delta != 0:
+                idx = count % len(choices)
+                choice = choices[idx]
+                self._log.debug({
+                    'action': 'select',
+                    'delta': delta,
+                    'count': count,
+                    'len(choices)': len(choices),
+                    'idx': idx,
+                    'choice.id': choice.id,
+                    'choice.text': choice.text,
+                })
+                await select(choice)
+
+            if sw_changed and not sw_state:  # Release click
+                return choice
 
 
 class ConsolePresenter(IPresenter):
@@ -188,13 +319,19 @@ class ConsolePresenter(IPresenter):
         if self._display_error:
             await aioconsole.aprint(self._error)
         else:
+            await aioconsole.aprint('----------------------------------')
+
             if self._prompt:
                 await aioconsole.aprint(self._prompt)
 
             for cid, choice in self._choices.items():
-                await aioconsole.aprint(f'{cid}:\t{choice.text}')
+                sel = self.selector_symbol(choice)
+                await aioconsole.aprint(f'{sel} ({choice.id}):\t{choice.text}')
             if self._ok is not None:
-                await aioconsole.aprint(f'{self._ok.id}:\t{self._ok.text}')
-            if self._cancel is not None:
+                sel = self.selector_symbol(self._ok)
                 await aioconsole.aprint(
-                    f'{self._cancel.id}:\t{self._cancel.text}')
+                    f'{sel} ({self._ok.id}):\t{self._ok.text}')
+            if self._cancel is not None:
+                sel = self.selector_symbol(self._cancel)
+                await aioconsole.aprint(
+                    f'{sel} ({self._cancel.id}):\t{self._cancel.text}')

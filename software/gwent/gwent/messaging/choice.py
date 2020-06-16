@@ -6,8 +6,10 @@ KIND = 'choice'
 ID = 'id'
 TEXT = 'text'
 
-OK = 'ok'
-CANCEL = 'cancel'
+OK_ID = 'y'
+OK_TXT = 'ok'
+CANCEL_ID = 'n'
+CANCEL_TXT = 'cancel'
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
@@ -29,16 +31,16 @@ class Message(gwent.messaging.base.Message):
     @staticmethod
     def new_ok():
         instance = {
-            ID: OK,
-            TEXT: OK
+            ID: OK_ID,
+            TEXT: OK_TXT
         }
         return Message(instance)
 
     @staticmethod
     def new_cancel():
         instance = {
-            ID: CANCEL,
-            TEXT: CANCEL
+            ID: CANCEL_ID,
+            TEXT: CANCEL_TXT
         }
         return Message(instance)
 

@@ -7,6 +7,7 @@ import time
 import logging
 
 import gwent.hal
+import gwent.game
 import gwent.messaging.base
 import gwent.messaging.card
 import gwent.cards.util
@@ -19,11 +20,9 @@ MIN_SECTOR = 1
 MAX_SECTOR = 15
 ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR + 1)
 
-LOG_FREQ_SECS = 5
-
 
 def instance():
-    if gwent.hal.REAL:
+    if gwent.hal.real_mode():
         return _RealWriter()
     else:
         return _FakeWriter()
@@ -33,15 +32,7 @@ class RFIDError(Exception):
     pass
 
 
-class _BaseReader(gwent.hal.Component):
-    last_log = 0
-
-    def should_log(self) -> bool:
-        r = time.time() > self.last_log + LOG_FREQ_SECS
-        if r:
-            self.last_log = time.time()
-        return r
-
+class _BaseReader(gwent.game.BaseComponent):
     def read_card(self) -> gwent.messaging.card.Message:
         should_log = self.should_log()
 
@@ -49,12 +40,11 @@ class _BaseReader(gwent.hal.Component):
         s_details, id = self.read_card_impl(should_log)
 
         card = None
-        if id is not None:
+        if id is not None and s_details is not None:
             j_details = json.loads(s_details)
             card = gwent.messaging.card.Message.from_properties(j_details,
                                                                 rfid=id)
-
-        if self.should_log():
+        if should_log:
             end = time.time()
             elapsed = end - start
             self._log.debug({
@@ -67,7 +57,7 @@ class _BaseReader(gwent.hal.Component):
 
         return card
 
-    def read_card_impl(self, should_log:bool) -> (str, int):
+    def read_card_impl(self, should_log: bool) -> (str, int):
         raise NotImplementedError('subclass must implement read_card_impl')
 
 
@@ -78,7 +68,7 @@ class _FakeReader(_BaseReader):
         super().__init__()
         self._log.debug({'flag_read_file': self.flag_read_file})
 
-    def read_card_impl(self, should_log:bool) -> (str, int):
+    def read_card_impl(self, should_log: bool) -> (str, int):
         exists = os.path.exists(self.flag_read_file)
         if should_log:
             self._log.debug({
@@ -101,19 +91,14 @@ class _RealReader(_BaseReader):
 
     def __init__(self):
         super().__init__()
-        if gwent.hal.REAL:
-            import mfrc522
-            self._rfid = mfrc522.SimpleMFRC522()
+        import mfrc522
+        self._rfid = mfrc522.SimpleMFRC522()
 
-    def read_card_impl(self, should_log:bool) -> (str, int):
+    def read_card_impl(self, should_log: bool) -> (str, int):
         header = self._read_card_header()
-        if should_log:
-            self._log.debug({
-                'action': 'read_card_impl',
-                'header': header,
-            })
         if header is not None:
-            return self._read_card_body(bytes=header['bytes'])
+            body = self._read_card_body(bytes=header['bytes'])
+            return body
         else:
             return None, None
 
@@ -137,17 +122,23 @@ class _RealReader(_BaseReader):
             return None, None
 
     def _read_card_header(self) -> dict:
+        start = time.time()
         # Assumes the header only takes up 1 sector
         header_sector = gwent.messaging.card.Message.header_sector_start()
         trailer, blocks = _RealReader.get_blocks(header_sector)
         id, header = self.read_sector(trailer=trailer, blocks=blocks)
 
+        end = time.time()
         if id is not None and header is not None:
             last = header.find('}') + 1
             header = json.loads(header[:last])
 
             self._log.info({
-                'action': '_read_card_header',
+                'action': 'read card header',
+                'status': 'success',
+                'end': end,
+                'start': start,
+                'duration': end - start,
                 'header': header,
             })
 
@@ -162,9 +153,20 @@ class _RealReader(_BaseReader):
         debug_enabled = self._log.isEnabledFor(logging.DEBUG)
         start = time.time()
 
+        if debug_enabled:
+            self._log.debug({
+                'action': '_read_card_body',
+                'bytes': bytes,
+            })
+
         for sector in sectors:
+            start = time.time()
             trailer, blocks = _RealReader.get_blocks(sector)
             id, sector_data = self.read_sector(trailer=trailer, blocks=blocks)
+            if id is None:  # The card was removed
+                return None, None
+
+            end = time.time()
             if debug_enabled:
                 self._log.debug({
                     'action': 'sector read',
@@ -173,7 +175,9 @@ class _RealReader(_BaseReader):
                     'blocks': blocks,
                     'id': id,
                     'sector_data': sector_data,
-                    'len(sector_data)': len(sector_data),
+                    'start': start,
+                    'end': end,
+                    'duration': end - start,
                 })
             body += sector_data
 
@@ -261,7 +265,7 @@ class _RealWriter(_BaseWriter, _RealReader):
             card.header, sectors=card.header_sectors())
 
     def _write_card_body(self, card: gwent.messaging.card.Message) -> (
-    int, str):
+            int, str):
         self._log.debug({
             'action': '_write_card_body',
             'body': card.body,

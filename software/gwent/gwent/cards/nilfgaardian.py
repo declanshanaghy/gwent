@@ -3,7 +3,7 @@ import gwent.cards
 FACTION = gwent.cards.NILFGAARDIAN
 CARDS_BY_FACTION = {
     gwent.cards.NILFGAARDIAN: {
-        "Emhyr var Emreis - His Imperial Majesty: 1": {
+        "Emhyr var Emreis - His Imperial Majesty": {
             "specialty": "leader",
             "leader": {
                 "instructions": "Pick a torrential rain card from your deck and play it instantly",
@@ -11,7 +11,7 @@ CARDS_BY_FACTION = {
             },
             "starter": True,
         },
-        "Emhyr var Emreis - His Imperial Majesty: 2": {
+        "Emhyr var Emreis - The Relentless": {
             "specialty": "leader",
             "leader": {
                 "instructions": "Draw a card from your opponents discard pile",

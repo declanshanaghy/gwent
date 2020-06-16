@@ -1,6 +1,3 @@
-import asyncio
-import asyncio_mqtt
-
 import gwent.cards
 import gwent.messaging.factory
 import gwent.messaging.mfd
@@ -10,15 +7,11 @@ import gwent.game
 import gwent.hal.mfd
 
 
-class MFD(gwent.game.Component):
+class MFD(gwent.game.PubSubComponent):
     _task_chooser = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 pubsub: asyncio_mqtt.Client):
-        super().__init__(loop, pubsub)
-        self._mfd = gwent.hal.mfd.instance(loop=loop)
-
     async def init(self):
+        self._mfd = gwent.hal.mfd.instance(self._loop)
         await self.subscribe(gwent.game.CH_MFD_PRESENT,
                              gwent.messaging.mfd.KIND,
                              self.process_mfd)
@@ -36,13 +29,15 @@ class MFD(gwent.game.Component):
         self._log.info({
             'action': 'received mfd',
             'kind': mfd.kind,
+            'subkind': mfd.subkind,
             'body': mfd.body,
         })
         await self.cancel_chooser()
 
         async def receive_choice(mfd_method):
             choice = await mfd_method(mfd)
-            await self.publish(gwent.game.CH_MFD_CHOOSE, choice)
+            if choice:
+                await self.publish(gwent.game.CH_MFD_CHOOSE, choice)
 
         if mfd.subkind == gwent.messaging.mfd.ERROR:
             self._task_chooser = self._loop.create_task(

@@ -1,3 +1,4 @@
+import json
 import logging
 import os.path
 import shutil
@@ -30,10 +31,18 @@ def random_card_details() -> dict:
 
 
 def random_card() -> gwent.messaging.card.Message:
-    return gwent.messaging.card.Message(random_card_details())
+    return gwent.messaging.card.Message.from_properties(
+        random_card_details())
+
 
 def fs_safe(s: str) -> str:
     return "".join([c for c in s if c.isalpha() or c.isdigit()]).rstrip()
+
+
+def read_card(f:str):
+    with open(f) as fb:
+        details = json.load(fb)
+        return gwent.messaging.card.Message.from_properties(details)
 
 def write_all_to_disk():
     log = logging.getLogger(os.path.basename(__file__))
@@ -56,6 +65,7 @@ def write_all_to_disk():
             with open(fpath, 'w') as f:
                 log.info(f'writing {file} to {facdir}')
                 f.write(card.body_pretty)
+
 
 if __name__ == '__main__':
     gwent.log.setup()
