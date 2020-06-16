@@ -279,7 +279,7 @@ class ConsoleChooser(IChooser):
                         self._log.info(f'{cid} has been chosen')
                         return choice
                 self._log.error(f"'{cid}' is not a valid choice")
-
+            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
 class RotaryChooser(IChooser):
     def __init__(self, loop:asyncio.AbstractEventLoop):

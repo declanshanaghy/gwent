@@ -169,7 +169,7 @@ class _RealReader(_BaseReader):
             end = time.time()
             if debug_enabled:
                 self._log.debug({
-                    'action': 'sector read',
+                    'action': 'read sector',
                     'sector': sector,
                     'trailer': trailer,
                     'blocks': blocks,
