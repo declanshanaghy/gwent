@@ -12,15 +12,29 @@
       "description": "Indicates the content of this message",
       "enum": [
         "announcement",
-        "effect"
+        "effect",
+        "music"
       ]
     }
   },
   "oneOf": [
     { "$ref": "#/definitions/Announcement" },
-    { "$ref": "#/definitions/Effect" }
+    { "$ref": "#/definitions/Effect" },
+    { "$ref": "#/definitions/Music" }
   ],
   "definitions": {
+    "Announcement": {
+      "type": "object",
+      "required": [
+        "announcement"
+      ],
+      "properties": {
+        "announcement": {
+          "description": "The message to annouce via TTS",
+          "type": "string"
+        }
+      }
+    },
     "Effect": {
       "type": "object",
       "required": [
@@ -33,15 +47,19 @@
         }
       }
     },
-    "Announcement": {
+    "Music": {
       "type": "object",
       "required": [
-        "announcement"
+        "random"
       ],
       "properties": {
-        "announcement": {
-          "description": "The message to annouce via TTS",
+        "music": {
+          "description": "The music file to play in the background",
           "type": "string"
+        },
+        "random": {
+          "description": "Plays a random background track",
+          "type": "boolean"
         }
       }
     }

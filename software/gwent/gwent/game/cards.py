@@ -9,14 +9,18 @@ import gwent.messaging.sfx
 
 import gwent.hal.rfid
 
+T_PAUSE_CARD_READ_SHORT = 1
+T_PAUSE_CARD_READ_LONG = 3
+
+READING_STAGES = {
+    gwent.messaging.ctrl.STAGE_REGISTER_LEADERS: T_PAUSE_CARD_READ_SHORT,
+    gwent.messaging.ctrl.STAGE_REGISTER_DECKS: T_PAUSE_CARD_READ_SHORT,
+}
+
 
 class Reader(gwent.game.PubSubComponent):
     _pause_until = None
-
-    READING_STAGES = (
-        gwent.messaging.ctrl.STAGE_REGISTER_LEADERS,
-        gwent.messaging.ctrl.STAGE_REGISTER_DECKS,
-    )
+    _pause_length = None
 
     async def init(self):
         self._read_enabled = False
@@ -39,7 +43,8 @@ class Reader(gwent.game.PubSubComponent):
         })
 
         if ctrl.subkind == gwent.messaging.ctrl.STAGE:
-            if ctrl.stage in self.READING_STAGES:
+            if ctrl.stage in READING_STAGES:
+                self.pause_length = READING_STAGES[ctrl.stage]
                 self.read_enabled = ctrl.active
                 self._log.info({
                     'action': 'read_enabled',
@@ -48,8 +53,8 @@ class Reader(gwent.game.PubSubComponent):
         else:
             self._log._error(f'Unhandled subkind {ctrl.subkind}')
 
-    def pause_reading(self, t:float=3.0):
-        self._pause_until = time.time() + t
+    def pause_reading(self):
+        self._pause_until = time.time() + self.pause_length
 
     def pause_complete(self):
         if self._pause_until is None:
@@ -66,11 +71,19 @@ class Reader(gwent.game.PubSubComponent):
         return self.read_enabled and self.pause_complete()
 
     @property
+    def pause_length(self) -> float:
+        return self._pause_length
+
+    @pause_length.setter
+    def pause_length(self, v: float):
+        self._pause_length = v
+
+    @property
     def read_enabled(self) -> bool:
         return self._read_enabled
 
     @read_enabled.setter
-    def read_enabled(self, v:bool):
+    def read_enabled(self, v: bool):
         self._log.info({
             'action': 'set read enabled',
             'read_enabled': v,
@@ -84,9 +97,9 @@ class Reader(gwent.game.PubSubComponent):
                     None, self._rfid.read_card)
 
                 if card is not None:
-                    await self.publish_effect(gwent.messaging.sfx.EFFECT_CARD_READ)
+                    await self.publish_effect(
+                        gwent.messaging.sfx.EFFECT_CARD_READ)
                     await self.publish(gwent.game.CH_CARDS_RAW_READ, card)
                     self.pause_reading()
 
             await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
-

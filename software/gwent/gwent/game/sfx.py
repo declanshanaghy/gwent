@@ -25,6 +25,8 @@ class SFX(gwent.game.PubSubComponent):
             await self._tts.announce(sfx)
         elif sfx.subkind == gwent.messaging.sfx.EFFECT:
             await self._tts.play_effect(sfx)
+        elif sfx.subkind == gwent.messaging.sfx.MUSIC:
+            await self._tts.play_music(sfx)
         else:
             self._log.error(f'Unhandled subkind: {sfx.subkind}')
 
