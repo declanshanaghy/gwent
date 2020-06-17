@@ -8,6 +8,8 @@ import asyncio_mqtt
 import gwent.messaging.base
 import gwent.messaging.factory
 import gwent.messaging.mfd
+import gwent.messaging.sfx
+
 
 SEP = '/'
 MAIN_CHANNEL = 'gwent'
@@ -28,32 +30,43 @@ CH_MFD_CHOOSE = SEP.join((CH_MFD, 'choose'))
 
 CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
 
-DEFAULT_YIELD_TIME = 1.0
-LOG_FREQ_SECS = 1.0
+DEFAULT_YIELD_TIME = 0.01
 DEFAULT_ERROR_TIME = 3.0
+LOG_FREQ_SECS = 5
 
 
 class BaseComponent(object):
     _last_log = time.time() - LOG_FREQ_SECS - 1
     _log = None
 
-    def __init__(self):
+    def __init__(self, log_verbose:bool=False):
         self._log = logging.getLogger(
             f'{self.__class__.__module__}.{self.__class__.__name__}')
+        if log_verbose:
+            self._log.setLevel(logging.DEBUG)
+        else:
+            self._log.setLevel(logging.INFO)
 
     def should_log(self) -> bool:
-        # return True
         r = time.time() > self._last_log + LOG_FREQ_SECS
         if r:
             self._last_log = time.time()
         return r
 
+    def log_time(self, action, start):
+        end = time.time()
+        self._log.info({
+            'action': action,
+            'start': f'{start:.5f}',
+            'end': f'{end:.5f}',
+            'duration': f'{end - start:.5f}',
+        })
 
 class GameComponent(BaseComponent):
     _loop = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop):
-        super().__init__()
+    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose:bool=False):
+        super().__init__(log_verbose=log_verbose)
         self._loop = loop
 
 
@@ -61,13 +74,9 @@ class PubSubComponent(GameComponent):
     _pubsub = None
 
     def __init__(self, loop: asyncio.AbstractEventLoop,
-                 pubsub: asyncio_mqtt.Client):
-        super().__init__(loop)
+                 pubsub: asyncio_mqtt.Client, log_verbose:bool=False):
+        super().__init__(loop, log_verbose=log_verbose)
         self._pubsub = pubsub
-
-    async def publish_error(self, error: str):
-        mfd = gwent.messaging.mfd.Message.from_properties(error=error)
-        await self.publish(CH_MFD_PRESENT, mfd)
 
     async def init(self):
         pass
@@ -125,3 +134,24 @@ class PubSubComponent(GameComponent):
             'body': message.body,
         })
         await self._pubsub.publish(topic, message.body, qos=1)
+
+    async def publish_effect(self, effect: str):
+        e = gwent.messaging.sfx.Message.with_effect(effect)
+        await self.publish(CH_SFX, e)
+
+    async def publish_error(self, error: str):
+        e = gwent.messaging.mfd.Message.with_error(error=error)
+        await self.publish(CH_MFD_PRESENT, e)
+
+        e = gwent.messaging.sfx.Message.with_announcement(e.error)
+        await self.publish(CH_SFX, e)
+
+    async def publish_prompt(self, prompt: str, ok=True,
+                             cancel=True, clear_choices=True):
+        p = gwent.messaging.mfd.Message.with_prompt(
+            prompt=prompt,ok=ok, cancel=cancel, clear_choices=clear_choices)
+        await self.publish(CH_MFD_PRESENT, p)
+
+        p = gwent.messaging.sfx.Message.with_announcement(p.prompt)
+        await self.publish(CH_SFX, p)
+

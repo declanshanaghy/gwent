@@ -61,10 +61,10 @@ class Gwent(object):
         await self.pubsub.connect()
 
         self.components = [
-            gwent.game.cards.Reader(loop, self.pubsub),
             gwent.game.controller.Controller(loop, self.pubsub),
-            gwent.game.sfx.SFX(loop, self.pubsub),
+            gwent.game.cards.Reader(loop, self.pubsub),
             gwent.game.mfd.MFD(loop, self.pubsub),
+            gwent.game.sfx.SFX(loop, self.pubsub),
         ]
 
         logging.info('Init components')

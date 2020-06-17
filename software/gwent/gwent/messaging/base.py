@@ -88,6 +88,6 @@ class Message(object):
         return self.instance.get(SUBKIND)
 
     @property
-    def speech(self):
+    def announcement(self):
         raise NotImplementedError(
             f'{self.__class__} must implement speech property')
