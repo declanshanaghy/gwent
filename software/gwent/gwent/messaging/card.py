@@ -59,7 +59,7 @@ class Message(gwent.messaging.base.Message):
         return KIND
 
     @property
-    def speech(self):
+    def announcement(self):
         return self.name
 
     @property

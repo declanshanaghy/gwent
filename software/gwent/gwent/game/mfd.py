@@ -11,7 +11,7 @@ class MFD(gwent.game.PubSubComponent):
     _task_chooser = None
 
     async def init(self):
-        self._mfd = gwent.hal.mfd.instance(self._loop)
+        self._mfd = await gwent.hal.mfd.instance(self._loop)
         await self.subscribe(gwent.game.CH_MFD_PRESENT,
                              gwent.messaging.mfd.KIND,
                              self.process_mfd)

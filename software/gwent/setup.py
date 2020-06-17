@@ -20,13 +20,14 @@ setuptools.setup(
     ],
     python_requires='>=3.7.3',
     install_requires=[
-        'aioconsole==   0.2.0',
+        'aioconsole==0.2.0',
+        'asyncio-mqtt==0.5.0',
         'gaugette==1.2',
         'gTTS==2.1.1',
-        'asyncio-mqtt==0.5.0',
-        'pygame==1.9.6',
         'jsonschema==3.2.0',
-        # 'mfrc522==0.0.9',
+        'pygame==1.9.6',
+        'pydub==0.24.0',
+        'mfrc522==0.0.9',
         'websockets==8.1',
     ],
     entry_points={

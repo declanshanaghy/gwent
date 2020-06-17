@@ -12,7 +12,7 @@ import gwent.messaging.mfd
 import gwent.messaging.choice
 import gwent.messaging.sfx
 import gwent.game
-import gwent.hal.tts
+import gwent.hal.sfx
 
 
 class IGameStage(gwent.game.PubSubComponent):
@@ -155,10 +155,8 @@ class RegisterDecksStage(IGameStage):
         await self.publish_start_prompt()
 
     async def publish_start_prompt(self):
-        prompt = gwent.messaging.mfd.Message.with_prompt(
-            prompt="Players...Register your decks",
+        await self.publish_prompt("Players, Register your decks",
             ok=True, cancel=True, clear_choices=True)
-        await self.publish(gwent.game.CH_MFD_PRESENT, prompt)
 
     async def process_choice(self, choice: gwent.messaging.choice.Message):
         await super().process_choice(choice)
@@ -182,18 +180,8 @@ class RegisterLeadersStage(IGameStage):
         await self.publish_start_prompt()
 
     async def publish_start_prompt(self):
-        prompt = gwent.messaging.mfd.Message.with_prompt(
-            prompt="Players...Register your leaders",
+        await self.publish_prompt("Players...Register your leaders",
             ok=True, cancel=True, clear_choices=True)
-        await self.publish(gwent.game.CH_MFD_PRESENT, prompt)
-
-    async def publish_error(self, error: str):
-        e = gwent.messaging.mfd.Message.with_error(error=error)
-        await self.publish(gwent.game.CH_MFD_PRESENT, e)
-
-    async def publish_prompt(self, prompt: str):
-        p = gwent.messaging.mfd.Message.with_prompt(prompt=prompt)
-        await self.publish(gwent.game.CH_MFD_PRESENT, p)
 
     async def process_choice(self, choice: gwent.messaging.choice.Message):
         await super().process_choice(choice)
@@ -242,6 +230,8 @@ class MainMenuStage(IGameStage):
         await self.publish_main_menu()
 
     async def publish_main_menu(self):
+        await self.publish_prompt('Main Menu', ok=False, cancel=False,
+                                  clear_choices=False)
         choices = [
             gwent.messaging.choice.Message.from_properties(
                 self.CHOICE_START_GAME_ID, 'Start Game'),

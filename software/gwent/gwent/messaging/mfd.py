@@ -91,3 +91,7 @@ class Message(gwent.messaging.base.Message):
     def choice_iter(self) -> Iterable[gwent.messaging.choice.Message]:
         for choice in self.choices:
             yield gwent.messaging.choice.Message(choice)
+
+    @property
+    def announcement(self):
+        return self.error or self.prompt

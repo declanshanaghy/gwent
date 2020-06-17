@@ -12,8 +12,8 @@ import gwent.messaging.mfd
 import gwent.messaging.choice
 
 
-def instance(loop: asyncio.AbstractEventLoop):
-    if gwent.hal.real_mode():
+async def instance(loop: asyncio.AbstractEventLoop):
+    if await gwent.hal.real_mode():
         presenter = ConsolePresenter()
         chooser = RotaryChooser(loop)
         # chooser = ConsoleChooser(loop)
@@ -261,7 +261,7 @@ class ConsoleChooser(IChooser):
                 })
 
                 if idx < 0:
-                    idx = len(choices)-1
+                    idx = len(choices) - 1
                     self._log.debug({
                         'action': 'idx wrapped down',
                         'idx': idx,
@@ -279,23 +279,25 @@ class ConsoleChooser(IChooser):
                         self._log.info(f'{cid} has been chosen')
                         return choice
                 self._log.error(f"'{cid}' is not a valid choice")
+
             await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
-class RotaryChooser(IChooser):
-    def __init__(self, loop:asyncio.AbstractEventLoop):
-        super().__init__(loop)
-        self.rotary = gwent.hal.rotary.RotaryEncoder(loop)
 
+class RotaryChooser(IChooser):
+    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose:bool=False):
+        super().__init__(loop, log_verbose=log_verbose)
+        self.rotary = gwent.hal.rotary.RotaryEncoder(log_verbose=log_verbose)
 
     async def choose(self, choices: List[gwent.messaging.choice.Message],
                      selected_idx: int,
                      select: Callable[[gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
-        await self.rotary.start()
+        await self._loop.run_in_executor(None, self.rotary.start)
 
         choice = choices[selected_idx]
         while True:
-            delta, count, sw_changed, sw_state = await self.rotary.loop()
+            delta, count, sw_changed, sw_state = await self._loop.run_in_executor(
+                None, self.rotary.loop)
             if delta != 0:
                 idx = count % len(choices)
                 choice = choices[idx]
@@ -313,6 +315,7 @@ class RotaryChooser(IChooser):
             if sw_changed and not sw_state:  # Release click
                 return choice
 
+            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
 class ConsolePresenter(IPresenter):
     async def redraw(self):

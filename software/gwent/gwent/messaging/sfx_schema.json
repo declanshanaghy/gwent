@@ -4,19 +4,46 @@
   "description": "Sound effects message",
   "type": "object",
   "required": [
-    "action"
+    "subkind"
   ],
   "properties": {
-    "action": {
-      "description": "The action requested of the SFX system",
+    "subkind": {
       "type": "string",
+      "description": "Indicates the content of this message",
       "enum": [
-        "announce"
+        "announcement",
+        "effect"
       ]
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/Announcement" },
+    { "$ref": "#/definitions/Effect" }
+  ],
+  "definitions": {
+    "Effect": {
+      "type": "object",
+      "required": [
+        "effect"
+      ],
+      "properties": {
+        "effect": {
+          "description": "The sound effect to play",
+          "type": "string"
+        }
+      }
     },
-    "message": {
-      "description": "The message to annouce via TTS",
-      "type": "string"
+    "Announcement": {
+      "type": "object",
+      "required": [
+        "announcement"
+      ],
+      "properties": {
+        "announcement": {
+          "description": "The message to annouce via TTS",
+          "type": "string"
+        }
+      }
     }
   }
 }
