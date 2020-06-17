@@ -3,10 +3,14 @@ import gwent.messaging.base
 
 KIND = 'sfx'
 
-EFFECT = 'effect'
 ANNOUNCEMENT = 'announcement'
+EFFECT = 'effect'
+MUSIC = 'music'
+RANDOM = 'random'
 
 EFFECT_CARD_READ = 'card_read'
+
+MUSIC1 = 'music1'
 
 
 class Message(gwent.messaging.base.Message):
@@ -20,6 +24,15 @@ class Message(gwent.messaging.base.Message):
         instance = {EFFECT: effect}
         return Message(instance, subkind=EFFECT)
 
+    @staticmethod
+    def with_music(music:str=None, random:bool=False):
+        instance = {}
+        if music:
+            instance[MUSIC] = music
+        if random is not None:
+            instance[RANDOM] = random
+        return Message(instance, subkind=MUSIC)
+
     @property
     def kind(self):
         return KIND
@@ -31,3 +44,15 @@ class Message(gwent.messaging.base.Message):
     @property
     def effect(self):
         return self.instance[EFFECT]
+
+    @property
+    def music(self):
+        return self.instance[MUSIC]
+
+    @property
+    def is_random(self):
+        return self.instance.get(RANDOM) is True
+
+    @property
+    def random(self):
+        return self.instance[RANDOM]

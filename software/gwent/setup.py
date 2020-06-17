@@ -25,7 +25,7 @@ setuptools.setup(
         'gaugette==1.2',
         'gTTS==2.1.1',
         'jsonschema==3.2.0',
-        'pygame==1.9.6',
+        'pygame==2.0.0.dev10',
         'pydub==0.24.0',
         'mfrc522==0.0.9',
         'websockets==8.1',

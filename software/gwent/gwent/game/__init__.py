@@ -10,7 +10,6 @@ import gwent.messaging.factory
 import gwent.messaging.mfd
 import gwent.messaging.sfx
 
-
 SEP = '/'
 MAIN_CHANNEL = 'gwent'
 
@@ -39,7 +38,7 @@ class BaseComponent(object):
     _last_log = time.time() - LOG_FREQ_SECS - 1
     _log = None
 
-    def __init__(self, log_verbose:bool=False):
+    def __init__(self, log_verbose: bool = False):
         self._log = logging.getLogger(
             f'{self.__class__.__module__}.{self.__class__.__name__}')
         if log_verbose:
@@ -62,10 +61,12 @@ class BaseComponent(object):
             'duration': f'{end - start:.5f}',
         })
 
+
 class GameComponent(BaseComponent):
     _loop = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose:bool=False):
+    def __init__(self, loop: asyncio.AbstractEventLoop,
+                 log_verbose: bool = False):
         super().__init__(log_verbose=log_verbose)
         self._loop = loop
 
@@ -74,7 +75,7 @@ class PubSubComponent(GameComponent):
     _pubsub = None
 
     def __init__(self, loop: asyncio.AbstractEventLoop,
-                 pubsub: asyncio_mqtt.Client, log_verbose:bool=False):
+                 pubsub: asyncio_mqtt.Client, log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
         self._pubsub = pubsub
 
@@ -139,6 +140,10 @@ class PubSubComponent(GameComponent):
         e = gwent.messaging.sfx.Message.with_effect(effect)
         await self.publish(CH_SFX, e)
 
+    async def publish_music(self, music: str = None):
+        e = gwent.messaging.sfx.Message.with_music(music=music)
+        await self.publish(CH_SFX, e)
+
     async def publish_error(self, error: str):
         e = gwent.messaging.mfd.Message.with_error(error=error)
         await self.publish(CH_MFD_PRESENT, e)
@@ -149,9 +154,8 @@ class PubSubComponent(GameComponent):
     async def publish_prompt(self, prompt: str, ok=True,
                              cancel=True, clear_choices=True):
         p = gwent.messaging.mfd.Message.with_prompt(
-            prompt=prompt,ok=ok, cancel=cancel, clear_choices=clear_choices)
+            prompt=prompt, ok=ok, cancel=cancel, clear_choices=clear_choices)
         await self.publish(CH_MFD_PRESENT, p)
 
         p = gwent.messaging.sfx.Message.with_announcement(p.prompt)
         await self.publish(CH_SFX, p)
-
