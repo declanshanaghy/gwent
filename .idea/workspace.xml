@@ -2,19 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/software/poc/test_displays.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/card_read.wav" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/card_read.wav" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/sfx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx_schema.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -395,7 +389,7 @@
       <workItem from="1591379102746" duration="483000" />
       <workItem from="1591560208597" duration="255000" />
       <workItem from="1591562086854" duration="5371000" />
-      <workItem from="1591726892867" duration="136818000" />
+      <workItem from="1591726892867" duration="140506000" />
     </task>
     <servers />
   </component>
@@ -427,22 +421,22 @@
       <screen x="0" y="23" width="1440" height="877" />
     </state>
     <state x="285" y="123" width="1055" height="612" key="DirDiffDialog/0.23.1440.877@0.23.1440.877" timestamp="1591736383536" />
-    <state width="1213" height="288" key="GridCell.Tab.0.bottom" timestamp="1592377010442">
+    <state width="1298" height="288" key="GridCell.Tab.0.bottom" timestamp="1592448357387">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="288" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592377010442" />
-    <state width="1213" height="288" key="GridCell.Tab.0.center" timestamp="1592377010442">
+    <state width="1298" height="288" key="GridCell.Tab.0.bottom/0.23.1440.877@0.23.1440.877" timestamp="1592448357387" />
+    <state width="1298" height="288" key="GridCell.Tab.0.center" timestamp="1592448357384">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="288" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1592377010442" />
-    <state width="1213" height="288" key="GridCell.Tab.0.left" timestamp="1592377010441">
+    <state width="1298" height="288" key="GridCell.Tab.0.center/0.23.1440.877@0.23.1440.877" timestamp="1592448357384" />
+    <state width="1298" height="288" key="GridCell.Tab.0.left" timestamp="1592448357377">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="288" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1592377010441" />
-    <state width="1213" height="288" key="GridCell.Tab.0.right" timestamp="1592377010442">
+    <state width="1298" height="288" key="GridCell.Tab.0.left/0.23.1440.877@0.23.1440.877" timestamp="1592448357377" />
+    <state width="1298" height="288" key="GridCell.Tab.0.right" timestamp="1592448357385">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
-    <state width="1213" height="288" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1592377010442" />
+    <state width="1298" height="288" key="GridCell.Tab.0.right/0.23.1440.877@0.23.1440.877" timestamp="1592448357385" />
     <state width="1213" height="119" key="GridCell.Tab.1.bottom" timestamp="1592376126850">
       <screen x="0" y="23" width="1440" height="877" />
     </state>
