@@ -8,6 +8,7 @@ import gwent.log
 import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
+import gwent.game.player
 import gwent.game.sfx
 import gwent.hal
 
@@ -62,9 +63,13 @@ class Gwent(object):
 
         self.components = [
             gwent.game.controller.Controller(loop, self.pubsub),
-            gwent.game.cards.Reader(loop, self.pubsub),
-            gwent.game.mfd.MFD(loop, self.pubsub),
-            gwent.game.sfx.SFX(loop, self.pubsub),
+            gwent.game.player.Player(gwent.game.controller.PLAYER_ONE,
+                                     loop, self.pubsub),
+            gwent.game.player.Player(gwent.game.controller.PLAYER_TWO,
+                                     loop, self.pubsub),
+            # gwent.game.cards.Reader(loop, self.pubsub),
+            # gwent.game.mfd.MFD(loop, self.pubsub),
+            # gwent.game.sfx.SFX(loop, self.pubsub),
         ]
 
         logging.info('Init components')

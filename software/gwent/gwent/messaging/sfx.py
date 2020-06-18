@@ -9,6 +9,8 @@ MUSIC = 'music'
 RANDOM = 'random'
 
 EFFECT_CARD_READ = 'card_read'
+EFFECT_MFD_SELECT = 'mfd_select'
+EFFECT_MFD_CHOOSE = 'mfd_choose'
 
 MUSIC1 = 'music1'
 

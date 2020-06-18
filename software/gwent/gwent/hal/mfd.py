@@ -116,7 +116,7 @@ class IPresenter(gwent.game.BaseComponent):
     def selected(self):
         return self._selected
 
-    async def select(self, choice: gwent.messaging.choice.Message):
+    async def select(self, delta: int, choice: gwent.messaging.choice.Message):
         self._selected_idx = 0
         self._selected = choice
         for choice2 in self.all_choices:
@@ -128,6 +128,7 @@ class IPresenter(gwent.game.BaseComponent):
             'action': 'select',
             'selected': self._selected.body,
             'selected_idx': self._selected_idx,
+            'delta': delta,
             'id': choice.id,
             'text': choice.text,
         })
@@ -146,7 +147,8 @@ class IPresenter(gwent.game.BaseComponent):
 class IChooser(gwent.game.GameComponent):
     async def choose(self, choices: List[gwent.messaging.choice.Message],
                      selected_idx: int,
-                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
+                     select: Callable[
+                         [int, gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
                                   f'await_choice')
@@ -159,8 +161,10 @@ class _MFD(gwent.game.BaseComponent):
         self._presenter = choice_presenter
         self._chooser = chooser
 
-    async def present_error(self, mfd: gwent.messaging.mfd.Message,
-                            delay: int = gwent.game.DEFAULT_ERROR_TIME):
+    async def present_error(
+            self, mfd: gwent.messaging.mfd.Message,
+            select: Callable[[int, gwent.messaging.choice.Message], Any],
+            delay: int = gwent.game.DEFAULT_ERROR_TIME):
         self._log.debug({
             'action': 'present_error',
             'error': mfd.error,
@@ -175,12 +179,19 @@ class _MFD(gwent.game.BaseComponent):
             self._presenter.display_prompt()
             await self._presenter.redraw()
 
-        if len(self._presenter.all_choices) > 0:
-            return await self._chooser.choose(self._presenter.all_choices,
-                                              self._presenter.selected_idx,
-                                              self._presenter.select)
+        async def _select(delta: int, choice: gwent.messaging.choice.Message):
+            await self._presenter.select(delta, choice)
+            await select(delta, choice)
 
-    async def present_prompt(self, mfd: gwent.messaging.mfd.Message):
+        if len(self._presenter.all_choices) > 0:
+            return await self._chooser.choose(
+                self._presenter.all_choices,
+                self._presenter.selected_idx,
+                _select)
+
+    async def present_prompt(
+            self, mfd: gwent.messaging.mfd.Message,
+            select: Callable[[int, gwent.messaging.choice.Message], Any]):
         self._log.debug({
             'action': 'present_prompt',
             'prompt': mfd.prompt,
@@ -207,16 +218,21 @@ class _MFD(gwent.game.BaseComponent):
 
         all_choices = self._presenter.all_choices
         if self._presenter.selected is None and len(all_choices) > 0:
-            await self._presenter.select(all_choices[0])
+            await self._presenter.select(0, all_choices[0])
         else:
             await self._presenter.redraw()
 
-        if len(all_choices) > 0:
-            return await self._chooser.choose(all_choices,
-                                              self._presenter.selected_idx,
-                                              self._presenter.select)
+        async def _select(delta: int, choice: gwent.messaging.choice.Message):
+            await self._presenter.select(delta, choice)
+            await select(delta, choice)
 
-    async def present_choices(self, mfd: gwent.messaging.mfd.Message):
+        if len(all_choices) > 0:
+            return await self._chooser.choose(
+                all_choices, self._presenter.selected_idx, _select)
+
+    async def present_choices(
+            self, mfd: gwent.messaging.mfd.Message,
+            select: Callable[[int, gwent.messaging.choice.Message], Any]):
         self._log.debug({
             'action': 'present_choices',
             'choices': mfd.choices,
@@ -230,20 +246,24 @@ class _MFD(gwent.game.BaseComponent):
 
         all_choices = self._presenter.all_choices
         if self._presenter.selected is None and len(all_choices) > 0:
-            await self._presenter.select(all_choices[0])
+            await self._presenter.select(0, all_choices[0])
         else:
             await self._presenter.redraw()
 
+        async def _select(delta: int, choice: gwent.messaging.choice.Message):
+            await self._presenter.select(delta, choice)
+            await select(delta, choice)
+
         if len(all_choices) > 0:
-            return await self._chooser.choose(all_choices,
-                                              self._presenter.selected_idx,
-                                              self._presenter.select)
+            return await self._chooser.choose(
+                all_choices, self._presenter.selected_idx, _select)
 
 
 class ConsoleChooser(IChooser):
     async def choose(self, choices: List[gwent.messaging.choice.Message],
                      selected_idx: int,
-                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
+                     select: Callable[
+                         [int, gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
         idx = selected_idx
         while True:
@@ -251,12 +271,16 @@ class ConsoleChooser(IChooser):
             if cid == 's':
                 return choices[idx]
             elif cid == 'u' or cid == 'd':
+                delta = 0
                 if cid == 'u':
-                    idx -= 1
+                    delta -= 1
                 if cid == 'd':
-                    idx += 1
+                    delta += 1
+                idx += delta
+
                 self._log.debug({
                     'action': 'set idx unbounded',
+                    'delta': delta,
                     'idx': idx,
                 })
 
@@ -272,7 +296,7 @@ class ConsoleChooser(IChooser):
                         'action': 'idx wrapped up',
                         'idx': idx,
                     })
-                await select(choices[idx])
+                await select(delta, choices[idx])
             else:
                 for choice in choices:
                     if cid == choice.id:
@@ -284,13 +308,15 @@ class ConsoleChooser(IChooser):
 
 
 class RotaryChooser(IChooser):
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose:bool=False):
+    def __init__(self, loop: asyncio.AbstractEventLoop,
+                 log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
         self.rotary = gwent.hal.rotary.RotaryEncoder(log_verbose=log_verbose)
 
     async def choose(self, choices: List[gwent.messaging.choice.Message],
                      selected_idx: int,
-                     select: Callable[[gwent.messaging.choice.Message], Any]) -> \
+                     select: Callable[
+                         [int, gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
         await self._loop.run_in_executor(None, self.rotary.start)
 
@@ -310,12 +336,13 @@ class RotaryChooser(IChooser):
                     'choice.id': choice.id,
                     'choice.text': choice.text,
                 })
-                await select(choice)
+                await select(delta, choice)
 
             if sw_changed and not sw_state:  # Release click
                 return choice
 
             await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
+
 
 class ConsolePresenter(IPresenter):
     async def redraw(self):
