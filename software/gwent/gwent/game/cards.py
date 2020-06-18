@@ -26,13 +26,13 @@ class Reader(gwent.game.PubSubComponent):
         self._read_enabled = False
         self._rfid = await gwent.hal.rfid.instance(self._loop)
 
-        await self.subscribe(gwent.game.CH_GAMESTAGE,
+        await self.subscribe(gwent.game.CH_CTRL,
                              gwent.messaging.ctrl.KIND,
                              self.process_ctrl)
 
     async def shutdown(self):
         self._read_enabled = False
-        await self.unsubscribe(gwent.game.CH_GAMESTAGE)
+        await self.unsubscribe(gwent.game.CH_CTRL)
 
     async def process_ctrl(self, ctrl: gwent.messaging.ctrl.Message):
         self._log.info({

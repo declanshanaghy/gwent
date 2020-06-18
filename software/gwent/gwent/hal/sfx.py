@@ -18,7 +18,7 @@ CHANNEL_TTS = 1
 CHANNEL_EFFECT = 2
 
 
-async def instance(loop:asyncio.AbstractEventLoop):
+async def instance(loop: asyncio.AbstractEventLoop):
     return _SFX(loop)
 
 
@@ -28,7 +28,7 @@ class _SFX(gwent.game.GameComponent):
 
     def __init__(self, loop: asyncio.AbstractEventLoop):
         super().__init__(loop)
-        pygame.mixer.init(frequency=44100, size=-16, channels=2)
+        pygame.mixer.init(frequency=24000, size=-16, channels=2)
 
     def tempdir(self):
         if self._tempdir is None:
@@ -47,7 +47,8 @@ class _SFX(gwent.game.GameComponent):
         dir = os.path.abspath(base)
         return os.path.join(dir, 'music', f'{sfx.music}.mp3')
 
-    async def tts_filename(self, msg: gwent.messaging.base.Message, extn='mp3') -> str:
+    async def tts_filename(self, msg: gwent.messaging.base.Message,
+                           extn='mp3') -> str:
         d = await self._loop.run_in_executor(None, self.tempdir)
         return os.path.join(d, f'{msg.content_id}.{extn}')
 
@@ -65,7 +66,7 @@ class _SFX(gwent.game.GameComponent):
                 await self._loop.run_in_executor(
                     None, functools.partial(os.unlink, f))
 
-    async def load_sound(self, fwav:str):
+    async def load_sound(self, fwav: str):
         if fwav in self._sound_cache:
             return self._sound_cache[fwav]
 
@@ -80,17 +81,22 @@ class _SFX(gwent.game.GameComponent):
 
         return await self._loop.run_in_executor(None, load)
 
-    async def play_sound(self, sound, channel:int):
+    async def play_sound(self, sound, channel: int=None):
         def play():
-            ch = pygame.mixer.Channel(channel)
-            ch.play(sound)
+            if channel is None:
+                sound.play()
+            else:
+                ch = pygame.mixer.Channel(channel)
+                ch.play(sound)
+
         await self._loop.run_in_executor(None, play)
 
     async def play_music(self, sfx: gwent.messaging.sfx.Message):
         def play():
             fwav = self.music_filename(sfx)
-            m = pygame.mixer.music.load(fwav)
-            pygame.mixer.music.play(-1, fade_ms=5000)
+            pygame.mixer.music.load(fwav)
+            pygame.mixer.music.play(-1)
+
         await self._loop.run_in_executor(None, play)
 
     async def play_effect(self, sfx: gwent.messaging.sfx.Message):
@@ -102,7 +108,7 @@ class _SFX(gwent.game.GameComponent):
             'fwav': fwav,
         })
         speech = await self.load_sound(fwav)
-        await self.play_sound(speech, CHANNEL_EFFECT)
+        await self.play_sound(speech)#, CHANNEL_EFFECT)
 
         self.log_time('play_effect', start)
         return speech.get_length()
@@ -135,7 +141,7 @@ class _SFX(gwent.game.GameComponent):
 
         await self._loop.run_in_executor(None, cache_tts)
         speech = await self.load_sound(fwav)
-        await self.play_sound(speech, CHANNEL_TTS)
+        await self.play_sound(speech, channel=CHANNEL_TTS)
 
         self.log_time('announce', start)
         return speech.get_length()

@@ -8,6 +8,7 @@ ROOT=~/gwent/software
 
 sudo apt-get install \
   ffmpeg \
+  libasound2-dev libpulse-dev \
   libsdl2-dev libsmpeg-dev \
   libavformat-dev libavcodec-dev \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \

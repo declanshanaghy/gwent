@@ -6,6 +6,7 @@ import asyncio_mqtt
 import gwent.game.errors
 import gwent.messaging.base
 import gwent.messaging.card
+import gwent.messaging.card_play
 import gwent.messaging.ctrl
 import gwent.messaging.factory
 import gwent.messaging.mfd
@@ -13,6 +14,10 @@ import gwent.messaging.choice
 import gwent.messaging.sfx
 import gwent.game
 import gwent.hal.sfx
+
+
+PLAYER_ONE = "player1"
+PLAYER_TWO = "player2"
 
 
 class IGameStage(gwent.game.PubSubComponent):
@@ -27,7 +32,7 @@ class IGameStage(gwent.game.PubSubComponent):
     async def publish_game_stage(self, active: bool):
         ctrl = gwent.messaging.ctrl.Message.with_stage(
             self.stage, active=active)
-        await self.publish(gwent.game.CH_GAMESTAGE, ctrl)
+        await self.publish(gwent.game.CH_CTRL, ctrl)
 
     @property
     def stage(self):
@@ -76,7 +81,9 @@ class Controller(gwent.game.PubSubComponent):
 
     async def run(self):
         await self.start_main_menu()
-        await self.start_music()
+        # await self.start_music()
+        import gwent.cards.util
+        await self.publish_card_play(PLAYER_ONE, gwent.cards.util.random_card())
         await super().run()
 
     async def set_active_stage(self, st: IGameStage, completed: Callable,
@@ -100,9 +107,14 @@ class Controller(gwent.game.PubSubComponent):
 
         async def cancel():
             self._log._error("main menu can't be canceled")
-            pass
 
         await self.set_active_stage(self.main_menu, complete, cancel)
+
+    async def publish_card_play(
+            self, player:str, card: gwent.messaging.card.Message):
+        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player)
+        cp = gwent.messaging.card_play.Message.with_add_to_deck(player, card)
+        await self.publish(ch, cp)
 
     async def start_register_leaders(self):
         self._log.info('Starting register leaders stage')
@@ -114,6 +126,8 @@ class Controller(gwent.game.PubSubComponent):
                 'leader1': leader1.full_name,
                 'leader2': leader2.full_name,
             })
+            await self.publish_card_play(PLAYER_ONE, leader1)
+            await self.publish_card_play(PLAYER_TWO, leader2)
             await self.start_register_decks()
 
         async def cancel():
@@ -185,7 +199,7 @@ class RegisterLeadersStage(IGameStage):
         await self.publish_start_prompt()
 
     async def publish_start_prompt(self):
-        await self.publish_prompt("Players...Register your leaders",
+        await self.publish_prompt("Players, Register your leaders",
             ok=True, cancel=True, clear_choices=True)
 
     async def process_choice(self, choice: gwent.messaging.choice.Message):

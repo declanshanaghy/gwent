@@ -1,6 +1,7 @@
 import gwent.cards
 import gwent.messaging.factory
 import gwent.messaging.mfd
+import gwent.messaging.sfx
 import gwent.messaging.choice
 
 import gwent.game
@@ -34,9 +35,15 @@ class MFD(gwent.game.PubSubComponent):
         })
         await self.cancel_chooser()
 
+        async def receive_select(delta: int, _: gwent.messaging.choice.Message):
+            effect = gwent.messaging.sfx.EFFECT_MFD_SELECT
+            for i in range(abs(delta)):
+                await self.publish_effect(effect)
+
         async def receive_choice(mfd_method):
-            choice = await mfd_method(mfd)
+            choice = await mfd_method(mfd, receive_select)
             if choice:
+                await self.publish_effect(gwent.messaging.sfx.EFFECT_MFD_CHOOSE)
                 await self.publish(gwent.game.CH_MFD_CHOOSE, choice)
 
         if mfd.subkind == gwent.messaging.mfd.ERROR:
@@ -50,4 +57,3 @@ class MFD(gwent.game.PubSubComponent):
                 receive_choice(self._mfd.present_choices))
         else:
             self._log._error(f'Unhandled subkind {mfd.subkind}')
-

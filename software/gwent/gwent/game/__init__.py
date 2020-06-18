@@ -10,28 +10,31 @@ import gwent.messaging.factory
 import gwent.messaging.mfd
 import gwent.messaging.sfx
 
-SEP = '/'
+CH_SEP = '/'
 MAIN_CHANNEL = 'gwent'
 
-CH_CTRL = SEP.join((MAIN_CHANNEL, 'ctrl'))
-CH_GAMESTAGE = SEP.join((CH_CTRL, 'stage'))
+CH_CTRL = CH_SEP.join((MAIN_CHANNEL, 'ctrl'))
 
-CH_CARDS = SEP.join((MAIN_CHANNEL, 'cards'))
-CH_CARDS_RAW = SEP.join((CH_CARDS, 'raw'))
-CH_CARDS_RAW_READ = SEP.join((CH_CARDS_RAW, 'read'))
-CH_CARDS_RAW_WRITE = SEP.join((CH_CARDS_RAW, 'write'))
+CH_CARDS = CH_SEP.join((MAIN_CHANNEL, 'cards'))
+CH_CARDS_RAW = CH_SEP.join((CH_CARDS, 'raw'))
+CH_CARDS_RAW_READ = CH_SEP.join((CH_CARDS_RAW, 'read'))
+CH_CARDS_RAW_WRITE = CH_SEP.join((CH_CARDS_RAW, 'write'))
 
-CH_CARDS_PLAY = SEP.join((CH_CARDS, 'play'))
+CH_CARDS_PLAY = CH_SEP.join((CH_CARDS, 'play'))
 
-CH_MFD = SEP.join((MAIN_CHANNEL, 'mfd'))
-CH_MFD_PRESENT = SEP.join((CH_MFD, 'present'))
-CH_MFD_CHOOSE = SEP.join((CH_MFD, 'choose'))
+CH_MFD = CH_SEP.join((MAIN_CHANNEL, 'mfd'))
+CH_MFD_PRESENT = CH_SEP.join((CH_MFD, 'present'))
+CH_MFD_CHOOSE = CH_SEP.join((CH_MFD, 'choose'))
 
-CH_SFX = SEP.join((MAIN_CHANNEL, 'sfx'))
+CH_SFX = CH_SEP.join((MAIN_CHANNEL, 'sfx'))
 
 DEFAULT_YIELD_TIME = 0.01
 DEFAULT_ERROR_TIME = 3.0
 LOG_FREQ_SECS = 5
+
+
+def make_channel(base, *topics):
+    return CH_SEP.join((base, *topics))
 
 
 class BaseComponent(object):
