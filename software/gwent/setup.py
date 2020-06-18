@@ -21,12 +21,15 @@ setuptools.setup(
     python_requires='>=3.7.3',
     install_requires=[
         'aioconsole==0.2.0',
+        'adafruit-circuitpython-is31fl3731==2.6.3',
+        'adafruit-circuitpython-framebuf==1.3.2'
         'asyncio-mqtt==0.5.0',
         'gaugette==1.2',
         'gTTS==2.1.1',
         'jsonschema==3.2.0',
         'pygame==2.0.0.dev10',
         'pydub==0.24.0',
+        'ssparkfun-qwiic-i2c==0.9.11',
         'mfrc522==0.0.9',
         'websockets==8.1',
     ],
