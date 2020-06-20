@@ -67,9 +67,9 @@ class Gwent(object):
                                      loop, self.pubsub),
             gwent.game.player.Player(gwent.game.controller.PLAYER_TWO,
                                      loop, self.pubsub),
-            # gwent.game.cards.Reader(loop, self.pubsub),
-            # gwent.game.mfd.MFD(loop, self.pubsub),
-            # gwent.game.sfx.SFX(loop, self.pubsub),
+            gwent.game.cards.Reader(loop, self.pubsub),
+            gwent.game.mfd.MFD(loop, self.pubsub),
+            gwent.game.sfx.SFX(loop, self.pubsub),
         ]
 
         logging.info('Init components')

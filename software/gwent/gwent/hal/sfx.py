@@ -13,9 +13,8 @@ import gwent.messaging.base
 import gwent.messaging.sfx
 
 
-CHANNEL_BG_MUSIC = 0
+CHANNEL_EFFECT = 0
 CHANNEL_TTS = 1
-CHANNEL_EFFECT = 2
 
 
 async def instance(loop: asyncio.AbstractEventLoop):
@@ -108,7 +107,7 @@ class _SFX(gwent.game.GameComponent):
             'fwav': fwav,
         })
         speech = await self.load_sound(fwav)
-        await self.play_sound(speech)#, CHANNEL_EFFECT)
+        await self.play_sound(speech, CHANNEL_EFFECT)
 
         self.log_time('play_effect', start)
         return speech.get_length()
