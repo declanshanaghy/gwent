@@ -81,7 +81,8 @@ class Controller(gwent.game.PubSubComponent):
 
     async def run(self):
         await self.start_main_menu()
-        # await self.start_music()
+        await self.start_music()
+        # TODO:Remove
         import gwent.cards.util
         await self.publish_card_play(PLAYER_ONE, gwent.cards.util.random_card())
         await super().run()
