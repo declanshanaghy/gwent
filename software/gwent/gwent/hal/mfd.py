@@ -14,7 +14,7 @@ import gwent.messaging.choice
 
 async def instance(loop: asyncio.AbstractEventLoop):
     if await gwent.hal.real_mode():
-        presenter = ConsolePresenter()
+        presenter = SSD1325Presenter()
         chooser = RotaryChooser(loop)
         # chooser = ConsoleChooser(loop)
     else:
@@ -357,6 +357,7 @@ class ConsolePresenter(IPresenter):
             for cid, choice in self._choices.items():
                 sel = self.selector_symbol(choice)
                 await aioconsole.aprint(f'{sel} ({choice.id}):\t{choice.text}')
+
             if self._ok is not None:
                 sel = self.selector_symbol(self._ok)
                 await aioconsole.aprint(
@@ -365,3 +366,11 @@ class ConsolePresenter(IPresenter):
                 sel = self.selector_symbol(self._cancel)
                 await aioconsole.aprint(
                     f'{sel} ({self._cancel.id}):\t{self._cancel.text}')
+
+
+class SSD1325Presenter(ConsolePresenter):
+    # Monochrome 2.7" 128x64 OLED Graphic Display Module
+    #   * https://www.adafruit.com/product/2674
+    #   * Based on SSD1325 driver chip
+    #   * https://learn.adafruit.com/monochrome-oled-breakouts/python-wiring
+    pass
