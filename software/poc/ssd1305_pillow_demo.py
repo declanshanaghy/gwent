@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 This demo will fill the screen with white, draw a black box on top
 and then print Hello World! in the center of the display
@@ -23,7 +25,9 @@ BORDER = 8
 
 # Use for SPI
 spi = board.SPI()
-oled_cs = digitalio.DigitalInOut(board.D8)
+# oled_cs = digitalio.DigitalInOut(board.D8)  # CE0
+oled_cs = digitalio.DigitalInOut(board.D7)    # CE1
+# oled_cs = digitalio.DigitalInOut(board.D21) # random pin
 oled_dc = digitalio.DigitalInOut(board.D24)
 oled = adafruit_ssd1305.SSD1305_SPI(WIDTH, HEIGHT, spi, oled_dc, oled_reset, oled_cs)
 
@@ -56,7 +60,7 @@ draw.rectangle(
 font = ImageFont.load_default()
 
 # Draw Some Text
-text = "Hello World!"
+text = "Hello World 3"
 (font_width, font_height) = font.getsize(text)
 draw.text(
     (oled.width // 2 - font_width // 2, oled.height // 2 - font_height // 2),

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import asyncio
 from contextlib import AsyncExitStack, asynccontextmanager
 from random import randrange

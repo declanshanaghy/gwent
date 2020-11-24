@@ -20,11 +20,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/software/poc/ssd1305_pillow_demo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install-app.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install-app.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/poc/ssd1325_simpletest.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -416,7 +414,7 @@
       <workItem from="1603776412388" duration="516000" />
       <workItem from="1603821462674" duration="276000" />
       <workItem from="1604613442519" duration="518000" />
-      <workItem from="1606154404121" duration="12335000" />
+      <workItem from="1606154404121" duration="14067000" />
     </task>
     <servers />
   </component>
@@ -440,6 +438,10 @@
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
     <state x="381" y="231" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.23.1792.1097@0.23.1792.1097" timestamp="1606169632928" />
+    <state x="662" y="273" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog" timestamp="1606179093641">
+      <screen x="0" y="23" width="1792" height="1097" />
+    </state>
+    <state x="662" y="273" key="#com.intellij.refactoring.safeDelete.UnsafeUsagesDialog/0.23.1792.1097@0.23.1792.1097" timestamp="1606179093641" />
     <state x="751" y="280" key="FileChooserDialogImpl" timestamp="1606169665248">
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
