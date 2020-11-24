@@ -369,8 +369,8 @@ class ConsolePresenter(IPresenter):
 
 
 class SSD1325Presenter(ConsolePresenter):
-    # Monochrome 2.7" 128x64 OLED Graphic Display Module
-    #   * https://www.adafruit.com/product/2674
-    #   * Based on SSD1325 driver chip
-    #   * https://learn.adafruit.com/monochrome-oled-breakouts/python-wiring
+    # Monochrome 2.4" 128x64 OLED Graphic Display Module
+    # Based on SSD1305 driver chip
+    # https://www.adafruit.com/product/2719
+    # https://learn.adafruit.com/1-5-and-2-4-monochrome-128x64-oled-display-module/python-wiring
     pass
