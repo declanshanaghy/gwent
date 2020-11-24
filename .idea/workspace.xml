@@ -20,22 +20,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/install-app.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/install-system.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/install-vars.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/install-venv.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/poc/ssd1325_simpletest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gwent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gwent.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/software/poc/ssd1305_pillow_demo.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/poc/rxecho.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/poc/rxpoc1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/poc/rxpoc2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/poc/test_displays.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/poc/test_displays.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/poc/ssd1325_simpletest.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -427,7 +416,7 @@
       <workItem from="1603776412388" duration="516000" />
       <workItem from="1603821462674" duration="276000" />
       <workItem from="1604613442519" duration="518000" />
-      <workItem from="1606154404121" duration="9281000" />
+      <workItem from="1606154404121" duration="12335000" />
     </task>
     <servers />
   </component>
@@ -459,10 +448,10 @@
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
     <state x="465" y="158" key="SettingsEditor/0.23.1792.1097@0.23.1792.1097" timestamp="1606169721130" />
-    <state x="650" y="334" width="598" height="490" key="find.popup" timestamp="1606166519450">
+    <state x="650" y="334" width="598" height="490" key="find.popup" timestamp="1606174423740">
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
-    <state x="650" y="334" width="598" height="490" key="find.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1606166519450" />
+    <state x="650" y="334" width="598" height="490" key="find.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1606174423740" />
     <state x="629" y="244" width="670" height="676" key="search.everywhere.popup" timestamp="1606166262135">
       <screen x="0" y="23" width="1792" height="1097" />
     </state>

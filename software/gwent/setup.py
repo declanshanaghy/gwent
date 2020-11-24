@@ -27,12 +27,11 @@ setuptools.setup(
         'adafruit-circuitpython-lis3dh==5.1.6',
         'adafruit-circuitpython-is31fl3731==2.6.3',
         'adafruit-circuitpython-framebuf==1.3.2',
-        'adafruit-circuitpython-ssd1325==1.2.0',
+        'adafruit-circuitpython-ssd1305==1.3.3'
         'asyncio-mqtt==0.5.0',
         'gaugette==1.2',
         'gTTS==2.1.1',
         'jsonschema==3.2.0',
-        'luma.oled==3.4.0',
         'pygame==1.9.6',
         'pydub==0.24.0',
         'sparkfun-qwiic-tca9548a==0.9.0',
