@@ -373,4 +373,7 @@ class SSD1325Presenter(ConsolePresenter):
     # Based on SSD1305 driver chip
     # https://www.adafruit.com/product/2719
     # https://learn.adafruit.com/1-5-and-2-4-monochrome-128x64-oled-display-module/python-wiring
+    #
+    # Alternative tutorial using luma.oled
+    # https://satoshinm.github.io/blog/171110monochrome_2.7_and_2.42_128x64_oled_displays_on_a_raspberry_pi_zero.html
     pass
