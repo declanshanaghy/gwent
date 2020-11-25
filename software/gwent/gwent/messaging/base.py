@@ -45,9 +45,9 @@ class Message(object):
 
     def validate(self):
         jsonschema.validate(instance=self.instance, schema=self.get_schema())
-        self.validate_xtra()
+        self.validate_extra()
 
-    def validate_xtra(self):
+    def validate_extra(self):
         pass
 
     @property

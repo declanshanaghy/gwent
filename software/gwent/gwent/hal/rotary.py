@@ -44,19 +44,20 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
             await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
 
-# Not exposing these as customizable
-# Pin numbers are Wiring pin numbers.
-# They differ from hardware pin or GPIO ids.
-# Connect your C pin of the encoder to Ground.
-A_PIN = 1
-B_PIN = 0
-SW_PIN = 2
-
-
-# References:
-# https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
-# https://github.com/guyc/py-gaugette
 class RotaryEncoder(gwent.game.BaseComponent):
+    """
+        References:
+        https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
+        https://github.com/guyc/py-gaugette
+    """
+    # Not exposing these as customizable
+    # Pin numbers are Wiring pin numbers.
+    # They differ from hardware pin or GPIO ids.
+    # Connect your C pin of the encoder to Ground.
+    A_PIN = 1
+    B_PIN = 0
+    SW_PIN = 2
+
     _encoder = None
     _sw = None
     _counter = 0
@@ -70,11 +71,11 @@ class RotaryEncoder(gwent.game.BaseComponent):
             import gaugette.rotary_encoder
             gpio = gaugette.gpio.GPIO()
             self._encoder = gaugette.rotary_encoder.RotaryEncoder(
-                gpio, A_PIN, B_PIN)
+                gpio, RotaryEncoder.A_PIN, RotaryEncoder.B_PIN)
             self._encoder.start()
 
             import gaugette.switch
-            self._sw = gaugette.switch.Switch(gpio, SW_PIN)
+            self._sw = gaugette.switch.Switch(gpio, RotaryEncoder.SW_PIN)
 
         self.reset()
 

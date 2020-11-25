@@ -1,9 +1,9 @@
-import collections
 from typing import Callable, List
 
 import asyncio_mqtt
 
 import gwent.game.errors
+import gwent.game.stages.all
 import gwent.messaging.base
 import gwent.messaging.card
 import gwent.messaging.card_play
@@ -20,42 +20,6 @@ PLAYER_ONE = "player1"
 PLAYER_TWO = "player2"
 
 
-class IGameStage(gwent.game.PubSubComponent):
-    async def activate(self, complete: Callable, cancel: Callable):
-        self.complete = complete
-        self.cancel = cancel
-        await self.publish_game_stage(active=True)
-
-    async def deactivate(self):
-        await self.publish_game_stage(active=False)
-
-    async def publish_game_stage(self, active: bool):
-        ctrl = gwent.messaging.ctrl.Message.with_stage(
-            self.stage, active=active)
-        await self.publish(gwent.game.CH_CTRL, ctrl)
-
-    @property
-    def stage(self):
-        raise NotImplementedError(f'{self.__class__.__name__} must implement '
-                                  f'stage')
-
-    async def process_card(self, card: gwent.messaging.card.Message):
-        self._log.debug({
-            'action': 'received card',
-            'kind': card.kind,
-            'faction': card.faction,
-            'full_name': card.full_name,
-            'rfid': card.rfid,
-        })
-
-    async def process_choice(self, choice: gwent.messaging.choice.Message):
-        self._log.debug({
-            'action': 'received choice',
-            'id': choice.id,
-            'text': choice.text,
-        })
-
-
 class Controller(gwent.game.PubSubComponent):
     active_stage = None
     register_leaders = None
@@ -63,9 +27,9 @@ class Controller(gwent.game.PubSubComponent):
 
     def __init__(self, loop, pubsub: asyncio_mqtt.Client):
         super().__init__(loop, pubsub)
-        self.main_menu = MainMenuStage(self._loop, self._pubsub)
-        self.register_leaders = RegisterLeadersStage(self._loop, self._pubsub)
-        self.register_decks = RegisterDecksStage(self._loop, self._pubsub)
+        self.main_menu = gwent.game.stages.all.MainMenu(self._loop, self._pubsub)
+        self.register_leaders = gwent.game.stages.all.RegisterLeaders(self._loop, self._pubsub)
+        self.register_decks = gwent.game.stages.all.RegisterDecks(self._loop, self._pubsub)
 
     async def init(self):
         await self.subscribe(gwent.game.CH_CARDS_RAW_READ,
@@ -81,13 +45,10 @@ class Controller(gwent.game.PubSubComponent):
 
     async def run(self):
         await self.start_main_menu()
-        await self.start_music()
-        # TODO:Remove
-        import gwent.cards.util
-        await self.publish_card_play(PLAYER_ONE, gwent.cards.util.random_card())
+        # await self.start_music()
         await super().run()
 
-    async def set_active_stage(self, st: IGameStage, completed: Callable,
+    async def set_active_stage(self, st: gwent.game.stages.base.GameStage, completed: Callable,
                                cancel: Callable):
         if self.active_stage is not None:
             await self.active_stage.deactivate()
@@ -160,117 +121,3 @@ class Controller(gwent.game.PubSubComponent):
 
     async def process_choice(self, message: gwent.messaging.choice.Message):
         await self.active_stage.process_choice(message)
-
-
-class RegisterDecksStage(IGameStage):
-    _decks = None
-
-    @property
-    def stage(self):
-        return gwent.messaging.ctrl.STAGE_REGISTER_DECKS
-
-    async def activate(self, complete: Callable, cancel: Callable):
-        await super().activate(complete, cancel)
-        self._decks = collections.OrderedDict()
-        await self.publish_start_prompt()
-
-    async def publish_start_prompt(self):
-        await self.publish_prompt("Players, Register your decks",
-            ok=True, cancel=True, clear_choices=True)
-
-    async def process_choice(self, choice: gwent.messaging.choice.Message):
-        await super().process_choice(choice)
-        self.complete()
-
-    async def process_card(self, card: gwent.messaging.card.Message):
-        await super().process_card(card)
-        self.complete()
-
-
-class RegisterLeadersStage(IGameStage):
-    _leaders = None
-
-    @property
-    def stage(self):
-        return gwent.messaging.ctrl.STAGE_REGISTER_LEADERS
-
-    async def activate(self, complete: Callable, cancel: Callable):
-        await super().activate(complete, cancel)
-        self._leaders = collections.OrderedDict()
-        await self.publish_start_prompt()
-
-    async def publish_start_prompt(self):
-        await self.publish_prompt("Players, Register your leaders",
-            ok=True, cancel=True, clear_choices=True)
-
-    async def process_choice(self, choice: gwent.messaging.choice.Message):
-        await super().process_choice(choice)
-
-        if choice.id == gwent.messaging.choice.OK_ID:
-            if len(self._leaders) < 2:
-                await self.publish_error('2 Leaders are not registered yet!')
-            else:
-                leaders = [l for l in self._leaders.values()]
-                await self.complete(leaders[0], leaders[1])
-        elif choice.id == gwent.messaging.choice.CANCEL_ID:
-            await self.cancel()
-
-    async def process_card(self, card: gwent.messaging.card.Message):
-        await super().process_card(card)
-
-        if not card.is_leader:
-            await self.publish_error(f'{card.name} is not a leader')
-            return
-
-        if card.faction in self._leaders:
-            self._leaders[card.faction] = card
-            await self.publish_prompt(
-                f'Replaced {card.faction} leader: {card.name}')
-            return
-
-        if len(self._leaders.keys()) < 2:
-            self._leaders[card.faction] = card
-            await self.publish_prompt(
-                f'Player {len(self._leaders)} new leader: {card.name}')
-            return
-        else:
-            await self.publish_error(
-                f'{card.faction} is not in this game')
-
-
-class MainMenuStage(IGameStage):
-    CHOICE_START_GAME_ID = '1'
-
-    @property
-    def stage(self):
-        return gwent.messaging.ctrl.STAGE_MAIN_MENU
-
-    async def activate(self, complete: Callable, cancel: Callable):
-        await super().activate(complete, cancel)
-        await self.publish_main_menu()
-
-    async def publish_main_menu(self):
-        await self.publish_prompt('Main Menu', ok=False, cancel=False,
-                                  clear_choices=False)
-        choices = [
-            gwent.messaging.choice.Message.from_properties(
-                self.CHOICE_START_GAME_ID, 'Start Game'),
-            gwent.messaging.choice.Message.from_properties(
-                '2', 'Dummy 1'),
-            gwent.messaging.choice.Message.from_properties(
-                '3', 'Dummy 2'),
-        ]
-        mfd = gwent.messaging.mfd.Message.with_choices(
-            choices, clear_prompt=True)
-        await self.publish(gwent.game.CH_MFD_PRESENT, mfd)
-
-    async def process_choice(self, choice: gwent.messaging.choice.Message):
-        await super().process_choice(choice)
-        if choice.id == self.CHOICE_START_GAME_ID:
-            await self.complete()
-        else:
-            self._log.error({
-                'action': 'dummy_choice',
-                'text': choice.text,
-            })
-            await self.publish_main_menu()
