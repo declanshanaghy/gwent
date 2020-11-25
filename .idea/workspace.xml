@@ -20,11 +20,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
+      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/all.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/main_menu.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_leaders.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/card.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,10 +88,10 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/software/gwent/gwent/game" />
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/software/gwent/gwent" />
       <recent name="$PROJECT_DIR$/software/gwent/gwent/messaging" />
-      <recent name="$PROJECT_DIR$/software/gwent/gwent/game" />
       <recent name="$PROJECT_DIR$/software/gwent/gwent/messaging/" />
     </key>
     <key name="CopyFile.RECENT_KEYS">
@@ -418,7 +423,7 @@
       <workItem from="1604613442519" duration="518000" />
       <workItem from="1606154404121" duration="14067000" />
       <workItem from="1606258844570" duration="4486000" />
-      <workItem from="1606264918533" duration="2406000" />
+      <workItem from="1606264918533" duration="4630000" />
     </task>
     <servers />
   </component>
@@ -470,10 +475,10 @@
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
     <state x="465" y="158" key="SettingsEditor/0.23.1792.1097@0.23.1792.1097" timestamp="1606264764698" />
-    <state x="650" y="334" width="598" height="490" key="find.popup" timestamp="1606261531629">
+    <state x="650" y="334" width="598" height="490" key="find.popup" timestamp="1606269982672">
       <screen x="0" y="23" width="1792" height="1097" />
     </state>
-    <state x="650" y="334" width="598" height="490" key="find.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1606261531629" />
+    <state x="650" y="334" width="598" height="490" key="find.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1606269982672" />
     <state x="629" y="244" width="670" height="676" key="search.everywhere.popup" timestamp="1606166262135">
       <screen x="0" y="23" width="1792" height="1097" />
     </state>

@@ -4,7 +4,6 @@ import math
 
 import gwent.messaging.base
 
-
 KIND = 'card'
 
 RFID = 'rfid'
@@ -66,26 +65,26 @@ class Message(gwent.messaging.base.Message):
     def content_id(self):
         return self.rfid
 
-    def validate_xtra(self):
-        super().validate_xtra()
+    def validate_extra(self):
+        super().validate_extra()
 
-        self._vaildate_starter()
-        self._vaildate_leader()
-        self._vaildate_agile()
-        self._vaildate_strength()
-        self._vaildate_ranges()
+        self._validate_starter()
+        self._validate_leader()
+        self._validate_agile()
+        self._validate_strength()
+        self._validate_ranges()
 
-    def _vaildate_starter(self):
+    def _validate_starter(self):
         if self.is_starter and self.has_owner:
-            if not LEADER in self.instance:
+            if LEADER not in self.instance:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} is a starter so "
                             f"cannot be owned by {self.owner}",
                     path=(SPECIALTY, LEADER))
 
-    def _vaildate_leader(self):
+    def _validate_leader(self):
         if self.is_leader:
-            if not LEADER in self.instance:
+            if LEADER not in self.instance:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} must have {LEADER} "
                             f"property",
@@ -102,7 +101,7 @@ class Message(gwent.messaging.base.Message):
                             f"{self.leader.keys()}",
                     path=(SPECIALTY, LEADER))
 
-    def _vaildate_strength(self):
+    def _validate_strength(self):
         if (not self.is_leader and
                 not self.is_scorch_specialty and
                 not self.is_commander_specialty and
@@ -115,9 +114,9 @@ class Message(gwent.messaging.base.Message):
             raise jsonschema.ValidationError(
                 message=f"{self.name} of {self.faction} has "
                         f"{self.strength} strength",
-                path=(RANGES))
+                path=RANGES)
 
-    def _vaildate_ranges(self):
+    def _validate_ranges(self):
         if (not self.is_leader and
                 not self.is_decoy and
                 not self.is_weather and
@@ -125,17 +124,17 @@ class Message(gwent.messaging.base.Message):
                 not self.has_ranges):
             raise jsonschema.ValidationError(
                 message=f"{self.name} of {self.faction} has no {RANGES}",
-                path=(RANGES))
+                path=RANGES)
 
-    def _vaildate_agile(self):
+    def _validate_agile(self):
         if self.has_ranges and self.has_abilities:
-            if (self.num_ranges > 1 and not self.is_agile):
+            if self.num_ranges > 1 and not self.is_agile:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} must have {AGILE} "
                             f"ability because they have multiple "
                             f"ranges: {self.ranges}",
                     path=(ABILITIES, RANGES))
-            if (self.is_agile and self.num_ranges <= 1):
+            if self.is_agile and self.num_ranges <= 1:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} must have more "
                             f"ranges than {self.ranges} because they have the "
@@ -261,7 +260,7 @@ class Message(gwent.messaging.base.Message):
 
     @staticmethod
     def header_sectors():
-        return (Message.header_sector_start(),)
+        return Message.header_sector_start(),
 
     @property
     def header(self):
@@ -272,15 +271,14 @@ class Message(gwent.messaging.base.Message):
         return Message.header_sector_start() + 1
 
     @staticmethod
-    def num_sectors_required(bytes: int):
-        return math.ceil(math.ceil(bytes / 16) / 3)
+    def num_sectors_required(n_bytes: int):
+        return math.ceil(math.ceil(n_bytes / 16) / 3)
 
     @staticmethod
-    def sector_range(start, bytes):
-        num_sectors = Message.num_sectors_required(bytes)
+    def sector_range(start, n_bytes):
+        num_sectors = Message.num_sectors_required(n_bytes)
         return range(start, start + num_sectors)
 
     @property
     def body_sectors(self):
         return Message.sector_range(Message.body_sector_start(), self.bytes)
-

@@ -98,7 +98,7 @@ class _RealReader(_BaseReader):
     def read_card_impl(self, should_log: bool) -> (int, str):
         id, header = self._read_card_header()
         if header is not None:
-            id, body = self._read_card_body(bytes=header['bytes'])
+            id, body = self._read_card_body(n_bytes=header['bytes'])
             if id is None:
                 self._log.error({
                     'action': 'read card body failed',
@@ -141,9 +141,9 @@ class _RealReader(_BaseReader):
 
         return id, header
 
-    def _read_card_body(self, bytes: int) -> (int, str):
+    def _read_card_body(self, n_bytes: int) -> (int, str):
         sectors = gwent.messaging.card.Message.sector_range(
-            gwent.messaging.card.Message.body_sector_start(), bytes)
+            gwent.messaging.card.Message.body_sector_start(), n_bytes)
         body = ""
         id = None
 
@@ -177,7 +177,7 @@ class _RealReader(_BaseReader):
         # We will have read the entire sector but the JSON
         # will most likely only take up a portion of it.
         # slice to the correct size
-        return id, body[:bytes]
+        return id, body[:n_bytes]
 
 
 class _BaseWriter(_BaseReader):
