@@ -1,5 +1,5 @@
 #----------------------------------------------------------------------
-# ssd1306.py from https://github.com/guyc/py-gaugette
+# oled_ssd1306.py from https://github.com/guyc/py-gaugette
 # ported by Guy Carpenter, Clearwater Software
 #
 # This library works with

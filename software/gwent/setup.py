@@ -36,9 +36,10 @@ setuptools.setup(
         'pygame==1.9.6',
         'pydub==0.24.0',
         'sparkfun-qwiic-tca9548a==0.9.0',
-        'mfrc522==0.0.9',
         'websockets==8.1',
+        # The following won't work on mac
         'wiringpi2==2.32.3',
+        'mfrc522==0.0.9',
     ],
     entry_points={
         'console_scripts': [
