@@ -7,6 +7,8 @@ import tempfile
 import time
 import logging
 
+import RPi.GPIO as GPIO
+
 import gwent.hal
 import gwent.game
 import gwent.messaging.base
@@ -24,7 +26,7 @@ ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR + 1)
 MAX_ATTEMPTS = 2
 
 
-async def instance(loop:asyncio.AbstractEventLoop):
+async def instance(loop: asyncio.AbstractEventLoop):
     if await gwent.hal.real_mode():
         return _RealWriter(loop, log_verbose=False)
     else:
@@ -59,7 +61,7 @@ class _BaseReader(gwent.game.GameComponent):
 class _FakeReader(_BaseReader):
     flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
 
-    def __init__(self, loop:asyncio.AbstractEventLoop, log_verbose:bool=False):
+    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
         self._log.debug({'flag_read_file': self.flag_read_file})
 
@@ -84,12 +86,13 @@ class _FakeReader(_BaseReader):
 class _RealReader(_BaseReader):
     _rfid = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose:bool=False):
+    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
 
         def setup():
             import mfrc522
-            self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose)
+            self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
+
         self._loop.run_in_executor(None, setup)
 
     def read_card_impl(self, should_log: bool) -> (int, str):
@@ -206,7 +209,7 @@ class _BaseWriter(_BaseReader):
 class _FakeWriter(_BaseWriter, _FakeReader):
     flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
 
-    def __init__(self, loop:asyncio.AbstractEventLoop, log_verbose:bool=False):
+    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
         self._log.debug({'flag_write_file': self.flag_write_file})
 

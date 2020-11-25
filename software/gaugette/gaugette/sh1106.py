@@ -1,9 +1,9 @@
 #----------------------------------------------------------------------
 # sh1106.py from https://github.com/guyc/py-gaugette
 # by Max Sheehan
-# based on ssd1306.py by Guy Carpenter, Clearwater Software
+# based on oled_ssd1306.py by Guy Carpenter, Clearwater Software
 #
-# REVISIT : this should be refactored to remove duplicated code from ssd1306.py
+# REVISIT : this should be refactored to remove duplicated code from oled_ssd1306.py
 # 
 # This library works with
 #   A 7-PIN 1.3 inch SPI (Not I2C) SH1106 OLED - Example:

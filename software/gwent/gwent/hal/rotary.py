@@ -1,6 +1,48 @@
+import asyncio
 import time
+from typing import Any, Callable, List
 
+import gwent.hal.mfdi
 import gwent.game
+import gwent.messaging.choice
+
+
+class RotaryChooser(gwent.hal.mfdi.Chooser):
+    def __init__(self, loop: asyncio.AbstractEventLoop,
+                 log_verbose: bool = False):
+        super().__init__(loop, log_verbose=log_verbose)
+        self.rotary = RotaryEncoder(log_verbose=log_verbose)
+
+    async def choose(self, choices: List[gwent.messaging.choice.Message],
+                     selected_idx: int,
+                     select: Callable[
+                         [int, gwent.messaging.choice.Message], Any]) -> \
+            gwent.messaging.choice.Message:
+        await self._loop.run_in_executor(None, self.rotary.start)
+
+        choice = choices[selected_idx]
+        while True:
+            delta, count, sw_changed, sw_state = await self._loop.run_in_executor(
+                None, self.rotary.loop)
+            if delta != 0:
+                idx = count % len(choices)
+                choice = choices[idx]
+                self._log.debug({
+                    'action': 'select',
+                    'delta': delta,
+                    'count': count,
+                    'len(choices)': len(choices),
+                    'idx': idx,
+                    'choice.id': choice.id,
+                    'choice.text': choice.text,
+                })
+                await select(delta, choice)
+
+            if sw_changed and not sw_state:  # Release click
+                return choice
+
+            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
+
 
 # Not exposing these as customizable
 # Pin numbers are Wiring pin numbers.
@@ -10,12 +52,17 @@ A_PIN = 1
 B_PIN = 0
 SW_PIN = 2
 
+
 # References:
 # https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
 # https://github.com/guyc/py-gaugette
 class RotaryEncoder(gwent.game.BaseComponent):
     _encoder = None
     _sw = None
+    _counter = 0
+    _delta = 0
+    _sw_state = None
+    _sw_changed = False
 
     def start(self):
         if self._encoder is None:

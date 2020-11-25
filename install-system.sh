@@ -21,4 +21,3 @@ sudo apt-get install -y \
 #  libsdl-image1.2-dev libsdl-ttf2.0-dev \
 #  libsmpeg-dev python-numpy libportmidi-dev \
 #  ffmpeg libswscale-dev libavformat-dev libavcodec-dev
-
