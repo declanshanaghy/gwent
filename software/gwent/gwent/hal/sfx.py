@@ -82,6 +82,11 @@ class _SFX(gwent.game.GameComponent):
 
     async def play_sound(self, sound, channel: int=None):
         def play():
+            self._log.info({
+                'action': 'play_sound',
+                'channel': channel,
+                'sound': sound,
+            })
             if channel is None:
                 sound.play()
             else:
@@ -93,6 +98,10 @@ class _SFX(gwent.game.GameComponent):
     async def play_music(self, sfx: gwent.messaging.sfx.Message):
         def play():
             fwav = self.music_filename(sfx)
+            self._log.info({
+                'action': 'play',
+                'fwav': fwav,
+            })
             pygame.mixer.music.load(fwav)
             pygame.mixer.music.play(-1)
 
