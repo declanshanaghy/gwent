@@ -1,5 +1,5 @@
 DEPLOY_USER := geralt
-DEPLOY_TGT := 192.168.1.185
+DEPLOY_TGT := living-room-pi.lan
 DEPLOY_DIR := "~/gwent"
 
 rsync:

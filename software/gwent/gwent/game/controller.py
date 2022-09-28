@@ -45,7 +45,7 @@ class Controller(gwent.game.PubSubComponent):
 
     async def run(self):
         await self.start_main_menu()
-        # await self.start_music()
+        await self.start_music()
         await super().run()
 
     async def set_active_stage(self, st: gwent.game.stages.base.GameStage, completed: Callable,
