@@ -14,11 +14,21 @@ Gwent Elements is a Python package that provides hardware interface components f
 ## Installation
 
 ```bash
+# Install the gaugette dependency from GitHub
+pip install git+https://github.com/guyc/py-gaugette.git
+
 # Install from the local directory
 pip install -e .
 
 # Or install directly from GitHub
 pip install git+https://github.com/declanshanaghy/gwent.git#subdirectory=software/gwent-elements
+```
+
+Alternatively, you can use the provided installation script:
+
+```bash
+# Run the installation script
+./install-dev.sh
 ```
 
 ## Requirements

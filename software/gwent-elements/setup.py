@@ -23,15 +23,16 @@ setup(
         "luma.oled",
         "luma.core",
         
-        # Input dependencies
-        "gaugette",
-        
         # Communication dependencies
         "asyncio-mqtt",
         "aioredis",
         
         # Sensor dependencies
         "sparkfun-qwiic-tca9548a",
+    ],
+    dependency_links=[
+        # Input dependencies from GitHub
+        "git+https://github.com/guyc/py-gaugette.git#egg=gaugette",
     ],
     python_requires=">=3.7",
     include_package_data=True,
