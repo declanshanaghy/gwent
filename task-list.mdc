@@ -1,0 +1,283 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Gwent Project Task Management
+
+## Task Numbering System
+
+All tasks must follow a strict numbering system:
+- Tasks use a 3-digit prefix starting at 000
+- Each task has a unique number
+- Numbers are assigned sequentially
+- Example: Task 000, Task 001, Task 002, etc.
+- Task 000 is the root task and starting point of the project
+- All other tasks must be descendants of Task 000
+- The task tree must form a single connected graph with Task 000 as the root
+
+## Task Dependencies
+
+Each task must explicitly track its dependencies using task IDs:
+- Dependencies should be listed in the task description
+- Use the full task ID (e.g., "000") when referencing dependencies
+- The dependency tree will be used to determine task execution order
+- Circular dependencies are strictly prohibited
+  - No task can depend on itself
+  - No task can depend on another task that directly or indirectly depends on it
+  - All dependencies must form a directed acyclic graph (DAG)
+  - Dependencies should be validated before task creation or modification
+- Every task except Task 000 must have at least one dependency
+- All tasks must be reachable from Task 000 through the dependency tree
+
+## Example Task Structure
+
+```
+### Task 000: Product Requirements Document
+- Description: Create comprehensive PRD based on README.md specifications
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: None
+- File: [design/000-product-requirements.md](mdc:design/000-product-requirements.md)
+
+### Task 001: System Architecture
+- Description: Define the overall system architecture
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/001-system-architecture.md](mdc:design/001-system-architecture.md)
+
+### Task 002: System Components
+- Description: Define all major system components
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 001
+- File: [design/002-system-components.md](mdc:design/002-system-components.md)
+
+### Task 003: UI Requirements
+- Description: Document UI/UX requirements for both physical and web interfaces
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/003-ui-requirements.md](mdc:design/003-ui-requirements.md)
+
+### Task 004: Game Rules Analysis
+- Description: Document Gwent game rules and their implementation requirements
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/004-game-rules.md](mdc:design/004-game-rules.md)
+
+### Task 005: Security Requirements
+- Description: Document security requirements and threat model
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/005-security-requirements.md](mdc:design/005-security-requirements.md)
+
+### Task 006: Performance Requirements
+- Description: Document performance requirements and benchmarks
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/006-performance-requirements.md](mdc:design/006-performance-requirements.md)
+
+### Task 007: System Architecture
+- Description: Define the overall system architecture
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/007-system-architecture.md](mdc:design/007-system-architecture.md)
+
+### Task 008: Game State Management
+- Description: Design the core game state management system
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 001
+- File: [design/008-game-state-management.md](mdc:design/008-game-state-management.md)
+
+## Task Categories
+
+1. **Design Tasks** (000-099)
+   - System architecture
+   - Component design
+   - Interface specifications
+
+2. **Evaluation Tasks** (100-199)
+   - Technology evaluation
+   - Performance testing
+   - Security assessment
+
+3. **Decision Tasks** (200-299)
+   - Technology selection
+   - Architecture decisions
+   - Implementation approaches
+
+4. **Implementation Tasks** (300-399)
+   - Hardware implementation
+   - Software development
+   - Integration testing
+
+## Task Status Indicators
+
+- 🔴 Not Started
+- 🟡 In Progress
+- ⚫ Blocked
+- 🟢 Completed
+
+## Priority Levels
+
+- 🔴 High
+- 🟡 Medium
+- 🟢 Low
+
+## Standard Task Format
+
+```
+### Task XXX: Task Title
+- Description: Detailed task description
+- Priority: [High|Medium|Low]
+- Status: [Not Started|In Progress|Blocked|Completed]
+- Dependencies: [Task IDs]
+- File: [design/[TaskID]-[description].md](design/[TaskID]-[description].md)
+```
+
+## Task Tracking Files
+
+- All tasks have their own files in the `design` folder
+- File names must be Linux-compatible (no spaces, special characters)
+- The Task ID must be used as the filename prefix
+  - Example: Task 000 should be in file [design/000-product-requirements.md](mdc:design/000-product-requirements.md)
+  - Example: Task 001 should be in file [design/001-hardware-requirements.md](mdc:design/001-hardware-requirements.md)
+- The filename format is: [design/[TaskID]-[description].md](design/[TaskID]-[description].md)
+  - TaskID must match exactly (e.g., "000")
+  - Description should be in kebab-case (lowercase with hyphens)
+
+## Example Tasks
+
+### Task 000: Product Requirements Document
+- Description: Create comprehensive PRD based on README.md specifications
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: None
+- File: [design/000-product-requirements.md](mdc:design/000-product-requirements.md)
+
+### Task 001: System Architecture
+- Description: Define the overall system architecture
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/001-system-architecture.md](mdc:design/001-system-architecture.md)
+
+### Task 002: System Components
+- Description: Define all major system components
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 001
+- File: [design/002-system-components.md](mdc:design/002-system-components.md)
+
+### Task 003: UI Requirements
+- Description: Document UI/UX requirements for both physical and web interfaces
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/003-ui-requirements.md](mdc:design/003-ui-requirements.md)
+
+### Task 004: Game Rules Analysis
+- Description: Document Gwent game rules and their implementation requirements
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/004-game-rules.md](mdc:design/004-game-rules.md)
+
+### Task 005: Security Requirements
+- Description: Document security requirements and threat model
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/005-security-requirements.md](mdc:design/005-security-requirements.md)
+
+### Task 006: Performance Requirements
+- Description: Document performance requirements and benchmarks
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/006-performance-requirements.md](mdc:design/006-performance-requirements.md)
+
+### Task 007: System Architecture
+- Description: Define the overall system architecture
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 000
+- File: [design/007-system-architecture.md](mdc:design/007-system-architecture.md)
+
+### Task 008: Game State Management
+- Description: Design the core game state management system
+- Priority: High
+- Status: 🔴 Not Started
+- Dependencies: 001
+- File: [design/008-game-state-management.md](mdc:design/008-game-state-management.md)
+
+### Task 009: Hardware Requirements
+- Description: Document all hardware requirements and specifications
+- Priority: High
+- Status: Not Started
+- Dependencies: 000
+- File: [design/009-hardware-requirements.md](mdc:design/009-hardware-requirements.md)
+
+### Task 010: Software Requirements
+- Description: Document all software requirements and specifications
+- Priority: High
+- Status: Not Started
+- Dependencies: 000
+- File: [design/010-software-requirements.md](mdc:design/010-software-requirements.md)
+
+### Task 011: User Interface Requirements
+- Description: Document UI/UX requirements for both physical and web interfaces
+- Priority: High
+- Status: Not Started
+- Dependencies: 000
+- File: [design/011-ui-requirements.md](mdc:design/011-ui-requirements.md)
+
+### Task 012: Hardware Architecture
+- Description: Define the hardware components and their integration
+- Priority: High
+- Status: Not Started
+- Dependencies: 001, 002
+- File: [design/012-hardware-architecture.md](mdc:design/012-hardware-architecture.md)
+
+### Task 013: Software Architecture
+- Description: Define the software components and their organization
+- Priority: High
+- Status: Not Started
+- Dependencies: 001, 002
+- File: [design/013-software-architecture.md](mdc:design/013-software-architecture.md)
+
+### Task 014: Communication Protocols
+- Description: Define the protocols for component communication
+- Priority: High
+- Status: Not Started
+- Dependencies: 001, 003
+- File: [design/014-communication-protocols.md](mdc:design/014-communication-protocols.md)
+
+### Task 015: State Machine Design
+- Description: Design the game state machine
+- Priority: High
+- Status: Not Started
+- Dependencies: 013
+- File: [design/015-state-machine-design.md](mdc:design/015-state-machine-design.md)
+
+### Task 016: PubSub Architecture
+- Description: Design the publish-subscribe system
+- Priority: High
+- Status: Not Started
+- Dependencies: 001, 013
+- File: [design/016-pubsub-architecture.md](mdc:design/016-pubsub-architecture.md)
+
+## Task Status Summary
+
+- Total Tasks: 16
+- Not Started: 16
+- In Progress: 0
+- Blocked: 0
+- Completed: 0

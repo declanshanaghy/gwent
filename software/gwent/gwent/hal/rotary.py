@@ -1,113 +1,126 @@
-import asyncio
+#!/usr/bin/env python3
+
+"""
+Rotary Encoder Module for Gwent
+This module provides an interface to the rotary encoder.
+"""
+
 import time
-from typing import Any, Callable, List
+import threading
+import RPi.GPIO as GPIO
+import gaugette.gpio
+import gaugette.rotary_encoder
+import gaugette.switch
 
-import gwent.hal.mfdi
-import gwent.game
-import gwent.messaging.choice
-
-
-class RotaryChooser(gwent.hal.mfdi.Chooser):
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 log_verbose: bool = False):
-        super().__init__(loop, log_verbose=log_verbose)
-        self.rotary = RotaryEncoder(log_verbose=log_verbose)
-
-    async def choose(self, choices: List[gwent.messaging.choice.Message],
-                     selected_idx: int,
-                     select: Callable[
-                         [int, gwent.messaging.choice.Message], Any]) -> \
-            gwent.messaging.choice.Message:
-        await self._loop.run_in_executor(None, self.rotary.start)
-
-        choice = choices[selected_idx]
-        while True:
-            delta, count, sw_changed, sw_state = await self._loop.run_in_executor(
-                None, self.rotary.loop)
-            if delta != 0:
-                idx = count % len(choices)
-                choice = choices[idx]
-                self._log.debug({
-                    'action': 'select',
-                    'delta': delta,
-                    'count': count,
-                    'len(choices)': len(choices),
-                    'idx': idx,
-                    'choice.id': choice.id,
-                    'choice.text': choice.text,
-                })
-                await select(delta, choice)
-
-            if sw_changed and not sw_state:  # Release click
-                return choice
-
-            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
-
-
-class RotaryEncoder(gwent.game.BaseComponent):
+class RotaryEncoder:
     """
-        References:
-        https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
-        https://github.com/guyc/py-gaugette
+    Class to handle rotary encoder input.
+    Uses the PEC11 Series Rotary Encoder connected via GPIO.
     """
-    # Not exposing these as customizable
-    # Pin numbers are Wiring pin numbers.
-    # They differ from hardware pin or GPIO ids.
-    # Connect your C pin of the encoder to Ground.
-    A_PIN = 1
-    B_PIN = 0
-    SW_PIN = 2
-
-    _encoder = None
-    _sw = None
-    _counter = 0
-    _delta = 0
-    _sw_state = None
-    _sw_changed = False
-
-    def start(self):
-        if self._encoder is None:
-            import gaugette.gpio
-            import gaugette.rotary_encoder
-            gpio = gaugette.gpio.GPIO()
-            self._encoder = gaugette.rotary_encoder.RotaryEncoder(
-                gpio, RotaryEncoder.A_PIN, RotaryEncoder.B_PIN)
-            self._encoder.start()
-
-            import gaugette.switch
-            self._sw = gaugette.switch.Switch(gpio, RotaryEncoder.SW_PIN)
-
-        self.reset()
-
-    def reset(self):
-        self._counter = 0
-        self._delta = 0
-        self._sw_state = self._sw.get_state()
-
-    def loop(self) -> (int, int, bool, bool):
-        loop_start = time.time()
-        should_log = self.should_log()
-
-        self._delta = self._encoder.get_cycles()
-        if self._delta != 0:
-            self._counter += self._delta
-            self._log.debug(f'count is {self._counter}')
-
-        state = self._sw.get_state()
-        self._sw_changed = state != self._sw_state
-        if self._sw_changed:
-            self._log.debug(f'switch changed to {state}')
-            self._sw_state = state
-
-        if self._delta != 0 or self._sw_changed:
-            self._log.debug({
-                'action': 'loop',
-                'delta': self._delta,
-                'counter': self._counter,
-                'sw_changed': self._sw_changed,
-                'sw_state': self._sw_state,
-            })
-
-        if should_log:
-            self.log_time('loop', loop_start)
-        return self._delta, self._counter, self._sw_changed, self._sw_state
+    
+    def __init__(self, a_pin=7, b_pin=9, sw_pin=2, 
+                 rotation_callback=None, button_callback=None):
+        """
+        Initialize the rotary encoder.
+        
+        Args:
+            a_pin (int): GPIO pin for encoder A signal (Wiring pin number)
+            b_pin (int): GPIO pin for encoder B signal (Wiring pin number)
+            sw_pin (int): GPIO pin for encoder switch (Wiring pin number)
+            rotation_callback (callable, optional): Function to call when rotation is detected.
+                The callback will receive the direction (1 for clockwise, -1 for counter-clockwise) as an argument.
+            button_callback (callable, optional): Function to call when button press is detected.
+                The callback will receive the button state (1 for pressed, 0 for released) as an argument.
+        """
+        self.gpio = gaugette.gpio.GPIO()
+        self.encoder = gaugette.rotary_encoder.RotaryEncoder(self.gpio, a_pin, b_pin)
+        self.switch = gaugette.switch.Switch(self.gpio, sw_pin)
+        
+        self.rotation_callback = rotation_callback
+        self.button_callback = button_callback
+        
+        self.running = False
+        self.thread = None
+        
+        # Start the encoder
+        self.encoder.start()
+    
+    def start_monitoring(self):
+        """
+        Start a background thread to monitor the encoder.
+        """
+        if self.thread is not None and self.thread.is_alive():
+            return  # Already running
+        
+        self.running = True
+        self.thread = threading.Thread(target=self._monitor_thread)
+        self.thread.daemon = True
+        self.thread.start()
+    
+    def stop_monitoring(self):
+        """
+        Stop the background monitoring thread.
+        """
+        self.running = False
+        if self.thread is not None:
+            self.thread.join(timeout=1.0)
+            self.thread = None
+    
+    def _monitor_thread(self):
+        """
+        Background thread function to monitor the encoder.
+        """
+        last_button_state = self.switch.get_state()
+        
+        while self.running:
+            try:
+                # Check for rotation
+                delta = self.encoder.get_cycles()
+                if delta != 0 and self.rotation_callback is not None:
+                    self.rotation_callback(delta)
+                
+                # Check for button press
+                button_state = self.switch.get_state()
+                if button_state != last_button_state and self.button_callback is not None:
+                    self.button_callback(button_state)
+                    last_button_state = button_state
+                
+                # Small delay to prevent CPU hogging
+                time.sleep(0.01)
+                
+            except Exception as e:
+                print(f"Error in rotary encoder monitoring thread: {e}")
+                time.sleep(0.5)  # Longer delay on error
+    
+    def get_position(self):
+        """
+        Get the current encoder position.
+        
+        Returns:
+            int: The current encoder position.
+        """
+        return self.encoder.get_position()
+    
+    def set_position(self, position):
+        """
+        Set the current encoder position.
+        
+        Args:
+            position (int): The position to set.
+        """
+        self.encoder.set_position(position)
+    
+    def get_button_state(self):
+        """
+        Get the current button state.
+        
+        Returns:
+            int: 1 if pressed, 0 if released.
+        """
+        return self.switch.get_state()
+    
+    def cleanup(self):
+        """
+        Clean up resources.
+        """
+        self.stop_monitoring()

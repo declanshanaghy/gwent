@@ -1,5 +1,10 @@
 DEPLOY_USER := geralt
-DEPLOY_TGT := living-room-pi.lan
+# Home
+# DEPLOY_TGT := living-room-pi.lan
+#
+# Benicia makerspace
+DEPLOY_TGT := 10.1.10.236 
+
 DEPLOY_DIR := "~/gwent"
 
 rsync:
