@@ -26,10 +26,12 @@ if is_raspberry_pi():
     print("Running on Raspberry Pi - using hardware implementations")
     from ..hal.display import OLEDDisplay
     from ..hal.audio import AudioPlayer
+    from ..hal.rotary import RotaryEncoder
 else:
     print("Not running on Raspberry Pi - using mock implementations")
     from ..hal.display_mock import MockOLEDDisplay as OLEDDisplay
     from ..hal.audio_mock import MockAudioPlayer as AudioPlayer
+    from ..hal.rotary_mock import MockRotaryEncoder as RotaryEncoder
 
 class GwentGame:
     """
@@ -60,9 +62,39 @@ class GwentGame:
             
             # Initialize audio player
             self.audio = AudioPlayer()
+            
+            # Initialize rotary encoder with callbacks
+            self.rotary = RotaryEncoder(
+                rotation_callback=self.on_rotation,
+                button_callback=self.on_button
+            )
+            self.rotary.start_monitoring()
+            print("Rotary encoder initialized successfully")
         except Exception as e:
             print(f"Error initializing hardware: {e}")
             sys.exit(1)
+    
+    def on_rotation(self, direction):
+        """
+        Callback for rotary encoder rotation events.
+        
+        Args:
+            direction (int): 1 for clockwise, -1 for counter-clockwise
+        """
+        direction_text = "clockwise" if direction > 0 else "counter-clockwise"
+        print(f"Rotary event: Dial turned {direction_text}")
+        # You can add more logic here based on the rotation
+    
+    def on_button(self, state):
+        """
+        Callback for rotary encoder button events.
+        
+        Args:
+            state (int): 1 for pressed, 0 for released
+        """
+        state_text = "pressed" if state == 1 else "released"
+        print(f"Rotary event: Button {state_text}")
+        # You can add more logic here based on the button state
     
     def run(self):
         """
@@ -107,6 +139,7 @@ class GwentGame:
         # Clean up hardware
         self.display.cleanup()
         self.audio.cleanup()
+        self.rotary.cleanup()
         
         print("Gwent game shut down")
         sys.exit(0)

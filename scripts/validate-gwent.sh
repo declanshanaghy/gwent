@@ -82,6 +82,26 @@ else
     print_success "I2C devices are available for display."
 fi
 
+# Check if GPIO is available for rotary encoder
+print_message "Checking if GPIO is available for rotary encoder..."
+GPIO_AVAILABLE=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "ls -la /dev/gpiomem 2>/dev/null || echo 'No GPIO access'")
+
+if [[ "$GPIO_AVAILABLE" == *"No GPIO access"* ]]; then
+    print_warning "No GPIO access detected. Rotary encoder might not be available."
+else
+    print_success "GPIO is available for rotary encoder."
+fi
+
+# Check if rotary encoder libraries are installed
+print_message "Checking if rotary encoder libraries are installed..."
+ROTARY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import gaugette.rotary_encoder' 2>/dev/null && echo 'Rotary encoder libs installed' || echo 'Rotary encoder libs not installed'")
+
+if [[ "$ROTARY_LIBS" == *"Rotary encoder libs installed"* ]]; then
+    print_success "Rotary encoder libraries are installed."
+else
+    print_warning "Rotary encoder libraries might not be installed correctly. Rotary encoder might not work."
+fi
+
 # Check if display libraries are installed
 print_message "Checking if display libraries are installed..."
 DISPLAY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import adafruit_ssd1305' 2>/dev/null && echo 'Display libs installed' || echo 'Display libs not installed'")
@@ -94,10 +114,11 @@ fi
 
 # Check the logs for any errors
 print_message "Checking logs for errors..."
-LOG_ERRORS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo journalctl -u gwent.service -n 50 | grep -i -c 'error\\|exception\\|fail'")
+# Exclude warnings about GPIO pins and pull-up resistors
+LOG_ERRORS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo journalctl -u gwent.service -n 50 | grep -i 'error\\|exception\\|fail' | grep -v 'RuntimeWarning' | grep -v 'already in use' | grep -v 'pull up resistor' | wc -l")
 
 if [ "$LOG_ERRORS" -eq "0" ]; then
-    print_success "No errors found in the logs."
+    print_success "No critical errors found in the logs."
 else
     print_warning "Found ${LOG_ERRORS} potential errors in the logs. This might be normal during startup."
     print_message "You can check the logs with: ssh ${PI_USER}@${RASPBERRY_PI_IP} 'sudo journalctl -u gwent.service'"
@@ -115,4 +136,5 @@ else
 fi
 
 print_success "Validation complete! Gwent appears to be running correctly."
-print_message "For a more detailed check, you may want to physically verify the Raspberry Pi's display and audio."
+print_message "For a more detailed check, you may want to physically verify the Raspberry Pi's display, audio, and rotary encoder functionality."
+print_message "To test the rotary encoder, try turning the dial and pressing the button while observing the logs: ssh ${PI_USER}@${RASPBERRY_PI_IP} 'sudo journalctl -u gwent.service -f'"

@@ -222,13 +222,15 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
      *   Remember that git commits are REQUIRED for BOTH tasks and subtasks before marking them as complete.
 
 10. **Validate on Raspberry Pi:**
-    *   For hardware-related implementations or changes that interact with physical components:
+    *   **ALL code changes must be validated on the Raspberry Pi before a task is marked as completed:**
         *   Deploy the changes to a Raspberry Pi using the `deploy-to-raspi.sh` script.
-        *   Test the implementation on actual hardware to verify functionality.
+        *   Test the implementation to verify functionality.
+        *   Document any issues or optimizations in the task details.
+        *   Make necessary adjustments based on testing results.
+    *   For hardware-related implementations or changes that interact with physical components:
         *   Verify that parallel computing techniques are working correctly for hardware communication.
-        *   Document any hardware-specific issues or optimizations in the task details.
-        *   Make necessary adjustments based on real hardware testing results.
-    *   **This validation step is mandatory before marking any hardware-related task as complete.**
+        *   Test with actual hardware components to ensure proper interaction.
+    *   **This validation step is mandatory before marking ANY task as complete, regardless of whether it's hardware-related or not.**
 
 11. **Proceed to Next Subtask:**
     *   Identify the next subtask in the dependency chain (e.g., using `next_task` / `task-master next`) and repeat this iterative process starting from step 1.
