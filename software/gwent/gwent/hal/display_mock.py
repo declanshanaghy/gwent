@@ -7,6 +7,8 @@ This module provides a mock implementation of the OLED display for development o
 
 import time
 import pathlib
+import threading
+import datetime
 from PIL import Image, ImageDraw, ImageFont
 
 class MockOLEDDisplay:
@@ -45,7 +47,10 @@ class MockOLEDDisplay:
         """
         # Try to find the fonts directory in several possible locations
         possible_paths = [
-            pathlib.Path(__file__).parent.parent.parent.parent.parent / "poc" / "fonts",  # /software/poc/fonts
+            # First check the project root scripts/fonts directory
+            pathlib.Path(__file__).parent.parent.parent.parent.parent / "scripts" / "fonts",  # /scripts/fonts
+            # Then check other possible locations
+            pathlib.Path(__file__).parent.parent.parent.parent.parent.parent / "scripts" / "fonts",  # /scripts/fonts (alternative path)
             pathlib.Path(__file__).parent.parent.parent / "fonts",  # /software/gwent/fonts
             pathlib.Path(__file__).parent.parent / "fonts",  # /software/gwent/gwent/fonts
             pathlib.Path(__file__).parent / "fonts",  # /software/gwent/gwent/hal/fonts
@@ -73,9 +78,13 @@ class MockOLEDDisplay:
         """
         try:
             font_path = self.fonts_dir / name
-            return ImageFont.truetype(str(font_path), size)
+            if font_path.exists():
+                return ImageFont.truetype(str(font_path), size)
+            else:
+                print(f"Mock OLED Display: Font file not found: {font_path}")
+                return ImageFont.load_default()
         except Exception as e:
-            print(f"Mock OLED Display: Error loading font {name}: {e}")
+            print(f"Mock OLED Display: Using default font instead of {name}: {e}")
             return ImageFont.load_default()
     
     def clear(self):
@@ -157,9 +166,91 @@ class MockOLEDDisplay:
         except Exception as e:
             print(f"Mock OLED Display: Error displaying image: {e}")
     
+    def display_datetime(self, x=0, y=0, font_name="pixelmix.ttf", font_size=8, fill="white", format_str="%Y-%m-%d %H:%M:%S"):
+        """
+        Display the current datetime on the OLED.
+        
+        Args:
+            x (int): X coordinate
+            y (int): Y coordinate
+            font_name (str): Font filename
+            font_size (int): Font size
+            fill (str): Text color
+            format_str (str): Datetime format string
+        
+        Returns:
+            datetime.datetime: The displayed datetime
+        """
+        now = datetime.datetime.now()
+        datetime_str = now.strftime(format_str)
+        
+        font = self.get_font(font_name, font_size)
+        self.draw.text((x, y), datetime_str, font=font, fill=1)
+        print(f"Mock OLED Display: Displayed datetime '{datetime_str}' at ({x}, {y})")
+        
+        return now
+    
+    def start_datetime_display(self, x=0, y=0, font_name="pixelmix.ttf", font_size=8, fill="white", format_str="%Y-%m-%d %H:%M:%S"):
+        """
+        Start a thread to continuously update the datetime display.
+        
+        Args:
+            x (int): X coordinate
+            y (int): Y coordinate
+            font_name (str): Font filename
+            font_size (int): Font size
+            fill (str): Text color
+            format_str (str): Datetime format string
+            
+        Returns:
+            threading.Thread: The datetime update thread
+        """
+        self._datetime_running = True
+        
+        # Print font directory information
+        print(f"Mock OLED Display: Using fonts directory: {self.fonts_dir}")
+        print(f"Mock OLED Display: Checking if directory exists: {self.fonts_dir.exists()}")
+        if self.fonts_dir.exists():
+            print(f"Mock OLED Display: Directory contents: {list(self.fonts_dir.glob('*'))}")
+        
+        def update_datetime():
+            # Check font availability once at the beginning to avoid log spam
+            try:
+                font_path = self.fonts_dir / font_name
+                print(f"Mock OLED Display: Looking for font at: {font_path}")
+                if not font_path.exists():
+                    print(f"Mock OLED Display: Font file not found: {font_path}, will use default font for datetime display")
+                else:
+                    print(f"Mock OLED Display: Found font file: {font_path}")
+            except Exception as e:
+                print(f"Mock OLED Display: Will use default font for datetime display: {e}")
+                
+            while self._datetime_running:
+                self.display_datetime(x, y, font_name, font_size, fill, format_str)
+                # Sleep until the next second
+                now = datetime.datetime.now()
+                sleep_time = 1.0 - (now.microsecond / 1000000.0)
+                time.sleep(sleep_time)
+        
+        self._datetime_thread = threading.Thread(target=update_datetime, daemon=True)
+        self._datetime_thread.start()
+        print("Mock OLED Display: Started datetime display thread")
+        return self._datetime_thread
+    
+    def stop_datetime_display(self):
+        """
+        Stop the datetime display thread.
+        """
+        if hasattr(self, '_datetime_running') and self._datetime_running:
+            self._datetime_running = False
+            if hasattr(self, '_datetime_thread'):
+                self._datetime_thread.join(timeout=1.0)
+            print("Mock OLED Display: Stopped datetime display thread")
+    
     def cleanup(self):
         """
         Clean up resources.
         """
+        self.stop_datetime_display()
         self.clear()
         print("Mock OLED Display: Cleaned up")

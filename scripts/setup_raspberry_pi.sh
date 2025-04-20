@@ -73,8 +73,8 @@ apt-get install -y \
 
 # Step 3: Install WiringPi
 print_message "Installing WiringPi..."
-if [ -f "${DIR}/software/wiringpi-latest.deb" ]; then
-    dpkg -i "${DIR}/software/wiringpi-latest.deb"
+if [ -f "${DIR}/../software/wiringpi-latest.deb" ]; then
+    dpkg -i "${DIR}/../software/wiringpi-latest.deb"
 else
     print_warning "WiringPi deb package not found. Skipping installation."
     print_warning "You may need to install WiringPi manually."
@@ -113,9 +113,9 @@ print_message "Installing Python packages..."
 # Activate virtual environment and install packages
 su - "${USER_NAME}" -c "source ${VENV_DIR}/bin/activate && \
     pip3 install --upgrade pip wheel setuptools && \
-    pip3 install -e ${DIR}/software/gaugette && \
-    pip3 install -e ${DIR}/software/MFRC522-python && \
-    pip3 install -e ${DIR}/software/gwent"
+    pip3 install -e ${DIR}/../software/gaugette && \
+    pip3 install -e ${DIR}/../software/MFRC522-python && \
+    pip3 install -e ${DIR}/../software/gwent"
 
 print_message "Note: The original asyncio-based implementation has been moved to software/gwent-asyncio"
 
@@ -136,8 +136,8 @@ print_success "Services configured and started"
 # Step 9: Install Gwent systemd service
 print_message "Installing Gwent systemd service..."
 # Copy the service file to systemd directory
-if [ -f "${DIR}/gwent.service" ]; then
-    cp "${DIR}/gwent.service" /etc/systemd/system/
+if [ -f "${DIR}/../gwent.service" ]; then
+    cp "${DIR}/../gwent.service" /etc/systemd/system/
     # Set correct permissions
     chmod 644 /etc/systemd/system/gwent.service
     # Enable the service to start on boot
@@ -152,7 +152,7 @@ fi
 
 # Step 10: Create test script
 print_message "Creating hardware test script..."
-TEST_SCRIPT="${DIR}/test_hardware.py"
+TEST_SCRIPT="${DIR}/../test_hardware.py"
 
 cat > "${TEST_SCRIPT}" << 'EOF'
 #!/usr/bin/env python3
@@ -473,7 +473,7 @@ print_success "Hardware test script created at ${TEST_SCRIPT}"
 
 # Step 11: Create a convenience script to activate the virtual environment
 print_message "Creating convenience script..."
-ACTIVATE_SCRIPT="${DIR}/activate_gwent.sh"
+ACTIVATE_SCRIPT="${DIR}/../activate_gwent.sh"
 
 cat > "${ACTIVATE_SCRIPT}" << EOF
 #!/usr/bin/env bash

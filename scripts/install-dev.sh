@@ -6,7 +6,7 @@ pip install git+https://github.com/guyc/py-gaugette.git
 
 # Install the package in development mode
 echo "Installing gwent-elements in development mode..."
-pip install -e .
+pip install -e ../software/gwent-elements
 
 # Print success message
 echo "Gwent Elements installed in development mode."

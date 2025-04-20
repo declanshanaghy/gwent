@@ -70,14 +70,26 @@ class GwentGame:
         """
         self.running = True
         
-        # Display HELLO WORLD
+        # Clear the display
         self.display.clear()
+        
+        # Display the current datetime at the top
+        self.display.start_datetime_display(x=0, y=0, font_size=10, format_str="%Y-%m-%d %H:%M:%S")
+        
+        # Display HELLO WORLD below the datetime
         self.display.display_text("HELLO WORLD", y=24, font_size=12)
         
-        # Play startup music
-        music_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                 "hal", "music", "music1.mp3")
-        self.audio.play_music(music_path, volume=0.7, loop=True)
+        # Check if audio should be disabled
+        audio_enabled = os.environ.get('GWENT_AUDIO_ENABLED', 'true').lower() == 'true'
+        
+        # Play startup music if audio is enabled
+        if audio_enabled:
+            music_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                     "hal", "music", "music1.mp3")
+            self.audio.play_music(music_path, volume=0.7, loop=True)
+            print("Audio playback started")
+        else:
+            print("Audio playback disabled by environment variable GWENT_AUDIO_ENABLED")
         
         # Main loop
         try:

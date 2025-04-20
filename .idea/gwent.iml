@@ -16,7 +16,6 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/software/gwent" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/software/gaugette" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/software/poc" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/software/gwent/novigrad/novigrad" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/software/MFRC522-python" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/venv" />

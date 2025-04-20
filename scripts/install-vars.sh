@@ -3,10 +3,10 @@
 set -e
 
 # Load environment variables from .env file if it exists
-if [ -f .env ]; then
+if [ -f "${DIR}/../.env" ]; then
     echo "Loading environment variables from .env file"
-    # Only export lines that don't start with # and don't contain spaces
-    export $(grep -v '^#' .env | grep -v ' ' | xargs)
+    # Only export lines that don't start with # and strip comments
+    export $(grep -v '^#' "${DIR}/../.env" | sed 's/\s*#.*$//' | xargs)
 fi
 
 export VENV_NAME="gwent-venv"
