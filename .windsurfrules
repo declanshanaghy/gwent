@@ -949,3 +949,35 @@ alwaysApply: true
   - Document breaking changes
 
 Follow WINDSURF_RULES for proper rule formatting and structure of windsurf rule sections.
+
+---
+GIT_COMMIT_BEFORE_COMPLETION
+---
+description: Ensures all code changes are committed to version control before completing a task
+globs: **/*
+filesToApplyRule: **/*
+alwaysApply: true
+---
+
+- **Always Commit Before Task Completion**
+  - Before using the `attempt_completion` tool, always commit all changes to git
+  - This ensures that all work is properly tracked in version control
+  - Prevents loss of work and maintains a clear history of changes
+  - Makes it easier to revert changes if needed
+
+- **Git Commit Process**
+  - Stage all changes: `git add .`
+  - Create a descriptive commit message: `git commit -m "Description of changes"`
+  - The commit message should clearly describe what was accomplished in the task
+  - Example: `git commit -m "Implement user authentication with JWT"`
+
+- **Verification Steps**
+  - Check status before committing: `git status` to ensure all changes are tracked
+  - Review changes before committing: `git diff --staged` to verify changes
+  - After committing, verify the commit was successful: `git log -1`
+
+- **Best Practices**
+  - Make atomic commits that focus on a single logical change
+  - Use clear, descriptive commit messages
+  - Include relevant task or issue IDs in commit messages when applicable
+  - Commit frequently during development, not just at the end of a task
