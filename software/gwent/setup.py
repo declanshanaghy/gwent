@@ -8,8 +8,11 @@ here = os.path.abspath(os.path.dirname(__file__))
 project_root = os.path.abspath(os.path.join(here, "../.."))
 
 # Read the README.md file from the project root
-with open(os.path.join(project_root, "README.md"), "r") as fh:
-    long_description = fh.read()
+try:
+    with open(os.path.join(project_root, "README.md"), "r") as fh:
+        long_description = fh.read()
+except FileNotFoundError:
+    long_description = "Electronic Gwent board game"
 
 setuptools.setup(
     name="gwent",
@@ -43,7 +46,7 @@ setuptools.setup(
         'luma.oled>=3.8.1',
         
         # RFID libraries
-        'mfrc522>=0.0.9',
+        'mfrc522>=0.0.7',
         
         # Input libraries
         'gaugette>=1.2',
@@ -63,6 +66,9 @@ setuptools.setup(
         # Communication libraries
         'asyncio-mqtt>=0.12.0',
         'aioredis>=1.3.1',
+        
+        # Gwent elements
+        'gwent-elements>=0.1.0',
     ],
     entry_points={
         'console_scripts': [

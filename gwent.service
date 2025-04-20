@@ -5,12 +5,12 @@ Wants=mosquitto.service redis-server.service
 
 [Service]
 Type=simple
-User=pi
-WorkingDirectory=/home/pi
+User=dshanaghy
+WorkingDirectory=/home/dshanaghy
 Environment=PYTHONUNBUFFERED=1
 Environment=RASPBERRY_PI_IP=192.168.1.225
 Environment=RUNNING_ON_PI=true
-ExecStart=/home/pi/gwent-venv/bin/gwent
+ExecStart=/home/dshanaghy/gwent-venv/bin/gwent
 Restart=on-failure
 RestartSec=5
 StandardOutput=journal
