@@ -131,7 +131,24 @@ systemctl start redis-server
 
 print_success "Services configured and started"
 
-# Step 9: Create test script
+# Step 9: Install Gwent systemd service
+print_message "Installing Gwent systemd service..."
+# Copy the service file to systemd directory
+if [ -f "${DIR}/gwent.service" ]; then
+    cp "${DIR}/gwent.service" /etc/systemd/system/
+    # Set correct permissions
+    chmod 644 /etc/systemd/system/gwent.service
+    # Enable the service to start on boot
+    systemctl daemon-reload
+    systemctl enable gwent.service
+    print_success "Gwent service installed and enabled"
+    print_message "You can start the service with: sudo systemctl start gwent.service"
+else
+    print_warning "gwent.service file not found. Skipping service installation."
+    print_warning "You may need to create and install the service manually."
+fi
+
+# Step 10: Create test script
 print_message "Creating hardware test script..."
 TEST_SCRIPT="${DIR}/test_hardware.py"
 
@@ -451,7 +468,7 @@ chmod +x "${TEST_SCRIPT}"
 chown "${USER_NAME}:${USER_NAME}" "${TEST_SCRIPT}"
 print_success "Hardware test script created at ${TEST_SCRIPT}"
 
-# Step 10: Create a convenience script to activate the virtual environment
+# Step 11: Create a convenience script to activate the virtual environment
 print_message "Creating convenience script..."
 ACTIVATE_SCRIPT="${DIR}/activate_gwent.sh"
 
@@ -481,6 +498,11 @@ print_message ""
 print_message "After reboot, you can:"
 print_message "1. Activate the virtual environment: source ${ACTIVATE_SCRIPT}"
 print_message "2. Test your hardware: python ${TEST_SCRIPT}"
-print_message "3. Run the Gwent game: gwent"
+print_message "3. Run the Gwent game manually: gwent"
+print_message "4. Control the Gwent service:"
+print_message "   - Start: sudo systemctl start gwent.service"
+print_message "   - Stop: sudo systemctl stop gwent.service"
+print_message "   - Status: sudo systemctl status gwent.service"
 print_message ""
+print_message "Note: The Gwent service is configured to start automatically on boot."
 print_message "Note: You may need to log out and log back in for group changes to take effect."

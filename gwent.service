@@ -1,0 +1,18 @@
+[Unit]
+Description=Gwent Game Service
+After=network.target mosquitto.service redis-server.service
+Wants=mosquitto.service redis-server.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/pi/gwent-venv/bin/gwent
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
