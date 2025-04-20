@@ -58,6 +58,11 @@ setuptools.setup(
         
         # Utility libraries
         'jsonschema>=3.2.0',
+        'python-dotenv>=0.19.0',
+        
+        # Communication libraries
+        'asyncio-mqtt>=0.12.0',
+        'aioredis>=1.3.1',
     ],
     entry_points={
         'console_scripts': [

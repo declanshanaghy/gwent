@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 
 import asyncio
+import os
 import aioredis
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get Raspberry Pi IP from environment or use localhost as fallback
+REDIS_HOST = os.getenv("RASPBERRY_PI_IP", "localhost")
 
 
 async def main():
-    redis = await aioredis.create_redis_pool('redis://localhost')
+    redis_url = f'redis://{REDIS_HOST}'
+    redis = await aioredis.create_redis_pool(redis_url)
 
     ch1, ch2 = await redis.subscribe('channel:1', 'channel:2')
     assert isinstance(ch1, aioredis.Channel)

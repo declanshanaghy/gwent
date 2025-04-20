@@ -8,6 +8,8 @@ Type=simple
 User=pi
 WorkingDirectory=/home/pi
 Environment=PYTHONUNBUFFERED=1
+Environment=RASPBERRY_PI_IP=192.168.1.225
+Environment=RUNNING_ON_PI=true
 ExecStart=/home/pi/gwent-venv/bin/gwent
 Restart=on-failure
 RestartSec=5

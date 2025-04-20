@@ -46,6 +46,8 @@ VENV_DIR="${HOME}/${VENV_NAME}"
 USER_NAME=$(logname)
 USER_HOME="/home/${USER_NAME}"
 VENV_DIR="${USER_HOME}/${VENV_NAME}"
+RASPBERRY_PI_IP="192.168.1.225"
+RUNNING_ON_PI="true"
 
 print_message "Starting Gwent Raspberry Pi development environment setup..."
 print_message "User: ${USER_NAME}"
@@ -396,6 +398,7 @@ def test_mqtt():
         # Test connection to MQTT broker
         client = mqtt.Client()
         try:
+            # When running on the Pi itself, connect to localhost
             client.connect("localhost", 1883, 60)
             print_success("Connected to MQTT broker successfully")
             client.disconnect()

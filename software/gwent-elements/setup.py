@@ -26,6 +26,7 @@ setup(
         # Communication dependencies
         "asyncio-mqtt",
         "aioredis",
+        "python-dotenv",
         
         # Sensor dependencies
         "sparkfun-qwiic-tca9548a",

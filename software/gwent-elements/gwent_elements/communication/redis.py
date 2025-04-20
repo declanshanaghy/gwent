@@ -5,7 +5,12 @@ Redis client using aioredis
 """
 
 import asyncio
+import os
 import aioredis
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 
 class RedisClient:
@@ -13,16 +18,30 @@ class RedisClient:
     Redis client using aioredis
     """
     
-    def __init__(self, url="redis://localhost", password=None, db=0):
+    def __init__(self, url=None, password=None, db=0):
         """
         Initialize the Redis client
         
         Args:
-            url (str): Redis URL (default: redis://localhost)
+            url (str): Redis URL (default: constructed from RASPBERRY_PI_IP env var or localhost)
             password (str): Redis password (default: None)
             db (int): Redis database (default: 0)
         """
-        self.url = url
+        # If running on the Raspberry Pi itself, use localhost
+        # Otherwise, use the Raspberry Pi IP from environment for external connections
+        is_local = os.getenv("RUNNING_ON_PI", "false").lower() == "true"
+        
+        if url is None:
+            if is_local:
+                # When running on the Pi itself, connect to localhost
+                self.url = "redis://localhost"
+            else:
+                # For external connections, use RASPBERRY_PI_IP
+                redis_host = os.getenv("RASPBERRY_PI_IP", "localhost")
+                self.url = f"redis://{redis_host}"
+        else:
+            self.url = url
+            
         self.password = password
         self.db = db
         

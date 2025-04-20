@@ -5,8 +5,13 @@ MQTT client using asyncio-mqtt
 """
 
 import asyncio
+import os
 from contextlib import AsyncExitStack, asynccontextmanager
 from asyncio_mqtt import Client, MqttError
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 
 class MQTTClient:
@@ -14,17 +19,26 @@ class MQTTClient:
     MQTT client using asyncio-mqtt
     """
     
-    def __init__(self, host="localhost", port=1883, username=None, password=None):
+    def __init__(self, host=None, port=1883, username=None, password=None):
         """
         Initialize the MQTT client
         
         Args:
-            host (str): MQTT broker host (default: localhost)
+            host (str): MQTT broker host (default: from RASPBERRY_PI_IP env var or localhost)
             port (int): MQTT broker port (default: 1883)
             username (str): MQTT broker username (default: None)
             password (str): MQTT broker password (default: None)
         """
-        self.host = host
+        # If running on the Raspberry Pi itself, use localhost
+        # Otherwise, use the Raspberry Pi IP from environment for external connections
+        is_local = os.getenv("RUNNING_ON_PI", "false").lower() == "true"
+        
+        if is_local:
+            # When running on the Pi itself, connect to localhost
+            self.host = "localhost"
+        else:
+            # For external connections, use the provided host or RASPBERRY_PI_IP
+            self.host = host or os.getenv("RASPBERRY_PI_IP", "localhost")
         self.port = port
         self.username = username
         self.password = password

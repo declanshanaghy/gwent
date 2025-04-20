@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 
 import asyncio
+import os
 from contextlib import AsyncExitStack, asynccontextmanager
 from random import randrange
 from asyncio_mqtt import Client, MqttError
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+
+# Get Raspberry Pi IP from environment or use localhost as fallback
+MQTT_HOST = os.getenv("RASPBERRY_PI_IP", "localhost")
 
 
 async def advanced_example():
@@ -15,8 +23,8 @@ async def advanced_example():
         tasks = set()
         stack.push_async_callback(cancel_tasks, tasks)
 
-        # Connect to the MQTT broker
-        client = Client("localhost")
+        # Connect to the MQTT broker using the configured IP
+        client = Client(MQTT_HOST)
         await stack.enter_async_context(client)
 
         # You can create any number of topic filters

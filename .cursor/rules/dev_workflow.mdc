@@ -41,7 +41,8 @@ Task Master offers two primary ways to interact:
 -   Clear existing subtasks if needed using `clear_subtasks` / `task-master clear-subtasks --id=<id>` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc)) before regenerating
 -   Implement code following task details, dependencies, and project standards
 -   Verify tasks according to test strategies before marking as complete (See [`tests.mdc`](mdc:.cursor/rules/tests.mdc))
--   Mark completed tasks with `set_task_status` / `task-master set-status --id=<id> --status=done` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc))
+-   Commit all changes to git before marking tasks as complete (see "Commit Changes to Git" section under "Iterative Subtask Implementation")
+-   Mark completed tasks with `set_task_status` / `task-master set-status --id=<id> --status=done` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc)) only after committing changes
 -   Update dependent tasks when implementation differs from original plan using `update` / `task-master update --from=<id> --prompt="..."` or `update_task` / `task-master update-task --id=<id> --prompt="..."` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc))
 -   Add new tasks discovered during implementation using `add_task` / `task-master add-task --prompt="..."` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc)).
 -   Add new subtasks as needed using `add_subtask` / `task-master add-subtask --parent=<id> --title="..."` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc)).
@@ -191,10 +192,32 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     *   Identify any new or modified code patterns, conventions, or best practices established during the implementation.
     *   Create new or update existing Cursor rules in the `.cursor/rules/` directory to capture these patterns, following the guidelines in [`cursor_rules.mdc`](mdc:.cursor/rules/cursor_rules.mdc) and [`self_improve.mdc`](mdc:.cursor/rules/self_improve.mdc).
 
-8.  **Mark Task Complete:**
-    *   After verifying the implementation and updating any necessary rules, mark the subtask as completed: `set_task_status` / `task-master set-status --id=<subtaskId> --status=done`.
+8.  **Commit Changes to Git (Required):**
+     *   Stage the relevant code changes and any updated/new rule files (`git add .`).
+     *   Craft a Git commit message following this strict format:
+         1. A one-line summary of all the changes (e.g., `feat(module): Implement feature X for subtask <subtaskId>`)
+         2. Two blank line separators (crucial for proper formatting)
+         3. A comprehensive description of all changes with links to relevant documentation:
+            - Links to PRDs, requirements files, and ADRs using markdown format `[Title](path/to/file.md)`
+            - References to code implementations using file paths or PR numbers
+            - Detailed explanation of what was changed and why
+            - Any important technical decisions made during implementation
+     *   Execute the commit command using a multi-line format to ensure proper spacing:
+         ```
+         git commit -m "feat(module): Implement feature X for subtask <subtaskId>
+         
+         
+         Comprehensive description of changes:
+         - Implemented feature X according to [PRD-123](docs/prd/feature-x.md)
+         - Referenced architecture decisions in [ADR-456](design/ADR/feature-x-architecture.md)
+         - Modified code in src/module/feature.js to support new requirements
+         - Fixed bug in related component that was preventing proper integration"
+         ```
+     *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
+     *   When using git commands like `log`, `branch`, or `diff`, disable the pager to avoid interactive prompts by using the `--no-pager` option (e.g., `git --no-pager log`) or setting `GIT_PAGER=cat` before the command.
 
-9.  **Commit Changes (If using Git):**
+9.  **Mark Task Complete:**
+     *   After committing all changes to git and verifying the implementation, mark the subtask as completed: `set_task_status` / `task-master set-status --id=<subtaskId> --status=done`.
     *   Stage the relevant code changes and any updated/new rule files (`git add .`).
     *   Craft a Git commit message following this strict format:
         1. A one-line summary of all the changes (e.g., `feat(module): Implement feature X for subtask <subtaskId>`)
