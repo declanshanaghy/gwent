@@ -1,94 +1,162 @@
-import asyncio
-import logging
+#!/usr/bin/env python3
+
+"""
+Main Module for Gwent
+This module provides the entry point for the Gwent game.
+"""
+
+import sys
+import time
 import signal
+import platform
+import os
+import threading
 
-import asyncio_mqtt
-
-import gwent.log
-import gwent.game.cards
-import gwent.game.controller
-import gwent.game.mfd
-import gwent.game.player
-import gwent.game.sfx
-import gwent.hal
-
-
-class Gwent(object):
-    pubsub = None
-
-    def __init__(self):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
-
-    async def close_redis(self):
-        self._log.info('closing pubsub')
-        await self.pubsub.disconnect()
-
-    async def shutdown_components(self):
-        if self.components is not None:
-            logging.info('Shutting down components')
-            await asyncio.gather(*[c.shutdown() for c in self.components])
-
-    async def shutdown(self):
-        await self.close_redis()
-
-    async def sighandler(self, signal, loop):
-        """Cleanup tasks tied to the service's shutdown."""
-        logging.info(f'Received exit signal {signal.name}...')
-
-        await self.shutdown_components()
-
-        tasks = [t for t in asyncio.all_tasks() if t is not
-                 asyncio.current_task()]
-        logging.info(f'Canceling {len(tasks)} outstanding tasks')
-        [task.cancel() for task in tasks]
-        tasks.append(self.shutdown())
-        await asyncio.gather(*tasks, return_exceptions=True)
-
-        loop.stop()
-
-    def setup_signal_handlers(self, loop):
-        # Setup signal handlers for graceful exit
-        for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
-                  signal.SIGQUIT, signal.SIGTERM):
-            loop.add_signal_handler(
-                s, lambda s=s: loop.create_task(self.sighandler(s, loop)))
-
-    async def main(self):
-        loop = asyncio.get_running_loop()
-
-        self.setup_signal_handlers(loop)
-
-        self.pubsub = asyncio_mqtt.Client('localhost')
-        await self.pubsub.connect()
-
-        self.components = [
-            gwent.game.controller.Controller(loop, self.pubsub),
-            gwent.game.player.Player(gwent.game.controller.PLAYER_ONE,
-                                     loop, self.pubsub),
-            gwent.game.player.Player(gwent.game.controller.PLAYER_TWO,
-                                     loop, self.pubsub),
-            gwent.game.cards.Reader(loop, self.pubsub),
-            gwent.game.mfd.MFD(loop, self.pubsub),
-            gwent.game.sfx.SFX(loop, self.pubsub),
-        ]
-
-        logging.info('Init components')
-        await asyncio.gather(*[c.init() for c in self.components])
-
-        logging.info('Run components')
-        await asyncio.gather(*[c.run() for c in self.components])
-
-        await self.shutdown_components()
-        await self.shutdown()
-
-
-def run():
-    gwent.log.setup(level='debug')
+# Determine if running on a Raspberry Pi
+def is_raspberry_pi():
     try:
-        asyncio.run(Gwent().main(), debug=False)
-    except asyncio.CancelledError as ex:
-        logging.info(str(ex))
+        with open('/proc/device-tree/model', 'r') as f:
+            model = f.read()
+            return 'Raspberry Pi' in model
+    except:
+        return False
 
+# Import the appropriate hardware implementations
+if is_raspberry_pi():
+    print("Running on Raspberry Pi - using hardware implementations")
+    from ..hal.display import OLEDDisplay
+    from ..hal.audio import AudioPlayer
+    from ..hal.rotary import RotaryEncoder
+else:
+    print("Not running on Raspberry Pi - using mock implementations")
+    from ..hal.display_mock import MockOLEDDisplay as OLEDDisplay
+    from ..hal.audio_mock import MockAudioPlayer as AudioPlayer
+    from ..hal.rotary_mock import MockRotaryEncoder as RotaryEncoder
 
-if __name__ == '__main__':
-    run()
+class GwentGame:
+    """
+    Main class for the Gwent game.
+    """
+    
+    def __init__(self):
+        """
+        Initialize the Gwent game.
+        """
+        self.running = False
+        
+        # Initialize hardware components
+        self.init_hardware()
+        
+        # Set up signal handlers for graceful shutdown
+        signal.signal(signal.SIGINT, self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
+    
+    def init_hardware(self):
+        """
+        Initialize hardware components.
+        """
+        try:
+            # Initialize OLED display
+            self.display = OLEDDisplay()
+            print("OLED display initialized successfully")
+            
+            # Initialize audio player
+            self.audio = AudioPlayer()
+            
+            # Initialize rotary encoder with callbacks
+            self.rotary = RotaryEncoder(
+                rotation_callback=self.on_rotation,
+                button_callback=self.on_button
+            )
+            self.rotary.start_monitoring()
+            print("Rotary encoder initialized successfully")
+        except Exception as e:
+            print(f"Error initializing hardware: {e}")
+            sys.exit(1)
+    
+    def on_rotation(self, direction):
+        """
+        Callback for rotary encoder rotation events.
+        
+        Args:
+            direction (int): 1 for clockwise, -1 for counter-clockwise
+        """
+        direction_text = "clockwise" if direction > 0 else "counter-clockwise"
+        print(f"Rotary event: Dial turned {direction_text}")
+        # You can add more logic here based on the rotation
+    
+    def on_button(self, state):
+        """
+        Callback for rotary encoder button events.
+        
+        Args:
+            state (int): 1 for pressed, 0 for released
+        """
+        state_text = "pressed" if state == 1 else "released"
+        print(f"Rotary event: Button {state_text}")
+        # You can add more logic here based on the button state
+    
+    def run(self):
+        """
+        Run the Gwent game.
+        """
+        self.running = True
+        
+        # Clear the display
+        self.display.clear()
+        
+        # Display the current datetime at the top
+        self.display.start_datetime_display(x=0, y=0, font_size=10, format_str="%Y-%m-%d %H:%M:%S")
+        
+        # Display HELLO WORLD below the datetime
+        self.display.display_text("HELLO WORLD", y=24, font_size=12)
+        
+        # Check if audio should be disabled
+        audio_enabled = os.environ.get('GWENT_AUDIO_ENABLED', 'true').lower() == 'true'
+        
+        # Play startup music if audio is enabled
+        if audio_enabled:
+            music_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                     "hal", "music", "music1.mp3")
+            self.audio.play_music(music_path, volume=0.7, loop=True)
+            print("Audio playback started")
+        else:
+            print("Audio playback disabled by environment variable GWENT_AUDIO_ENABLED")
+        
+        # Main loop
+        try:
+            while self.running:
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            self.shutdown()
+    
+    def shutdown(self):
+        """
+        Shut down the Gwent game.
+        """
+        self.running = False
+        
+        # Clean up hardware
+        self.display.cleanup()
+        self.audio.cleanup()
+        self.rotary.cleanup()
+        
+        print("Gwent game shut down")
+        sys.exit(0)
+    
+    def signal_handler(self, sig, frame):
+        """
+        Handle signals for graceful shutdown.
+        """
+        self.shutdown()
+
+def main():
+    """
+    Main entry point for the Gwent game.
+    """
+    print("Starting Gwent Companion...")
+    game = GwentGame()
+    game.run()
+
+if __name__ == "__main__":
+    main()
