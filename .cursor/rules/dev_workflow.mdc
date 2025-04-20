@@ -241,7 +241,16 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
     *   When using git commands like `log`, `branch`, or `diff`, disable the pager to avoid interactive prompts by using the `--no-pager` option (e.g., `git --no-pager log`) or setting `GIT_PAGER=cat` before the command.
 
-10. **Proceed to Next Subtask:**
+10. **Validate on Raspberry Pi:**
+    *   For hardware-related implementations or changes that interact with physical components:
+        *   Deploy the changes to a Raspberry Pi using the `deploy-to-raspi.sh` script.
+        *   Test the implementation on actual hardware to verify functionality.
+        *   Verify that parallel computing techniques are working correctly for hardware communication.
+        *   Document any hardware-specific issues or optimizations in the task details.
+        *   Make necessary adjustments based on real hardware testing results.
+    *   **This validation step is mandatory before marking any hardware-related task as complete.**
+
+11. **Proceed to Next Subtask:**
     *   Identify the next subtask in the dependency chain (e.g., using `next_task` / `task-master next`) and repeat this iterative process starting from step 1.
 
 ## Code Analysis & Refactoring Techniques
