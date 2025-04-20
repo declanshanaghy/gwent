@@ -233,6 +233,18 @@ BlinkaTest.test_i2c()
 BlinkaTest.test_spi()
 ```
 
+## Mock Demo
+
+For development and testing without actual hardware, you can use the mock demo:
+
+```bash
+# Run the mock demo
+cd examples
+python demo_mock.py
+```
+
+This will simulate the hardware interfaces and demonstrate the API usage without requiring physical hardware.
+
 ## License
 
 MIT
