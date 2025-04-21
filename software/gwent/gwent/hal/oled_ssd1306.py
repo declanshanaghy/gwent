@@ -114,6 +114,6 @@ class SSD1325Presenter(gwent.hal.mfdi.Presenter):
                 
         # Make sure to actually update the display
         if self.term is not None:
-            self._log.info("Calling term.redraw()")
-            await self._loop.run_in_executor(None, self.term.redraw)
-            self._log.info("term.redraw() completed")
+            self._log.info("Calling term.flush() to update the display")
+            await self._loop.run_in_executor(None, self.term.flush)
+            self._log.info("term.flush() completed")
