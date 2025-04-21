@@ -54,7 +54,7 @@ class RotaryEncoder(gwent.game.BaseComponent):
     # Pin numbers are Wiring pin numbers.
     # They differ from hardware pin or GPIO ids.
     # Connect your C pin of the encoder to Ground.
-    A_PIN = 1
+    A_PIN = 3
     B_PIN = 0
     SW_PIN = 2
 
