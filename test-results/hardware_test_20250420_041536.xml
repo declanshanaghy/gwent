@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+    <testsuite name="pytest" errors="0" failures="0" skipped="0" tests="6" time="6.444" timestamp="2025-04-20T04:15:38.214022-07:00" hostname="gwent">
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_gpio_available" time="1.120" />
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_display_available" time="1.019" />
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_rotary_encoder" time="0.004" />
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_rfid_reader" time="0.003" />
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_audio_player" time="0.004" />
+        <testcase classname="tests.test_hardware.TestRaspberryPiHardware" name="test_integrated_hardware" time="4.075" />
+    </testsuite>
+</testsuites>

@@ -1,0 +1,43 @@
+============================= test session starts ==============================
+platform linux -- Python 3.11.2, pytest-8.3.5, pluggy-1.5.0 -- /home/dshanaghy/gwent-venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/dshanaghy/gwent
+configfile: pytest.ini
+plugins: cov-6.1.1
+collecting ... collected 6 items
+
+tests/test_hardware.py::TestRaspberryPiHardware::test_gpio_available PASSED [ 16%]
+tests/test_hardware.py::TestRaspberryPiHardware::test_display_available PASSED [ 33%]
+tests/test_hardware.py::TestRaspberryPiHardware::test_rotary_encoder PASSED [ 50%]
+tests/test_hardware.py::TestRaspberryPiHardware::test_rfid_reader PASSED [ 66%]
+tests/test_hardware.py::TestRaspberryPiHardware::test_audio_player PASSED [ 83%]
+tests/test_hardware.py::TestRaspberryPiHardware::test_integrated_hardware PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/test_hardware.py::TestRaspberryPiHardware::test_gpio_available
+  /home/dshanaghy/gwent-venv/lib/python3.11/site-packages/pythonjsonlogger/jsonlogger.py:11: DeprecationWarning: pythonjsonlogger.jsonlogger has been moved to pythonjsonlogger.json
+    warnings.warn(
+
+tests/test_hardware.py::TestRaspberryPiHardware::test_gpio_available
+  /home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/devices.py:300: PinFactoryFallback: Falling back from lgpio: No module named 'lgpio'
+    warnings.warn(
+
+tests/test_hardware.py::TestRaspberryPiHardware::test_gpio_available
+  /home/dshanaghy/gwent-venv/lib/python3.11/site-packages/pygame/pkgdata.py:25: DeprecationWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html
+    from pkg_resources import resource_stream, resource_exists
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 6 passed, 3 warnings in 6.37s =========================
+Exception ignored in atexit callback: <function _shutdown at 0x7f84347b00>
+Traceback (most recent call last):
+  File "/home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/devices.py", line 631, in _shutdown
+    _devices_shutdown()
+  File "/home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/devices.py", line 625, in _devices_shutdown
+    Device.pin_factory.close()
+  File "/home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/pins/rpigpio.py", line 56, in close
+    super().close()
+  File "/home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/pins/pi.py", line 405, in close
+    pin.close()
+  File "/home/dshanaghy/gwent-venv/lib/python3.11/site-packages/gpiozero/pins/rpigpio.py", line 106, in close
+    GPIO.cleanup(self._number)
+RuntimeError: Please set pin numbering mode using GPIO.setmode(GPIO.BOARD) or GPIO.setmode(GPIO.BCM)

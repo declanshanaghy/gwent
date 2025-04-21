@@ -1,7 +1,12 @@
 import setuptools
+import os
 
-with open("../../README.md", "r") as fh:
-    long_description = fh.read()
+# Use a default long description if README.md is not found
+try:
+    with open(os.path.join(os.path.dirname(__file__), "README.md"), "r") as fh:
+        long_description = fh.read()
+except FileNotFoundError:
+    long_description = "Gwent - Electronic board game"
 
 setuptools.setup(
     name="gwent",
@@ -29,17 +34,19 @@ setuptools.setup(
         'adafruit-circuitpython-framebuf==1.3.2',
         'adafruit-circuitpython-ssd1305==1.3.3',
         'asyncio-mqtt==0.5.0',
-        'gaugette==1.2',
         'gTTS==2.2.4',
         'jsonschema==3.2.0',
         'luma.oled==3.8.1',
-        'pygame==2.1.2',
         'pydub==0.24.0',
         'sparkfun-qwiic-tca9548a==0.9.0',
         'websockets==8.1',
+        # The following packages are installed locally
+        # 'gaugette',
+        # 'mfrc522',
+        # pygame is installed via apt-get on Raspberry Pi
+        # 'pygame==2.1.2',
         # The following won't work on mac
         'wiringpi2==2.32.3',
-        'mfrc522==0.0.9',
     ],
     entry_points={
         'console_scripts': [
