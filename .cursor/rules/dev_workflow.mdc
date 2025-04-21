@@ -282,6 +282,16 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         - Enable strict mode in tsconfig.json.
     - Strict typing improves code quality, readability, and helps catch errors early.
 
+- **No Mocking in Production Code**:
+    - Production code should not include mock implementations.
+    - Only test frameworks should provide mocks.
+    - Instead of mocking functionality:
+        - Use dependency injection to allow for different implementations.
+        - Create proper abstractions that can be implemented differently based on the environment.
+        - Handle errors gracefully when functionality is unavailable.
+    - This ensures that production code is always using real implementations and not silently falling back to mocks.
+    - Exceptions should be raised when required functionality is unavailable, rather than silently using a mock.
+
 ---
 
 ## Error Handling Requirements

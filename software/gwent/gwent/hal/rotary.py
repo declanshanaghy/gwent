@@ -63,19 +63,12 @@ class RotaryEncoder(gwent.game.BaseComponent):
 
     def start(self):
         if self._encoder is None:
-            try:
-                self._log.info(f"Initializing rotary encoder with pins A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")
-                self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
-                self._encoder.start()
-                
-                self._sw = DirectGPIOSwitch(self.SW_PIN)
-                self._log.info("Direct GPIO rotary encoder initialized successfully")
-            except Exception as e:
-                self._log.warning(f"Error initializing rotary encoder: {e}")
-                self._log.info("Using mock rotary encoder implementation")
-                # Create mock implementations for testing
-                self._encoder = MockRotaryEncoder()
-                self._sw = MockSwitch()
+            self._log.info(f"Initializing rotary encoder with pins A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")
+            self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
+            self._encoder.start()
+            
+            self._sw = DirectGPIOSwitch(self.SW_PIN)
+            self._log.info("Direct GPIO rotary encoder initialized successfully")
 
         self.reset()
 
@@ -116,27 +109,4 @@ class RotaryEncoder(gwent.game.BaseComponent):
         return self._delta, self._counter, self._sw_changed, self._sw_state
 
 
-class MockRotaryEncoder:
-    """Mock implementation of the rotary encoder for environments where hardware is not available"""
-    def __init__(self):
-        self._counter = 0
-        
-    def start(self):
-        pass
-        
-    def get_cycles(self):
-        # Always return 0 for no movement
-        return 0
-        
-    def reset(self):
-        self._counter = 0
-
-
-class MockSwitch:
-    """Mock implementation of the switch for environments where hardware is not available"""
-    def __init__(self):
-        self._state = False
-        
-    def get_state(self):
-        # Always return False (not pressed)
-        return False
+# No mocks in production code as per development guidelines

@@ -67,15 +67,15 @@ class DirectGPIORotaryEncoder:
                 self.available = True
             except Exception as e:
                 self._log.warning(f"Error setting up GPIO pins: {e}")
-                self.available = False
+                raise RuntimeError(f"Failed to initialize rotary encoder GPIO pins: {e}")
         except (ImportError, RuntimeError) as e:
             self._log.warning(f"Error importing RPi.GPIO: {e}")
-            self.available = False
+            raise RuntimeError(f"RPi.GPIO module not available: {e}")
             
     def start(self):
         """Start the encoder monitoring"""
         if not self.available:
-            return
+            raise RuntimeError("Rotary encoder hardware not available")
             
         self.last_state = self._read_state()
         
@@ -86,13 +86,13 @@ class DirectGPIORotaryEncoder:
     def _read_state(self):
         """Read the current state of both pins"""
         if not self.available:
-            return 0
+            raise RuntimeError("Rotary encoder hardware not available")
         return (self.GPIO.input(self.a_pin) << 1) | self.GPIO.input(self.b_pin)
     
     def _encoder_callback(self, channel):
         """Callback for GPIO event detection"""
         if not self.available:
-            return
+            raise RuntimeError("Rotary encoder hardware not available")
             
         current_state = self._read_state()
         
@@ -130,22 +130,30 @@ class DirectGPIORotaryEncoder:
     
     def get_counter(self):
         """Get the current counter value"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
         with self.lock:
             return self.counter
     
     def get_direction(self):
         """Get the last direction of rotation"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
         with self.lock:
             return self.direction
     
     def reset(self):
         """Reset the counter to 0"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
         with self.lock:
             self.counter = 0
             self.direction = None
     
     def get_cycles(self):
         """Get the number of cycles since last call and reset the delta"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
         with self.lock:
             direction = self.direction
             self.direction = None
@@ -187,13 +195,13 @@ class DirectGPIOSwitch:
                 self.available = True
             except Exception as e:
                 print(f"Error setting up GPIO pin for switch: {e}")
-                self.available = False
-        except (ImportError, RuntimeError):
-            self.available = False
+                raise RuntimeError(f"Failed to initialize switch GPIO pin: {e}")
+        except (ImportError, RuntimeError) as e:
+            raise RuntimeError(f"RPi.GPIO module not available: {e}")
     
     def get_state(self):
         """Get the current state of the switch (True = pressed, False = released)"""
         if not self.available:
-            return False
+            raise RuntimeError("Switch hardware not available")
         # Switch is pulled up, so it's LOW when pressed
         return not self.GPIO.input(self.pin)
