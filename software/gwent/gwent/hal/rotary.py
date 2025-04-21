@@ -8,6 +8,18 @@ import gwent.game
 import gwent.messaging.choice
 
 
+class SimpleLogger:
+    """A simple logger class for when a real logger is not available"""
+    def info(self, msg):
+        print(f"INFO: {msg}")
+        
+    def warning(self, msg):
+        print(f"WARNING: {msg}")
+        
+    def debug(self, msg):
+        pass  # Ignore debug messages
+
+
 class RotaryChooser(gwent.hal.mfdi.Chooser):
     def __init__(self, loop: asyncio.AbstractEventLoop,
                  log_verbose: bool = False):
@@ -51,7 +63,7 @@ class DirectGPIORotaryEncoder:
     Adapted from various sources to work without external libraries.
     """
     
-    def __init__(self, a_pin, b_pin, callback=None):
+    def __init__(self, a_pin, b_pin, callback=None, log=None):
         self.a_pin = a_pin
         self.b_pin = b_pin
         self.callback = callback
@@ -61,15 +73,46 @@ class DirectGPIORotaryEncoder:
         self.direction = None
         self.lock = threading.Lock()
         
+        # Use provided logger or create a simple print wrapper
+        self._log = log or SimpleLogger()
+        
         # Import GPIO here to avoid import errors when running on non-Raspberry Pi
         try:
             import RPi.GPIO as GPIO
             self.GPIO = GPIO
-            self.GPIO.setmode(GPIO.BCM)  # Use BCM pin numbering
-            self.GPIO.setup(self.a_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            self.GPIO.setup(self.b_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            self.available = True
-        except (ImportError, RuntimeError):
+            
+            # Check if GPIO mode is already set and use that mode
+            # This avoids conflicts with other libraries that might have set the mode
+            try:
+                mode = self.GPIO.getmode()
+                if mode is None:
+                    self.GPIO.setmode(GPIO.BCM)  # Use BCM pin numbering if not set
+                    self._log.info("Setting GPIO mode to BCM")
+                else:
+                    self._log.info(f"Using existing GPIO mode: {mode}")
+                
+                # Convert pin numbers if needed
+                a_pin = self.a_pin
+                b_pin = self.b_pin
+                if mode == GPIO.BOARD:
+                    # Convert BCM pins to BOARD pins if needed
+                    # This is a simplified mapping - you may need to adjust for your specific Pi model
+                    bcm_to_board = {
+                        17: 11,  # GPIO17 -> Pin 11
+                        27: 13,  # GPIO27 -> Pin 13
+                        22: 15,  # GPIO22 -> Pin 15
+                    }
+                    a_pin = bcm_to_board.get(self.a_pin, self.a_pin)
+                    b_pin = bcm_to_board.get(self.b_pin, self.b_pin)
+                
+                self.GPIO.setup(a_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                self.GPIO.setup(b_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                self.available = True
+            except Exception as e:
+                self._log.warning(f"Error setting up GPIO pins: {e}")
+                self.available = False
+        except (ImportError, RuntimeError) as e:
+            self._log.warning(f"Error importing RPi.GPIO: {e}")
             self.available = False
             
     def start(self):
@@ -163,9 +206,30 @@ class DirectGPIOSwitch:
         try:
             import RPi.GPIO as GPIO
             self.GPIO = GPIO
-            self.GPIO.setmode(GPIO.BCM)  # Use BCM pin numbering
-            self.GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            self.available = True
+            
+            # Check if GPIO mode is already set and use that mode
+            try:
+                mode = self.GPIO.getmode()
+                if mode is None:
+                    self.GPIO.setmode(GPIO.BCM)  # Use BCM pin numbering if not set
+                else:
+                    # Use existing mode
+                    pass
+                
+                # Convert pin number if needed
+                pin = self.pin
+                if mode == GPIO.BOARD:
+                    # Convert BCM pins to BOARD pins if needed
+                    bcm_to_board = {
+                        22: 15,  # GPIO22 -> Pin 15
+                    }
+                    pin = bcm_to_board.get(self.pin, self.pin)
+                
+                self.GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                self.available = True
+            except Exception as e:
+                print(f"Error setting up GPIO pin for switch: {e}")
+                self.available = False
         except (ImportError, RuntimeError):
             self.available = False
     
@@ -197,7 +261,7 @@ class RotaryEncoder(gwent.game.BaseComponent):
         if self._encoder is None:
             try:
                 self._log.info(f"Initializing rotary encoder with pins A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")
-                self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN)
+                self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
                 self._encoder.start()
                 
                 self._sw = DirectGPIOSwitch(self.SW_PIN)
