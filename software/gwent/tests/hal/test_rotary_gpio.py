@@ -1,14 +1,36 @@
 import pytest
 import time
 import threading
+import subprocess
+import os
 
 # Import the class to test
 from gwent.hal.rotary_gpio import DirectGPIORotaryEncoder, SimpleLogger
 
 # Define GPIO pins to use for testing
 # These should be connected to a real rotary encoder
-A_PIN = 17  # GPIO17
-B_PIN = 27  # GPIO27
+A_PIN = 23  # GPIO23
+B_PIN = 24  # GPIO24
+
+@pytest.fixture(scope="session", autouse=True)
+def manage_gwent_service():
+    """
+    Fixture to manage the gwent service during testing.
+    Stops the service before tests and restarts it after tests.
+    """
+    # Stop the gwent service before running tests
+    print("\nStopping gwent service before tests...")
+    subprocess.run(["sudo", "systemctl", "stop", "gwent.service"], check=True)
+    
+    # Wait for the service to fully stop
+    time.sleep(2)
+    
+    # Yield control to the tests
+    yield
+    
+    # Restart the gwent service after tests
+    print("\nRestarting gwent service after tests...")
+    subprocess.run(["sudo", "systemctl", "start", "gwent.service"], check=True)
 
 class TestDirectGPIORotaryEncoder:
     """Tests for the DirectGPIORotaryEncoder class with real hardware"""
