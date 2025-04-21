@@ -25,8 +25,31 @@ def manage_gwent_service():
     # Wait for the service to fully stop
     time.sleep(2)
     
+    # Make sure GPIO pins are unexported before starting tests
+    try:
+        # Unexport pins if they're already exported
+        for pin in [A_PIN, B_PIN]:
+            gpio_path = f"/sys/class/gpio/gpio{pin}"
+            if os.path.exists(gpio_path):
+                with open("/sys/class/gpio/unexport", "w") as f:
+                    f.write(str(pin))
+                print(f"Unexported GPIO{pin}")
+    except Exception as e:
+        print(f"Error unexporting GPIO pins: {e}")
+    
     # Yield control to the tests
     yield
+    
+    # Clean up any remaining GPIO exports
+    try:
+        for pin in [A_PIN, B_PIN]:
+            gpio_path = f"/sys/class/gpio/gpio{pin}"
+            if os.path.exists(gpio_path):
+                with open("/sys/class/gpio/unexport", "w") as f:
+                    f.write(str(pin))
+                print(f"Unexported GPIO{pin}")
+    except Exception as e:
+        print(f"Error cleaning up GPIO pins: {e}")
     
     # Restart the gwent service after tests
     print("\nRestarting gwent service after tests...")
@@ -45,7 +68,7 @@ class TestDirectGPIORotaryEncoder:
         def test_callback(direction):
             self.callback_called = True
             self.callback_direction = direction
-            
+        
         # Create the encoder with real pins
         encoder = DirectGPIORotaryEncoder(A_PIN, B_PIN, callback=test_callback)
         
@@ -57,10 +80,8 @@ class TestDirectGPIORotaryEncoder:
         
         # Cleanup after tests
         try:
-            # Remove event detection to avoid callback conflicts
-            encoder.GPIO.remove_event_detect(A_PIN)
-            encoder.GPIO.remove_event_detect(B_PIN)
-            encoder.GPIO.cleanup()
+            # Stop the encoder polling thread
+            encoder.stop()
         except Exception as e:
             print(f"Cleanup error: {e}")
     
@@ -75,9 +96,15 @@ class TestDirectGPIORotaryEncoder:
         assert encoder.counter == 0
         assert encoder.direction is None
         assert encoder.available is True
+        assert encoder.running is False
+        assert encoder.poll_thread is None
         
         # Cleanup
-        encoder.GPIO.cleanup()
+        try:
+            # Make sure to clean up resources
+            encoder.stop()
+        except:
+            pass
     
     def test_read_state(self, encoder):
         """Test the _read_state method returns a valid state"""
