@@ -44,12 +44,10 @@ SSH_KEY="~/.ssh/id_rsa"
 
 print_message "Starting gwent package deployment to Raspberry Pi (${RASPBERRY_PI_IP})..."
 
-# Step 0: Initialize and update Git submodules
-print_message "Initializing and updating Git submodules..."
+# Step 0: Skip submodule initialization for now
+print_message "Skipping Git submodules initialization..."
 cd "${DIR}/.."
-git submodule init
-git submodule update
-print_success "Git submodules initialized and updated."
+print_success "Git submodules initialization skipped."
 
 # Step 1: Build the gwent package
 print_message "Building gwent package..."
