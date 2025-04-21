@@ -29,28 +29,48 @@ from ..logical.menu import MenuSystem, MenuItem, load_menu_from_json
 # Import the audio manager
 from ..logical.audio_manager import AudioStateManager, audio_state, is_audio_enabled
 
-# Ensure running on a Raspberry Pi
-def ensure_raspberry_pi() -> None:
+# Determine if running on a Raspberry Pi
+def is_raspberry_pi() -> bool:
     try:
         with open('/proc/device-tree/model', 'r') as f:
             model = f.read()
-            if 'Raspberry Pi' not in model:
-                logger.error("This application must run on Raspberry Pi hardware")
-                sys.exit(1)
+            return 'Raspberry Pi' in model
     except Exception as e:
-        logger.error(f"Failed to verify Raspberry Pi hardware: {e}")
+        logger.warning(f"Failed to check Raspberry Pi hardware: {e}")
+        return False
+
+# Ensure running on a Raspberry Pi if required
+def ensure_raspberry_pi() -> None:
+    if not is_raspberry_pi():
         logger.error("This application must run on Raspberry Pi hardware")
         sys.exit(1)
-    
     logger.info("Verified Raspberry Pi hardware")
 
-# Verify we're running on Raspberry Pi hardware
-ensure_raspberry_pi()
+# Verify we're running on Raspberry Pi hardware if not in development mode
+if os.environ.get('GWENT_DEV_MODE') != '1':
+    ensure_raspberry_pi()
+else:
+    logger.info("Running in development mode - skipping Raspberry Pi hardware check")
 
-# Import the hardware implementations
-from ..hal.display import OLEDDisplay
-from ..hal.audio import AudioPlayer
-from ..hal.rotary import RotaryEncoder
+# Import the appropriate hardware implementations
+if is_raspberry_pi():
+    logger.info("Running on Raspberry Pi - using hardware implementations")
+    from ..hal.display import OLEDDisplay
+    from ..hal.audio import AudioPlayer
+    from ..hal.rotary import RotaryEncoder
+else:
+    logger.info("Not running on Raspberry Pi - using mock implementations")
+    try:
+        from ..hal.display_mock import MockOLEDDisplay as OLEDDisplay
+        from ..hal.audio_mock import MockAudioPlayer as AudioPlayer
+        from ..hal.rotary_mock import MockRotaryEncoder as RotaryEncoder
+        logger.info("Successfully loaded mock implementations")
+    except ImportError as e:
+        logger.warning(f"Failed to import mock implementations: {e}")
+        logger.warning("Falling back to real implementations, but they may not work properly")
+        from ..hal.display import OLEDDisplay
+        from ..hal.audio import AudioPlayer
+        from ..hal.rotary import RotaryEncoder
 
 class GwentGame:
     """

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 ---
 description: Guide for using Task Master to manage task-driven development workflows
 globs: **/*
@@ -200,7 +203,11 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          1. A one-line summary of all the changes (e.g., `feat(module): Implement feature X for subtask <subtaskId>`)
          2. Two blank line separators (crucial for proper formatting)
          3. A comprehensive description of all changes with links to relevant documentation:
+<<<<<<< HEAD
             - Links to PRDs, requirements files, and ADRs using markdown format `[Title](mdc:path/to/file.md)`
+=======
+            - Links to PRDs, requirements files, and ADRs using markdown format `[Title](path/to/file.md)`
+>>>>>>> origin/master
             - References to code implementations using file paths or PR numbers
             - Detailed explanation of what was changed and why
             - Any important technical decisions made during implementation
@@ -210,8 +217,13 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          
          
          Comprehensive description of changes:
+<<<<<<< HEAD
          - Implemented feature X according to [PRD-123](mdc:docs/prd/feature-x.md)
          - Referenced architecture decisions in [ADR-456](mdc:design/ADR/feature-x-architecture.md)
+=======
+         - Implemented feature X according to [PRD-123](docs/prd/feature-x.md)
+         - Referenced architecture decisions in [ADR-456](design/ADR/feature-x-architecture.md)
+>>>>>>> origin/master
          - Modified code in src/module/feature.js to support new requirements
          - Fixed bug in related component that was preventing proper integration"
          ```
@@ -244,6 +256,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
       `rg "export (async function|function|const) \w+"` or similar patterns.
     - Can help compare functions between files during migrations or identify potential naming conflicts.
 
+<<<<<<< HEAD
 - **Always Use Absolute Filenames**:
     - When executing commands or scripts, always use absolute filenames to avoid ambiguity and failures.
     - This is especially important when working with Python modules and imports.
@@ -292,5 +305,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         - Network services unavailable when required
     - This approach prevents the system from running in a partially initialized state, which could lead to unpredictable behavior.
 
+=======
+>>>>>>> origin/master
 ---
 *This workflow provides a general guideline. Adapt it based on your specific project needs and team practices.*

@@ -92,6 +92,16 @@ else
     print_success "GPIO is available for rotary encoder."
 fi
 
+# Check if rotary encoder libraries are installed
+print_message "Checking if rotary encoder libraries are installed..."
+ROTARY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import gaugette.rotary_encoder' 2>/dev/null && echo 'Rotary encoder libs installed' || echo 'Rotary encoder libs not installed'")
+
+if [[ "$ROTARY_LIBS" == *"Rotary encoder libs installed"* ]]; then
+    print_success "Rotary encoder libraries are installed."
+else
+    print_warning "Rotary encoder libraries might not be installed correctly. Rotary encoder might not work."
+fi
+
 # Check if display libraries are installed
 print_message "Checking if display libraries are installed..."
 DISPLAY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import adafruit_ssd1305' 2>/dev/null && echo 'Display libs installed' || echo 'Display libs not installed'")

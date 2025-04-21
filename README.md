@@ -53,7 +53,6 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 2. Players use their physical Gwent cards as normal
 3. The companion reads cards via its integrated RFID reader when cards are placed on the mat
 4. The `gwent` service processes card data and updates the game state
-5. Scores are automatically calculated and displayed
 6. The rotary interface allows for easy menu navigation and configuration
 7. The menu system provides access to audio settings and other configuration options
 8. The `gwent` service guides players through each phase of the game

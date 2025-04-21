@@ -8,7 +8,11 @@ DEPLOY_TGT := 192.168.1.225
 
 DEPLOY_DIR := "~/gwent"
 
+<<<<<<< HEAD
 .PHONY: rsync install install-app deploy start validate deploy-and-validate test-hardware deploy-and-test
+=======
+.PHONY: rsync install install-app deploy start validate deploy-and-validate
+>>>>>>> origin/master
 
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
@@ -21,6 +25,7 @@ rsync:
 
 install: rsync
 	@echo "Install to $(DEPLOY_TGT)"
+<<<<<<< HEAD
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install.sh
 
 install-app: rsync
@@ -29,6 +34,16 @@ install-app: rsync
 
 # Deploy the application to the Raspberry Pi
 deploy: install install-app
+=======
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/install.sh
+
+install-app: rsync
+	@echo "Install to $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/install-app.sh
+
+# Deploy the application to the Raspberry Pi
+deploy: install
+>>>>>>> origin/master
 	@echo "Deployment complete!"
 
 # Start/restart the gwent service
@@ -40,6 +55,7 @@ start:
 # Validate that gwent is running correctly
 validate:
 	@echo "Validating gwent on $(DEPLOY_TGT)"
+<<<<<<< HEAD
 	@./scripts/validate-gwent.sh
 
 # Run hardware tests on the Raspberry Pi
@@ -50,3 +66,10 @@ test-hardware:
 # Deploy and run hardware tests in one command
 deploy-and-test: install-app test-hardware
 	@echo "Deployment and hardware testing complete!"
+=======
+	@./validate-gwent.sh
+
+# Deploy and validate in one command
+deploy-and-validate: deploy start validate
+	@echo "Deployment and validation complete!"
+>>>>>>> origin/master

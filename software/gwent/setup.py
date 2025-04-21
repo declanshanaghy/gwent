@@ -61,6 +61,9 @@ setuptools.setup(
         # RFID libraries
         'mfrc522-python==0.0.7',
         
+        # Input libraries
+        'gaugette>=1.2',
+        
         # I2C multiplexer
         'sparkfun-qwiic-tca9548a>=0.9.0',
         
@@ -75,7 +78,8 @@ setuptools.setup(
         'python-json-logger==3.3.0',
         'watchdog>=2.1.0',  # For monitoring file changes
         
-        # Communication libraries (removed MQTT and Redis)
+        # Performance monitoring
+        'psutil>=5.9.0',  # For monitoring CPU and memory usage
     ],
     entry_points={
         'console_scripts': [
