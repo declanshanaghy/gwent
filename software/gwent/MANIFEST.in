@@ -1,0 +1,9 @@
+# Include audio files
+include gwent/hal/music/*.mp3
+include gwent/hal/effects/*.wav
+
+# Include font files
+include gwent/fonts/*.ttf
+
+# Include menu configuration
+include gwent/logical/*.json

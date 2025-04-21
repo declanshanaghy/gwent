@@ -1,0 +1,11 @@
+# Task ID: 9
+# Title: Develop Deck Management System
+# Status: pending
+# Dependencies: 4, 7
+# Priority: low
+# Description: Build the deck building, collection tracking, and deck statistics features for the web interface.
+# Details:
+Create SQLite database schema for card collections and decks, implement deck building interface in React, develop deck validation logic, add deck statistics calculation, and create import/export functionality for sharing decks.
+
+# Test Strategy:
+Test deck building with various card combinations, verify deck validation correctly identifies legal decks, validate statistics calculations, and test import/export functionality with different deck formats.

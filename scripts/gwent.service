@@ -1,0 +1,28 @@
+[Unit]
+Description=Gwent Game Service
+After=network.target mosquitto.service redis-server.service
+Wants=mosquitto.service redis-server.service
+StartLimitBurst=5
+StartLimitAction=none
+# Set Restart=no to prevent continuous restarts after 5 failures
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=dshanaghy
+# Ensure the user is part of the gpio group
+SupplementaryGroups=gpio
+WorkingDirectory=/home/dshanaghy
+Environment=PYTHONUNBUFFERED=1
+Environment=RASPBERRY_PI_IP=192.168.1.225
+Environment=RUNNING_ON_PI=true
+ExecStart=/home/dshanaghy/gwent-venv/bin/gwent
+Restart=on-failure
+RestartSec=5
+# Stop restarting after 5 failures
+RestartMax=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

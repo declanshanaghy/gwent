@@ -1,0 +1,31 @@
+{
+  "title": "MAIN MENU",
+  "items": [
+    {
+      "text": "Audio Settings",
+      "action": "open_audio_menu",
+      "submenu": {
+        "title": "AUDIO SETTINGS",
+        "items": [
+          {
+            "text": "Enable Audio",
+            "action": "enable_audio"
+          },
+          {
+            "text": "Disable Audio",
+            "action": "disable_audio"
+          }
+        ]
+      }
+    },
+    {
+      "text": "Games",
+      "action": "open_games_menu",
+      "submenu": {
+        "title": "GAMES",
+        "items": [
+        ]
+      }
+    }
+  ]
+}
