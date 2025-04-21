@@ -19,7 +19,7 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-source ${DIR}/../install-vars.sh
+source ${DIR}/install-vars.sh
 
 # Install WiringPi if the package exists
 if [ -f "${DIR}/../software/wiringpi-latest.deb" ]; then

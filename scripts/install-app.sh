@@ -3,7 +3,7 @@
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-source ${DIR}/../install-vars.sh
+source ${DIR}/install-vars.sh
 
 source ${VENV_DIR}/bin/activate
 
@@ -28,9 +28,3 @@ fi
 # Install gwent
 echo "Installing gwent..."
 pip3 install -e $ROOT/gwent
-
-# Install gwent-elements if it exists
-if [ -d "$ROOT/../gwent-elements" ]; then
-    echo "Installing gwent-elements..."
-    pip3 install -e $ROOT/../gwent-elements
-fi

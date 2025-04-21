@@ -20,8 +20,8 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
   - Integrated RFID card reader
   - Round score display
   - Game score display
-  - LCD menu system
-  - Rotary dial for navigation and selection
+  - LCD menu system with interactive navigation
+  - Rotary dial for menu navigation and selection
   - Power management system
 
 ## Software Components
@@ -44,6 +44,7 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 - **Rule Reference**: Quick access to game rules
 - **Statistics**: Track win/loss records and performance metrics
 - **Game Guidance**: Step-by-step assistance through the game process
+- **Menu System**: Interactive menu system for device configuration and control
 - **Web Interface**: Access game data and controls through Glory Gate
 
 ## How It Works
@@ -52,15 +53,27 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 2. Players use their physical Gwent cards as normal
 3. The companion reads cards via its integrated RFID reader when cards are placed on the mat
 4. The `gwent` service processes card data and updates the game state
-5. Scores are automatically calculated and displayed
-6. The rotary interface allows for easy menu navigation
-7. The `gwent` service guides players through each phase of the game
-8. Game state is maintained throughout the match
-9. The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
+6. The rotary interface allows for easy menu navigation and configuration
+7. The menu system provides access to audio settings and other configuration options
+8. The `gwent` service guides players through each phase of the game
+9. Game state is maintained throughout the match
+10. The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
 
 ## Project Status
 
-This project is currently in the design phase. The design documentation starts with the [Product Requirements Document](design/000-product-requirements.md), which outlines the core requirements and features. See the [task-list.mdc](task-list.mdc) file for current progress and upcoming tasks.
+This project is currently in active development. The following components have been implemented:
+
+- **Hardware Interface**: Physical interface controls including rotary encoder and OLED display
+- **Audio System**: Multi-channel audio playback with background music and sound effects
+- **Menu System**: Interactive menu system with navigation and selection via rotary encoder
+- **Service Management**: Systemd service for automatic startup and management
+
+The design documentation starts with the [Product Requirements Document](design/000-product-requirements.md), which outlines the core requirements and features. See the [task-list.mdc](task-list.mdc) file for current progress and upcoming tasks.
+
+For detailed information about architectural decisions, see the Architecture Decision Records (ADRs):
+- [ADR-000](design/ADR/000-task-master-roo-code.md): Task Master Integration for AI-Driven Development
+- [ADR-001](design/ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
+- [ADR-002](design/ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
 
 ## Why This Project?
 
@@ -84,3 +97,7 @@ The project is organized into several key areas:
   - `glory-gate` React front-end development
 
 See the design documentation for detailed information about each component.
+
+## Documentation
+
+- [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system

@@ -2,153 +2,253 @@
 
 """
 Rotary Encoder Module for Gwent
-This module provides an interface to the rotary encoder.
+This module provides an interface to the rotary encoder using direct GPIO access with RPi.GPIO.
 """
 
 import time
 import threading
-import RPi.GPIO as GPIO
+import queue
+from enum import Enum
 
-# Try to import gpiozero for a more modern approach
+# Import the logging module
+from ..utils.logging import get_logger, set_log_level, INFO, DEBUG, WARNING, ERROR, VERBOSE
+
+# Get a logger for this module
+logger = get_logger("gwent.hal.rotary")
+set_log_level("gwent.hal.rotary", INFO)
+
+# Import RPi.GPIO
 try:
-    from gpiozero import RotaryEncoder as GPIOZeroRotaryEncoder
-    from gpiozero import Button
-    GPIOZERO_AVAILABLE = True
-    print("Using gpiozero library for rotary encoder")
+    import RPi.GPIO as GPIO
+    GPIO_AVAILABLE = True
 except ImportError:
-    GPIOZERO_AVAILABLE = False
-    print("gpiozero not available for rotary encoder")
+    logger.warning("RPi.GPIO module not available, will use dummy implementation")
+    GPIO_AVAILABLE = False
 
-# Try to import gaugette as a fallback
-try:
-    import gaugette.gpio
-    import gaugette.rotary_encoder
-    import gaugette.switch
-    GAUGETTE_AVAILABLE = True
-except (ImportError, RuntimeError):
-    GAUGETTE_AVAILABLE = False
-    print("Warning: gaugette library not available or not supported on this platform. Using direct GPIO fallback.")
+# Define event types
+class EventType(Enum):
+    ROTATION = 1
+    BUTTON = 2
+
+class EncoderEvent:
+    """
+    Class representing an encoder event.
+    """
+    def __init__(self, event_type, value):
+        self.event_type = event_type
+        self.value = value
+        self.timestamp = time.time()
 
 class RotaryEncoder:
     """
-    Class to handle rotary encoder input.
+    Class to handle rotary encoder input using direct GPIO access with RPi.GPIO.
     Uses the PEC11 Series Rotary Encoder connected via GPIO.
     """
     
-    def __init__(self, a_pin=17, b_pin=18, sw_pin=27,
+    def __init__(self, a_pin=22, b_pin=17, sw_pin=27,
                  rotation_callback=None, button_callback=None):
         """
-        Initialize the rotary encoder.
+        Initialize the rotary encoder using RPi.GPIO library.
         
         Args:
-            a_pin (int): GPIO pin for encoder A signal (Wiring pin number)
-            b_pin (int): GPIO pin for encoder B signal (Wiring pin number)
-            sw_pin (int): GPIO pin for encoder switch (Wiring pin number)
+            a_pin (int): GPIO pin for encoder A/DT signal (BCM numbering) - Connected to GPIO22
+            b_pin (int): GPIO pin for encoder B/CLK signal (BCM numbering) - Connected to GPIO17
+            sw_pin (int): GPIO pin for encoder switch (BCM numbering) - Connected to GPIO27
             rotation_callback (callable, optional): Function to call when rotation is detected.
                 The callback will receive the direction (1 for clockwise, -1 for counter-clockwise) as an argument.
             button_callback (callable, optional): Function to call when button press is detected.
                 The callback will receive the button state (1 for pressed, 0 for released) as an argument.
         """
-        self.a_pin = a_pin
-        self.b_pin = b_pin
-        self.sw_pin = sw_pin
+        self.a_pin = int(a_pin)
+        self.b_pin = int(b_pin)
+        self.sw_pin = int(sw_pin)
         self.rotation_callback = rotation_callback
         self.button_callback = button_callback
         self.running = False
         self.thread = None
         self.position = 0
-        self.last_a = 0
-        self.last_b = 0
         
-        try:
-            if GPIOZERO_AVAILABLE:
-                # Try to use gpiozero library (most modern approach)
-                self.use_gpiozero = True
-                self.use_gaugette = False
-                
-                # Create the rotary encoder with gpiozero
-                self.encoder = GPIOZeroRotaryEncoder(a=a_pin, b=b_pin)
-                self.button = Button(sw_pin, pull_up=True)
-                
-                # Set up callbacks
-                self.encoder.when_rotated_clockwise = lambda: self._handle_rotation(1)
-                self.encoder.when_rotated_counter_clockwise = lambda: self._handle_rotation(-1)
-                self.button.when_pressed = lambda: self._handle_button(1)
-                self.button.when_released = lambda: self._handle_button(0)
-                
-                print(f"Rotary encoder initialized with gpiozero: A={a_pin}, B={b_pin}, SW={sw_pin}")
-            elif GAUGETTE_AVAILABLE:
-                # Try to use gaugette library
-                self.use_gpiozero = False
-                self.use_gaugette = True
-                
-                self.gpio = gaugette.gpio.GPIO()
-                self.encoder = gaugette.rotary_encoder.RotaryEncoder(self.gpio, a_pin, b_pin)
-                self.switch = gaugette.switch.Switch(self.gpio, sw_pin)
-                
-                # Start the encoder
-                self.encoder.start()
-                print("Using gaugette library for rotary encoder")
-            else:
-                raise ImportError("Neither gpiozero nor gaugette available")
-        except Exception as e:
-            # Fallback to direct GPIO
-            print(f"Falling back to RPi.GPIO for rotary encoder: {e}")
-            self.use_gpiozero = False
-            self.use_gaugette = False
-            
-            # Set up GPIO
+        # Create an event queue for guaranteed delivery
+        self.event_queue = queue.Queue()
+        
+        # Variables to track encoder state
+        self.current_a = 1
+        self.current_b = 1
+        self.last_a = 1
+        self.last_b = 1
+        self.last_button_state = 1  # Pull-up resistor means 1 is not pressed, 0 is pressed
+        self.button_pressed = False
+        
+        # Variables for debouncing and detecting full clicks
+        self.last_encoded = 0
+        self.encoder_value = 0
+        self.last_encoder_value = 0
+        self.last_transition_time = time.time()
+        self.last_button_time = time.time()
+        self.debounce_time = 0.005  # 5ms debounce time for encoder (balanced for reliability and responsiveness)
+        self.button_debounce_time = 0.02  # 20ms debounce time for button (balanced for reliability and responsiveness)
+        
+        self.initialized = False
+        
+        if GPIO_AVAILABLE:
             try:
-                # Set mode to BCM without cleaning up existing pins
-                # This avoids interfering with other components like the display
-                if GPIO.getmode() != GPIO.BCM:
-                    GPIO.setmode(GPIO.BCM)  # Use BCM numbering
+                # Set up GPIO
+                GPIO.setmode(GPIO.BCM)
                 
-                # Use BCM pin numbering directly
-                # Skip the WiringPi to BCM conversion as it might be causing issues
-                self.a_pin_bcm = a_pin
-                self.b_pin_bcm = b_pin
-                self.sw_pin_bcm = sw_pin
+                # Set up pins as inputs with pull-up resistors
+                GPIO.setup(self.a_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                GPIO.setup(self.b_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                GPIO.setup(self.sw_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
                 
-                print(f"Rotary encoder pins: A={a_pin}→{self.a_pin_bcm}, B={b_pin}→{self.b_pin_bcm}, SW={sw_pin}→{self.sw_pin_bcm}")
+                self.initialized = True
+                logger.info(f"Rotary encoder initialized with RPi.GPIO: A={self.a_pin}, B={self.b_pin}, SW={self.sw_pin}")
+            except Exception as e:
+                logger.error(f"Error initializing rotary encoder with RPi.GPIO: {e}")
+                logger.error(f"Pin values: a_pin={a_pin}, b_pin={b_pin}, sw_pin={sw_pin}")
+                logger.error(f"Pin types: a_pin={type(a_pin)}, b_pin={type(b_pin)}, sw_pin={type(sw_pin)}")
+                logger.warning("Creating dummy rotary encoder that will not affect hardware")
+                self._setup_dummy()
+        else:
+            logger.warning("RPi.GPIO not available, using dummy implementation")
+            self._setup_dummy()
+    
+    def _setup_dummy(self):
+        """
+        Set up a dummy implementation when GPIO is not available
+        """
+        self.initialized = True
+        logger.info("Using dummy rotary encoder (hardware access not available)")
+    
+    def _read_encoder(self):
+        """
+        Read the encoder state and detect rotation.
+        Uses a simplified algorithm that's more reliable for detecting full clicks.
+        """
+        if not GPIO_AVAILABLE or not self.initialized:
+            return
+        
+        # Read current state of encoder pins
+        self.current_a = GPIO.input(self.a_pin)
+        self.current_b = GPIO.input(self.b_pin)
+        
+        # Convert the two separate pins into a single number
+        encoded = (self.current_a << 1) | self.current_b
+        
+        # Store the previous state
+        previous_encoded = self.last_encoded
+        
+        # Only process if the state has changed
+        if encoded != previous_encoded:
+            # Simple state transition detection
+            current_time = time.time()
+            
+            # Only process if enough time has passed since the last transition
+            if current_time - self.last_transition_time > self.debounce_time:
+                # Initialize counter if it doesn't exist
+                if not hasattr(self, 'transition_counter'):
+                    self.transition_counter = 0
+                    self.last_direction = 0
                 
-                # Set up pins
-                GPIO.setup(self.a_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                GPIO.setup(self.b_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                GPIO.setup(self.sw_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                # Determine direction based on the state transition
+                # Gray code pattern: 00 -> 01 -> 11 -> 10 -> 00 (clockwise)
+                # Gray code pattern: 00 -> 10 -> 11 -> 01 -> 00 (counter-clockwise)
+                if ((previous_encoded == 0b00 and encoded == 0b01) or
+                    (previous_encoded == 0b01 and encoded == 0b11) or
+                    (previous_encoded == 0b11 and encoded == 0b10) or
+                    (previous_encoded == 0b10 and encoded == 0b00)):
+                    # Clockwise transition
+                    if self.last_direction <= 0:
+                        # Direction changed or first movement
+                        self.transition_counter = 1
+                    else:
+                        # Same direction, increment counter
+                        self.transition_counter += 1
+                    self.last_direction = 1
+                elif ((previous_encoded == 0b00 and encoded == 0b10) or
+                      (previous_encoded == 0b10 and encoded == 0b11) or
+                      (previous_encoded == 0b11 and encoded == 0b01) or
+                      (previous_encoded == 0b01 and encoded == 0b00)):
+                    # Counter-clockwise transition
+                    if self.last_direction >= 0:
+                        # Direction changed or first movement
+                        self.transition_counter = 1
+                    else:
+                        # Same direction, increment counter
+                        self.transition_counter += 1
+                    self.last_direction = -1
                 
-                # Read initial states
-                self.last_a = GPIO.input(self.a_pin_bcm)
-                self.last_b = GPIO.input(self.b_pin_bcm)
-                self.last_button_state = GPIO.input(self.sw_pin_bcm)
-                
-                print(f"Initial pin states: A={self.last_a}, B={self.last_b}, SW={self.last_button_state}")
-            except Exception as gpio_error:
-                print(f"Error setting up GPIO pins: {gpio_error}")
-                # Try one more time with different pin numbers
-                try:
-                    # Use different pin numbers that might be more compatible
-                    self.a_pin_bcm = 23  # Try a different pin
-                    self.b_pin_bcm = 24  # Try a different pin
-                    self.sw_pin_bcm = 25  # Try a different pin
+                # Register a full click after 2 transitions in the same direction
+                # This is more reliable than waiting for 4 specific states
+                if self.transition_counter >= 2:
+                    direction = self.last_direction
+                    self.position += direction
                     
-                    print(f"Retrying with different pins: A={self.a_pin_bcm}, B={self.b_pin_bcm}, SW={self.sw_pin_bcm}")
+                    if direction > 0:
+                        logger.info("ROTATION DETECTED: Clockwise")
+                    else:
+                        logger.info("ROTATION DETECTED: Counter-clockwise")
                     
-                    # Set up pins
-                    GPIO.setup(self.a_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                    GPIO.setup(self.b_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                    GPIO.setup(self.sw_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+                    # Add event to queue for guaranteed delivery
+                    self.event_queue.put(EncoderEvent(EventType.ROTATION, direction))
                     
-                    # Read initial states
-                    self.last_a = GPIO.input(self.a_pin_bcm)
-                    self.last_b = GPIO.input(self.b_pin_bcm)
-                    self.last_button_state = GPIO.input(self.sw_pin_bcm)
-                except Exception as retry_error:
-                    print(f"Error setting up GPIO pins (retry): {retry_error}")
+                    # Also call the callback for backward compatibility
+                    if self.rotation_callback is not None:
+                        self.rotation_callback(direction)
+                    
+                    # Reset counter after registering a click
+                    self.transition_counter = 0
+                
+                # Update the last transition time
+                self.last_transition_time = current_time
+        
+        # Store the current state for next time
+        self.last_encoded = encoded
+    
+    def _read_button(self):
+        """
+        Read the button state and detect presses with debouncing.
+        """
+        if not GPIO_AVAILABLE or not self.initialized:
+            return
+        
+        # Read current button state
+        button_state = GPIO.input(self.sw_pin)
+        current_time = time.time()
+        
+        # Only process button changes after debounce time has passed
+        if current_time - self.last_button_time > self.button_debounce_time:
+            # Button is pressed (active low with pull-up)
+            if button_state == 0 and self.last_button_state == 1:
+                logger.info("Button PRESSED (Debounced)")
+                self.button_pressed = True
+                
+                # Add event to queue for guaranteed delivery
+                self.event_queue.put(EncoderEvent(EventType.BUTTON, 1))  # 1 for pressed
+                
+                # Also call the callback for backward compatibility
+                if self.button_callback is not None:
+                    self.button_callback(1)  # 1 for pressed
+                self.last_button_time = current_time
+            
+            # Button is released
+            elif button_state == 1 and self.last_button_state == 0:
+                logger.info("Button RELEASED (Debounced)")
+                self.button_pressed = False
+                
+                # Add event to queue for guaranteed delivery
+                self.event_queue.put(EncoderEvent(EventType.BUTTON, 0))  # 0 for released
+                
+                # Also call the callback for backward compatibility
+                if self.button_callback is not None:
+                    self.button_callback(0)  # 0 for released
+                self.last_button_time = current_time
+        
+        # Update previous state
+        self.last_button_state = button_state
     
     def start_monitoring(self):
         """
-        Start a background thread to monitor the encoder.
+        Start monitoring the encoder in a background thread.
         """
         if self.thread is not None and self.thread.is_alive():
             return  # Already running
@@ -157,136 +257,29 @@ class RotaryEncoder:
         self.thread = threading.Thread(target=self._monitor_thread)
         self.thread.daemon = True
         self.thread.start()
+        logger.info("Rotary encoder monitoring started")
     
     def stop_monitoring(self):
         """
-        Stop the background monitoring thread.
+        Stop monitoring the encoder.
         """
         self.running = False
         if self.thread is not None:
             self.thread.join(timeout=1.0)
             self.thread = None
-    
-    def _handle_rotation(self, direction):
-        """
-        Handle rotation events from gpiozero.
-        
-        Args:
-            direction (int): 1 for clockwise, -1 for counter-clockwise
-        """
-        self.position += direction
-        print(f"ROTATION DETECTED: {'Clockwise' if direction > 0 else 'Counter-clockwise'}")
-        if self.rotation_callback is not None:
-            self.rotation_callback(direction)
-    
-    def _handle_button(self, state):
-        """
-        Handle button events from gpiozero.
-        
-        Args:
-            state (int): 1 for pressed, 0 for released
-        """
-        if self.button_callback is not None:
-            self.button_callback(state)
+        logger.info("Rotary encoder monitoring stopped")
     
     def _monitor_thread(self):
         """
-        Background thread function to monitor the encoder.
+        Background thread function that continuously polls the encoder and button.
         """
-        # If using gpiozero, we don't need to poll as it uses callbacks
-        if self.use_gpiozero:
-            while self.running:
-                time.sleep(0.1)  # Just keep the thread alive
-            return
-            
-        # For gaugette
-        if self.use_gaugette:
-            last_button_state = self.switch.get_state()
-        else:
-            last_button_state = self.last_button_state
-        
         while self.running:
-            try:
-                if self.use_gaugette:
-                    # Check for rotation using gaugette
-                    delta = self.encoder.get_cycles()
-                    if delta != 0 and self.rotation_callback is not None:
-                        self.rotation_callback(delta)
-                    
-                    # Check for button press using gaugette
-                    button_state = self.switch.get_state()
-                    if button_state != last_button_state and self.button_callback is not None:
-                        self.button_callback(button_state)
-                        last_button_state = button_state
-                else:
-                    # Check for rotation using direct GPIO
-                    try:
-                        # Make sure GPIO is set up properly - but don't check with gpio_function
-                        # as it can interfere with other components
-                        try:
-                            # Just try to read the pins directly
-                            GPIO.setup(self.a_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                            GPIO.setup(self.b_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                            GPIO.setup(self.sw_pin_bcm, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-                        except Exception as setup_error:
-                            print(f"Error setting up GPIO pins: {setup_error}")
-                        
-                        a = GPIO.input(self.a_pin_bcm)
-                        b = GPIO.input(self.b_pin_bcm)
-                        
-                        # Always log pin states for debugging
-                        print(f"Rotary encoder pin states: A={a} (BCM {self.a_pin_bcm}), B={b} (BCM {self.b_pin_bcm}), Last A={self.last_a}, Last B={self.last_b}")
-                    except Exception as e:
-                        print(f"Error reading rotary encoder pins: {e}")
-                        time.sleep(0.5)
-                        continue
-                    
-                    # Super simple rotation detection - just detect any change and log it
-                    delta = 0
-                    
-                    # If either pin changed state, consider it a rotation
-                    if a != self.last_a or b != self.last_b:
-                        # Determine direction based on A pin
-                        if a != self.last_a:
-                            if a == 1:  # Rising edge on A
-                                delta = 1  # Assume clockwise
-                                print("ROTATION DETECTED: Clockwise")
-                            else:
-                                delta = -1  # Assume counter-clockwise
-                                print("ROTATION DETECTED: Counter-clockwise")
-                        # If A didn't change but B did, use B for direction
-                        elif b != self.last_b:
-                            if b == 1:  # Rising edge on B
-                                delta = -1  # Assume counter-clockwise
-                                print("ROTATION DETECTED: Counter-clockwise (B pin)")
-                            else:
-                                delta = 1  # Assume clockwise
-                                print("ROTATION DETECTED: Clockwise (B pin)")
-                        
-                        if delta != 0:
-                            self.position += delta
-                            if self.rotation_callback is not None:
-                                self.rotation_callback(delta)
-                        
-                        # Update last states
-                        self.last_a = a
-                        self.last_b = b
-                    
-                    # Check for button press using direct GPIO
-                    button_state = GPIO.input(self.sw_pin_bcm)
-                    # Button is active low (pressed = 0)
-                    button_state = 1 if button_state == 0 else 0
-                    
-                    if button_state != last_button_state and self.button_callback is not None:
-                        self.button_callback(button_state)
-                        last_button_state = button_state
-                
-                # Small delay to prevent CPU hogging
-                time.sleep(0.01)
-                
-            except Exception as e:
-                print(f"Error in rotary encoder monitoring thread: {e}")
-                time.sleep(0.5)  # Longer delay on error
+            if GPIO_AVAILABLE and self.initialized:
+                self._read_encoder()
+                self._read_button()
+            
+            # Small delay to prevent CPU hogging
+            time.sleep(0.0005)  # Reduced sleep time for faster response
     
     def get_position(self):
         """
@@ -295,12 +288,7 @@ class RotaryEncoder:
         Returns:
             int: The current encoder position.
         """
-        if self.use_gpiozero:
-            return self.position  # gpiozero doesn't track position, so we use our own
-        elif self.use_gaugette:
-            return self.encoder.get_position()
-        else:
-            return self.position
+        return self.position
     
     def set_position(self, position):
         """
@@ -309,12 +297,7 @@ class RotaryEncoder:
         Args:
             position (int): The position to set.
         """
-        if self.use_gpiozero:
-            self.position = position  # gpiozero doesn't track position, so we use our own
-        elif self.use_gaugette:
-            self.encoder.set_position(position)
-        else:
-            self.position = position
+        self.position = position
     
     def get_button_state(self):
         """
@@ -323,14 +306,29 @@ class RotaryEncoder:
         Returns:
             int: 1 if pressed, 0 if released.
         """
-        if self.use_gpiozero:
-            return 1 if self.button.is_pressed else 0
-        elif self.use_gaugette:
-            return self.switch.get_state()
-        else:
-            # Button is active low (pressed = 0)
-            state = GPIO.input(self.sw_pin_bcm)
-            return 1 if state == 0 else 0
+        if not GPIO_AVAILABLE or not self.initialized:
+            return 0
+        
+        # Read current button state directly from GPIO
+        button_state = GPIO.input(self.sw_pin)
+        # Return 1 if pressed (button_state is 0 due to pull-up), 0 if released
+        return 1 if button_state == 0 else 0
+    
+    def get_next_event(self, block=False, timeout=None):
+        """
+        Get the next event from the queue.
+        
+        Args:
+            block (bool): Whether to block until an event is available
+            timeout (float): Timeout in seconds if block is True
+            
+        Returns:
+            EncoderEvent or None: The next event, or None if no event is available
+        """
+        try:
+            return self.event_queue.get(block=block, timeout=timeout)
+        except queue.Empty:
+            return None
     
     def cleanup(self):
         """
@@ -338,11 +336,10 @@ class RotaryEncoder:
         """
         self.stop_monitoring()
         
-        # Clean up resources based on the implementation used
-        if self.use_gpiozero:
-            # gpiozero handles cleanup automatically
-            pass
-        elif not self.use_gaugette:
-            # Don't clean up GPIO pins as they might be shared with other components
+        # Clean up GPIO resources if we initialized them
+        if GPIO_AVAILABLE and self.initialized:
+            # Don't call GPIO.cleanup() here as it would affect all pins
             # Just log that we're done
-            print("Rotary encoder cleaned up (GPIO pins left intact)")
+            pass
+            
+        logger.info("Rotary encoder cleaned up")

@@ -1,4 +1,28 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Glory Gate - Gwent Companion Web Interface
+
+Glory Gate is the React-based web interface for the Gwent Companion system. Named after one of the six gates in Novigrad (connecting Farcorners district to Glory Lane), this application provides a digital interface for managing and interacting with the Gwent Companion device.
+
+## Overview
+
+Glory Gate connects to the Gwent Companion device via a REST API and WebSocket interface, allowing players to:
+
+- View game state and scores in real-time
+- Manage player decks and cards
+- Access game history and statistics
+- Configure device settings
+- Monitor system status
+
+## Architecture
+
+- **Frontend**: React Single Page Application
+- **State Management**: React Context API and hooks
+- **API Communication**: Axios for REST API calls, Socket.io for WebSocket communication
+- **UI Components**: Custom components styled with CSS modules
+- **Routing**: React Router for navigation
+
+## Connection to Gwent Companion
+
+Glory Gate connects to the Gwent Companion device's REST API and WebSocket server, which are exposed by the `gwent` service running on the Raspberry Pi. The connection details are configured in the application settings.
 
 ## Available Scripts
 
@@ -25,44 +49,49 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.<br />
 Your app is ready to be deployed!
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Deployment
 
-### `yarn eject`
+To deploy the Glory Gate application to the Gwent Companion device:
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+1. Build the application with `yarn build`
+2. Copy the build files to the Raspberry Pi:
+   ```
+   scp -r build/ user@raspberry-pi-ip:/path/to/web/directory
+   ```
+3. Configure the Raspberry Pi's web server to serve the application
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Integration with Gwent Companion
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Glory Gate integrates with the Gwent Companion device through:
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. **REST API**: For configuration, deck management, and game history
+2. **WebSocket**: For real-time updates of game state and scores
 
-## Learn More
+The API endpoints and WebSocket events are documented in the [API Documentation](../docs/api.md).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Development
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+When developing Glory Gate, you can run the application locally and connect to either:
 
-### Code Splitting
+1. A physical Gwent Companion device on your network
+2. A local development instance of the `gwent` service
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+To connect to a local development instance, set the `REACT_APP_API_URL` environment variable:
 
-### Analyzing the Bundle Size
+```
+REACT_APP_API_URL=http://localhost:5000 yarn start
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## Project Structure
 
-### Making a Progressive Web App
+- `src/components/`: React components
+- `src/contexts/`: React context providers
+- `src/hooks/`: Custom React hooks
+- `src/api/`: API and WebSocket communication
+- `src/utils/`: Utility functions
+- `src/pages/`: Page components
+- `src/styles/`: Global styles and themes
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+## License
 
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `yarn build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+MIT

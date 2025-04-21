@@ -43,7 +43,7 @@ print_message "Updating gwent.service on Raspberry Pi (${DEPLOY_TGT})..."
 
 # Copy the service file to the Raspberry Pi
 print_message "Copying gwent.service to Raspberry Pi..."
-scp -i ${SSH_KEY} ${DIR}/../gwent.service ${PI_USER}@${DEPLOY_TGT}:~/gwent.service
+scp -i ${SSH_KEY} ${DIR}/gwent.service ${PI_USER}@${DEPLOY_TGT}:~/gwent.service
 
 # Install the service file and restart the service
 print_message "Installing and restarting the service..."

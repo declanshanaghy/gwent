@@ -1,0 +1,11 @@
+# Task ID: 5
+# Title: Create Physical Interface Controls
+# Status: pending
+# Dependencies: 1
+# Priority: medium
+# Description: Implement the hardware interface including display, buttons, and rotary encoder for direct interaction with the companion device.
+# Details:
+Connect display to Raspberry Pi, implement display interface code, integrate rotary encoder and buttons, develop menu navigation system, create score visualization screens, and implement player prompts and error messages.
+
+# Test Strategy:
+Test physical controls for durability and responsiveness, validate display readability, verify menu navigation flows, and conduct usability testing with sample users.
