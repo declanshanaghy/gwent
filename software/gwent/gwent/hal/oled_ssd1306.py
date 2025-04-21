@@ -7,6 +7,7 @@ from luma.oled.device import ssd1306
 from pathlib import Path
 from luma.core.virtual import terminal
 from PIL import ImageFont
+import RPi.GPIO as GPIO
 
 
 """
@@ -19,14 +20,58 @@ from PIL import ImageFont
     https://satoshinm.github.io/blog/171110monochrome_2.7_and_2.42_128x64_oled_displays_on_a_raspberry_pi_zero.html
 """
 
+# Custom GPIO class that doesn't try to set the mode if it's already set
+class SafeGPIO:
+    def __init__(self):
+        self.BCM = GPIO.BCM
+        self.OUT = GPIO.OUT
+        self.IN = GPIO.IN
+        self.HIGH = GPIO.HIGH
+        self.LOW = GPIO.LOW
+        self.PUD_UP = GPIO.PUD_UP
+        self.PUD_DOWN = GPIO.PUD_DOWN
+        self.FALLING = GPIO.FALLING
+        self.RISING = GPIO.RISING
+        self.BOTH = GPIO.BOTH
+        
+    def setmode(self, mode):
+        # Don't set the mode if it's already set
+        try:
+            GPIO.setmode(mode)
+        except ValueError:
+            # Mode is already set, ignore the error
+            pass
+            
+    def setup(self, *args, **kwargs):
+        return GPIO.setup(*args, **kwargs)
+        
+    def output(self, *args, **kwargs):
+        return GPIO.output(*args, **kwargs)
+        
+    def input(self, *args, **kwargs):
+        return GPIO.input(*args, **kwargs)
+        
+    def cleanup(self, *args, **kwargs):
+        return GPIO.cleanup(*args, **kwargs)
+        
+    def add_event_detect(self, *args, **kwargs):
+        return GPIO.add_event_detect(*args, **kwargs)
+        
+    def add_event_callback(self, *args, **kwargs):
+        return GPIO.add_event_callback(*args, **kwargs)
+        
+    def remove_event_detect(self, *args, **kwargs):
+        return GPIO.remove_event_detect(*args, **kwargs)
+
 
 class SSD1325Presenter(gwent.hal.mfdi.Presenter):
     def __init__(self, loop: asyncio.AbstractEventLoop,
                  log_verbose: bool = False):
         super().__init__(loop, log_verbose=log_verbose)
 
-        import RPi.GPIO as GPIO
-        self.interface = spi(device=1, port=0)
+        # Use our custom GPIO class
+        safe_gpio = SafeGPIO()
+        self.interface = spi(device=1, port=0, gpio=safe_gpio)
         self.font = self.make_font("pixelmix.ttf", 8)
         self.device = ssd1306(self.interface)
         self.term = terminal(self.device, self.font, animate=False)
