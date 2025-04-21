@@ -1,0 +1,4 @@
+include README.md
+recursive-include gwent *.json
+recursive-include gwent *.wav
+recursive-include gwent *.mp3
