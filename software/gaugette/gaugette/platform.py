@@ -85,24 +85,31 @@ def pi_version():
     # Anything else is not a pi.
     with open('/proc/cpuinfo', 'r') as infile:
         cpuinfo = infile.read()
-    # Match a line like 'Hardware   : BCM2709'
+    
+    # First try to match a line like 'Hardware   : BCM2709'
     match = re.search(r'^Hardware\s+:\s+(\w+)$', cpuinfo,
                       flags=re.MULTILINE | re.IGNORECASE)
-    if not match:
-        # Couldn't find the hardware, assume it isn't a pi.
-        return None
-    if match.group(1) == 'BCM2708':
-        # Pi 1
-        return 1
-    elif match.group(1) == 'BCM2709':
-        # Pi 2
-        return 2
-    elif match.group(1) == 'BCM2835':
-        # Pi 3
-        return 3
-    else:
-        # Something else, not a pi.
-        return None
+    
+    if match:
+        if match.group(1) == 'BCM2708':
+            # Pi 1
+            return 1
+        elif match.group(1) == 'BCM2709':
+            # Pi 2
+            return 2
+        elif match.group(1) == 'BCM2835':
+            # Pi 3
+            return 3
+    
+    # If Hardware field not found or not recognized, try to match Model field
+    model_match = re.search(r'^Model\s+:\s+Raspberry Pi (\d+)', cpuinfo,
+                           flags=re.MULTILINE | re.IGNORECASE)
+    if model_match:
+        # Return the Pi version number from the Model field
+        return int(model_match.group(1))
+    
+    # If we get here, we couldn't identify a Raspberry Pi
+    return None
 
 
 platform = platform_detect()
