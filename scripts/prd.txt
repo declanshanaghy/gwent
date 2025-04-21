@@ -1,0 +1,160 @@
+# Gwent Companion Product Requirements Document
+
+## Project Overview
+The Gwent Companion is a physical-digital hybrid gaming system that enhances the traditional Gwent card game experience by combining physical RFID-enabled cards with a digital companion device for automated tracking and game management.
+
+## Core Features
+
+### Hardware Components
+1. RFID-Enabled Cards
+   - Standard Gwent cards with embedded RFID tags
+   - Durable and game-ready construction
+   - Compatible with existing Gwent card designs
+
+2. Digital Companion Device
+   - Integrated RFID card reader
+   - Raspberry Pi-based system
+   - Display interface for game information
+   - Physical controls (buttons, rotary encoder)
+   - Power management system
+   - Stero speaker output for asynchronously playing sound effects and background music
+
+3. Game Mat
+   - Professional-grade cloth construction
+   - Designated card placement areas
+   - Integrated with companion device
+
+### Software Components
+1. Game Server (Raspberry Pi)
+   - Core game state management
+   - RFID card detection and processing
+   - REST API for web interface
+   - Real-time game state updates
+   - Player guidance system
+   - Multi channel stereo audio output
+
+2. Glory Gate Web Interface (SPA)
+   - Real-time game state visualization
+   - Player interaction interface
+   - Deck management
+   - Game history tracking
+   - Statistics and analytics
+
+### Game Features
+1. Automated Score Tracking
+   - Real-time point calculation
+   - Special ability tracking
+   - Round management
+
+2. Game State Management
+   - Card placement tracking
+   - Turn management
+   - Round progression
+   - Victory conditions monitoring
+
+3. Player Guidance
+   - Turn prompts
+   - Legal move validation
+   - Rule clarifications
+   - Strategy suggestions
+
+4. Deck Management
+   - Deck building interface
+   - Card collection tracking
+   - Deck statistics
+   - Import/export functionality
+
+## Technical Requirements
+
+### Performance
+1. Response Times
+   - Card detection: < 100ms
+   - State updates: < 50ms
+   - UI responses: < 200ms
+
+2. Reliability
+   - 99.9% uptime during games
+   - Automatic state recovery
+   - Graceful error handling
+
+### Security
+1. Data Protection
+   - Secure card identification
+   - Game state integrity
+   - Player data protection
+
+2. Access Control
+   - User authentication
+   - Role-based permissions
+   - Secure API access
+
+### Hardware Integration
+1. RFID System
+   - Multiple card detection
+   - Reliable read ranges
+   - Interference resistance
+
+2. Physical Interface
+   - Intuitive controls
+   - Durable construction
+   - Power efficiency
+
+## User Interface Requirements
+
+### Physical Interface
+1. Display
+   - Clear score visualization
+   - Game state indicators
+   - Player prompts
+   - Error messages
+
+2. Controls
+   - Rotary encoder navigation
+   - Action buttons
+   - Menu system
+
+### Web Interface
+1. Layout
+   - Responsive design
+   - Intuitive navigation
+   - Clear game state visualization
+
+2. Features
+   - Real-time updates
+   - Touch-friendly interface
+   - Keyboard shortcuts
+   - Accessibility support
+
+## Implementation Requirements
+
+### Development
+1. Code Organization
+   - Modular architecture
+   - Clear documentation
+   - Testing framework
+   - Version control
+
+2. Technologies
+   - Raspberry Pi OS
+   - Python backend
+   - React frontend
+   - WebSocket communication
+   - SQLite database
+
+### Deployment
+1. Installation
+   - Automated setup
+   - Configuration management
+   - Update system
+
+2. Maintenance
+   - Monitoring tools
+   - Backup systems
+   - Error reporting
+
+## Success Criteria
+1. Seamless integration of physical and digital gameplay
+2. Reliable and accurate game state tracking
+3. Intuitive user interfaces (both physical and web)
+4. Robust error handling and recovery
+5. Positive player feedback and adoption 

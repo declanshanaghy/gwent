@@ -1,0 +1,14 @@
+[Unit]
+Description=Gwent Game Service
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi
+ExecStart=/home/pi/gwent-venv/bin/python -m gwent.game.main
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
