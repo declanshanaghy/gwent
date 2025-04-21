@@ -4,6 +4,6 @@
 [submodule "software/MFRC522-python"]
 	path = software/MFRC522-python
 	url = git@github.com:declanshanaghy/MFRC522-python.git
-[submodule "software/poc/luma.examples"]
-	path = software/poc/luma.examples
+[submodule "luma.examples"]
+	path = luma.examples
 	url = git@github.com:rm-hull/luma.examples.git
