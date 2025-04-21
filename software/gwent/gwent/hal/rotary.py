@@ -5,7 +5,7 @@ from typing import Any, Callable, List
 import gwent.hal.mfdi
 import gwent.game
 import gwent.messaging.choice
-from gwent.hal.gpio_rotary import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_gpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 
 
 class RotaryChooser(gwent.hal.mfdi.Chooser):
