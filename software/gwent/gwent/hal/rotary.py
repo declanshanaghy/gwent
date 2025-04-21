@@ -247,8 +247,8 @@ class RotaryEncoder(gwent.game.BaseComponent):
     """
     # BCM pin numbers (not Wiring pin numbers)
     A_PIN = 17  # GPIO17
-    B_PIN = 27  # GPIO27
-    SW_PIN = 22  # GPIO22
+    B_PIN = 22  # GPIO22
+    SW_PIN = 27  # GPIO27
 
     _encoder = None
     _sw = None
