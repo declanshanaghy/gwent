@@ -92,11 +92,19 @@ class _RealReader(_BaseReader):
         def setup():
             import mfrc522
             try:
-                # Try with log_verbose parameter
+                # Try with both parameters
                 self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
             except TypeError:
-                # Fall back to just pin_mode if log_verbose is not supported
-                self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
+                try:
+                    # Try with just log_verbose
+                    self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose)
+                except TypeError:
+                    try:
+                        # Try with just pin_mode
+                        self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
+                    except TypeError:
+                        # Fall back to no parameters
+                        self._rfid = mfrc522.SimpleMFRC522()
 
         self._loop.run_in_executor(None, setup)
 
