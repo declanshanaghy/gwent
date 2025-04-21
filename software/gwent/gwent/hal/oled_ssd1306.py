@@ -28,9 +28,9 @@ class SSD1325Presenter(gwent.hal.mfdi.Presenter):
         # Use noop for GPIO to avoid conflicts
         self._log.info("Initializing SSD1325Presenter")
         try:
-            # Try with SPI - use device 0 instead of 1 since that's what's available
-            self._log.info("Attempting to initialize SPI interface with device=0, port=0")
-            self.interface = spi(device=0, port=0, gpio=noop())
+            # Try with SPI - use device 0 with port 1
+            self._log.info("Attempting to initialize SPI interface with device=0, port=1")
+            self.interface = spi(device=0, port=1, gpio=noop())
             self._log.info("SPI interface initialized successfully")
             
             self._log.info("Loading font pixelmix.ttf")
