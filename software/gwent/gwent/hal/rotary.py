@@ -1,6 +1,6 @@
 import asyncio
 import time
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Optional, Tuple
 
 import gwent.hal.mfdi
 import gwent.game
@@ -48,6 +48,8 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
 class RotaryEncoder(gwent.game.BaseComponent):
     """
     Rotary encoder implementation using direct GPIO access.
+    This class wraps the DirectGPIORotaryEncoder to provide a higher-level interface
+    for use in the game system.
     """
     # BCM pin numbers (not Wiring pin numbers)
     A_PIN = 17  # GPIO17

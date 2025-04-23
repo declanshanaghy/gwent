@@ -57,7 +57,7 @@ class GPIOZeroRotaryEncoder(AbstractRotaryEncoder):
         # Initialize gpiozero RotaryEncoder
         try:
             # gpiozero uses BCM pin numbering
-            self.encoder = GPIOZeroRotaryEncoder(a_pin, b_pin, wrap=False)
+            self.encoder = GPIOZeroRotaryEncoder(a_pin, b_pin)
             self._log.info(f"Initialized rotary encoder with pins A={a_pin}, B={b_pin}")
             self.available = True
         except Exception as e:
