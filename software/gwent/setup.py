@@ -46,13 +46,16 @@ setuptools.setup(
         # pygame is installed via apt-get on Raspberry Pi
         # 'pygame==2.1.2',
         # The following won't work on mac
-        'wiringpi2==2.32.3',
+        # 'wiringpi2==2.32.3',  # Removed - no longer using WiringPi
+        # 'wiringpi>=2.60.0',   # Removed - no longer using WiringPi
+        'gpiozero>=1.6.2',    # Used by rotary_gpiozero.py
     ],
     entry_points={
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'rotary_simple=gwent.poc.rotary_simple:run'
+            'rotary_simple=gwent.poc.rotary_simple:run',
+            'rotary_gpiozero_simple=gwent.poc.rotary_gpiozero_simple:run'
         ],
     }
 )
