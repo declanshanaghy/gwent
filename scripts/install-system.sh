@@ -21,21 +21,13 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${DIR}/install-vars.sh
 
-# Install WiringPi if the package exists
-if [ -f "${DIR}/../software/wiringpi-latest.deb" ]; then
-  echo "Installing WiringPi from package..."
-  sudo dpkg -i "${DIR}/../software/wiringpi-latest.deb" || {
-    echo "Warning: Failed to install WiringPi package. Attempting to fix broken packages..."
-    sudo apt --fix-broken install -y
-  }
-else
-  echo "WiringPi package not found. Skipping installation."
-  echo "If WiringPi is required, please install it manually."
-fi
-
 # Update package lists
 echo "Updating package lists..."
 sudo apt-get update
+
+echo "Installing hardware dependencies..."
+wget https://project-downloads.drogon.net/wiringpi-latest.deb
+sudo dpkg -i wiringpi-latest.deb
 
 echo "Installing Python and development packages..."
 sudo apt-get install -y \
@@ -49,6 +41,8 @@ sudo apt-get install -y \
   libavformat-dev libavcodec-dev \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
   mosquitto rpi.gpio
+
+sudo adduser ${DEPLOY_USER} gpio i2c 
 
 # pygame stuff
 #sudo apt-get install -y \

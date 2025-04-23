@@ -1,8 +1,7 @@
 import threading
-import os
 import time
-import select
 import asyncio
+import RPi.GPIO as GPIO
 
 class SimpleLogger:
     """A simple logger class for when a real logger is not available"""
@@ -18,21 +17,21 @@ class SimpleLogger:
 
 class DirectGPIORotaryEncoder:
     """
-    A class to decode mechanical rotary encoder pulses using direct GPIO access.
-    Falls back to a polling-based implementation if sysfs is not available.
+    A class to decode mechanical rotary encoder pulses using RPi.GPIO.
     """
     
-    # GPIO sysfs paths
-    GPIO_PATH = "/sys/class/gpio"
-    
     # Pin modes
-    IN = "in"
-    OUT = "out"
+    IN = GPIO.IN
+    OUT = GPIO.OUT
+    
+    # Pull up/down
+    PUD_UP = GPIO.PUD_UP
+    PUD_DOWN = GPIO.PUD_DOWN
     
     # Edge detection
-    RISING = "rising"
-    FALLING = "falling"
-    BOTH = "both"
+    RISING = GPIO.RISING
+    FALLING = GPIO.FALLING
+    BOTH = GPIO.BOTH
     
     def __init__(self, a_pin, b_pin, callback=None, log=None):
         self.a_pin = a_pin
@@ -45,35 +44,18 @@ class DirectGPIORotaryEncoder:
         self.lock = threading.Lock()
         self.running = False
         self.poll_thread = None
-        self.use_sysfs = False
         
         # Use provided logger or create a simple print wrapper
         self._log = log or SimpleLogger()
         
-        # Check if GPIO sysfs interface is available
-        if os.path.exists(self.GPIO_PATH) and os.access(self.GPIO_PATH, os.W_OK):
-            try:
-                # Try to export a test pin to see if we have permission
-                test_pin = 999  # Use a pin that doesn't exist
-                with open(f"{self.GPIO_PATH}/export", "w") as f:
-                    f.write(str(test_pin))
-                # If we get here, we have permission to use sysfs
-                self.use_sysfs = True
-                # Unexport the test pin
-                with open(f"{self.GPIO_PATH}/unexport", "w") as f:
-                    f.write(str(test_pin))
-            except Exception as e:
-                self._log.warning(f"GPIO sysfs interface not available: {e}")
-                self.use_sysfs = False
-        
-        # Initialize GPIO access
+        # Initialize GPIO
         try:
-            if self.use_sysfs:
-                self._log.info("Using GPIO sysfs interface")
-                self._init_sysfs()
-            else:
-                self._log.info("Using fallback GPIO implementation")
-                self._init_fallback()
+            # Set GPIO mode to BCM (Broadcom SOC channel numbering)
+            GPIO.setmode(GPIO.BCM)
+            
+            # Set up the pins as inputs with pull-up resistors
+            GPIO.setup(self.a_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            GPIO.setup(self.b_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
             
             self._log.info(f"Initialized rotary encoder with pins A={self.a_pin}, B={self.b_pin}")
             self.available = True
@@ -81,89 +63,6 @@ class DirectGPIORotaryEncoder:
             self._log.warning(f"Error setting up GPIO pins: {e}")
             self.available = False
             raise RuntimeError(f"Failed to initialize rotary encoder GPIO pins: {e}")
-    
-    def _init_sysfs(self):
-        """Initialize GPIO pins using sysfs interface"""
-        # Export pins if not already exported
-        self._export_pin(self.a_pin)
-        self._export_pin(self.b_pin)
-        
-        # Set pins as inputs
-        self._set_pin_direction(self.a_pin, self.IN)
-        self._set_pin_direction(self.b_pin, self.IN)
-        
-        # Set edge detection
-        self._set_pin_edge(self.a_pin, self.BOTH)
-        self._set_pin_edge(self.b_pin, self.BOTH)
-    
-    def _init_fallback(self):
-        """Initialize GPIO pins using fallback implementation"""
-        # In the fallback implementation, we'll use a polling approach
-        # This is just a placeholder - in a real implementation, you would
-        # use another GPIO library or a different approach
-        self._log.info("Using fallback GPIO implementation - pins will be simulated")
-        # For testing purposes, we'll just set the pins to a known state
-        self._pin_states = {
-            self.a_pin: 1,
-            self.b_pin: 1
-        }
-    
-    def _export_pin(self, pin):
-        """Export a GPIO pin if it's not already exported"""
-        if not os.path.exists(f"{self.GPIO_PATH}/gpio{pin}"):
-            try:
-                with open(f"{self.GPIO_PATH}/export", "w") as f:
-                    f.write(str(pin))
-                # Wait for the pin to be exported
-                timeout = 0.1
-                start_time = time.time()
-                while not os.path.exists(f"{self.GPIO_PATH}/gpio{pin}/direction"):
-                    if time.time() - start_time > timeout:
-                        raise RuntimeError(f"Timeout waiting for GPIO{pin} to be exported")
-                    time.sleep(0.01)
-            except Exception as e:
-                self._log.warning(f"Error exporting GPIO pin {pin}: {e}")
-                raise
-    
-    def _unexport_pin(self, pin):
-        """Unexport a GPIO pin"""
-        if os.path.exists(f"{self.GPIO_PATH}/gpio{pin}"):
-            try:
-                with open(f"{self.GPIO_PATH}/unexport", "w") as f:
-                    f.write(str(pin))
-            except Exception as e:
-                self._log.warning(f"Error unexporting GPIO pin {pin}: {e}")
-    
-    def _set_pin_direction(self, pin, direction):
-        """Set the direction of a GPIO pin (in/out)"""
-        try:
-            with open(f"{self.GPIO_PATH}/gpio{pin}/direction", "w") as f:
-                f.write(direction)
-        except Exception as e:
-            self._log.warning(f"Error setting direction for GPIO pin {pin}: {e}")
-            raise
-    
-    def _set_pin_edge(self, pin, edge):
-        """Set the edge detection of a GPIO pin (rising/falling/both/none)"""
-        try:
-            with open(f"{self.GPIO_PATH}/gpio{pin}/edge", "w") as f:
-                f.write(edge)
-        except Exception as e:
-            self._log.warning(f"Error setting edge for GPIO pin {pin}: {e}")
-            raise
-    
-    def _read_pin(self, pin):
-        """Read the value of a GPIO pin"""
-        if self.use_sysfs:
-            try:
-                with open(f"{self.GPIO_PATH}/gpio{pin}/value", "r") as f:
-                    return int(f.read().strip())
-            except Exception as e:
-                self._log.warning(f"Error reading GPIO pin {pin}: {e}")
-                return 0
-        else:
-            # In the fallback implementation, return the simulated pin state
-            return self._pin_states.get(pin, 0)
     
     def start(self):
         """Start the encoder monitoring"""
@@ -185,143 +84,28 @@ class DirectGPIORotaryEncoder:
     
     def _poll_pins(self):
         """Poll the GPIO pins for changes"""
-        if self.use_sysfs:
-            self._poll_pins_sysfs()
-        else:
-            self._poll_pins_fallback()
-    
-    def _poll_pins_sysfs(self):
-        """Poll the GPIO pins using sysfs interface"""
-        # Open the value files for both pins
-        a_path = f"{self.GPIO_PATH}/gpio{self.a_pin}/value"
-        b_path = f"{self.GPIO_PATH}/gpio{self.b_pin}/value"
-        
         try:
-            with open(a_path, "r") as a_file, open(b_path, "r") as b_file:
-                # Create poll object
-                poller = select.poll()
-                poller.register(a_file, select.POLLPRI | select.POLLERR)
-                poller.register(b_file, select.POLLPRI | select.POLLERR)
+            # Add event detection for both pins
+            GPIO.add_event_detect(self.a_pin, GPIO.BOTH, callback=self._pin_change_callback)
+            GPIO.add_event_detect(self.b_pin, GPIO.BOTH, callback=self._pin_change_callback)
+            
+            # Keep the thread alive while running
+            while self.running:
+                time.sleep(0.1)
                 
-                # Initial read to clear any pending events
-                a_file.seek(0)
-                a_file.read()
-                b_file.seek(0)
-                b_file.read()
-                
-                while self.running:
-                    # Wait for an event on either pin (timeout after 100ms)
-                    events = poller.poll(100)
-                    if events:
-                        # Reread the values
-                        a_file.seek(0)
-                        a_file.read()
-                        b_file.seek(0)
-                        b_file.read()
-                        
-                        # Process the state change
-                        current_state = self._read_state()
-                        self._process_state_change(current_state)
+            # Remove event detection when stopping
+            GPIO.remove_event_detect(self.a_pin)
+            GPIO.remove_event_detect(self.b_pin)
         except Exception as e:
-            self._log.warning(f"Error polling GPIO pins: {e}")
+            self._log.warning(f"Error in polling GPIO pins: {e}")
             self.running = False
     
-    def _poll_pins_fallback(self):
-        """Poll the GPIO pins using fallback implementation"""
-        # In the fallback implementation, we'll simulate rotary encoder events
-        # This is just for testing purposes
-        
-        # For test_counter_direction, we need to simulate different directions
-        # based on the test being run
-        import inspect
-        
-        # Check if we're in a test function
-        stack = inspect.stack()
-        test_name = None
-        for frame in stack:
-            if frame.function.startswith('test_'):
-                test_name = frame.function
-                break
-        
-        while self.running:
-            if test_name == 'test_counter_direction':
-                # Special handling for test_counter_direction
-                # We need to check the counter value to determine which direction to simulate
-                with self.lock:
-                    if self.counter == 0:
-                        # First rotation should be clockwise
-                        self._simulate_clockwise_rotation()
-                    else:
-                        # After reset, simulate counter-clockwise
-                        self._simulate_counterclockwise_rotation()
-            else:
-                # For other tests, just simulate clockwise rotation
-                self._simulate_clockwise_rotation()
+    def _pin_change_callback(self, channel):
+        """Callback function for GPIO event detection"""
+        if not self.running:
+            return
             
-            # Wait before next simulation
-            time.sleep(2)
-    
-    def _simulate_clockwise_rotation(self):
-        """Simulate a clockwise rotation"""
-        # State sequence for clockwise: 00 -> 01 -> 11 -> 10 -> 00
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 0
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 1
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 1
-        self._pin_states[self.b_pin] = 1
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 1
-        self._pin_states[self.b_pin] = 0
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 0
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-    
-    def _simulate_counterclockwise_rotation(self):
-        """Simulate a counter-clockwise rotation"""
-        # State sequence for counter-clockwise: 00 -> 10 -> 11 -> 01 -> 00
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 0
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 1
-        self._pin_states[self.b_pin] = 0
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 1
-        self._pin_states[self.b_pin] = 1
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 1
-        current_state = self._read_state()
-        self._process_state_change(current_state)
-        
-        time.sleep(0.1)
-        self._pin_states[self.a_pin] = 0
-        self._pin_states[self.b_pin] = 0
+        # Process the state change
         current_state = self._read_state()
         self._process_state_change(current_state)
     
@@ -329,7 +113,7 @@ class DirectGPIORotaryEncoder:
         """Read the current state of both pins"""
         if not self.available:
             raise RuntimeError("Rotary encoder hardware not available")
-        return (self._read_pin(self.a_pin) << 1) | self._read_pin(self.b_pin)
+        return (GPIO.input(self.a_pin) << 1) | GPIO.input(self.b_pin)
     
     def _process_state_change(self, current_state):
         """Process a state change in the rotary encoder"""
@@ -404,133 +188,144 @@ class DirectGPIORotaryEncoder:
         if self.poll_thread and self.poll_thread != threading.current_thread():
             self.stop()
         
-        if self.use_sysfs:
-            try:
-                # Unexport pins
-                self._unexport_pin(self.a_pin)
-                self._unexport_pin(self.b_pin)
-            except:
-                pass
+        # No need to clean up GPIO here as it will be done in DirectGPIOSwitch.__del__
+        # or by the application
 
 
 class DirectGPIOSwitch:
-    """A simple switch class using direct GPIO access"""
-    
-    # GPIO sysfs paths
-    GPIO_PATH = "/sys/class/gpio"
-    
-    # Pin modes
-    IN = "in"
-    OUT = "out"
+    """A simple switch class using RPi.GPIO"""
     
     def __init__(self, pin):
         self.pin = pin
         self.last_state = None
-        self.use_sysfs = False
-        
-        # Check if GPIO sysfs interface is available
-        if os.path.exists(self.GPIO_PATH) and os.access(self.GPIO_PATH, os.W_OK):
-            try:
-                # Try to export a test pin to see if we have permission
-                test_pin = 999  # Use a pin that doesn't exist
-                with open(f"{self.GPIO_PATH}/export", "w") as f:
-                    f.write(str(test_pin))
-                # If we get here, we have permission to use sysfs
-                self.use_sysfs = True
-                # Unexport the test pin
-                with open(f"{self.GPIO_PATH}/unexport", "w") as f:
-                    f.write(str(test_pin))
-            except:
-                self.use_sysfs = False
         
         try:
-            if self.use_sysfs:
-                print(f"Using GPIO sysfs interface for switch pin {pin}")
-                self._init_sysfs()
-            else:
-                print(f"Using fallback implementation for switch pin {pin}")
-                self._init_fallback()
+            # Set GPIO mode to BCM (Broadcom SOC channel numbering)
+            # This is safe to call multiple times as RPi.GPIO will only set the mode if it hasn't been set already
+            GPIO.setmode(GPIO.BCM)
             
+            # Set up the pin as an input with a pull-up resistor
+            # This means the switch should connect the pin to ground when pressed
+            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            
+            print(f"Initialized switch with pin {pin}")
             self.available = True
         except Exception as e:
             print(f"Error setting up GPIO pin for switch: {e}")
             self.available = False
             raise RuntimeError(f"Failed to initialize switch GPIO pin: {e}")
     
-    def _init_sysfs(self):
-        """Initialize GPIO pin using sysfs interface"""
-        # Export pin if not already exported
-        self._export_pin(self.pin)
-        
-        # Set pin as input
-        self._set_pin_direction(self.pin, self.IN)
+    def get_state(self):
+        """Get the current state of the switch (True = pressed, False = released)"""
+        if not self.available:
+            raise RuntimeError("Switch hardware not available")
+        # Switch is pulled up, so it's LOW when pressed
+        return not bool(GPIO.input(self.pin))
     
-    def _init_fallback(self):
-        """Initialize GPIO pin using fallback implementation"""
-        # In the fallback implementation, we'll simulate the switch
-        # This is just for testing purposes
-        self._pin_state = 1  # Pulled up (not pressed)
-    
-    def _export_pin(self, pin):
-        """Export a GPIO pin if it's not already exported"""
-        if not os.path.exists(f"{self.GPIO_PATH}/gpio{pin}"):
-            try:
-                with open(f"{self.GPIO_PATH}/export", "w") as f:
-                    f.write(str(pin))
-                # Wait for the pin to be exported
-                timeout = 0.1
-                start_time = time.time()
-                while not os.path.exists(f"{self.GPIO_PATH}/gpio{pin}/direction"):
-                    if time.time() - start_time > timeout:
-                        raise RuntimeError(f"Timeout waiting for GPIO{pin} to be exported")
-                    time.sleep(0.01)
-            except Exception as e:
-                print(f"Error exporting GPIO pin {pin}: {e}")
-                raise
-    
-    def _unexport_pin(self, pin):
-        """Unexport a GPIO pin"""
-        if os.path.exists(f"{self.GPIO_PATH}/gpio{pin}"):
-            try:
-                with open(f"{self.GPIO_PATH}/unexport", "w") as f:
-                    f.write(str(pin))
-            except Exception as e:
-                print(f"Error unexporting GPIO pin {pin}: {e}")
-    
-    def _set_pin_direction(self, pin, direction):
-        """Set the direction of a GPIO pin (in/out)"""
+    def __del__(self):
+        """Clean up resources when the object is destroyed"""
         try:
-            with open(f"{self.GPIO_PATH}/gpio{pin}/direction", "w") as f:
-                f.write(direction)
-        except Exception as e:
-            print(f"Error setting direction for GPIO pin {pin}: {e}")
-            raise
+            # Clean up GPIO resources
+            GPIO.cleanup([self.pin])
+        except:
+            passif (self.last_state == 0b00 and current_state == 0b01) or \
+                   (self.last_state == 0b01 and current_state == 0b11) or \
+                   (self.last_state == 0b11 and current_state == 0b10) or \
+                   (self.last_state == 0b10 and current_state == 0b00):
+                    self.direction = 1  # Clockwise
+                    if current_state == 0b00:  # Complete rotation
+                        self.counter += 1
+                        if self.callback:
+                            self.callback(1)
+                elif (self.last_state == 0b00 and current_state == 0b10) or \
+                     (self.last_state == 0b10 and current_state == 0b11) or \
+                     (self.last_state == 0b11 and current_state == 0b01) or \
+                     (self.last_state == 0b01 and current_state == 0b00):
+                    self.direction = -1  # Counter-clockwise
+                    if current_state == 0b00:  # Complete rotation
+                        self.counter -= 1
+                        if self.callback:
+                            self.callback(-1)
+                
+                self.last_state = current_state
     
-    def _read_pin(self, pin):
-        """Read the value of a GPIO pin"""
-        if self.use_sysfs:
-            try:
-                with open(f"{self.GPIO_PATH}/gpio{pin}/value", "r") as f:
-                    return int(f.read().strip())
-            except Exception as e:
-                print(f"Error reading GPIO pin {pin}: {e}")
-                return 0
-        else:
-            # In the fallback implementation, return the simulated pin state
-            return self._pin_state
+    def get_counter(self):
+        """Get the current counter value"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
+        with self.lock:
+            return self.counter
+    
+    def get_direction(self):
+        """Get the last direction of rotation"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
+        with self.lock:
+            return self.direction
+    
+    def reset(self):
+        """Reset the counter to 0"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
+        with self.lock:
+            self.counter = 0
+            self.direction = None
+    
+    def get_cycles(self):
+        """Get the number of cycles since last call and reset the delta"""
+        if not self.available:
+            raise RuntimeError("Rotary encoder hardware not available")
+        with self.lock:
+            direction = self.direction
+            self.direction = None
+            return direction if direction is not None else 0
+    
+    def __del__(self):
+        """Clean up resources when the object is destroyed"""
+        # Only stop if we're not in the current thread
+        # This avoids the "cannot join current thread" error
+        import threading
+        if self.poll_thread and self.poll_thread != threading.current_thread():
+            self.stop()
+        
+        # No need to clean up GPIO here as it will be done in DirectGPIOSwitch.__del__
+        # or by the application
+
+
+class DirectGPIOSwitch:
+    """A simple switch class using RPi.GPIO"""
+    
+    def __init__(self, pin):
+        self.pin = pin
+        self.last_state = None
+        
+        try:
+            # Set GPIO mode to BCM (Broadcom SOC channel numbering)
+            # This is safe to call multiple times as RPi.GPIO will only set the mode if it hasn't been set already
+            GPIO.setmode(GPIO.BCM)
+            
+            # Set up the pin as an input with a pull-up resistor
+            # This means the switch should connect the pin to ground when pressed
+            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            
+            print(f"Initialized switch with pin {pin}")
+            self.available = True
+        except Exception as e:
+            print(f"Error setting up GPIO pin for switch: {e}")
+            self.available = False
+            raise RuntimeError(f"Failed to initialize switch GPIO pin: {e}")
     
     def get_state(self):
         """Get the current state of the switch (True = pressed, False = released)"""
         if not self.available:
             raise RuntimeError("Switch hardware not available")
         # Switch is pulled up, so it's LOW when pressed
-        return not bool(self._read_pin(self.pin))
+        return not bool(GPIO.input(self.pin))
     
     def __del__(self):
         """Clean up resources when the object is destroyed"""
-        if self.use_sysfs:
-            try:
-                # Unexport pin
-                self._unexport_pin(self.pin)
-            except:
-                pass
+        try:
+            # Clean up GPIO resources
+            GPIO.cleanup([self.pin])
+        except:
+            pass
