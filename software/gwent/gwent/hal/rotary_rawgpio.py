@@ -1,7 +1,8 @@
 import threading
 import time
 import asyncio
-import RPi.GPIO as GPIO
+# Import rpi-lgpio as a drop-in replacement for RPi.GPIO
+import RPi.GPIO as GPIO  # This will use rpi-lgpio when installed
 from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
 
 class SimpleLogger:

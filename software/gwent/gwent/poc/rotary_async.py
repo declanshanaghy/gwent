@@ -4,7 +4,7 @@ import asyncio
 import functools
 import time
 
-from gwent.hal.rotary_gpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 
 # https://learn.adafruit.com/pro-trinket-rotary-encoder/example-rotary-encoder-volume-control
 

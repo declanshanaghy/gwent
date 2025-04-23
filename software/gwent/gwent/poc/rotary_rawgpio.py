@@ -8,7 +8,7 @@ when rotation is detected and the button is clicked.
 import time
 import signal
 import sys
-from gwent.hal.rotary_gpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 
 # BCM pin numbers (not Wiring pin numbers)
 A_PIN = 22  # GPIO17

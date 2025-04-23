@@ -7,7 +7,7 @@ but uses gpiozero instead of direct GPIO or WiringPi.
 import threading
 import time
 from typing import Optional, Callable
-from gpiozero import RotaryEncoder as GPIOZeroRotaryEncoder, Button
+from gpiozero import RotaryEncoder, Button
 
 from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
 
@@ -24,11 +24,14 @@ class SimpleLogger:
         pass  # Ignore debug messages
 
 
-class GPIOZeroRotaryEncoder(AbstractRotaryEncoder):
+class GwentGPIOZeroRotaryEncoder(AbstractRotaryEncoder):
     """
     A class to decode mechanical rotary encoder pulses using gpiozero.
     This implementation follows the same interface as DirectGPIORotaryEncoder
-    but uses gpiozero instead of RPi.GPIO.
+    but uses gpiozero's event-based approach instead of polling.
+    
+    Based on the example from:
+    https://gpiozero.readthedocs.io/en/v1.6.0/recipes.html#rotary-encoder
     """
     
     def __init__(self, a_pin: int, b_pin: int, callback: Optional[Callable[[int], None]] = None, log=None):
@@ -48,8 +51,7 @@ class GPIOZeroRotaryEncoder(AbstractRotaryEncoder):
         self.counter = 0
         self.direction = None
         self.lock = threading.Lock()
-        self.running = False
-        self.poll_thread = None
+        self.available = False
         
         # Use provided logger or create a simple print wrapper
         self._log = log or SimpleLogger()
@@ -57,57 +59,48 @@ class GPIOZeroRotaryEncoder(AbstractRotaryEncoder):
         # Initialize gpiozero RotaryEncoder
         try:
             # gpiozero uses BCM pin numbering
-            self.encoder = GPIOZeroRotaryEncoder(a_pin, b_pin)
+            # Set up with steps_per_revolution=20 for a typical rotary encoder
+            self.encoder = RotaryEncoder(a_pin, b_pin, bounce_time=0.005)
+            
+            # Set up event handlers
+            self.encoder.when_rotated_clockwise = self._on_clockwise
+            self.encoder.when_rotated_counter_clockwise = self._on_counter_clockwise
+            
             self._log.info(f"Initialized rotary encoder with pins A={a_pin}, B={b_pin}")
             self.available = True
         except Exception as e:
             self._log.warning(f"Error setting up gpiozero rotary encoder: {e}")
-            self.available = False
             raise RuntimeError(f"Failed to initialize rotary encoder gpiozero pins: {e}")
+    
+    def _on_clockwise(self):
+        """Handler for clockwise rotation events"""
+        with self.lock:
+            self.counter += 1
+            self.direction = 1
+            if self.callback:
+                self.callback(1)
+    
+    def _on_counter_clockwise(self):
+        """Handler for counter-clockwise rotation events"""
+        with self.lock:
+            self.counter -= 1
+            self.direction = -1
+            if self.callback:
+                self.callback(-1)
     
     def start(self):
         """Start the encoder monitoring"""
         if not self.available:
             raise RuntimeError("Rotary encoder hardware not available")
-        
-        self.running = True
-        
-        # Start a thread to poll the encoder
-        self.poll_thread = threading.Thread(target=self._poll_encoder, daemon=True)
-        self.poll_thread.start()
+        # No need to start anything - gpiozero handles events automatically
+        self._log.info("Rotary encoder monitoring started")
     
     def stop(self):
         """Stop the encoder monitoring"""
-        self.running = False
-        if self.poll_thread:
-            self.poll_thread.join(timeout=1.0)
-    
-    def _poll_encoder(self):
-        """Poll the encoder for changes"""
-        try:
-            last_value = self.encoder.value
-            
-            while self.running:
-                current_value = self.encoder.value
-                
-                if current_value != last_value:
-                    # Calculate direction
-                    direction = 1 if current_value > last_value else -1
-                    
-                    with self.lock:
-                        self.counter += direction
-                        self.direction = direction
-                        
-                        if self.callback:
-                            self.callback(direction)
-                    
-                    last_value = current_value
-                
-                time.sleep(0.001)  # 1ms polling interval
-                
-        except Exception as e:
-            self._log.warning(f"Error in polling gpiozero encoder: {e}")
-            self.running = False
+        if not self.available:
+            return
+        # No need to stop anything - gpiozero handles cleanup
+        self._log.info("Rotary encoder monitoring stopped")
     
     def get_counter(self):
         """Get the current counter value"""
@@ -142,12 +135,8 @@ class GPIOZeroRotaryEncoder(AbstractRotaryEncoder):
     
     def __del__(self):
         """Clean up resources when the object is destroyed"""
-        # Only stop if we're not in the current thread
-        # This avoids the "cannot join current thread" error
-        import threading
-        if self.poll_thread and self.poll_thread != threading.current_thread():
-            self.stop()
-
+        # gpiozero handles cleanup automatically
+        pass
 
 class GPIOZeroSwitch(AbstractSwitch):
     """A simple switch class using gpiozero"""

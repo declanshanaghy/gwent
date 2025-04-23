@@ -1,64 +1,17 @@
-import asyncio
-import time
-from typing import Any, Callable, List, Optional, Tuple
+#!/usr/bin/env python3
 
-import gwent.hal.mfdi
+import time
+from enum import Enum, auto
+
 import gwent.game
-import gwent.messaging.choice
 from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 from gwent.hal.rotary_gpiozero import GwentGPIOZeroRotaryEncoder, GPIOZeroSwitch
-from enum import Enum, auto
+
 
 class RotaryImplementation(Enum):
     """Enum to specify which rotary encoder implementation to use"""
     DIRECT_GPIO = auto()
     GPIOZERO = auto()
-
-
-class RotaryChooser(gwent.hal.mfdi.Chooser):
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 implementation=RotaryImplementation.DIRECT_GPIO,
-                 log_verbose: bool = False):
-        """
-        Initialize the rotary chooser.
-        
-        Args:
-            loop: The asyncio event loop
-            implementation: Which rotary encoder implementation to use
-            log_verbose: Whether to enable verbose logging
-        """
-        super().__init__(loop, log_verbose=log_verbose)
-        self.rotary = RotaryEncoder(implementation=implementation, log_verbose=log_verbose)
-
-    async def choose(self, choices: List[gwent.messaging.choice.Message],
-                     selected_idx: int,
-                     select: Callable[
-                         [int, gwent.messaging.choice.Message], Any]) -> \
-            gwent.messaging.choice.Message:
-        await self._loop.run_in_executor(None, self.rotary.start)
-
-        choice = choices[selected_idx]
-        while True:
-            delta, count, sw_changed, sw_state = await self._loop.run_in_executor(
-                None, self.rotary.loop)
-            if delta != 0:
-                idx = count % len(choices)
-                choice = choices[idx]
-                self._log.debug({
-                    'action': 'select',
-                    'delta': delta,
-                    'count': count,
-                    'len(choices)': len(choices),
-                    'idx': idx,
-                    'choice.id': choice.id,
-                    'choice.text': choice.text,
-                })
-                await select(delta, choice)
-
-            if sw_changed and not sw_state:  # Release click
-                return choice
-
-            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
 
 class RotaryEncoder(gwent.game.BaseComponent):
@@ -146,4 +99,34 @@ class RotaryEncoder(gwent.game.BaseComponent):
         return self._delta, self._counter, self._sw_changed, self._sw_state
 
 
-# No mocks in production code as per development guidelines
+# Simple test code when run directly
+if __name__ == "__main__":
+    # BCM pin numbers (not Wiring pin numbers)
+    A_PIN = 23  # GPIO23
+    B_PIN = 24  # GPIO24
+    SW_PIN = 25  # GPIO25
+
+    encoder = DirectGPIORotaryEncoder(A_PIN, B_PIN)
+    encoder.start()
+
+    sw = DirectGPIOSwitch(SW_PIN)
+    last_state = sw.get_state()
+
+    counter = 0
+
+    try:
+        print("Rotary encoder test running. Press Ctrl+C to exit.")
+        while True:
+            delta = encoder.get_cycles()
+            if delta != 0:
+                counter += delta
+                print("count is %d" % counter)
+            else:
+                time.sleep(0.1)
+
+            state = sw.get_state()
+            if state != last_state:
+                print("switch %d" % state)
+                last_state = state
+    except KeyboardInterrupt:
+        print("\nExiting rotary encoder test...")
