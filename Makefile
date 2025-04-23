@@ -28,7 +28,7 @@ rotary-simple: rsync
 	@echo "Running rotary_simple entry point on $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_simple"
 
-rotary-wiringpi-simple: rsync
-	@echo "Running rotary_wiringpi_simple entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_wiringpi_simple"
+rotary-gpiozero-simple: rsync
+	@echo "Running rotary_gpiozero_simple entry point on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_gpiozero_simple"
 
