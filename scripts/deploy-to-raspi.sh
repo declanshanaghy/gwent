@@ -72,21 +72,6 @@ scp -i ${SSH_KEY} ${FULL_PACKAGE_PATH} ${PI_USER}@${RASPBERRY_PI_IP}:~/ || {
 }
 print_success "Package copied to Raspberry Pi."
 
-# Step 4: Copy and install local dependencies first
-print_message "Copying local dependencies to Raspberry Pi..."
-scp -i ${SSH_KEY} -r ${DIR}/../software/gaugette ${DIR}/../software/MFRC522-python ${PI_USER}@${RASPBERRY_PI_IP}:~/ || {
-    print_error "Failed to copy local dependencies to Raspberry Pi."
-    exit 1
-}
-print_success "Local dependencies copied to Raspberry Pi."
-
-print_message "Installing local dependencies on Raspberry Pi..."
-# Install gaugette with pip
-ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source ${VENV_DIR}/bin/activate && pip install -e ~/gaugette" || {
-    print_error "Failed to install gaugette on Raspberry Pi."
-    exit 1
-}
-
 # For MFRC522-python, just make sure it's in the Python path
 ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "mkdir -p ${VENV_DIR}/lib/python3.*/site-packages/ && ln -sf ~/MFRC522-python/MFRC522 ${VENV_DIR}/lib/python3.*/site-packages/" || {
     print_error "Failed to link MFRC522-python on Raspberry Pi."

@@ -50,9 +50,9 @@ class RotaryEncoder(gwent.game.BaseComponent):
     Rotary encoder implementation using direct GPIO access.
     """
     # BCM pin numbers (not Wiring pin numbers)
-    A_PIN = 23  # GPIO23
-    B_PIN = 24  # GPIO24
-    SW_PIN = 25  # GPIO25
+    A_PIN = 17  # GPIO17
+    B_PIN = 22  # GPIO22
+    SW_PIN = 27  # GPIO27
 
     _encoder = None
     _sw = None

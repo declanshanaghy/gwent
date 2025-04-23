@@ -39,10 +39,9 @@ setuptools.setup(
         'jsonschema==3.2.0',
         'luma.oled==3.8.1',
         'pydub==0.24.0',
+        'RPi.GPIO>=0.7.0',
         'sparkfun-qwiic-tca9548a==0.9.0',
         'websockets==8.1',
-        # The following packages are installed locally
-        # 'gaugette',
         # 'mfrc522',
         # pygame is installed via apt-get on Raspberry Pi
         # 'pygame==2.1.2',
@@ -53,8 +52,7 @@ setuptools.setup(
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'write_card=gwent.game.poc:write_card',
-            'read_card=gwent.game.poc:read_card',
+            'rotary_simple=gwent.poc.rotary_simple:run'
         ],
     }
 )
