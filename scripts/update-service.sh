@@ -34,27 +34,37 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # Load environment variables
 source "${DIR}/install-vars.sh"
 
-# Raspberry Pi configuration
-PI_USER=${DEPLOY_USER:-"dshanaghy"}
-SSH_KEY=${SSH_KEY:-"~/.ssh/id_rsa"}
-DEPLOY_TGT=${RASPBERRY_PI_IP:-"192.168.1.225"}
+# Check if the service file exists in the scripts directory
+if [ ! -f "${DIR}/gwent.service" ]; then
+    print_error "Service file not found in ${DIR}/gwent.service"
+    exit 1
+fi
 
-print_message "Updating gwent.service on Raspberry Pi (${DEPLOY_TGT})..."
+# Check if the service is already installed
+if [ -f "/etc/systemd/system/gwent.service" ]; then
+    print_message "Updating existing gwent service..."
+else
+    print_message "Installing new gwent service..."
+fi
 
-# Copy the service file to the Raspberry Pi
-print_message "Copying gwent.service to Raspberry Pi..."
-scp -i ${SSH_KEY} ${DIR}/gwent.service ${PI_USER}@${DEPLOY_TGT}:~/gwent.service
-
-# Install the service file and restart the service
+# Install or update the service file and restart the service
 print_message "Installing and restarting the service..."
-ssh -i ${SSH_KEY} ${PI_USER}@${DEPLOY_TGT} "sudo cp ~/gwent.service /etc/systemd/system/gwent.service && sudo systemctl daemon-reload && sudo systemctl restart gwent.service"
+sudo cp "${DIR}/gwent.service" /etc/systemd/system/gwent.service && sudo systemctl daemon-reload && sudo systemctl restart gwent.service
 
 # Check the service status
 print_message "Checking service status..."
-ssh -i ${SSH_KEY} ${PI_USER}@${DEPLOY_TGT} "sudo systemctl status gwent.service --no-pager"
+sudo systemctl status gwent.service --no-pager
 
 # Check if the environment variable is set
 print_message "Checking environment variables..."
-ssh -i ${SSH_KEY} ${PI_USER}@${DEPLOY_TGT} "sudo systemctl show gwent.service -p Environment"
+sudo systemctl show gwent.service -p Environment
+
+# Check if the service is enabled to start at boot
+if sudo systemctl is-enabled gwent.service &>/dev/null; then
+    print_message "Service is already enabled to start at boot"
+else
+    print_message "Enabling service to start at boot..."
+    sudo systemctl enable gwent.service
+fi
 
 print_success "Service updated successfully!"

@@ -14,11 +14,15 @@ rsync:
 
 install: rsync
 	@echo "Install to $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/install.sh
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install.sh
 
 install-app: rsync
 	@echo "Install to $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/install-app.sh
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install-app.sh
+
+update-service: rsync
+	@echo "Update service $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/update-service.sh
 
 rotary-simple: rsync
 	@echo "Running rotary_simple entry point on $(DEPLOY_TGT)"
