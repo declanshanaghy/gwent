@@ -21,6 +21,9 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${DIR}/install-vars.sh
 
+echo "Updating rpi firmware..."
+sudo rpi-update
+
 # Update package lists
 echo "Updating system..."
 sudo apt-get update && sudo apt-get upgrade -y && sudo apt-get autoremove -y
@@ -57,5 +60,4 @@ echo "Configuring groups..."
 getent group gpio > /dev/null || sudo groupadd gpio
 getent group i2c > /dev/null || sudo groupadd i2c
 # Add user to groups
-sudo usermod -a -G gpio,i2c $(whoami)
-
+sudo usermod -G sudo,gpio,spi,i2c -a $(whoami)

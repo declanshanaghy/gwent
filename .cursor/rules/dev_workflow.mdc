@@ -292,6 +292,17 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - This ensures that production code is always using real implementations and not silently falling back to mocks.
     - Exceptions should be raised when required functionality is unavailable, rather than silently using a mock.
 
+- **No Simulation Mode in Production Code**:
+    - Production code should NEVER implement simulation mode or fallbacks that simulate hardware behavior.
+    - When hardware is unavailable, code should fail with clear error messages rather than silently simulating behavior.
+    - This prevents inconsistencies between development and production environments.
+    - Hardware-dependent code should:
+        - Fail fast with descriptive error messages when hardware is unavailable
+        - Use proper error codes that indicate the specific hardware component that failed
+        - Log detailed diagnostic information to help troubleshoot the issue
+        - Never attempt to "fake" hardware behavior through simulation
+    - This rule ensures that all hardware-related issues are immediately visible and not masked by simulations.
+
 ---
 
 ## Error Handling Requirements

@@ -2,6 +2,7 @@ import threading
 import time
 import asyncio
 import RPi.GPIO as GPIO
+from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
 
 class SimpleLogger:
     """A simple logger class for when a real logger is not available"""
@@ -15,9 +16,10 @@ class SimpleLogger:
         pass  # Ignore debug messages
 
 
-class DirectGPIORotaryEncoder:
+class DirectGPIORotaryEncoder(AbstractRotaryEncoder):
     """
     A class to decode mechanical rotary encoder pulses using RPi.GPIO.
+    Implements the AbstractRotaryEncoder interface.
     """
     
     # Pin modes
@@ -192,108 +194,8 @@ class DirectGPIORotaryEncoder:
         # or by the application
 
 
-class DirectGPIOSwitch:
-    """A simple switch class using RPi.GPIO"""
-    
-    def __init__(self, pin):
-        self.pin = pin
-        self.last_state = None
-        
-        try:
-            # Set GPIO mode to BCM (Broadcom SOC channel numbering)
-            # This is safe to call multiple times as RPi.GPIO will only set the mode if it hasn't been set already
-            GPIO.setmode(GPIO.BCM)
-            
-            # Set up the pin as an input with a pull-up resistor
-            # This means the switch should connect the pin to ground when pressed
-            GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            
-            print(f"Initialized switch with pin {pin}")
-            self.available = True
-        except Exception as e:
-            print(f"Error setting up GPIO pin for switch: {e}")
-            self.available = False
-            raise RuntimeError(f"Failed to initialize switch GPIO pin: {e}")
-    
-    def get_state(self):
-        """Get the current state of the switch (True = pressed, False = released)"""
-        if not self.available:
-            raise RuntimeError("Switch hardware not available")
-        # Switch is pulled up, so it's LOW when pressed
-        return not bool(GPIO.input(self.pin))
-    
-    def __del__(self):
-        """Clean up resources when the object is destroyed"""
-        try:
-            # Clean up GPIO resources
-            GPIO.cleanup([self.pin])
-        except:
-            passif (self.last_state == 0b00 and current_state == 0b01) or \
-                   (self.last_state == 0b01 and current_state == 0b11) or \
-                   (self.last_state == 0b11 and current_state == 0b10) or \
-                   (self.last_state == 0b10 and current_state == 0b00):
-                    self.direction = 1  # Clockwise
-                    if current_state == 0b00:  # Complete rotation
-                        self.counter += 1
-                        if self.callback:
-                            self.callback(1)
-                elif (self.last_state == 0b00 and current_state == 0b10) or \
-                     (self.last_state == 0b10 and current_state == 0b11) or \
-                     (self.last_state == 0b11 and current_state == 0b01) or \
-                     (self.last_state == 0b01 and current_state == 0b00):
-                    self.direction = -1  # Counter-clockwise
-                    if current_state == 0b00:  # Complete rotation
-                        self.counter -= 1
-                        if self.callback:
-                            self.callback(-1)
-                
-                self.last_state = current_state
-    
-    def get_counter(self):
-        """Get the current counter value"""
-        if not self.available:
-            raise RuntimeError("Rotary encoder hardware not available")
-        with self.lock:
-            return self.counter
-    
-    def get_direction(self):
-        """Get the last direction of rotation"""
-        if not self.available:
-            raise RuntimeError("Rotary encoder hardware not available")
-        with self.lock:
-            return self.direction
-    
-    def reset(self):
-        """Reset the counter to 0"""
-        if not self.available:
-            raise RuntimeError("Rotary encoder hardware not available")
-        with self.lock:
-            self.counter = 0
-            self.direction = None
-    
-    def get_cycles(self):
-        """Get the number of cycles since last call and reset the delta"""
-        if not self.available:
-            raise RuntimeError("Rotary encoder hardware not available")
-        with self.lock:
-            direction = self.direction
-            self.direction = None
-            return direction if direction is not None else 0
-    
-    def __del__(self):
-        """Clean up resources when the object is destroyed"""
-        # Only stop if we're not in the current thread
-        # This avoids the "cannot join current thread" error
-        import threading
-        if self.poll_thread and self.poll_thread != threading.current_thread():
-            self.stop()
-        
-        # No need to clean up GPIO here as it will be done in DirectGPIOSwitch.__del__
-        # or by the application
-
-
-class DirectGPIOSwitch:
-    """A simple switch class using RPi.GPIO"""
+class DirectGPIOSwitch(AbstractSwitch):
+    """A simple switch class using RPi.GPIO that implements the AbstractSwitch interface"""
     
     def __init__(self, pin):
         self.pin = pin
