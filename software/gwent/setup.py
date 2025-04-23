@@ -36,26 +36,23 @@ setuptools.setup(
         'adafruit-circuitpython-ssd1305==1.3.3',
         'asyncio-mqtt==0.5.0',
         'gTTS==2.2.4',
+        'gpiozero>=1.6.2',
         'jsonschema==3.2.0',
         'luma.oled==3.8.1',
         'pydub==0.24.0',
-        'RPi.GPIO>=0.7.0',
+        'rpi-lgpio>=0.1.0',  # Replacement for RPi.GPIO using lgpio
         'sparkfun-qwiic-tca9548a==0.9.0',
         'websockets==8.1',
         # 'mfrc522',
         # pygame is installed via apt-get on Raspberry Pi
         # 'pygame==2.1.2',
-        # The following won't work on mac
-        # 'wiringpi2==2.32.3',  # Removed - no longer using WiringPi
-        # 'wiringpi>=2.60.0',   # Removed - no longer using WiringPi
-        'gpiozero>=1.6.2',    # Used by rotary_gpiozero.py
     ],
     entry_points={
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
             'rotary_rawgpio=gwent.poc.rotary_rawgpio:run',
-            'rotary_gpiozero=gwent.poc.rotary_gpiozero_simple:run'
+            'rotary_gpiozero=gwent.poc.rotary_gpiozero:run'
         ],
     }
 )

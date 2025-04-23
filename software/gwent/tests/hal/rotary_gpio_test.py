@@ -5,7 +5,7 @@ import logging
 from unittest.mock import patch, MagicMock
 
 # Import the class to test
-from gwent.hal.rotary_gpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 
 
 class TestDirectGPIORotaryEncoderAutomated:

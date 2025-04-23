@@ -26,9 +26,8 @@ update-service: rsync
 
 rotary-rawgpio: rsync
 	@echo "Running rotary_rawgpio entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_rawgpio"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && python -m gwent.poc.rotary_rawgpio"
 
 rotary-gpiozero: rsync
 	@echo "Running rotary_gpiozero entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_gpiozero_simple"
-
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && python -m gwent.poc.rotary_gpiozero"
