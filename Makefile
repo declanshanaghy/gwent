@@ -24,11 +24,11 @@ update-service: rsync
 	@echo "Update service $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/update-service.sh
 
-rotary-simple: rsync
-	@echo "Running rotary_simple entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_simple"
+rotary-rawgpio: rsync
+	@echo "Running rotary_rawgpio entry point on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_rawgpio"
 
-rotary-gpiozero-simple: rsync
-	@echo "Running rotary_gpiozero_simple entry point on $(DEPLOY_TGT)"
+rotary-gpiozero: rsync
+	@echo "Running rotary_gpiozero entry point on $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && pip3 install -e . && python -m gwent.poc.rotary_gpiozero_simple"
 

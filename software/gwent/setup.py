@@ -54,8 +54,8 @@ setuptools.setup(
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'rotary_simple=gwent.poc.rotary_simple:run',
-            'rotary_gpiozero_simple=gwent.poc.rotary_gpiozero_simple:run'
+            'rotary_rawgpio=gwent.poc.rotary_rawgpio:run',
+            'rotary_gpiozero=gwent.poc.rotary_gpiozero_simple:run'
         ],
     }
 )
