@@ -16,10 +16,5 @@ def init():
     random.seed()
     global _REAL
 
-    try:
-        import mfrc522
-        _REAL = True
-    except ImportError:
-        _REAL = False
-
+    _REAL = True
     log.info({'real_mode': _REAL})
