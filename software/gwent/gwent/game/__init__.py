@@ -1,9 +1,7 @@
 import logging
-import asyncio
 import time
+import threading
 from typing import Any, Callable
-
-import asyncio_mqtt
 
 import gwent.messaging.base
 import gwent.messaging.factory
@@ -65,71 +63,77 @@ class BaseComponent(object):
         })
 
 
-class GameComponent(BaseComponent):
-    _loop = None
-
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 log_verbose: bool = False):
-        super().__init__(log_verbose=log_verbose)
-        self._loop = loop
-
-
-class PubSubComponent(GameComponent):
+class PubSubComponent(BaseComponent):
     _pubsub = None
+    _stop_event = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 pubsub: asyncio_mqtt.Client, log_verbose: bool = False):
-        super().__init__(loop, log_verbose=log_verbose)
+    def __init__(self, pubsub, log_verbose: bool = False):
+        super().__init__(log_verbose=log_verbose)
         self._pubsub = pubsub
+        self._stop_event = threading.Event()
+        self._callbacks = {}
 
-    async def init(self):
+    def init(self):
+        """Initialize the component"""
         pass
 
-    async def shutdown(self):
-        pass
+    def shutdown(self):
+        """Shutdown the component"""
+        self._stop_event.set()
+        # Unsubscribe from all topics
+        for topic in list(self._callbacks.keys()):
+            self.unsubscribe(topic)
 
-    async def run(self):
-        while True:
-            await asyncio.sleep(DEFAULT_YIELD_TIME)
+    def run(self):
+        """Run the component"""
+        while not self._stop_event.is_set():
+            time.sleep(DEFAULT_YIELD_TIME)
 
-    async def subscribe(self, topic_filter: str, expect_kind: str,
-                        callback: Callable[
-                            [gwent.messaging.base.Message], Any]):
-        async def processor():
-            async with self._pubsub.filtered_messages(topic_filter) as messages:
-                self._log.debug({
-                    'action': 'listening to',
-                    'topic_filter': topic_filter,
-                    'expect_kind': expect_kind,
-                })
-                async for message in messages:
-                    decoded = message.payload.decode()
-                    self._log.debug({
-                        'action': 'received raw message',
-                        'topic': message.topic,
-                        'message': decoded,
-                    })
-                    message = gwent.messaging.factory.unmarshall(
-                        decoded, expect_kind=expect_kind)
-                    await callback(message)
+    def _message_handler(self, topic: str, payload: str, expect_kind: str, callback: Callable):
+        """Handle incoming messages"""
+        try:
+            message = gwent.messaging.factory.unmarshall(payload, expect_kind=expect_kind)
+            callback(message)
+        except Exception as e:
+            self._log.error(f"Error processing message: {e}")
 
-        self._loop.create_task(processor())
-
+    def subscribe(self, topic_filter: str, expect_kind: str,
+                  callback: Callable[[gwent.messaging.base.Message], Any]):
+        """Subscribe to a topic with a callback"""
+        
+        # Create a wrapper function to handle the message
+        def wrapper(topic, payload):
+            self._message_handler(topic, payload, expect_kind, callback)
+        
+        # Store the wrapper function for later unsubscription
+        if topic_filter not in self._callbacks:
+            self._callbacks[topic_filter] = []
+        
+        self._callbacks[topic_filter].append((wrapper, callback))
+        
         self._log.info({
             'action': 'subscribe',
             'topic_filter': topic_filter,
             'expect_kind': expect_kind,
         })
-        await self._pubsub.subscribe(topic_filter)
+        
+        # Subscribe to the topic
+        self._pubsub.subscribe(topic_filter, wrapper)
 
-    async def unsubscribe(self, topic: str):
+    def unsubscribe(self, topic: str):
+        """Unsubscribe from a topic"""
         self._log.info({
             'action': 'unsubscribe',
             'topic': topic,
         })
-        await self._pubsub.unsubscribe(topic)
+        
+        if topic in self._callbacks:
+            for wrapper, _ in self._callbacks[topic]:
+                self._pubsub.unsubscribe(topic, wrapper)
+            del self._callbacks[topic]
 
-    async def publish(self, topic, message: gwent.messaging.base.Message):
+    def publish(self, topic, message: gwent.messaging.base.Message):
+        """Publish a message to a topic"""
         self._log.info({
             'action': 'publish',
             'topic': topic,
@@ -137,28 +141,32 @@ class PubSubComponent(GameComponent):
             'content_id': message.content_id,
             'body': message.body,
         })
-        await self._pubsub.publish(topic, message.body, qos=1)
+        self._pubsub.publish(topic, message.body, qos=1)
 
-    async def publish_effect(self, effect: str):
+    def publish_effect(self, effect: str):
+        """Publish a sound effect"""
         e = gwent.messaging.sfx.Message.with_effect(effect)
-        await self.publish(CH_SFX, e)
+        self.publish(CH_SFX, e)
 
-    async def publish_music(self, music: str = None):
+    def publish_music(self, music: str = None):
+        """Publish background music"""
         e = gwent.messaging.sfx.Message.with_music(music=music)
-        await self.publish(CH_SFX, e)
+        self.publish(CH_SFX, e)
 
-    async def publish_error(self, error: str):
+    def publish_error(self, error: str):
+        """Publish an error message"""
         e = gwent.messaging.mfd.Message.with_error(error=error)
-        await self.publish(CH_MFD_PRESENT, e)
+        self.publish(CH_MFD_PRESENT, e)
 
         e = gwent.messaging.sfx.Message.with_announcement(e.error)
-        await self.publish(CH_SFX, e)
+        self.publish(CH_SFX, e)
 
-    async def publish_prompt(self, prompt: str, ok=True,
-                             cancel=True, clear_choices=True):
+    def publish_prompt(self, prompt: str, ok=True,
+                       cancel=True, clear_choices=True):
+        """Publish a prompt message"""
         p = gwent.messaging.mfd.Message.with_prompt(
             prompt=prompt, ok=ok, cancel=cancel, clear_choices=clear_choices)
-        await self.publish(CH_MFD_PRESENT, p)
+        self.publish(CH_MFD_PRESENT, p)
 
         p = gwent.messaging.sfx.Message.with_announcement(p.prompt)
-        await self.publish(CH_SFX, p)
+        self.publish(CH_SFX, p)

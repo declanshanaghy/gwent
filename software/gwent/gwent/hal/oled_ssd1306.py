@@ -1,4 +1,3 @@
-import asyncio
 import gwent.hal.mfdi
 
 from luma.core.interface.serial import spi, noop
@@ -21,9 +20,8 @@ from PIL import ImageFont
 
 
 class SSD1306Presenter(gwent.hal.mfdi.Presenter):
-    def __init__(self, loop: asyncio.AbstractEventLoop,
-                 log_verbose: bool = False, device=0, port=0):
-        super().__init__(loop, log_verbose=log_verbose)
+    def __init__(self, log_verbose: bool = False, device=0, port=0):
+        super().__init__(log_verbose=log_verbose)
 
         self._log.info("Initializing SSD1306Presenter")
         self._log.info(f"Attempting to initialize SPI interface with device={device}, port={port}")
@@ -49,27 +47,27 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
         font_path = str(Path(__file__).resolve().parent.joinpath('fonts', name))
         return ImageFont.truetype(font_path, size)
 
-    async def clear(self):
+    def clear(self):
         self._log.info("clear() called")
         if self.term is None:
             self._log.warning("clear() called but term is None, returning")
             return
         self._log.info("Calling term.clear()")
-        result = await self._loop.run_in_executor(None, self.term.clear)
+        result = self.term.clear()
         self._log.info("term.clear() completed")
         return result
 
-    async def println(self, txt):
+    def println(self, txt):
         self._log.info(f"println() called with text: '{txt}'")
         if self.term is None:
             self._log.warning("println() called but term is None, returning")
             return
         self._log.info(f"Calling term.println() with text: '{txt}'")
-        result = await self._loop.run_in_executor(None, self.term.println, txt)
+        result = self.term.println(txt)
         self._log.info("term.println() completed")
         return result
 
-    async def redraw(self):
+    def redraw(self):
         self._log.info("redraw() called")
         if self.term is None:
             self._log.warning("redraw() called but term is None, returning")
@@ -77,32 +75,32 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
             
         if self._display_error:
             self._log.info("Displaying error")
-            await self.clear()
-            await self.println(self._error)
+            self.clear()
+            self.println(self._error)
         else:
             self._log.info("Clearing display")
-            await self.clear()
+            self.clear()
 
             if self._prompt:
                 self._log.info(f"Displaying prompt: {self._prompt}")
-                await self.println(self._prompt)
+                self.println(self._prompt)
 
             self._log.info(f"Displaying {len(self._choices)} choices")
             for cid, choice in self._choices.items():
                 sel = self.selector_symbol(choice)
-                await self.println(f'{sel} ({choice.id}):\t{choice.text}')
+                self.println(f'{sel} ({choice.id}):\t{choice.text}')
 
             if self._ok is not None:
                 self._log.info("Displaying OK button")
                 sel = self.selector_symbol(self._ok)
-                await self.println(f'{sel} ({self._ok.id}):\t{self._ok.text}')
+                self.println(f'{sel} ({self._ok.id}):\t{self._ok.text}')
             if self._cancel is not None:
                 self._log.info("Displaying Cancel button")
                 sel = self.selector_symbol(self._cancel)
-                await self.println(f'{sel} ({self._cancel.id}):\t{self._cancel.text}')
+                self.println(f'{sel} ({self._cancel.id}):\t{self._cancel.text}')
                 
         # Make sure to actually update the display
         if self.term is not None:
             self._log.info("Calling term.flush() to update the display")
-            await self._loop.run_in_executor(None, self.term.flush)
+            self.term.flush()
             self._log.info("term.flush() completed")

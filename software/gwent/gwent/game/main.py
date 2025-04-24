@@ -1,8 +1,11 @@
-import asyncio
 import logging
 import signal
+import threading
+import time
+import queue
+from typing import List
 
-import asyncio_mqtt
+import paho.mqtt.client as mqtt
 
 import gwent.log
 import gwent.game.cards
@@ -13,81 +16,269 @@ import gwent.game.sfx
 import gwent.hal
 
 
-class Gwent(object):
-    pubsub = None
+class MQTTClient:
+    """Thread-safe MQTT client wrapper"""
+    
+    def __init__(self, host='localhost', username=None, password=None):
+        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._client = mqtt.Client()
+        self._host = host
+        self._username = username
+        self._password = password
+        self._connected = threading.Event()
+        self._lock = threading.RLock()
+        self._subscriptions = {}
+        
+        # Set up callbacks
+        self._client.on_connect = self._on_connect
+        self._client.on_disconnect = self._on_disconnect
+        self._client.on_message = self._on_message
+        
+        if username and password:
+            self._client.username_pw_set(username, password)
+    
+    def _on_connect(self, client, userdata, flags, rc):
+        self._log.info(f"Connected to MQTT broker with result code {rc}")
+        self._connected.set()
+        
+        # Resubscribe to topics on reconnect
+        with self._lock:
+            for topic, callbacks in self._subscriptions.items():
+                self._client.subscribe(topic)
+    
+    def _on_disconnect(self, client, userdata, rc):
+        self._log.info(f"Disconnected from MQTT broker with result code {rc}")
+        self._connected.clear()
+    
+    def _on_message(self, client, userdata, msg):
+        topic = msg.topic
+        payload = msg.payload.decode()
+        
+        self._log.debug({
+            'action': 'received raw message',
+            'topic': topic,
+            'message': payload,
+        })
+        
+        # Find matching subscriptions and call callbacks
+        with self._lock:
+            for sub_topic, callbacks in self._subscriptions.items():
+                if mqtt.topic_matches_sub(sub_topic, topic):
+                    for callback in callbacks:
+                        try:
+                            callback(topic, payload)
+                        except Exception as e:
+                            self._log.error(f"Error in callback: {e}")
+    
+    def connect(self):
+        """Connect to the MQTT broker"""
+        self._log.info(f"Connecting to MQTT broker at {self._host}")
+        self._client.connect_async(self._host)
+        self._client.loop_start()
+        return self._connected.wait(timeout=5)
+    
+    def disconnect(self):
+        """Disconnect from the MQTT broker"""
+        self._log.info("Disconnecting from MQTT broker")
+        self._client.loop_stop()
+        self._client.disconnect()
+        return self._connected.wait_for(lambda: not self._connected.is_set(), timeout=5)
+    
+    def subscribe(self, topic, callback):
+        """Subscribe to a topic with a callback"""
+        with self._lock:
+            if topic not in self._subscriptions:
+                self._subscriptions[topic] = []
+                self._client.subscribe(topic)
+            
+            self._subscriptions[topic].append(callback)
+            
+        self._log.info({
+            'action': 'subscribe',
+            'topic': topic,
+        })
+    
+    def unsubscribe(self, topic, callback=None):
+        """Unsubscribe from a topic"""
+        with self._lock:
+            if topic in self._subscriptions:
+                if callback:
+                    self._subscriptions[topic].remove(callback)
+                    if not self._subscriptions[topic]:
+                        del self._subscriptions[topic]
+                        self._client.unsubscribe(topic)
+                else:
+                    del self._subscriptions[topic]
+                    self._client.unsubscribe(topic)
+        
+        self._log.info({
+            'action': 'unsubscribe',
+            'topic': topic,
+        })
+    
+    def publish(self, topic, payload, qos=1):
+        """Publish a message to a topic"""
+        self._log.info({
+            'action': 'publish',
+            'topic': topic,
+            'payload': payload,
+        })
+        self._client.publish(topic, payload, qos=qos)
 
+
+class ThreadComponent:
+    """Base class for threaded components"""
+    
+    def __init__(self, pubsub: MQTTClient):
+        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._pubsub = pubsub
+        self._thread = None
+        self._stop_event = threading.Event()
+        self._initialized = threading.Event()
+    
+    def init(self):
+        """Initialize the component"""
+        self._log.info("Initializing component")
+        self._initialized.set()
+    
+    def start(self):
+        """Start the component in a new thread"""
+        if self._thread is not None and self._thread.is_alive():
+            self._log.warning("Component already running")
+            return
+        
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run)
+        self._thread.daemon = True
+        self._thread.start()
+    
+    def _run(self):
+        """Main thread function"""
+        self._log.info("Component started")
+        try:
+            self.run()
+        except Exception as e:
+            self._log.error(f"Error in component thread: {e}")
+        finally:
+            self._log.info("Component stopped")
+    
+    def run(self):
+        """Override this method in subclasses"""
+        while not self._stop_event.is_set():
+            time.sleep(0.1)
+    
+    def shutdown(self):
+        """Shutdown the component"""
+        self._log.info("Shutting down component")
+        self._stop_event.set()
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=2)
+            if self._thread.is_alive():
+                self._log.warning("Component thread did not terminate gracefully")
+
+
+class Gwent:
+    """Main Gwent application class"""
+    
     def __init__(self):
         self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
-
-    async def close_pubsub(self):
-        self._log.info('closing pubsub')
-        await self.pubsub.disconnect()
-
-    async def shutdown_components(self):
-        if self.components is not None:
-            logging.info('Shutting down components')
-            await asyncio.gather(*[c.shutdown() for c in self.components])
-
-    async def shutdown(self):
-        await self.close_pubsub()
-
-    async def sighandler(self, signal, loop):
-        """Cleanup tasks tied to the service's shutdown."""
-        logging.info(f'Received exit signal {signal.name}...')
-
-        await self.shutdown_components()
-
-        tasks = [t for t in asyncio.all_tasks() if t is not
-                 asyncio.current_task()]
-        logging.info(f'Canceling {len(tasks)} outstanding tasks')
-        [task.cancel() for task in tasks]
-        tasks.append(self.shutdown())
-        await asyncio.gather(*tasks, return_exceptions=True)
-
-        loop.stop()
-
-    def setup_signal_handlers(self, loop):
-        # Setup signal handlers for graceful exit
-        for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
-                  signal.SIGQUIT, signal.SIGTERM):
-            loop.add_signal_handler(
-                s, lambda s=s: loop.create_task(self.sighandler(s, loop)))
-
-    async def main(self):
-        loop = asyncio.get_running_loop()
-
-        self.setup_signal_handlers(loop)
-
-        self.pubsub = asyncio_mqtt.Client('localhost', username='geralt', password='gwent')
-        await self.pubsub.connect()
-
-        self.components = [
-            gwent.game.controller.Controller(loop, self.pubsub),
-            gwent.game.player.Player(gwent.game.controller.PLAYER_ONE,
-                                     loop, self.pubsub),
-            gwent.game.player.Player(gwent.game.controller.PLAYER_TWO,
-                                     loop, self.pubsub),
-            gwent.game.cards.Reader(loop, self.pubsub),
-            gwent.game.mfd.MFD(loop, self.pubsub),
-            gwent.game.sfx.SFX(loop, self.pubsub),
-        ]
-
-        logging.info('Init components')
-        await asyncio.gather(*[c.init() for c in self.components])
-
-        logging.info('Run components')
-        await asyncio.gather(*[c.run() for c in self.components])
-
-        await self.shutdown_components()
-        await self.shutdown()
+        self.pubsub = None
+        self.components = None
+        self._stop_event = threading.Event()
+    
+    def close_pubsub(self):
+        """Close the MQTT connection"""
+        if self.pubsub:
+            self._log.info('Closing pubsub')
+            self.pubsub.disconnect()
+    
+    def shutdown_components(self):
+        """Shutdown all components"""
+        if self.components:
+            self._log.info('Shutting down components')
+            for component in self.components:
+                component.shutdown()
+    
+    def shutdown(self):
+        """Shutdown the application"""
+        self._log.info('Shutting down application')
+        self.shutdown_components()
+        self.close_pubsub()
+        self._stop_event.set()
+    
+    def signal_handler(self, signum, frame):
+        """Handle termination signals"""
+        sig_name = signal.Signals(signum).name
+        self._log.info(f'Received exit signal {sig_name}...')
+        self.shutdown()
+    
+    def setup_signal_handlers(self):
+        """Setup signal handlers for graceful exit"""
+        for sig in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
+                   signal.SIGQUIT, signal.SIGTERM):
+            signal.signal(sig, self.signal_handler)
+    
+    def create_components(self):
+        """Create all application components"""
+        self._log.info('Creating components')
+        
+        # Create component adapters
+        controller = gwent.game.controller.Controller(self.pubsub)
+        player1 = gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub)
+        player2 = gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub)
+        reader = gwent.game.cards.Reader(self.pubsub)
+        mfd = gwent.game.mfd.MFD(self.pubsub)
+        sfx = gwent.game.sfx.SFX(self.pubsub)
+        
+        self.components = [controller, player1, player2, reader, mfd, sfx]
+    
+    def initialize_components(self):
+        """Initialize all components"""
+        self._log.info('Initializing components')
+        for component in self.components:
+            component.init()
+    
+    def start_components(self):
+        """Start all components"""
+        self._log.info('Starting components')
+        for component in self.components:
+            component.start()
+    
+    def run(self):
+        """Run the application"""
+        self._log.info('Starting Gwent application')
+        
+        # Setup signal handlers
+        self.setup_signal_handlers()
+        
+        # Connect to MQTT broker
+        self.pubsub = MQTTClient('localhost', username='geralt', password='gwent')
+        if not self.pubsub.connect():
+            self._log.error('Failed to connect to MQTT broker')
+            return
+        
+        # Create and start components
+        self.create_components()
+        self.initialize_components()
+        self.start_components()
+        
+        # Wait for shutdown signal
+        try:
+            while not self._stop_event.is_set():
+                time.sleep(0.1)
+        except KeyboardInterrupt:
+            self._log.info('Keyboard interrupt received')
+        finally:
+            self.shutdown()
 
 
 def run():
+    """Run the Gwent application"""
     gwent.log.setup(level='debug')
     try:
-        asyncio.run(Gwent().main(), debug=False)
-    except asyncio.CancelledError as ex:
-        logging.info(str(ex))
+        Gwent().run()
+    except Exception as ex:
+        logging.error(f"Error running Gwent: {ex}")
 
 
 if __name__ == '__main__':

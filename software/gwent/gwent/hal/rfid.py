@@ -1,4 +1,3 @@
-import asyncio
 import hashlib
 import os.path
 import json
@@ -6,6 +5,7 @@ import random
 import tempfile
 import time
 import logging
+import threading
 
 import RPi.GPIO as GPIO
 
@@ -26,18 +26,18 @@ ALL_SECTORS = range(MIN_SECTOR, MAX_SECTOR + 1)
 MAX_ATTEMPTS = 2
 
 
-async def instance(loop: asyncio.AbstractEventLoop):
-    if await gwent.hal.real_mode():
-        return RealWriter(loop, log_verbose=False)
+def instance():
+    if gwent.hal.real_mode():
+        return RealWriter(log_verbose=False)
     else:
-        return _FakeWriter(loop)
+        return _FakeWriter()
 
 
 class RFIDError(Exception):
     pass
 
 
-class _BaseReader(gwent.game.GameComponent):
+class _BaseReader(gwent.game.BaseComponent):
     def read_card(self) -> gwent.messaging.card.Message:
         should_log = self.should_log()
 
@@ -48,7 +48,7 @@ class _BaseReader(gwent.game.GameComponent):
         if id is not None and s_details is not None:
             j_details = json.loads(s_details)
             card = gwent.messaging.card.Message.from_properties(j_details,
-                                                                rfid=id)
+                                                               rfid=id)
         if should_log or card is not None:
             self.log_time('read_card', start)
 
@@ -61,8 +61,8 @@ class _BaseReader(gwent.game.GameComponent):
 class _FakeReader(_BaseReader):
     flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
-        super().__init__(loop, log_verbose=log_verbose)
+    def __init__(self, log_verbose: bool = False):
+        super().__init__(log_verbose=log_verbose)
         self._log.debug({'flag_read_file': self.flag_read_file})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
@@ -86,27 +86,26 @@ class _FakeReader(_BaseReader):
 class _RealReader(_BaseReader):
     _rfid = None
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
-        super().__init__(loop, log_verbose=log_verbose)
+    def __init__(self, log_verbose: bool = False):
+        super().__init__(log_verbose=log_verbose)
+        self._setup_rfid(log_verbose)
 
-        def setup():
-            import mfrc522
+    def _setup_rfid(self, log_verbose):
+        import mfrc522
+        try:
+            # Try with both parameters
+            self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
+        except TypeError:
             try:
-                # Try with both parameters
-                self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
+                # Try with just log_verbose
+                self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose)
             except TypeError:
                 try:
-                    # Try with just log_verbose
-                    self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose)
+                    # Try with just pin_mode
+                    self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
                 except TypeError:
-                    try:
-                        # Try with just pin_mode
-                        self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
-                    except TypeError:
-                        # Fall back to no parameters
-                        self._rfid = mfrc522.SimpleMFRC522()
-
-        self._loop.run_in_executor(None, setup)
+                    # Fall back to no parameters
+                    self._rfid = mfrc522.SimpleMFRC522()
 
     def read_card_impl(self, should_log: bool) -> (int, str):
         id, header = self._read_card_header()
@@ -131,7 +130,7 @@ class _RealReader(_BaseReader):
         return e, blocks
 
     def read_sector(self, trailer: int = 11,
-                    blocks: [int] = (8, 9, 10)) -> (int, str):
+                   blocks: [int] = (8, 9, 10)) -> (int, str):
         id, text, _ = self._rfid.read(
             trailer=trailer, blocks=blocks, attempts=MAX_ATTEMPTS)
         if id:
@@ -222,8 +221,8 @@ class _BaseWriter(_BaseReader):
 class _FakeWriter(_BaseWriter, _FakeReader):
     flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, log_verbose: bool = False):
-        super().__init__(loop, log_verbose=log_verbose)
+    def __init__(self, log_verbose: bool = False):
+        super().__init__(log_verbose=log_verbose)
         self._log.debug({'flag_write_file': self.flag_write_file})
 
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
@@ -237,10 +236,6 @@ class _FakeWriter(_BaseWriter, _FakeReader):
 
 class RealWriter(_BaseWriter, _RealReader):
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
-        # import pydevd_pycharm
-        # pydevd_pycharm.settrace('192.168.1.143', port=31337,
-        #                         stdoutToServer=True, stderrToServer=True)
-
         id1, _ = self._write_card_header(card)
         if id1 is not None:
             id2, _ = self._write_card_body(card)
@@ -274,7 +269,7 @@ class RealWriter(_BaseWriter, _RealReader):
             card.body, sectors=card.body_sectors)
 
     def _write_str(self, text: str,
-                   sectors: [int] = ALL_SECTORS) -> (int, str):
+                  sectors: [int] = ALL_SECTORS) -> (int, str):
 
         id, _ = self._rfid.read_id(attempts=MAX_ATTEMPTS)
         if id is None:

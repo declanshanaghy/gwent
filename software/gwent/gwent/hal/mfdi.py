@@ -7,7 +7,7 @@ import gwent.messaging.base
 import gwent.messaging.choice
 
 
-class Presenter(gwent.game.GameComponent):
+class Presenter(gwent.game.BaseComponent):
     # Error properties
     _display_error = False
     _error = ''
@@ -88,7 +88,7 @@ class Presenter(gwent.game.GameComponent):
     def display_prompt(self):
         self._display_error = False
 
-    async def redraw(self):
+    def redraw(self):
         pass
 
     @property
@@ -99,7 +99,7 @@ class Presenter(gwent.game.GameComponent):
     def selected(self):
         return self._selected
 
-    async def select(self, delta: int, choice: gwent.messaging.choice.Message):
+    def select(self, delta: int, choice: gwent.messaging.choice.Message):
         self._selected_idx = 0
         self._selected = choice
         for choice2 in self.all_choices:
@@ -115,7 +115,7 @@ class Presenter(gwent.game.GameComponent):
             'id': choice.id,
             'text': choice.text,
         })
-        await self.redraw()
+        self.redraw()
 
     def is_selected(self, choice: gwent.messaging.choice.Message) -> bool:
         return self._selected is not None and self._selected.id == choice.id
@@ -127,11 +127,11 @@ class Presenter(gwent.game.GameComponent):
         return sel
 
 
-class Chooser(gwent.game.GameComponent):
-    async def choose(self, choices: List[gwent.messaging.choice.Message],
-                     selected_idx: int,
-                     select: Callable[
-                         [int, gwent.messaging.choice.Message], Any]) -> \
+class Chooser(gwent.game.BaseComponent):
+    def choose(self, choices: List[gwent.messaging.choice.Message],
+                    selected_idx: int,
+                    select: Callable[
+                        [int, gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
         raise NotImplementedError(f'{self.__class__.__name__} must implement '
-                                  f'await_choice')
+                                 f'choose')

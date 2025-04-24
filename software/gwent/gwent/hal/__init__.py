@@ -1,12 +1,13 @@
 import logging
 import random
-import asyncio
+import threading
 
 _REAL = None
-_lock = asyncio.Lock()
+_lock = threading.RLock()
 
-async def real_mode():
-    async with _lock:
+def real_mode():
+    global _REAL
+    with _lock:
         if _REAL is None:
             init()
     return _REAL

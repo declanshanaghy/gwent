@@ -5,16 +5,17 @@ import gwent.hal.sfx
 
 
 class SFX(gwent.game.PubSubComponent):
-    async def init(self):
-        self._tts = await gwent.hal.sfx.instance(self._loop)
-        await self.subscribe(gwent.game.CH_SFX,
-                             gwent.messaging.sfx.KIND,
-                             self.process_sfx)
+    def init(self):
+        self._tts = gwent.hal.sfx.instance()
+        self.subscribe(gwent.game.CH_SFX,
+                      gwent.messaging.sfx.KIND,
+                      self.process_sfx)
 
-    async def shutdown(self):
-        await self.unsubscribe(gwent.messaging.sfx.KIND)
+    def shutdown(self):
+        self.unsubscribe(gwent.game.CH_SFX)
+        super().shutdown()
 
-    async def process_sfx(self, sfx: gwent.messaging.sfx.Message):
+    def process_sfx(self, sfx: gwent.messaging.sfx.Message):
         self._log.info({
             'action': 'received sfx',
             'subkind': sfx.subkind,
@@ -22,11 +23,10 @@ class SFX(gwent.game.PubSubComponent):
         })
 
         if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
-            await self._tts.announce(sfx)
+            self._tts.announce(sfx)
         elif sfx.subkind == gwent.messaging.sfx.EFFECT:
-            await self._tts.play_effect(sfx)
+            self._tts.play_effect(sfx)
         elif sfx.subkind == gwent.messaging.sfx.MUSIC:
-            await self._tts.play_music(sfx)
+            self._tts.play_music(sfx)
         else:
             self._log.error(f'Unhandled subkind: {sfx.subkind}')
-

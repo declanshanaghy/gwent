@@ -1,5 +1,5 @@
-import asyncio
 import time
+import threading
 
 import gwent.cards
 import gwent.game
@@ -22,19 +22,20 @@ class Reader(gwent.game.PubSubComponent):
     _pause_until = None
     _pause_length = None
 
-    async def init(self):
+    def init(self):
         self._read_enabled = False
-        self._rfid = await gwent.hal.rfid.instance(self._loop)
+        self._rfid = gwent.hal.rfid.instance()
+        
+        self.subscribe(gwent.game.CH_CTRL,
+                      gwent.messaging.ctrl.KIND,
+                      self.process_ctrl)
 
-        await self.subscribe(gwent.game.CH_CTRL,
-                             gwent.messaging.ctrl.KIND,
-                             self.process_ctrl)
-
-    async def shutdown(self):
+    def shutdown(self):
         self._read_enabled = False
-        await self.unsubscribe(gwent.game.CH_CTRL)
+        self.unsubscribe(gwent.game.CH_CTRL)
+        super().shutdown()
 
-    async def process_ctrl(self, ctrl: gwent.messaging.ctrl.Message):
+    def process_ctrl(self, ctrl: gwent.messaging.ctrl.Message):
         self._log.info({
             'action': 'received ctrl',
             'kind': ctrl.kind,
@@ -51,7 +52,7 @@ class Reader(gwent.game.PubSubComponent):
                     'read_enabled': self._read_enabled,
                 })
         else:
-            self._log._error(f'Unhandled subkind {ctrl.subkind}')
+            self._log.error(f'Unhandled subkind {ctrl.subkind}')
 
     def pause_reading(self):
         self._pause_until = time.time() + self.pause_length
@@ -90,16 +91,16 @@ class Reader(gwent.game.PubSubComponent):
         })
         self._read_enabled = v
 
-    async def run(self):
-        while True:
+    def run(self):
+        while not self._stop_event.is_set():
             if self.should_read:
-                card = await self._loop.run_in_executor(
-                    None, self._rfid.read_card)
+                # Read card in the current thread
+                card = self._rfid.read_card()
 
                 if card is not None:
-                    await self.publish_effect(
+                    self.publish_effect(
                         gwent.messaging.sfx.EFFECT_CARD_READ)
-                    await self.publish(gwent.game.CH_CARDS_RAW_READ, card)
+                    self.publish(gwent.game.CH_CARDS_RAW_READ, card)
                     self.pause_reading()
 
-            await asyncio.sleep(gwent.game.DEFAULT_YIELD_TIME)
+            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
