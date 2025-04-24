@@ -1,352 +1,285 @@
-#!/usr/bin/env python3
-
-"""
-Main Module for Gwent
-This module provides the entry point for the Gwent game.
-"""
-
-from __future__ import annotations
-
-import sys
-import time
+import logging
 import signal
-import platform
 import threading
-import os
-from typing import Optional, Any, Dict, List, Union, Callable, Type, TypeVar, cast
+import time
+import queue
+from typing import List
 
-# Import the logging module
-from ..utils.logging import get_logger, INFO, DEBUG, WARNING, ERROR, VERBOSE, configure_logging
+import paho.mqtt.client as mqtt
 
-# Get a logger for this module
-logger = get_logger("gwent.game.main")
+import gwent.log
+import gwent.game.cards
+import gwent.game.controller
+import gwent.game.mfd
+import gwent.game.player
+import gwent.game.sfx
+import gwent.hal
 
-# Create a global variable to store the active game instance
-active_game_instance = None
 
-# Import the menu system
-from ..logical.menu import MenuSystem, MenuItem, load_menu_from_json
-# Import the audio manager
-from ..logical.audio_manager import AudioStateManager, audio_state, is_audio_enabled
-
-# Determine if running on a Raspberry Pi
-def is_raspberry_pi() -> bool:
-    try:
-        with open('/proc/device-tree/model', 'r') as f:
-            model = f.read()
-            return 'Raspberry Pi' in model
-    except Exception as e:
-        logger.warning(f"Failed to check Raspberry Pi hardware: {e}")
-        return False
-
-# Ensure running on a Raspberry Pi if required
-def ensure_raspberry_pi() -> None:
-    if not is_raspberry_pi():
-        logger.error("This application must run on Raspberry Pi hardware")
-        sys.exit(1)
-    logger.info("Verified Raspberry Pi hardware")
-
-# Verify we're running on Raspberry Pi hardware if not in development mode
-if os.environ.get('GWENT_DEV_MODE') != '1':
-    ensure_raspberry_pi()
-else:
-    logger.info("Running in development mode - skipping Raspberry Pi hardware check")
-
-# Import the appropriate hardware implementations
-if is_raspberry_pi():
-    logger.info("Running on Raspberry Pi - using hardware implementations")
-    from ..hal.display import OLEDDisplay
-    from ..hal.audio import AudioPlayer
-    from ..hal.rotary import RotaryEncoder
-else:
-    logger.info("Not running on Raspberry Pi - using mock implementations")
-    try:
-        from ..hal.display_mock import MockOLEDDisplay as OLEDDisplay
-        from ..hal.audio_mock import MockAudioPlayer as AudioPlayer
-        from ..hal.rotary_mock import MockRotaryEncoder as RotaryEncoder
-        logger.info("Successfully loaded mock implementations")
-    except ImportError as e:
-        logger.warning(f"Failed to import mock implementations: {e}")
-        logger.warning("Falling back to real implementations, but they may not work properly")
-        from ..hal.display import OLEDDisplay
-        from ..hal.audio import AudioPlayer
-        from ..hal.rotary import RotaryEncoder
-
-class GwentGame:
-    """
-    Main class for the Gwent game.
-    """
+class MQTTClient:
+    """Thread-safe MQTT client wrapper"""
     
-    def __init__(self) -> None:
-        """
-        Initialize the Gwent game.
-        """
-        self.running = False
-        self.menu_active = True  # Start with menu active by default
+    def __init__(self, host='localhost', username=None, password=None):
+        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._client = mqtt.Client()
+        self._host = host
+        self._username = username
+        self._password = password
+        self._connected = threading.Event()
+        self._lock = threading.RLock()
+        self._subscriptions = {}
         
-        # Initialize hardware components
-        self.init_hardware()
+        # Set up callbacks
+        self._client.on_connect = self._on_connect
+        self._client.on_disconnect = self._on_disconnect
+        self._client.on_message = self._on_message
         
-        # Set up signal handlers for graceful shutdown
-        signal.signal(signal.SIGINT, self.signal_handler)
-        signal.signal(signal.SIGTERM, self.signal_handler)
+        if username and password:
+            self._client.username_pw_set(username, password)
     
-    def init_hardware(self) -> None:
-        """
-        Initialize hardware components.
-        """
-        try:
-            # Initialize OLED display
-            self.display = OLEDDisplay()
-            logger.info("OLED display initialized successfully")
+    def _on_connect(self, client, userdata, flags, rc):
+        self._log.info(f"Connected to MQTT broker with result code {rc}")
+        self._connected.set()
+        
+        # Resubscribe to topics on reconnect
+        with self._lock:
+            for topic, callbacks in self._subscriptions.items():
+                self._client.subscribe(topic)
+    
+    def _on_disconnect(self, client, userdata, rc):
+        self._log.info(f"Disconnected from MQTT broker with result code {rc}")
+        self._connected.clear()
+    
+    def _on_message(self, client, userdata, msg):
+        topic = msg.topic
+        payload = msg.payload.decode()
+        
+        self._log.debug({
+            'action': 'received raw message',
+            'topic': topic,
+            'message': payload,
+        })
+        
+        # Find matching subscriptions and call callbacks
+        with self._lock:
+            for sub_topic, callbacks in self._subscriptions.items():
+                if mqtt.topic_matches_sub(sub_topic, topic):
+                    for callback in callbacks:
+                        try:
+                            callback(topic, payload)
+                        except Exception as e:
+                            self._log.error(f"Error in callback: {e}")
+    
+    def connect(self):
+        """Connect to the MQTT broker"""
+        self._log.info(f"Connecting to MQTT broker at {self._host}")
+        self._client.connect_async(self._host)
+        self._client.loop_start()
+        return self._connected.wait(timeout=5)
+    
+    def disconnect(self):
+        """Disconnect from the MQTT broker"""
+        self._log.info("Disconnecting from MQTT broker")
+        self._client.loop_stop()
+        self._client.disconnect()
+        return self._connected.wait_for(lambda: not self._connected.is_set(), timeout=5)
+    
+    def subscribe(self, topic, callback):
+        """Subscribe to a topic with a callback"""
+        with self._lock:
+            if topic not in self._subscriptions:
+                self._subscriptions[topic] = []
+                self._client.subscribe(topic)
             
-            # Initialize audio state manager
-            audio_state.initialize()
+            self._subscriptions[topic].append(callback)
             
-            # Initialize rotary encoder with callbacks
-            self.rotary = RotaryEncoder(
-                rotation_callback=self.on_rotation,
-                button_callback=self.on_button
-            )
-            self.rotary.start_monitoring()
-            logger.info("Rotary encoder initialized successfully")
-            
-            # Load menu from JSON
-            module_dir = os.path.dirname(os.path.abspath(__file__))
-            json_path = os.path.join(module_dir, "../logical/menu.json")
-            
-            if os.path.exists(json_path):
-                # Load menus from JSON
-                self.menu_systems = load_menu_from_json(json_path, self.display, None)
-                self.root_menu = self.menu_systems.get('root')
-                
-                # Configure the root menu to hide datetime
-                if self.root_menu:
-                    self.root_menu.set_datetime_display(
-                        show=False,
-                        format_str="%Y-%m-%d %H:%M:%S",
-                        font_size=10,
-                        x=0,
-                        y=0
-                    )
-                    
-                    # Set the active menu to the root menu
-                    self.menu_system = self.root_menu
-                    logger.info("Menu system initialized successfully from JSON")
+        self._log.info({
+            'action': 'subscribe',
+            'topic': topic,
+        })
+    
+    def unsubscribe(self, topic, callback=None):
+        """Unsubscribe from a topic"""
+        with self._lock:
+            if topic in self._subscriptions:
+                if callback:
+                    self._subscriptions[topic].remove(callback)
+                    if not self._subscriptions[topic]:
+                        del self._subscriptions[topic]
+                        self._client.unsubscribe(topic)
                 else:
-                    logger.error("Failed to load root menu from JSON")
-                    sys.exit(1)
-            else:
-                logger.error(f"Menu JSON file not found: {json_path}")
-                sys.exit(1)
-        except Exception as e:
-            logger.error(f"Error initializing hardware: {e}")
-            sys.exit(1)
+                    del self._subscriptions[topic]
+                    self._client.unsubscribe(topic)
+        
+        self._log.info({
+            'action': 'unsubscribe',
+            'topic': topic,
+        })
     
-    def on_rotation(self, direction: int) -> None:
-        """
-        Callback for rotary encoder rotation events.
-        
-        Args:
-            direction (int): 1 for clockwise, -1 for counter-clockwise
-        """
-        direction_text = "clockwise" if direction > 0 else "counter-clockwise"
-        logger.debug(f"Rotary event: Dial turned {direction_text}")
-        
-        # If menu is active, pass the event to the active menu system
-        if self.menu_active and hasattr(self, 'menu_system'):
-            # Get the current active menu system
-            current_menu = self.menu_system
-            
-            # Send rotation event to the current menu
-            current_menu.on_rotation(direction)
-            
-            # Log the current menu for debugging
-            logger.debug(f"Rotation event sent to menu: {current_menu.title}")
+    def publish(self, topic, payload, qos=1):
+        """Publish a message to a topic"""
+        self._log.info({
+            'action': 'publish',
+            'topic': topic,
+            'payload': payload,
+        })
+        self._client.publish(topic, payload, qos=qos)
+
+
+class ThreadComponent:
+    """Base class for threaded components"""
     
-    def on_button(self, state: int) -> None:
-        """
-        Callback for rotary encoder button events.
-        
-        Args:
-            state (int): 1 for pressed, 0 for released
-        """
-        state_text = "pressed" if state == 1 else "released"
-        logger.debug(f"Rotary event: Button {state_text}")
-        
-        # Toggle menu on long press (only on button release)
-        if state == 0:
-            # If menu is active, pass the event to the active menu system
-            if self.menu_active and hasattr(self, 'menu_system'):
-                # Get the current active menu system
-                current_menu = self.menu_system
-                
-                # Send button events to the current menu
-                current_menu.on_button(1)  # Send press event
-                time.sleep(0.1)
-                current_menu.on_button(0)  # Send release event
-                
-                # Log the current menu for debugging
-                logger.debug(f"Button event sent to menu: {current_menu.title}")
-            else:
-                # Toggle menu on button press
-                self.toggle_menu()
+    def __init__(self, pubsub: MQTTClient):
+        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._pubsub = pubsub
+        self._thread = None
+        self._stop_event = threading.Event()
+        self._initialized = threading.Event()
     
-    def toggle_menu(self) -> None:
-        """
-        Toggle the menu display on/off.
-        """
-        self.menu_active = not self.menu_active
-        
-        if self.menu_active:
-            # Stop any existing datetime display thread before starting the menu
-            if hasattr(self.display, 'stop_datetime_display'):
-                self.display.stop_datetime_display()
-                
-            # Start the root menu system
-            if hasattr(self, 'root_menu') and self.root_menu:
-                self.root_menu.start()
-                # Set the active menu to the root menu
-                self.menu_system = self.root_menu
-                logger.info("Menu system activated")
-        else:
-            # Stop the menu system and restore the main display
-            self.menu_system.stop()
-            self.update_main_display()
-            logger.info("Menu system deactivated")
+    def init(self):
+        """Initialize the component"""
+        self._log.info("Initializing component")
+        self._initialized.set()
     
-    def update_main_display(self) -> None:
-        """
-        Update the main display (non-menu mode).
-        """
-        # Clear the display
-        self.display.clear()
+    def start(self):
+        """Start the component in a new thread"""
+        if self._thread is not None and self._thread.is_alive():
+            self._log.warning("Component already running")
+            return
         
-        # Display HELLO WORLD at the top
-        self.display.display_text("HELLO WORLD", y=10, font_size=12)
-        
-        # No menu hint needed since we start with the menu active
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run)
+        self._thread.daemon = True
+        self._thread.start()
     
-    def run(self) -> None:
-        """
-        Run the Gwent game.
-        """
-        self.running = True
-        
-        # Start with the menu active instead of showing the welcome message
-        if self.menu_active and hasattr(self, 'root_menu') and self.root_menu:
-            self.root_menu.start()
-            logger.info("Menu system started automatically")
-        
-        # Check if audio is enabled
-        audio_enabled = is_audio_enabled()
-        
-        # Play startup music if audio is enabled
-        if audio_enabled:
-            self.play_background_music()
-        else:
-            logger.info("Audio playback disabled")
-        
-        # Main loop
+    def _run(self):
+        """Main thread function"""
+        self._log.info("Component started")
         try:
-            while self.running:
-                # Check if audio state has changed
-                current_audio_enabled = is_audio_enabled()
-                if current_audio_enabled != audio_enabled:
-                    audio_enabled = current_audio_enabled
-                    self.update_audio_state()
-                
+            self.run()
+        except Exception as e:
+            self._log.error(f"Error in component thread: {e}")
+        finally:
+            self._log.info("Component stopped")
+    
+    def run(self):
+        """Override this method in subclasses"""
+        while not self._stop_event.is_set():
+            time.sleep(0.1)
+    
+    def shutdown(self):
+        """Shutdown the component"""
+        self._log.info("Shutting down component")
+        self._stop_event.set()
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=2)
+            if self._thread.is_alive():
+                self._log.warning("Component thread did not terminate gracefully")
+
+
+class Gwent:
+    """Main Gwent application class"""
+    
+    def __init__(self):
+        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self.pubsub = None
+        self.components = None
+        self._stop_event = threading.Event()
+    
+    def close_pubsub(self):
+        """Close the MQTT connection"""
+        if self.pubsub:
+            self._log.info('Closing pubsub')
+            self.pubsub.disconnect()
+    
+    def shutdown_components(self):
+        """Shutdown all components"""
+        if self.components:
+            self._log.info('Shutting down components')
+            for component in self.components:
+                component.shutdown()
+    
+    def shutdown(self):
+        """Shutdown the application"""
+        self._log.info('Shutting down application')
+        self.shutdown_components()
+        self.close_pubsub()
+        self._stop_event.set()
+    
+    def signal_handler(self, signum, frame):
+        """Handle termination signals"""
+        sig_name = signal.Signals(signum).name
+        self._log.info(f'Received exit signal {sig_name}...')
+        self.shutdown()
+    
+    def setup_signal_handlers(self):
+        """Setup signal handlers for graceful exit"""
+        for sig in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
+                   signal.SIGQUIT, signal.SIGTERM):
+            signal.signal(sig, self.signal_handler)
+    
+    def create_components(self):
+        """Create all application components"""
+        self._log.info('Creating components')
+        
+        # Create component adapters
+        controller = gwent.game.controller.Controller(self.pubsub)
+        player1 = gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub)
+        player2 = gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub)
+        reader = gwent.game.cards.Reader(self.pubsub)
+        mfd = gwent.game.mfd.MFD(self.pubsub)
+        sfx = gwent.game.sfx.SFX(self.pubsub)
+        
+        self.components = [controller, player1, player2, reader, mfd, sfx]
+    
+    def initialize_components(self):
+        """Initialize all components"""
+        self._log.info('Initializing components')
+        for component in self.components:
+            component.init()
+    
+    def start_components(self):
+        """Start all components"""
+        self._log.info('Starting components')
+        for component in self.components:
+            component.start()
+    
+    def run(self):
+        """Run the application"""
+        self._log.info('Starting Gwent application')
+        
+        # Setup signal handlers
+        self.setup_signal_handlers()
+        
+        # Connect to MQTT broker
+        self.pubsub = MQTTClient('localhost', username='geralt', password='gwent')
+        if not self.pubsub.connect():
+            self._log.error('Failed to connect to MQTT broker')
+            return
+        
+        # Create and start components
+        self.create_components()
+        self.initialize_components()
+        self.start_components()
+        
+        # Wait for shutdown signal
+        try:
+            while not self._stop_event.is_set():
                 time.sleep(0.1)
         except KeyboardInterrupt:
+            self._log.info('Keyboard interrupt received')
+        finally:
             self.shutdown()
-    
-    def shutdown(self) -> None:
-        """
-        Shut down the Gwent game.
-        """
-        self.running = False
-        
-        # Stop all menu systems
-        if hasattr(self, 'menu_systems'):
-            for menu_name, menu in self.menu_systems.items():
-                menu.stop()
-        
-        # Ensure datetime display is stopped
-        if hasattr(self.display, 'stop_datetime_display'):
-            self.display.stop_datetime_display()
-        
-        # Clean up hardware
-        self.display.cleanup()
-        audio_state.cleanup()
-        self.rotary.cleanup()
-        
-        logger.info("Gwent game shut down")
-        sys.exit(0)
-    
-    def play_background_music(self) -> None:
-        """
-        Play background music if audio is enabled.
-        """
-        # Try multiple approaches to find the music file
-        music_file = "music1.mp3"
-        
-        # First try: direct path from the module directory
-        music_path = os.path.join(os.path.dirname(os.path.dirname(__file__)),
-                                 "hal", "music", music_file)
-        
-        if not os.path.exists(music_path):
-            logger.warning(f"Music file not found at {music_path}, trying alternative paths")
-            
-            # Second try: try to find it relative to the current directory
-            music_path = os.path.join("gwent", "hal", "music", music_file)
-            
-            if not os.path.exists(music_path):
-                logger.warning(f"Music file not found at {music_path}, trying another path")
-                
-                # Third try: try to find it in the package directory
-                import gwent
-                package_dir = os.path.dirname(os.path.dirname(gwent.__file__))
-                music_path = os.path.join(package_dir, "gwent", "hal", "music", music_file)
-                
-                if not os.path.exists(music_path):
-                    logger.error(f"Music file not found at any location: {music_file}")
-                    return
-        
-        logger.info(f"Found music file at: {music_path}")
-        audio_state.play_music(music_path, volume=0.7, loop=True)
-        logger.info("Audio playback started")
-    
-    def update_audio_state(self) -> None:
-        """
-        Update audio playback based on the current audio enabled state.
-        """
-        # Get the current audio state from the AudioStateManager
-        audio_enabled = is_audio_enabled()
-        
-        if audio_enabled:
-            self.play_background_music()
-        else:
-            audio_state.stop_music()
-            logger.info("Audio playback stopped")
-    
-    def signal_handler(self, sig: int, frame: Any) -> None:
-        """
-        Handle signals for graceful shutdown.
-        """
-        self.shutdown()
 
-def main() -> None:
-    """
-    Main entry point for the Gwent game.
-    """
-    global active_game_instance
-    
-    # Configure logging at the application entry point
-    configure_logging()
-    logger.info("Starting Gwent Companion...")
-    game = GwentGame()
-    active_game_instance = game
-    game.run()
 
-if __name__ == "__main__":
-    main()
+def run():
+    """Run the Gwent application"""
+    gwent.log.setup(level='debug')
+    try:
+        Gwent().run()
+    except Exception as ex:
+        logging.error(f"Error running Gwent: {ex}")
+
+
+if __name__ == '__main__':
+    run()

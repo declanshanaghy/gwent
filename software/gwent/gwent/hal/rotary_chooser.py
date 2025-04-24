@@ -1,91 +1,17 @@
-import time
-import threading
-from typing import Any, Callable, List, Optional, Tuple
+#!/usr/bin/env python3
 
-import gwent.hal.mfdi
+import time
+from enum import Enum, auto
+
 import gwent.game
-import gwent.messaging.choice
 from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 from gwent.hal.rotary_gpiozero import GwentGPIOZeroRotaryEncoder, GPIOZeroSwitch
-from enum import Enum, auto
+
 
 class RotaryImplementation(Enum):
     """Enum to specify which rotary encoder implementation to use"""
     DIRECT_GPIO = auto()
     GPIOZERO = auto()
-
-
-class RotaryChooser(gwent.hal.mfdi.Chooser):
-    def __init__(self, implementation=RotaryImplementation.DIRECT_GPIO,
-                log_verbose: bool = False):
-        """
-        Initialize the rotary chooser.
-        
-        Args:
-            implementation: Which rotary encoder implementation to use
-            log_verbose: Whether to enable verbose logging
-        """
-        super().__init__(log_verbose=log_verbose)
-        self.rotary = RotaryEncoder(implementation=implementation, log_verbose=log_verbose)
-        self._stop_event = threading.Event()
-        self._choice = None
-        self._choices = None
-        self._select_callback = None
-
-    def choose(self, choices: List[gwent.messaging.choice.Message],
-                    selected_idx: int,
-                    select: Callable[
-                        [int, gwent.messaging.choice.Message], Any]) -> \
-            gwent.messaging.choice.Message:
-        self.rotary.start()
-        
-        self._stop_event.clear()
-        self._choices = choices
-        self._select_callback = select
-        
-        # Start with the selected choice
-        choice = choices[selected_idx]
-        
-        # Create a thread to monitor the rotary encoder
-        monitor_thread = threading.Thread(target=self._monitor_rotary, 
-                                         args=(choices, selected_idx, select))
-        monitor_thread.daemon = True
-        monitor_thread.start()
-        
-        # Wait for a selection to be made
-        while not self._stop_event.is_set():
-            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
-            
-        monitor_thread.join(timeout=1.0)
-        return self._choice
-
-    def _monitor_rotary(self, choices, selected_idx, select):
-        choice = choices[selected_idx]
-        self._choice = choice
-        
-        while not self._stop_event.is_set():
-            delta, count, sw_changed, sw_state = self.rotary.loop()
-            
-            if delta != 0:
-                idx = count % len(choices)
-                choice = choices[idx]
-                self._choice = choice
-                self._log.debug({
-                    'action': 'select',
-                    'delta': delta,
-                    'count': count,
-                    'len(choices)': len(choices),
-                    'idx': idx,
-                    'choice.id': choice.id,
-                    'choice.text': choice.text,
-                })
-                select(delta, choice)
-
-            if sw_changed and not sw_state:  # Release click
-                self._stop_event.set()
-                return
-                
-            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
 
 
 class RotaryEncoder(gwent.game.BaseComponent):
@@ -173,4 +99,34 @@ class RotaryEncoder(gwent.game.BaseComponent):
         return self._delta, self._counter, self._sw_changed, self._sw_state
 
 
-# No mocks in production code as per development guidelines
+# Simple test code when run directly
+if __name__ == "__main__":
+    # BCM pin numbers (not Wiring pin numbers)
+    A_PIN = 23  # GPIO23
+    B_PIN = 24  # GPIO24
+    SW_PIN = 25  # GPIO25
+
+    encoder = DirectGPIORotaryEncoder(A_PIN, B_PIN)
+    encoder.start()
+
+    sw = DirectGPIOSwitch(SW_PIN)
+    last_state = sw.get_state()
+
+    counter = 0
+
+    try:
+        print("Rotary encoder test running. Press Ctrl+C to exit.")
+        while True:
+            delta = encoder.get_cycles()
+            if delta != 0:
+                counter += delta
+                print("count is %d" % counter)
+            else:
+                time.sleep(0.1)
+
+            state = sw.get_state()
+            if state != last_state:
+                print("switch %d" % state)
+                last_state = state
+    except KeyboardInterrupt:
+        print("\nExiting rotary encoder test...")
