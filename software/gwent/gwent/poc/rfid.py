@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple test script for RFID card scanning using the MFRC522 module.
+Simple test script for RFID card scanning using the gwent.hal.rfid module.
 This script will continuously scan for RFID cards and print the ID and text content
 when a card is detected.
 """
@@ -9,8 +9,9 @@ import time
 import signal
 import sys
 import os
+import asyncio
 import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
+from gwent.hal.rfid import RealWriter
 
 # Global variables
 reader = None
@@ -49,8 +50,9 @@ def run():
         GPIO.setwarnings(False)
         GPIO.setmode(GPIO.BCM)
         
-        # Initialize the RFID reader
-        reader = SimpleMFRC522()
+        # Initialize the RFID reader using RealWriter from gwent.hal.rfid
+        loop = asyncio.new_event_loop()
+        reader = RealWriter(loop, log_verbose=False)
         gpio_initialized = True
         
         print("RFID reader initialized successfully")
@@ -58,21 +60,54 @@ def run():
         print("Press Ctrl+C to exit")
         print("Waiting for cards...")
         
+        # Print ready message before read attempt
+        print("\n>>> Ready to read card. Please place card on reader... <<<")
+                
         # Main loop
         while running:
             try:
-                # Read card
-                id, text = reader.read()
+                # Read card using the read_card method
+                card = reader.read_card()
                 
-                # Print the results
-                print("-" * 50)
-                print(f"Card detected!")
-                print(f"ID: {id}")
-                print(f"Text: {text.strip()}")
-                print("-" * 50)
+                if card is not None:
+                    # Print the results
+                    print("-" * 50)
+                    print(f"Card detected!")
+                    print(f"ID: {card.rfid}")
+                    
+                    # Safely access properties with error handling
+                    try:
+                        print(f"Name: {card.name}")
+                    except (AttributeError, KeyError):
+                        print("Name: N/A")
+                        
+                    try:
+                        print(f"Faction: {card.faction}")
+                    except (AttributeError, KeyError):
+                        print("Faction: N/A")
+                    
+                    # Print additional properties if they exist
+                    try:
+                        print(f"Strength: {card.strength}")
+                    except (AttributeError, KeyError):
+                        pass
+                    
+                    try:
+                        if card.has_specialty:
+                            print(f"Specialty: {card.specialty}")
+                    except (AttributeError, KeyError):
+                        pass
+                    
+                    try:
+                        if card.has_abilities:
+                            print(f"Abilities: {card.abilities}")
+                    except (AttributeError, KeyError):
+                        pass
+                    
+                    print("-" * 50)
                 
                 # Wait a bit before scanning again
-                time.sleep(1)
+                time.sleep(.5)
                 
             except Exception as e:
                 print(f"Error reading card: {e}")
@@ -88,10 +123,10 @@ def run():
         running = False
         sys.exit(1)
     finally:
-        if reader:
+        if reader and hasattr(reader, '_rfid') and hasattr(reader._rfid, '_mfrc522'):
             # Ensure the reader is properly closed
             try:
-                reader._mfrc522.Close_MFRC522()
+                reader._rfid._mfrc522.Close_MFRC522()
             except:
                 pass
         if gpio_initialized:
