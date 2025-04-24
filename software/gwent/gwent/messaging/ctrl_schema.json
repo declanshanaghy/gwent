@@ -1,0 +1,40 @@
+{
+  "id": "https://gwent.shanaghy.com/sfx.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Sound effects message",
+  "type": "object",
+  "required": [
+    "subkind"
+  ],
+  "properties": {
+    "subkind": {
+      "description": "Indicates the content of this message",
+      "type": "string",
+      "enum": [
+        "stage"
+      ]
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/definitions/Stage" }
+  ],
+  "definitions": {
+    "Stage": {
+      "type": "object",
+      "required": ["stage", "active"],
+      "properties": {
+        "stage": {
+          "type": "string",
+          "enum": [
+            "MainMenu",
+            "RegisterLeaders",
+            "RegisterDecks"
+          ]
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}
