@@ -20,40 +20,29 @@ from PIL import ImageFont
 """
 
 
-class SSD1325Presenter(gwent.hal.mfdi.Presenter):
+class SSD1306Presenter(gwent.hal.mfdi.Presenter):
     def __init__(self, loop: asyncio.AbstractEventLoop,
-                 log_verbose: bool = False):
+                 log_verbose: bool = False, device=0, port=0):
         super().__init__(loop, log_verbose=log_verbose)
 
-        # Use noop for GPIO to avoid conflicts
-        self._log.info("Initializing SSD1325Presenter")
-        try:
-            # Try with SPI - use device 0 with port 0 (port 1 not available on this Pi)
-            self._log.info("Attempting to initialize SPI interface with device=0, port=0")
-            self.interface = spi(device=0, port=0, gpio=noop())
-            self._log.info("SPI interface initialized successfully")
-            
-            self._log.info("Loading font pixelmix.ttf")
-            self.font = self.make_font("pixelmix.ttf", 8)
-            self._log.info("Font loaded successfully")
-            
-            self._log.info("Initializing SSD1306 device")
-            self.device = ssd1306(self.interface)
-            self._log.info("SSD1306 device initialized successfully")
-            
-            self._log.info("Creating terminal")
-            self.term = terminal(self.device, self.font, animate=False)
-            self._log.info("Terminal created successfully")
-            
-            self._log.info("SSD1325Presenter initialization complete")
-        except Exception as e:
-            self._log.error(f"Error initializing SPI: {e}")
-            # Fall back to a dummy implementation
-            self.interface = None
-            self.font = None
-            self.device = None
-            self.term = None
-            self._log.error("Using dummy implementation due to initialization failure")
+        self._log.info("Initializing SSD1306Presenter")
+        self._log.info(f"Attempting to initialize SPI interface with device={device}, port={port}")
+        self.interface = spi(device=device, port=port, gpio=noop())
+        self._log.info("SPI interface initialized successfully")
+        
+        self._log.info("Initializing SSD1306 device")
+        self.device = ssd1306(self.interface)
+        self._log.info("SSD1306 device initialized successfully")
+        
+        self._log.info("Loading font pixelmix.ttf")
+        self.font = self.make_font("pixelmix.ttf", 8)
+        self._log.info("Font loaded successfully")
+        
+        self._log.info("Creating terminal")
+        self.term = terminal(self.device, self.font, animate=False)
+        self._log.info("Terminal created successfully")
+        
+        self._log.info("SSD1306Presenter initialization complete")
 
     @staticmethod
     def make_font(name, size):

@@ -15,8 +15,8 @@ import gwent.messaging.choice
 
 async def instance(loop: asyncio.AbstractEventLoop):
     if await gwent.hal.real_mode():
-        presenter = gwent.hal.oled_ssd1306.SSD1325Presenter(loop)
-        # presenter = gwent.hal.console.ConsolePresenter(loop)
+        # Use device=1, port=0 as seen in the working POC demo
+        presenter = gwent.hal.oled_ssd1306.SSD1306Presenter(loop, device=1, port=0)
         chooser = gwent.hal.rotary.RotaryChooser(loop)
     else:
         presenter = gwent.hal.console.ConsolePresenter(loop)

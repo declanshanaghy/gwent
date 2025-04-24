@@ -49,7 +49,7 @@ ssd1305: rsync
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_pillow_demo"
 
 ssd1305-luma: rsync
-	@echo "Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
+	@echo "-Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_luma_demo"
 
 test-displays: rsync
