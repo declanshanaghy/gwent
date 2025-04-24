@@ -10,7 +10,7 @@ import gwent.game
 import gwent.hal.mfd
 
 
-class MFD(gwent.game.PubSubComponent):
+class MFD(gwent.game.ThreadComponent):
     def __init__(self, pubsub):
         super().__init__(pubsub)
         self._chooser_thread = None
@@ -18,6 +18,7 @@ class MFD(gwent.game.PubSubComponent):
         self._chooser_stop_event = threading.Event()
 
     def init(self):
+        super().init()
         self._mfd = gwent.hal.mfd.instance()
         self.subscribe(gwent.game.CH_MFD_PRESENT,
                       gwent.messaging.mfd.KIND,

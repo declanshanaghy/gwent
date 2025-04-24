@@ -18,11 +18,12 @@ READING_STAGES = {
 }
 
 
-class Reader(gwent.game.PubSubComponent):
+class Reader(gwent.game.ThreadComponent):
     _pause_until = None
     _pause_length = None
 
     def init(self):
+        super().init()
         self._read_enabled = False
         self._rfid = gwent.hal.rfid.instance()
         

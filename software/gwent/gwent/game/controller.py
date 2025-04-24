@@ -18,7 +18,7 @@ PLAYER_ONE = "player1"
 PLAYER_TWO = "player2"
 
 
-class Controller(gwent.game.PubSubComponent):
+class Controller(gwent.game.ThreadComponent):
     active_stage = None
     register_leaders = None
     register_decks = None
@@ -30,6 +30,7 @@ class Controller(gwent.game.PubSubComponent):
         self.register_decks = gwent.game.stages.all.RegisterDecks(self._pubsub)
 
     def init(self):
+        super().init()
         self.subscribe(gwent.game.CH_CARDS_RAW_READ,
                        gwent.messaging.card.KIND,
                        self.process_card)

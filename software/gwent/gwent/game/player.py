@@ -5,7 +5,7 @@ import gwent.messaging.sfx
 import gwent.hal.matrix
 
 
-class Player(gwent.game.PubSubComponent):
+class Player(gwent.game.ThreadComponent):
 
     def __init__(self, player: str, pubsub):
         super().__init__(pubsub)
@@ -14,6 +14,7 @@ class Player(gwent.game.PubSubComponent):
             gwent.game.CH_CARDS_PLAY, self._player)
 
     def init(self):
+        super().init()
         self._matrix = gwent.hal.matrix.instance()
         self.subscribe(self._channel, gwent.messaging.card_play.KIND,
                       self.process_card_play)

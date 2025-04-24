@@ -4,8 +4,9 @@ import gwent.messaging.sfx
 import gwent.hal.sfx
 
 
-class SFX(gwent.game.PubSubComponent):
+class SFX(gwent.game.ThreadComponent):
     def init(self):
+        super().init()
         self._tts = gwent.hal.sfx.instance()
         self.subscribe(gwent.game.CH_SFX,
                       gwent.messaging.sfx.KIND,
