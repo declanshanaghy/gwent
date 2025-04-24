@@ -45,9 +45,6 @@ setuptools.setup(
         'mfrc522', # RFID Reader
         'RPi.GPIO>=0.7.0',  # GPIO library for Raspberry Pi. Not using rpi-lgpio
         'pigpio>=1.78',  # Advanced GPIO library for Raspberry Pi
-        ## Audio
-        # pygame is installed via apt-get on Raspberry Pi
-        # 'pygame==2.1.2',
     ],
     entry_points={
         'console_scripts': [
@@ -55,7 +52,8 @@ setuptools.setup(
             'novigrad=gwent.novigrad.server:run',
             'rotary_gpiozero=gwent.poc.rotary_gpiozero:run',
             'rotary_rpigpio=gwent.poc.rotary_rpigpio:run',
-            'rfid=gwent.poc.rfid:run'
+            'rfid=gwent.poc.rfid:run',
+            'test_displays=gwent.poc.test_displays:run'
         ],
     }
 )
