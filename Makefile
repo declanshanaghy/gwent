@@ -20,14 +20,34 @@ install-app: rsync
 	@echo "Install to $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install-app.sh
 
+install-system: rsync
+	@echo "Install to $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install-system.sh
+
 update-service: rsync
 	@echo "Update service $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/update-service.sh
 
-rotary-rawgpio: rsync
-	@echo "Running rotary_rawgpio entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && python -m gwent.poc.rotary_rawgpio"
+rotary-rpigpio: rsync
+	@echo "Running rotary_rpigpio entry point on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary_rpigpio"
 
 rotary-gpiozero: rsync
 	@echo "Running rotary_gpiozero entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && cd ${DEPLOY_DIR}/software/gwent && python -m gwent.poc.rotary_gpiozero"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary_gpiozero"
+
+rfid: rsync
+	@echo "Running RFID scanner on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rfid"
+
+ssd1306: rsync
+	@echo "Running SSD1306 OLED display test on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1306_luma_simpletest"
+
+ssd1305: rsync
+	@echo "Running SSD1305 OLED Pillow demo on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_pillow_demo"
+
+ssd1305-luma: rsync
+	@echo "Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_luma_demo"

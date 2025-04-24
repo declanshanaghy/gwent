@@ -9,13 +9,9 @@ source ${VENV_DIR}/bin/activate
 
 ROOT="${DIR}/../software"
 
-# Install MFRC522-python from GitHub if not already installed
-if ! pip3 show mfrc522 > /dev/null 2>&1; then
-    echo "Installing MFRC522-python from GitHub..."
-    pip3 install git+https://github.com/pimylifeup/MFRC522-python.git
-else
-    echo "MFRC522-python is already installed."
-fi
+# Install MFRC522-python from local submodule if not already installed
+echo "Installing MFRC522-python from local submodule..."
+pip3 install -e $ROOT/MFRC522-python
 
 # Install gwent
 echo "Installing gwent..."

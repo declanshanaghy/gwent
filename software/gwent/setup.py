@@ -38,12 +38,14 @@ setuptools.setup(
         'gTTS==2.2.4',
         'gpiozero>=1.6.2',
         'jsonschema==3.2.0',
-        'luma.oled==3.8.1',
+        'luma.oled==3.8.1', # OLED Display
         'pydub==0.24.0',
-        'rpi-lgpio>=0.1.0',  # Replacement for RPi.GPIO using lgpio
         'sparkfun-qwiic-tca9548a==0.9.0',
         'websockets==8.1',
-        # 'mfrc522',
+        'mfrc522', # RFID Reader
+        'RPi.GPIO>=0.7.0',  # GPIO library for Raspberry Pi. Not using rpi-lgpio
+        'pigpio>=1.78',  # Advanced GPIO library for Raspberry Pi
+        ## Audio
         # pygame is installed via apt-get on Raspberry Pi
         # 'pygame==2.1.2',
     ],
@@ -51,8 +53,9 @@ setuptools.setup(
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'rotary_rawgpio=gwent.poc.rotary_rawgpio:run',
-            'rotary_gpiozero=gwent.poc.rotary_gpiozero:run'
+            'rotary_gpiozero=gwent.poc.rotary_gpiozero:run',
+            'rotary_rpigpio=gwent.poc.rotary_rpigpio:run',
+            'rfid=gwent.poc.rfid:run'
         ],
     }
 )

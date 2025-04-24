@@ -5,7 +5,7 @@ import subprocess
 import os
 
 # Import the class to test
-from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, SimpleLogger
+from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, SimpleLogger
 
 # Define GPIO pins to use for testing
 # These should be connected to a real rotary encoder

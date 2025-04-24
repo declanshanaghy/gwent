@@ -14,6 +14,4 @@ export VENV_DIR="${HOME}/${VENV_NAME}"
 
 # Export Raspberry Pi configuration for use in other scripts
 export RASPBERRY_PI_IP=${RASPBERRY_PI_IP:-"192.168.1.225"}
-export RUNNING_ON_PI=${RUNNING_ON_PI:-$PI_DETECTED}
 echo "Using Raspberry Pi IP: ${RASPBERRY_PI_IP}"
-echo "Running on Pi: ${RUNNING_ON_PI}"
