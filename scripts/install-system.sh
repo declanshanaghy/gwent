@@ -49,7 +49,21 @@ sudo apt-get install -y \
  libsdl1.2-dev \
  libsdl-image1.2-dev libsdl-ttf2.0-dev \
  libsmpeg-dev libportmidi-dev \
- ffmpeg libswscale-dev libavformat-dev libavcodec-dev
+ ffmpeg libswscale-dev libavformat-dev libavcodec-dev \
+ python3-pygame
 
+# Link system pygame to virtual environment
+echo "Linking system pygame to virtual environment..."
+VENV_SITE_PACKAGES=~/gwent-venv/lib/python3.11/site-packages
+SYSTEM_PYGAME=$(dpkg -L python3-pygame | grep -E '/__init__.py$' | sed 's|/__init__.py$||' | head -n 1)
+
+if [ -d "$SYSTEM_PYGAME" ]; then
+    echo "Found system pygame at $SYSTEM_PYGAME"
+    ln -sf $SYSTEM_PYGAME $VENV_SITE_PACKAGES/
+    echo "Linked pygame to virtual environment"
+else
+    echo "System pygame not found: ${SYSTEM_PYGAME}"
+    exit 1
+fi
 # Add user to groups
 sudo usermod -G sudo,gpio,spi,i2c -a $(whoami)
