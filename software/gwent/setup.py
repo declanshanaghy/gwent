@@ -50,10 +50,16 @@ setuptools.setup(
         'console_scripts': [
             'gwent=gwent.game.main:run',
             'novigrad=gwent.novigrad.server:run',
-            'rotary_gpiozero=gwent.poc.rotary_gpiozero:run',
-            'rotary_rpigpio=gwent.poc.rotary_rpigpio:run',
-            'rfid=gwent.poc.rfid:run',
-            'test_displays=gwent.poc.test_displays:run'
+            'rotary-gpiozero-test=gwent.poc.rotary-gpiozero-test:run',
+            'rotary-rpigpio-test=gwent.poc.rotary-rpigpio-test:run',
+            'rfid-test=gwent.poc.rfid-test:run',
+            'matrix-test=gwent.poc.matrix-test:run',
+            'oled-test=gwent.poc.oled-test:run',
+            'oled-ssd1306-test=gwent.poc.oled-ssd1306-test:run',
+            'oled-ssd1305-pillow-test=gwent.poc.oled-ssd1305-pillow-test:run',
+            'oled-ssd1305-luma-test=gwent.poc.oled-ssd1305-luma-test:run',
+            'display-diagnostic=gwent.poc.display-diagnostic:run',
+            'oled-direct-test=gwent.poc.oled-direct-test:run'
         ],
     }
 )

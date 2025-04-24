@@ -259,6 +259,17 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - This preserves file metadata, permissions, and is more efficient.
     - This approach prevents potential data loss or corruption that could occur during content regeneration.
     - Example: Use `mv /path/to/source/file.txt /path/to/destination/file.txt` instead of reading the content and writing it to a new location.
+
+- **POC Script Naming Conventions**:
+    - `$COMPONENT` is a variable representing the name of a component being tested (e.g., "oled", "rotary", "rfid").
+    - `$SUBTITLE` is an optional sub name to put on a file (e.g., "luma", "gpiozero", "pillow").
+    - Makefile target names for POC scripts should match `$COMPONENT-$SUBTITLE-test` and should call a Python entrypoint.
+    - setup.py entrypoints should be named `$COMPONENT-$SUBTITLE-test` and should invoke the Python script from 'software/gwent/gwent/poc/'.
+    - POC scripts should be named `$COMPONENT-$SUBTITLE-test.py`.
+    - Example: For testing an OLED display with the luma library:
+        - POC script: `oled-luma-test.py` in the `software/gwent/gwent/poc/` directory
+        - Makefile target: `oled-luma-test`
+        - setup.py entrypoint: `oled-luma-test` that invokes `software/gwent/gwent/poc/oled-luma-test.py`
 |
 - **Always Delete Branches After Merging PRs**:
     - When merging a PR, always delete the branch after the merge is complete.

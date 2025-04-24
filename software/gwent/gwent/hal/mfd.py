@@ -15,7 +15,7 @@ import gwent.messaging.choice
 
 def instance():
     if gwent.hal.real_mode():
-        # Use device=1, port=0 as seen in the working POC demo
+        # Use device=1, port=0 as confirmed by the oled_test
         presenter = gwent.hal.oled_ssd1306.SSD1306Presenter(device=1, port=0)
         chooser = gwent.hal.rotary.RotaryChooser()
     else:

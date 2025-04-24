@@ -28,33 +28,45 @@ update-service: rsync
 	@echo "Update service $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/update-service.sh
 
-rotary-rpigpio: rsync
+rotary-rpigpio-test: rsync
 	@echo "Running rotary_rpigpio entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary_rpigpio"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary-rpigpio-test"
 
-rotary-gpiozero: rsync
+rotary-gpiozero-test: rsync
 	@echo "Running rotary_gpiozero entry point on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary_gpiozero"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rotary-gpiozero-test"
 
-rfid: rsync
+rfid-test: rsync
 	@echo "Running RFID scanner on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rfid"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.rfid-test"
 
-ssd1306: rsync
+oled-ssd1306-test: rsync
 	@echo "Running SSD1306 OLED display test on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1306_luma_simpletest"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.oled-ssd1306-test"
 
-ssd1305: rsync
+oled-ssd1305-pillow-test: rsync
 	@echo "Running SSD1305 OLED Pillow demo on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_pillow_demo"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.oled-ssd1305-pillow-test"
 
-ssd1305-luma: rsync
-	@echo "-Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.ssd1305_luma_demo"
+oled-ssd1305-luma-test: rsync
+	@echo "Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.oled-ssd1305-luma-test"
 
-test-displays: rsync
-	@echo "Running display test with TCA9548A multiplexer on $(DEPLOY_TGT)"
-	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.test_displays"
+matrix-test: rsync
+	@echo "Running matrix display test with TCA9548A multiplexer on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.matrix-test"
+
+oled-test: rsync
+	@echo "Running comprehensive OLED display test on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.oled-test"
+
+oled-direct-test: rsync
+	@echo "Running direct OLED display test on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.oled-direct-test"
+
+display-diagnostic: rsync
+	@echo "Running display diagnostic on $(DEPLOY_TGT)"
+	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display-diagnostic"
 
 game: rsync
 	@echo "Running Gwent game on $(DEPLOY_TGT)"
