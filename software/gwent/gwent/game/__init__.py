@@ -63,32 +63,62 @@ class BaseComponent(object):
         })
 
 
-class PubSubComponent(BaseComponent):
-    _pubsub = None
-    _stop_event = None
-
+class ThreadComponent(BaseComponent):
+    """Base class for threaded components"""
+    
     def __init__(self, pubsub, log_verbose: bool = False):
         super().__init__(log_verbose=log_verbose)
         self._pubsub = pubsub
+        self._thread = None
         self._stop_event = threading.Event()
+        self._initialized = threading.Event()
         self._callbacks = {}
-
+    
     def init(self):
         """Initialize the component"""
-        pass
-
+        self._log.info("Initializing component")
+        self._initialized.set()
+    
+    def start(self):
+        """Start the component in a new thread"""
+        if self._thread is not None and self._thread.is_alive():
+            self._log.warning("Component already running")
+            return
+        
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run)
+        self._thread.daemon = True
+        self._thread.start()
+    
+    def _run(self):
+        """Main thread function"""
+        self._log.info("Component started")
+        try:
+            self.run()
+        except Exception as e:
+            self._log.error(f"Error in component thread: {e}")
+        finally:
+            self._log.info("Component stopped")
+    
+    def run(self):
+        """Override this method in subclasses"""
+        while not self._stop_event.is_set():
+            time.sleep(DEFAULT_YIELD_TIME)
+    
     def shutdown(self):
         """Shutdown the component"""
+        self._log.info("Shutting down component")
         self._stop_event.set()
+        
         # Unsubscribe from all topics
         for topic in list(self._callbacks.keys()):
             self.unsubscribe(topic)
-
-    def run(self):
-        """Run the component"""
-        while not self._stop_event.is_set():
-            time.sleep(DEFAULT_YIELD_TIME)
-
+            
+        if self._thread and self._thread.is_alive():
+            self._thread.join(timeout=2)
+            if self._thread.is_alive():
+                self._log.warning("Component thread did not terminate gracefully")
+    
     def _message_handler(self, topic: str, payload: str, expect_kind: str, callback: Callable):
         """Handle incoming messages"""
         try:
@@ -170,3 +200,8 @@ class PubSubComponent(BaseComponent):
 
         p = gwent.messaging.sfx.Message.with_announcement(p.prompt)
         self.publish(CH_SFX, p)
+
+
+# For backward compatibility
+class PubSubComponent(ThreadComponent):
+    pass
