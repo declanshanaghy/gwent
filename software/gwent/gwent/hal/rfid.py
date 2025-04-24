@@ -28,7 +28,7 @@ MAX_ATTEMPTS = 2
 
 async def instance(loop: asyncio.AbstractEventLoop):
     if await gwent.hal.real_mode():
-        return _RealWriter(loop, log_verbose=False)
+        return RealWriter(loop, log_verbose=False)
     else:
         return _FakeWriter(loop)
 
@@ -235,7 +235,7 @@ class _FakeWriter(_BaseWriter, _FakeReader):
             return None
 
 
-class _RealWriter(_BaseWriter, _RealReader):
+class RealWriter(_BaseWriter, _RealReader):
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         # import pydevd_pycharm
         # pydevd_pycharm.settrace('192.168.1.143', port=31337,
