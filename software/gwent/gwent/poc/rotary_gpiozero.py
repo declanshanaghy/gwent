@@ -26,11 +26,7 @@ running = True
 
 def signal_handler(sig, frame):
     """Handle Ctrl+C to exit gracefully"""
-    global running
     print("\nExiting rotary encoder test (gpiozero)...")
-    running = False
-    if encoder:
-        encoder.stop()
     sys.exit(0)
 
 def parse_args():

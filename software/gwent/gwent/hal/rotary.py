@@ -5,7 +5,7 @@ from typing import Any, Callable, List, Optional, Tuple
 import gwent.hal.mfdi
 import gwent.game
 import gwent.messaging.choice
-from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 from gwent.hal.rotary_gpiozero import GwentGPIOZeroRotaryEncoder, GPIOZeroSwitch
 from enum import Enum, auto
 

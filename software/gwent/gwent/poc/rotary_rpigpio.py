@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Simple test script for the rotary encoder using raw GPIO.
+Simple test script for the rotary encoder using RPi.GPIO.
 This script will run until the user presses Ctrl+C and will output events
 when rotation is detected and the button is clicked.
 """
@@ -8,7 +8,7 @@ when rotation is detected and the button is clicked.
 import time
 import signal
 import sys
-from gwent.hal.rotary_rawgpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
+from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 
 # BCM pin numbers (not Wiring pin numbers)
 A_PIN = 22  # GPIO17
@@ -17,12 +17,12 @@ SW_PIN = 27  # GPIO27
 
 def signal_handler(sig, frame):
     """Handle Ctrl+C to exit gracefully"""
-    print("\nExiting rotary encoder test (raw GPIO)...")
+    print("\nExiting rotary encoder test (RPi.GPIO)...")
     sys.exit(0)
 
 def run():
     """Run the rotary encoder test"""
-    print("Starting rotary encoder test using raw GPIO...")
+    print("Starting rotary encoder test using RPi.GPIO...")
     print(f"Using pins: A={A_PIN}, B={B_PIN}, SW={SW_PIN}")
     print("Press Ctrl+C to exit")
     
@@ -41,7 +41,7 @@ def run():
         last_counter = 0
         last_switch_state = switch.get_state()
         
-        print("Raw GPIO rotary encoder initialized successfully")
+        print("RPi.GPIO rotary encoder initialized successfully")
         print("Waiting for events...")
         
         # Main loop

@@ -2,27 +2,23 @@
 
 # Do this manually
 #
+# sudo rpi-update
 # sudo apt-get update
 #
 # Enable SPI & I2C
 # sudo raspi-config
 #
-# sudo useradd -m geralt
-# sudo usermod -G sudo,gpio,spi,i2c -a geralt
-#
-# Install ssh pub key in ~geralt/.ssh/authorized_keys
-#
 # no password sudo
 # %sudo  ALL=(ALL) NOPASSWD: ALL
+#
+# Wifi config
+# sudo nmcli device wifi connect "The Kearney Gaff" password 'XXXXXXXX'
 #
 
 set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${DIR}/install-vars.sh
-
-echo "Updating rpi firmware..."
-sudo rpi-update
 
 # Update package lists
 echo "Updating system..."
@@ -55,9 +51,5 @@ sudo apt-get install -y \
  libsmpeg-dev libportmidi-dev \
  ffmpeg libswscale-dev libavformat-dev libavcodec-dev
 
-echo "Configuring groups..."
-# Create groups if they don't exist
-getent group gpio > /dev/null || sudo groupadd gpio
-getent group i2c > /dev/null || sudo groupadd i2c
 # Add user to groups
 sudo usermod -G sudo,gpio,spi,i2c -a $(whoami)
