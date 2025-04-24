@@ -13,7 +13,8 @@
 #
 # Wifi config
 # sudo nmcli device wifi connect "The Kearney Gaff" password 'XXXXXXXX'
-#
+# 
+
 
 set -e
 
@@ -35,21 +36,30 @@ echo "Installing Python and development packages..."
 sudo apt-get install -y \
   python3-dev python3-pip python3-venv python3-pil python3-wheel
 
+echo "Installing server dependencies..."
+sudo apt-get install -y \
+  mosquitto rpi.gpio
+
+if [ ! -f /etc/mosquitto/conf.d/50.listen.conf ]; then
+  echo "Configuring mosquitto for first time..."
+  echo "Enter password for mosquitto user (u/p=geralt/gwent)..."
+  echo "mosquitto_passwd -c /etc/mosquitto/passwd geralt"
+  sudo mosquitto_passwd -c /etc/mosquitto/passwd geralt
+  sudo tee /etc/mosquitto/conf.d/50.listen.conf << EOF
+listener 1883 0.0.0.0
+password_file /etc/mosquitto/passwd
+EOF
+fi
+
 echo "Installing audio and display dependencies..."
 sudo apt-get install -y \
-  ffmpeg \
-  libasound2-dev libpulse-dev \
-  libsdl2-dev libsmpeg-dev \
-  libavformat-dev libavcodec-dev \
-  libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
-  mosquitto rpi.gpio
+  ffmpeg libasound2-dev libpulse-dev libsdl2-dev libsmpeg-dev libavformat-dev \
+  libavcodec-dev libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
 
 echo "Installing pygame stuff..."
 sudo apt-get install -y \
- libsdl1.2-dev \
- libsdl-image1.2-dev libsdl-ttf2.0-dev \
- libsmpeg-dev libportmidi-dev \
- ffmpeg libswscale-dev libavformat-dev libavcodec-dev \
+ libsdl1.2-dev libsdl-image1.2-dev libsdl-ttf2.0-dev libsmpeg-dev \
+ libportmidi-dev ffmpeg libswscale-dev libavformat-dev libavcodec-dev \
  python3-pygame
 
 # Link system pygame to virtual environment

@@ -56,6 +56,6 @@ test-displays: rsync
 	@echo "Running display test with TCA9548A multiplexer on $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.test_displays"
 
-game: install-system
+game: rsync
 	@echo "Running Gwent game on $(DEPLOY_TGT)"
 	@ssh ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.game.main"

@@ -19,7 +19,7 @@ class Gwent(object):
     def __init__(self):
         self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
 
-    async def close_redis(self):
+    async def close_pubsub(self):
         self._log.info('closing pubsub')
         await self.pubsub.disconnect()
 
@@ -29,7 +29,7 @@ class Gwent(object):
             await asyncio.gather(*[c.shutdown() for c in self.components])
 
     async def shutdown(self):
-        await self.close_redis()
+        await self.close_pubsub()
 
     async def sighandler(self, signal, loop):
         """Cleanup tasks tied to the service's shutdown."""
@@ -58,7 +58,7 @@ class Gwent(object):
 
         self.setup_signal_handlers(loop)
 
-        self.pubsub = asyncio_mqtt.Client('localhost')
+        self.pubsub = asyncio_mqtt.Client('localhost', username='geralt', password='gwent')
         await self.pubsub.connect()
 
         self.components = [

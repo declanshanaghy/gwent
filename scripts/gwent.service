@@ -1,7 +1,7 @@
 [Unit]
 Description=Gwent Game Service
-After=network.target mosquitto.service redis-server.service
-Wants=mosquitto.service redis-server.service
+After=network.target mosquitto.service
+Wants=mosquitto.service
 StartLimitBurst=5
 StartLimitAction=none
 # Set Restart=no to prevent continuous restarts after 5 failures
