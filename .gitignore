@@ -135,3 +135,6 @@ dmypy.json
 
 # Node.js dependencies
 node_modules/
+
+# MCP configuration with secrets
+.cursor/mcp.json
