@@ -61,53 +61,125 @@ Based on the implementation in the `software/gwent/gwent/hal` directory, here ar
 
 ```mermaid
 graph TB
-    classDef physical fill:#f9f9f9,stroke:#333,stroke-width:1px
-    classDef gpio fill:#d9ead3,stroke:#333,stroke-width:1px
-    classDef power fill:#f4cccc,stroke:#333,stroke-width:1px
-    classDef ground fill:#d9d2e9,stroke:#333,stroke-width:1px
-    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px
-    classDef i2c fill:#cfe2f3,stroke:#333,stroke-width:1px
-    classDef uart fill:#ead1dc,stroke:#333,stroke-width:1px
-    classDef used fill:#76a5af,stroke:#333,stroke-width:2px,color:#fff
+    classDef header fill:#f9f9f9,stroke:#333,stroke-width:1px
+    classDef power fill:#f4cccc,stroke:#333,stroke-width:1px,color:#000
+    classDef ground fill:#000000,stroke:#333,stroke-width:1px,color:#fff
+    classDef gpio fill:#d9ead3,stroke:#333,stroke-width:1px,color:#000
+    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px,color:#000
+    classDef i2c fill:#cfe2f3,stroke:#333,stroke-width:1px,color:#000
+    classDef uart fill:#ead1dc,stroke:#333,stroke-width:1px,color:#000
+    classDef rotary fill:#ff9900,stroke:#333,stroke-width:2px,color:#000
+    classDef oled fill:#00ccff,stroke:#333,stroke-width:2px,color:#000
+    classDef rfid fill:#cc99ff,stroke:#333,stroke-width:2px,color:#000
+    classDef i2cbus fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000
     
-    subgraph "Raspberry Pi GPIO Pinout"
-        p1[1: 3.3V]:::power --- p2[2: 5V]:::power
-        p3[3: GPIO2/SDA]:::i2c --- p4[4: 5V]:::power
-        p5[5: GPIO3/SCL]:::i2c --- p6[6: GND]:::ground
-        p7[7: GPIO4]:::gpio --- p8[8: GPIO14/TXD]:::uart
-        p9[9: GND]:::ground --- p10[10: GPIO15/RXD]:::uart
-        p11[11: GPIO17]:::used --- p12[12: GPIO18]:::gpio
-        p13[13: GPIO27]:::used --- p14[14: GND]:::ground
-        p15[15: GPIO22]:::used --- p16[16: GPIO23]:::gpio
-        p17[17: 3.3V]:::power --- p18[18: GPIO24]:::used
-        p19[19: GPIO10/MOSI]:::used --- p20[20: GND]:::ground
-        p21[21: GPIO9/MISO]:::used --- p22[22: GPIO25]:::used
-        p23[23: GPIO11/SCLK]:::used --- p24[24: GPIO8/CE0]:::used
-        p25[25: GND]:::ground --- p26[26: GPIO7/CE1]:::used
-        p27[27: ID_SD]:::i2c --- p28[28: ID_SC]:::i2c
-        p29[29: GPIO5]:::gpio --- p30[30: GND]:::ground
-        p31[31: GPIO6]:::gpio --- p32[32: GPIO12]:::gpio
-        p33[33: GPIO13]:::gpio --- p34[34: GND]:::ground
-        p35[35: GPIO19]:::gpio --- p36[36: GPIO16]:::gpio
-        p37[37: GPIO26]:::gpio --- p38[38: GPIO20]:::gpio
-        p39[39: GND]:::ground --- p40[40: GPIO21]:::gpio
+    %% Header row
+    header["Raspberry Pi GPIO Pinout"]:::header
+    
+    %% Create the main grid structure
+    subgraph pins["Physical Pins"]
+        %% Left side pins (odd numbers)
+        p1["1: 3.3V"]:::power --- p3["3: GPIO2/SDA"]:::i2c
+        p3 --- p5["5: GPIO3/SCL"]:::i2c
+        p5 --- p7["7: GPIO4"]:::gpio
+        p7 --- p9["9: GND"]:::ground
+        p9 --- p11["11: GPIO17"]:::rotary
+        p11 --- p13["13: GPIO27"]:::rotary
+        p13 --- p15["15: GPIO22"]:::rotary
+        p15 --- p17["17: 3.3V"]:::power
+        p17 --- p19["19: GPIO10/MOSI"]:::spi
+        p19 --- p21["21: GPIO9/MISO"]:::spi
+        p21 --- p23["23: GPIO11/SCLK"]:::spi
+        p23 --- p25["25: GND"]:::ground
+        p25 --- p27["27: ID_SD"]:::i2c
+        p27 --- p29["29: GPIO5"]:::gpio
+        p29 --- p31["31: GPIO6"]:::gpio
+        p31 --- p33["33: GPIO13"]:::gpio
+        p33 --- p35["35: GPIO19"]:::gpio
+        p35 --- p37["37: GPIO26"]:::gpio
+        p37 --- p39["39: GND"]:::ground
+        
+        %% Right side pins (even numbers)
+        p2["2: 5V"]:::power --- p4["4: 5V"]:::power
+        p4 --- p6["6: GND"]:::ground
+        p6 --- p8["8: GPIO14/TXD"]:::uart
+        p8 --- p10["10: GPIO15/RXD"]:::uart
+        p10 --- p12["12: GPIO18"]:::gpio
+        p12 --- p14["14: GND"]:::ground
+        p14 --- p16["16: GPIO23"]:::gpio
+        p16 --- p18["18: GPIO24"]:::oled
+        p18 --- p20["20: GND"]:::ground
+        p20 --- p22["22: GPIO25"]:::oled
+        p22 --- p24["24: GPIO8/CE0"]:::rfid
+        p24 --- p26["26: GPIO7/CE1"]:::oled
+        p26 --- p28["28: ID_SC"]:::i2c
+        p28 --- p30["30: GND"]:::ground
+        p30 --- p32["32: GPIO12"]:::gpio
+        p32 --- p34["34: GND"]:::ground
+        p34 --- p36["36: GPIO16"]:::gpio
+        p36 --- p38["38: GPIO20"]:::gpio
+        p38 --- p40["40: GPIO21"]:::gpio
     end
     
-    %% Component connections
-    rotary_a[Rotary Encoder A]:::used --- p11
-    rotary_b[Rotary Encoder B]:::used --- p15
-    rotary_sw[Rotary Encoder SW]:::used --- p13
-    oled_dc[OLED DC]:::used --- p18
-    oled_reset[OLED RESET]:::used --- p22
-    oled_cs[OLED CS]:::used --- p26
-    rfid_sda[RFID SDA]:::used --- p24
-    rfid_miso[RFID MISO]:::used --- p21
-    rfid_mosi[RFID MOSI]:::used --- p19
-    rfid_sck[RFID SCK]:::used --- p23
-    rfid_rst[RFID RST]:::used --- p22
-    i2c_sda[I2C SDA]:::i2c --- p3
-    i2c_scl[I2C SCL]:::i2c --- p5
+    %% Component groupings
+    subgraph rotary_encoder["Rotary Encoder"]
+        rotary_a["A: GPIO17 (Pin 11)"]:::rotary
+        rotary_b["B: GPIO22 (Pin 15)"]:::rotary
+        rotary_sw["SW: GPIO27 (Pin 13)"]:::rotary
+    end
+    
+    subgraph oled_display["OLED Display (SSD1306)"]
+        oled_dc["DC: GPIO24 (Pin 18)"]:::oled
+        oled_reset["RESET: GPIO25 (Pin 22)"]:::oled
+        oled_cs["CS: GPIO7 (Pin 26)"]:::oled
+        oled_mosi["MOSI: GPIO10 (Pin 19)"]:::spi
+        oled_sck["SCK: GPIO11 (Pin 23)"]:::spi
+    end
+    
+    subgraph rfid_reader["RFID Reader (RC522)"]
+        rfid_sda["SDA: GPIO8 (Pin 24)"]:::rfid
+        rfid_miso["MISO: GPIO9 (Pin 21)"]:::spi
+        rfid_mosi["MOSI: GPIO10 (Pin 19)"]:::spi
+        rfid_sck["SCK: GPIO11 (Pin 23)"]:::spi
+        rfid_rst["RST: GPIO25 (Pin 22)"]:::rfid
+    end
+    
+    subgraph i2c_bus["I2C Bus"]
+        i2c_sda["SDA: GPIO2 (Pin 3)"]:::i2cbus
+        i2c_scl["SCL: GPIO3 (Pin 5)"]:::i2cbus
+    end
+    
+    %% Connect components to pins
+    rotary_a --- p11
+    rotary_b --- p15
+    rotary_sw --- p13
+    
+    oled_dc --- p18
+    oled_reset --- p22
+    oled_cs --- p26
+    oled_mosi --- p19
+    oled_sck --- p23
+    
+    rfid_sda --- p24
+    rfid_miso --- p21
+    rfid_mosi --- p19
+    rfid_sck --- p23
+    rfid_rst --- p22
+    
+    i2c_sda --- p3
+    i2c_scl --- p5
+    
+    %% Shared connections callouts
+    shared1["Shared: GPIO25 (OLED RESET & RFID RST)"]
+    shared2["Shared: GPIO10/MOSI (OLED & RFID)"]
+    shared3["Shared: GPIO11/SCLK (OLED & RFID)"]
+    
+    shared1 --- p22
+    shared2 --- p19
+    shared3 --- p23
 ```
+
+![Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
 
 **Note:** The following GPIO pins are shared between components:
 - GPIO25 is shared between RFID-RC522 RST and OLED RESET
