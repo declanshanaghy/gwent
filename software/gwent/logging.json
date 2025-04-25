@@ -21,11 +21,17 @@
     "gwent.hal.rotary": {
       "level": "INFO"
     },
+    "gwent.hal.mfd": {
+      "level": "INFO"
+    },
     "gwent.logical.menu": {
       "level": "INFO"
     },
     "gwent.utils.logging": {
       "level": "INFO"
+    },
+    "gwent.diagnostic.mfd": {
+      "level": "DEBUG"
     }
   }
 }

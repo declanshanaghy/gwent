@@ -24,18 +24,10 @@ import gwent.hal.oled_ssd1306
 import gwent.hal.rotary
 import gwent.messaging.mfd
 import gwent.messaging.choice
+import gwent.utils.logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('mfd_diagnostic.log')
-    ]
-)
-
-logger = logging.getLogger('mfd_diagnostic')
+# Use the central logging configuration
+logger = gwent.utils.logging.get_logger('gwent.diagnostic.mfd')
 
 def test_display_initialization():
     """Test display initialization with different parameters"""
