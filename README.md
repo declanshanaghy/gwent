@@ -1,10 +1,47 @@
 # ☕ Gwent Companion: The Artisanal Card Game Experience 🧙‍♂️
 
-![Gwent Logo](https://i.imgur.com/XYZ123.png) <!-- Replace with actual Gwent logo image URL -->
+```mermaid
+graph TD
+    classDef logo fill:#6d1a36,stroke:#333,stroke-width:2px,color:#fff
+    
+    subgraph logo["🎮 Gwent Companion"]
+        G["G"]:::logo --- W["W"]:::logo
+        W --- E["E"]:::logo
+        E --- N["N"]:::logo
+        N --- T["T"]:::logo
+    end
+    
+    style logo fill:#f9f9f9,stroke:#6d1a36,stroke-width:4px,color:#6d1a36
+```
 
 A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.
 
-![Gwent Companion Hardware](https://i.imgur.com/ABC456.png) <!-- Replace with actual hardware image URL -->
+```mermaid
+graph TD
+    classDef hardware fill:#d9ead3,stroke:#333,stroke-width:1px
+    classDef cards fill:#fff2cc,stroke:#333,stroke-width:1px
+    classDef digital fill:#cfe2f3,stroke:#333,stroke-width:1px
+    
+    subgraph companion["🖥️ Digital Companion"]
+        rpi["🥧 Raspberry Pi"]:::digital
+        rfid["📡 RFID Reader"]:::hardware
+        display["📱 OLED Display"]:::hardware
+        rotary["🎛️ Rotary Encoder"]:::hardware
+        matrix["🔢 LED Matrix"]:::hardware
+        
+        rpi --- rfid
+        rpi --- display
+        rpi --- rotary
+        rpi --- matrix
+    end
+    
+    subgraph physical["🃏 Physical Components"]
+        cards["💳 RFID Cards"]:::cards
+        mat["🧵 Game Mat"]:::cards
+    end
+    
+    cards -.- rfid
+```
 
 ## 🔍 Overview
 
@@ -15,7 +52,24 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 - 👐 Maintain the authentic feel of physical card play
 - 🧭 Guide players through the entire game process
 
-![Gwent Game Flow](https://i.imgur.com/DEF789.png) <!-- Replace with actual game flow diagram -->
+```mermaid
+flowchart TD
+    classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px
+    classDef process fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
+    classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px
+    classDef end fill:#f8cecc,stroke:#b85450,stroke-width:1px
+    
+    A[Start Game]:::start --> B[Register Leaders]:::process
+    B --> C[Register Decks]:::process
+    C --> D[Deal Cards]:::process
+    D --> E{Choose First Player}:::decision
+    E --> F[Play Round]:::process
+    F --> G{Round Winner?}:::decision
+    G --> H[Update Score]:::process
+    H --> I{Game Over?}:::decision
+    I -->|No| F
+    I -->|Yes| J[Declare Winner]:::end
+```
 
 ## 🔌 Hardware Components
 
@@ -30,7 +84,38 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
   - 🎛️ Rotary dial for menu navigation and selection
   - ⚡ Power management system
 
-![Hardware Components Diagram](https://i.imgur.com/GHI101.png) <!-- Replace with actual hardware diagram -->
+```mermaid
+graph TD
+    classDef rpi fill:#f5f5f5,stroke:#333,stroke-width:2px
+    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px
+    classDef i2c fill:#d9ead3,stroke:#333,stroke-width:1px
+    classDef gpio fill:#cfe2f3,stroke:#333,stroke-width:1px
+    
+    rpi["🥧 Raspberry Pi"]:::rpi
+    
+    subgraph spi_devices["SPI Devices"]
+        rfid["📡 RFID-RC522"]:::spi
+        oled["📱 SSD1306 OLED"]:::spi
+    end
+    
+    subgraph i2c_devices["I2C Devices"]
+        mux["🔌 TCA9548A Multiplexer"]:::i2c
+        matrix1["🔢 LED Matrix 1"]:::i2c
+        matrix2["🔢 LED Matrix 2"]:::i2c
+    end
+    
+    subgraph gpio_devices["GPIO Devices"]
+        rotary["🎛️ Rotary Encoder"]:::gpio
+        button["🔘 Push Button"]:::gpio
+    end
+    
+    rpi --> spi_devices
+    rpi --> i2c_devices
+    rpi --> gpio_devices
+    
+    mux --> matrix1
+    mux --> matrix2
+```
 
 ## 💾 Software Components
 
@@ -44,7 +129,34 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
   - 🔌 Connects to the game server via REST API
   - 🏙️ Named after one of the six gates in Novigrad, connecting Farcorners district to Glory Lane
 
-![Software Architecture](https://i.imgur.com/JKL112.png) <!-- Replace with actual architecture diagram -->
+```mermaid
+graph TD
+    classDef service fill:#d5e8d4,stroke:#82b366,stroke-width:2px
+    classDef component fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
+    classDef api fill:#fff2cc,stroke:#d6b656,stroke-width:1px
+    classDef ui fill:#f8cecc,stroke:#b85450,stroke-width:1px
+    
+    subgraph rpi["🥧 Raspberry Pi"]
+        gwent["🎮 Gwent Service"]:::service
+        
+        subgraph components["Core Components"]
+            game["Game Logic"]:::component
+            hal["Hardware Abstraction Layer"]:::component
+            pubsub["Pub/Sub System"]:::component
+            audio["Audio System"]:::component
+        end
+        
+        api["🌐 REST API"]:::api
+    end
+    
+    subgraph web["Web Interface"]
+        glory["⚔️ Glory Gate React App"]:::ui
+    end
+    
+    gwent --> components
+    gwent --> api
+    api --> glory
+```
 
 ## ✨ Features
 
@@ -57,7 +169,35 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 - **📋 Menu System**: Interactive menu system for device configuration and control
 - **🌐 Web Interface**: Access game data and controls through Glory Gate
 
-![Feature Showcase](https://i.imgur.com/MNO131.png) <!-- Replace with actual feature showcase image -->
+```mermaid
+mindmap
+    root((Gwent Companion))
+        🧮 Score Tracking
+            ::icon(fa fa-calculator)
+            Automatic updates
+            Round scores
+            Game scores
+        🃏 Deck Management
+            ::icon(fa fa-id-card)
+            Card registration
+            Deck building
+            Card validation
+        📜 Game History
+            ::icon(fa fa-history)
+            Past games
+            Statistics
+            Performance metrics
+        📱 User Interface
+            ::icon(fa fa-tablet)
+            OLED display
+            Rotary navigation
+            Web interface
+        🔊 Audio System
+            ::icon(fa fa-volume-up)
+            Sound effects
+            Voice prompts
+            Background music
+```
 
 ## ⚙️ How It Works
 
@@ -71,7 +211,24 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 8. 💾 Game state is maintained throughout the match
 9. 🌐 The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
 
-![How It Works Diagram](https://i.imgur.com/PQR415.png) <!-- Replace with actual workflow diagram -->
+```mermaid
+sequenceDiagram
+    participant Player
+    participant Cards as 🃏 RFID Cards
+    participant Reader as 📡 RFID Reader
+    participant Gwent as 🎮 Gwent Service
+    participant Display as 📱 Display
+    participant Web as 🌐 Web Interface
+    
+    Player->>Cards: Places card on mat
+    Cards->>Reader: Card detected
+    Reader->>Gwent: Send card data
+    Gwent->>Gwent: Process game state
+    Gwent->>Display: Update display
+    Gwent->>Web: Update web interface
+    Web-->>Player: Show updated game state
+    Display-->>Player: Show updated score
+```
 
 ## 🚧 Project Status
 
@@ -82,7 +239,28 @@ This project is currently in active development. The following components have b
 - **📱 Menu System**: Interactive menu system with navigation and selection via rotary encoder
 - **⚙️ Service Management**: Systemd service for automatic startup and management
 
-![Development Progress](https://i.imgur.com/STU161.png) <!-- Replace with actual development progress image -->
+```mermaid
+gantt
+    title Development Progress
+    dateFormat  YYYY-MM-DD
+    
+    section Hardware
+    RFID Integration       :done, rfid, 2023-01-01, 60d
+    Display Implementation :done, disp, 2023-02-15, 45d
+    Rotary Encoder         :done, rot, 2023-03-01, 30d
+    LED Matrix Integration :active, led, 2023-04-01, 45d
+    
+    section Software
+    Core Game Logic        :done, core, 2023-01-15, 90d
+    Hardware Abstraction   :done, hal, 2023-02-01, 60d
+    Menu System            :done, menu, 2023-03-15, 45d
+    Web Interface          :active, web, 2023-04-15, 60d
+    
+    section Documentation
+    Design Documents       :done, docs, 2023-01-01, 30d
+    API Documentation      :active, api, 2023-04-01, 30d
+    User Manual            :todo, manual, 2023-05-01, 45d
+```
 
 The design documentation starts with the [Product Requirements Document](design/000-product-requirements.md), which outlines the core requirements and features. See the [task-list.mdc](task-list.mdc) file for current progress and upcoming tasks.
 
@@ -103,7 +281,30 @@ Gwent is a complex card game where score tracking can be cumbersome. This compan
 - 🧭 Provides guidance through the game process
 - 🌐 Offers both physical and web-based interfaces
 
-![User Experience Benefits](https://i.imgur.com/VWX718.png) <!-- Replace with actual UX benefits image -->
+```mermaid
+graph LR
+    classDef benefit fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
+    classDef problem fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
+    
+    subgraph problems["❌ Traditional Problems"]
+        p1["Manual Score Tracking"]:::problem
+        p2["Complex Rules"]:::problem
+        p3["Card Organization"]:::problem
+        p4["Game History"]:::problem
+    end
+    
+    subgraph benefits["✅ Gwent Companion Benefits"]
+        b1["Automatic Scoring"]:::benefit
+        b2["Rule Guidance"]:::benefit
+        b3["Deck Management"]:::benefit
+        b4["Game Statistics"]:::benefit
+    end
+    
+    p1 --> b1
+    p2 --> b2
+    p3 --> b3
+    p4 --> b4
+```
 
 ## 🚀 Getting Started
 
@@ -118,7 +319,43 @@ The project is organized into several key areas:
 
 See the [design documentation](design/README.md) for detailed information about each component.
 
-![Project Structure](https://i.imgur.com/YZA819.png) <!-- Replace with actual project structure diagram -->
+```mermaid
+graph TD
+    classDef root fill:#f5f5f5,stroke:#333,stroke-width:2px
+    classDef dir fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
+    classDef code fill:#d5e8d4,stroke:#82b366,stroke-width:1px
+    classDef docs fill:#fff2cc,stroke:#d6b656,stroke-width:1px
+    
+    root["📁 gwent/"]:::root
+    
+    software["📁 software/"]:::dir
+    design["📁 design/"]:::docs
+    scripts["📁 scripts/"]:::dir
+    
+    gwent["📁 gwent/"]:::code
+    glory["📁 glory-gate/"]:::code
+    
+    docs["📄 Documentation"]:::docs
+    diagrams["📊 Diagrams"]:::docs
+    
+    game["📁 game/"]:::code
+    hal["📁 hal/"]:::code
+    utils["📁 utils/"]:::code
+    
+    root --> software
+    root --> design
+    root --> scripts
+    
+    software --> gwent
+    software --> glory
+    
+    design --> docs
+    design --> diagrams
+    
+    gwent --> game
+    gwent --> hal
+    gwent --> utils
+```
 
 ## 📚 Documentation
 
