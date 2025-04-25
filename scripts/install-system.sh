@@ -50,9 +50,12 @@ sudo apt-get install -y \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
   mosquitto rpi.gpio
 
-# pygame stuff
-#sudo apt-get install -y \
-#  libsdl1.2-dev \
-#  libsdl-image1.2-dev libsdl-ttf2.0-dev \
-#  libsmpeg-dev python-numpy libportmidi-dev \
-#  ffmpeg libswscale-dev libavformat-dev libavcodec-dev
+echo "Installing GPIO libraries for rotary encoder support..."
+sudo apt-get install -y \
+  pigpio python3-pigpio \
+  python3-gpiozero
+  
+# Enable and start the pigpio daemon
+echo "Enabling and starting pigpio daemon..."
+sudo systemctl enable pigpiod
+sudo systemctl start pigpiod

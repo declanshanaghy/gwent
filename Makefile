@@ -8,7 +8,7 @@ DEPLOY_TGT := 192.168.1.225
 
 DEPLOY_DIR := "~/gwent"
 
-.PHONY: rsync install install-app deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic game
+.PHONY: rsync install install-app deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic game
 
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
@@ -72,6 +72,50 @@ rotary-rpigpio-test: rsync
 rotary-gpiozero-test: rsync
 	@echo "Running rotary_gpiozero entry point on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_gpiozero"
+
+rotary-diagnostic-test: rsync
+	@echo "Running rotary encoder diagnostic tool on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_diagnostic"
+
+rotary-pin-test: rsync
+	@echo "Running rotary encoder pin configuration test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_pin_test"
+
+rotary-debounce-test: rsync
+	@echo "Running rotary encoder debounce test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_debounce_test"
+
+rotary-diagnostics: rsync
+	@echo "Running comprehensive rotary encoder diagnostics on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.run_rotary_diagnostics"
+
+rotary-robust: rsync
+	@echo "Running robust rotary encoder test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_robust"
+
+rotary-lgpio: rsync
+	@echo "Running lgpio rotary encoder test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_lgpio"
+
+rotary-pigpio: rsync
+	@echo "Running pigpio rotary encoder test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.rotary_pigpio"
+
+rotary-test: rsync
+	@echo "Running rotary encoder implementation test on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.input_tests.test_rotary_implementations"
+
+gpio-check: rsync
+	@echo "Running GPIO permissions and usage check on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.diagnostic_tools.gpio_permissions_check"
+
+gpio-service-stop: rsync
+	@echo "Stopping GPIO service on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.diagnostic_tools.gpio_service_manager --action stop"
+
+gpio-service-start: rsync
+	@echo "Starting GPIO service on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.diagnostic_tools.gpio_service_manager --action start"
 
 rfid-test: rsync
 	@echo "Running RFID scanner on $(DEPLOY_TGT)"

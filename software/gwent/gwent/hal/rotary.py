@@ -7,16 +7,18 @@ import gwent.game
 import gwent.messaging.choice
 from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, DirectGPIOSwitch
 from gwent.hal.rotary_gpiozero import GwentGPIOZeroRotaryEncoder, GPIOZeroSwitch
+from gwent.hal.rotary_pigpio import PiGPIORotaryEncoder, PiGPIOSwitch
 from enum import Enum, auto
 
 class RotaryImplementation(Enum):
     """Enum to specify which rotary encoder implementation to use"""
     DIRECT_GPIO = auto()
     GPIOZERO = auto()
+    PIGPIO = auto()  # New implementation using pigpio
 
 
 class RotaryChooser(gwent.hal.mfdi.Chooser):
-    def __init__(self, implementation=RotaryImplementation.DIRECT_GPIO,
+    def __init__(self, implementation=RotaryImplementation.PIGPIO,
                 log_verbose: bool = False):
         """
         Initialize the rotary chooser.
@@ -106,12 +108,12 @@ class RotaryEncoder(gwent.game.BaseComponent):
     _sw_state = None
     _sw_changed = False
     
-    def __init__(self, implementation=RotaryImplementation.DIRECT_GPIO, log_verbose=False):
+    def __init__(self, implementation=RotaryImplementation.PIGPIO, log_verbose=False):
         """
         Initialize the rotary encoder.
         
         Args:
-            implementation: Which implementation to use (DirectGPIO or GPIOZero)
+            implementation: Which implementation to use (DirectGPIO, GPIOZero, or PIGPIO)
             log_verbose: Whether to enable verbose logging
         """
         super().__init__(log_verbose=log_verbose)
@@ -129,6 +131,10 @@ class RotaryEncoder(gwent.game.BaseComponent):
                 self._encoder = GwentGPIOZeroRotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
                 self._sw = GPIOZeroSwitch(self.SW_PIN)
                 self._log.info("GPIOZero rotary encoder initialized successfully")
+            elif self._implementation == RotaryImplementation.PIGPIO:
+                self._encoder = PiGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
+                self._sw = PiGPIOSwitch(self.SW_PIN)
+                self._log.info("PiGPIO rotary encoder initialized successfully")
             else:
                 raise ValueError(f"Unknown implementation: {self._implementation}")
                 
