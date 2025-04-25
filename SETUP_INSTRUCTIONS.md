@@ -72,6 +72,7 @@ graph TB
     classDef oled fill:#00ccff,stroke:#333,stroke-width:2px,color:#000
     classDef rfid fill:#cc99ff,stroke:#333,stroke-width:2px,color:#000
     classDef i2cbus fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000
+    classDef matrix fill:#99cc00,stroke:#333,stroke-width:2px,color:#000
     
     %% Header row
     header["Raspberry Pi GPIO Pinout"]:::header
@@ -149,6 +150,12 @@ graph TB
         i2c_scl["SCL: GPIO3 (Pin 5)"]:::i2cbus
     end
     
+    subgraph matrix_components["Matrix Display Components"]
+        matrix_multiplexer["I2C Multiplexer (TCA9548A)"]:::i2cbus
+        matrix_display1["LED Matrix Display 1 (IS31FL3731)"]:::i2cbus
+        matrix_display2["LED Matrix Display 2 (IS31FL3731)"]:::i2cbus
+    end
+    
     %% Connect components to pins
     rotary_a --- p11
     rotary_b --- p15
@@ -169,6 +176,12 @@ graph TB
     i2c_sda --- p3
     i2c_scl --- p5
     
+    %% Matrix connections through I2C
+    matrix_multiplexer --- i2c_sda
+    matrix_multiplexer --- i2c_scl
+    matrix_display1 --- matrix_multiplexer
+    matrix_display2 --- matrix_multiplexer
+    
     %% Shared connections callouts
     shared1["Shared: GPIO25 (OLED RESET & RFID RST)"]
     shared2["Shared: GPIO10/MOSI (OLED & RFID)"]
@@ -184,6 +197,8 @@ graph TB
 **Note:** The following GPIO pins are shared between components:
 - GPIO25 is shared between RFID-RC522 RST and OLED RESET
 - SPI bus (GPIO10/MOSI, GPIO11/SCLK) is shared between RFID reader and OLED display
+- I2C bus (GPIO2/SDA, GPIO3/SCL) is shared between the I2C Multiplexer and other I2C devices
+- The LED Matrix Displays are connected to the I2C Multiplexer (TCA9548A) to allow multiple displays on the same I2C bus
 
 For a detailed visual reference of the Raspberry Pi GPIO pinout, you can also refer to this image:
 [Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
@@ -202,10 +217,10 @@ cd gwent
 The setup script will install all necessary dependencies, configure the system, and set up the Python environment.
 
 ```bash
-sudo ./setup_raspberry_pi.sh
+make install
 ```
 
-The script performs the following actions:
+The `make install` command runs the installation scripts that perform the following actions:
 - Updates the system packages
 - Installs system dependencies
 - Installs WiringPi
@@ -216,6 +231,10 @@ The script performs the following actions:
 - Configures services (MQTT, Redis)
 - Creates a hardware test script
 - Creates a convenience script to activate the virtual environment
+
+You can also run specific installation steps:
+- `make install-app`: Install just the application
+- `make install-system`: Install just the system dependencies
 
 ### 3. Reboot the Raspberry Pi
 
