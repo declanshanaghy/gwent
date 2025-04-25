@@ -44,7 +44,7 @@ def test_display_initialization():
     # Test different device/port combinations
     device_port_combinations = [
         (1, 0),  # Default in code
-        (0, 0),
+        # (0, 0),
         (0, 1),
         (1, 1)
     ]
