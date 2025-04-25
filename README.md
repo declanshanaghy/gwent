@@ -102,6 +102,9 @@ See the design documentation for detailed information about each component.
 
 - [Design Documentation](design/README.md): Complete design documentation including architecture decisions, tasks, and specifications
 - [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system
-- [PDF Documentation](design/): Technical design documents
-  - [GwentPubSub.pdf](design/GwentPubSub.pdf): Publish-subscribe architecture for component communication
-  - [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
+- [Technical Design Documents](design/):
+  - PDF Documents:
+    - [GwentPubSub.pdf](design/GwentPubSub.pdf): Publish-subscribe architecture for component communication
+    - [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
+  - Mermaid Diagrams:
+    - [GwentPubSub.md](design/GwentPubSub.md): Interactive diagram of the publish-subscribe architecture

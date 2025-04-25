@@ -22,9 +22,13 @@ Current ADRs include:
 - [ADR-001](ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
 - [ADR-002](ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
 
-## PDF Documentation
+## Design Documentation
 
-The following PDF documents provide additional design specifications:
+The following documents provide additional design specifications:
 
+### PDF Documents
 - [GwentPubSub.pdf](GwentPubSub.pdf): Describes the publish-subscribe architecture used for communication between components
 - [GwentGameStages.pdf](GwentGameStages.pdf): Details the game stages and state transitions in the Gwent Companion system
+
+### Mermaid Diagrams
+- [GwentPubSub.md](GwentPubSub.md): Interactive Mermaid diagram of the publish-subscribe architecture with component descriptions
