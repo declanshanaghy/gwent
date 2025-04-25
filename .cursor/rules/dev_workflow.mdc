@@ -215,7 +215,10 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          - Fixed bug in related component that was preventing proper integration"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
-     *   When using git commands like `log`, `branch`, or `diff`, disable the pager to avoid interactive prompts by using the `--no-pager` option (e.g., `git --no-pager log`) or setting `GIT_PAGER=cat` before the command.
+     *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
+         * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
+         * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
+         * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
 
 9.  **Mark Task Complete:**
      *   **IMPORTANT**: After committing all changes to git (as described in step 8) and verifying the implementation, mark the task or subtask as completed: `set_task_status` / `task-master set-status --id=<taskId> --status=done`.
