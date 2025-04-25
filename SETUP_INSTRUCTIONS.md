@@ -37,7 +37,7 @@ The Gwent project uses the following hardware components:
 
 ## GPIO Pin Connections
 
-Refer to the hardware requirements document for detailed GPIO pin connections. Here's a summary:
+Based on the implementation in the `software/gwent/gwent/hal` directory, here are the actual GPIO pin connections used in the code:
 
 | Component | GPIO Pin | Pin Number | Function |
 |-----------|---------|------------|----------|
@@ -46,22 +46,75 @@ Refer to the hardware requirements document for detailed GPIO pin connections. H
 | RFID-RC522 MOSI | GPIO10 | Pin 19 | SPI MOSI |
 | RFID-RC522 MISO | GPIO9 | Pin 21 | SPI MISO |
 | RFID-RC522 RST | GPIO25 | Pin 22 | Reset |
-| Rotary Encoder A | GPIO7 | Pin 26 | Encoder A input |
-| Rotary Encoder B | GPIO9 | Pin 21 | Encoder B input |
-| Rotary Encoder SW | GPIO2 | Pin 3 | Encoder push button |
+| Rotary Encoder A | GPIO17 | Pin 11 | Encoder A input |
+| Rotary Encoder B | GPIO22 | Pin 15 | Encoder B input |
+| Rotary Encoder SW | GPIO27 | Pin 13 | Encoder push button |
 | I2C SDA | GPIO2 | Pin 3 | I2C data |
 | I2C SCL | GPIO3 | Pin 5 | I2C clock |
 | OLED DC | GPIO24 | Pin 18 | OLED data/command |
 | OLED CLK | GPIO11 | Pin 23 | SPI clock |
 | OLED MOSI | GPIO10 | Pin 19 | SPI MOSI |
-| OLED CS | GPIO8 | Pin 24 | SPI chip select |
+| OLED CS | GPIO7 | Pin 26 | SPI chip select (CE1) |
 | OLED RESET | GPIO25 | Pin 22 | OLED reset |
 
-**Note:** There are GPIO pin conflicts that must be managed in software:
-- GPIO9 is shared between RFID-RC522 MISO and Rotary Encoder B
-- GPIO2 is shared between Rotary Encoder SW and I2C SDA
-- GPIO3 is shared between Power Button and I2C SCL
-- SPI bus is shared between RFID reader and OLED display
+### Raspberry Pi GPIO Pinout Diagram
+
+```mermaid
+graph TB
+    classDef physical fill:#f9f9f9,stroke:#333,stroke-width:1px
+    classDef gpio fill:#d9ead3,stroke:#333,stroke-width:1px
+    classDef power fill:#f4cccc,stroke:#333,stroke-width:1px
+    classDef ground fill:#d9d2e9,stroke:#333,stroke-width:1px
+    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px
+    classDef i2c fill:#cfe2f3,stroke:#333,stroke-width:1px
+    classDef uart fill:#ead1dc,stroke:#333,stroke-width:1px
+    classDef used fill:#76a5af,stroke:#333,stroke-width:2px,color:#fff
+    
+    subgraph "Raspberry Pi GPIO Pinout"
+        p1[1: 3.3V]:::power --- p2[2: 5V]:::power
+        p3[3: GPIO2/SDA]:::i2c --- p4[4: 5V]:::power
+        p5[5: GPIO3/SCL]:::i2c --- p6[6: GND]:::ground
+        p7[7: GPIO4]:::gpio --- p8[8: GPIO14/TXD]:::uart
+        p9[9: GND]:::ground --- p10[10: GPIO15/RXD]:::uart
+        p11[11: GPIO17]:::used --- p12[12: GPIO18]:::gpio
+        p13[13: GPIO27]:::used --- p14[14: GND]:::ground
+        p15[15: GPIO22]:::used --- p16[16: GPIO23]:::gpio
+        p17[17: 3.3V]:::power --- p18[18: GPIO24]:::used
+        p19[19: GPIO10/MOSI]:::used --- p20[20: GND]:::ground
+        p21[21: GPIO9/MISO]:::used --- p22[22: GPIO25]:::used
+        p23[23: GPIO11/SCLK]:::used --- p24[24: GPIO8/CE0]:::used
+        p25[25: GND]:::ground --- p26[26: GPIO7/CE1]:::used
+        p27[27: ID_SD]:::i2c --- p28[28: ID_SC]:::i2c
+        p29[29: GPIO5]:::gpio --- p30[30: GND]:::ground
+        p31[31: GPIO6]:::gpio --- p32[32: GPIO12]:::gpio
+        p33[33: GPIO13]:::gpio --- p34[34: GND]:::ground
+        p35[35: GPIO19]:::gpio --- p36[36: GPIO16]:::gpio
+        p37[37: GPIO26]:::gpio --- p38[38: GPIO20]:::gpio
+        p39[39: GND]:::ground --- p40[40: GPIO21]:::gpio
+    end
+    
+    %% Component connections
+    rotary_a[Rotary Encoder A]:::used --- p11
+    rotary_b[Rotary Encoder B]:::used --- p15
+    rotary_sw[Rotary Encoder SW]:::used --- p13
+    oled_dc[OLED DC]:::used --- p18
+    oled_reset[OLED RESET]:::used --- p22
+    oled_cs[OLED CS]:::used --- p26
+    rfid_sda[RFID SDA]:::used --- p24
+    rfid_miso[RFID MISO]:::used --- p21
+    rfid_mosi[RFID MOSI]:::used --- p19
+    rfid_sck[RFID SCK]:::used --- p23
+    rfid_rst[RFID RST]:::used --- p22
+    i2c_sda[I2C SDA]:::i2c --- p3
+    i2c_scl[I2C SCL]:::i2c --- p5
+```
+
+**Note:** The following GPIO pins are shared between components:
+- GPIO25 is shared between RFID-RC522 RST and OLED RESET
+- SPI bus (GPIO10/MOSI, GPIO11/SCLK) is shared between RFID reader and OLED display
+
+For a detailed visual reference of the Raspberry Pi GPIO pinout, you can also refer to this image:
+[Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
 
 ## Setup Instructions
 
