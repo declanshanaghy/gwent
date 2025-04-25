@@ -13,14 +13,18 @@ All design documentation, especially diagrams and architecture visualizations, M
 - **Apply consistent color schemes** that enhance readability while maintaining the aesthetic
 - **Use creative, slightly whimsical naming** for component groups (e.g., "Artisanal Hardware" instead of just "Hardware")
 - **Keep the mood light and enjoyable** - not every bullet point needs a clever reference
+- **Balance creativity with accuracy** - technical implementations must be specific and accurate
 
 ### 2. Component Representation
 
 - **Hardware components** MUST have nice visual references (e.g., 📱 for displays, 🎛️ for controls)
 - **Software components** should use computing-related emojis (💻, 🖥️, 📨, etc.)
 - **Game states** should be visually distinct with thematic styling
-- **Message topics** should clearly show their role in the communication flow
+- **Message topics** should clearly show their role in the communication flow with accurate technical names
 - **Add a touch of personality** to component descriptions without sacrificing clarity
+- **Distinguish between technical and logical elements**:
+  - Technical implementations (message topics, API endpoints, function names) must be specific and accurate
+  - Logical descriptions and component groups may include light humor and creative naming
 
 ### 3. Layout and Organization
 

@@ -114,6 +114,5 @@ See the design documentation for detailed information about each component.
     - [Design Documentation Style Guide](design/DesignDocumentationStyleGuide.md): Guidelines for creating consistent design documentation
 - [Software Components](software/):
   - [Gwent Core](software/gwent/README.md): Main game logic and system service
-  - [Gwent Elements](software/gwent-elements/README.md): Hardware interface components
   - [Glory Gate](software/glory-gate/README.md): React-based web interface
 - [Development Tools](scripts/README.md): Scripts and utilities for development

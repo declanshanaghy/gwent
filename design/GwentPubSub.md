@@ -33,32 +33,32 @@ flowchart LR
         menus["📋 Menus\nHand-Crafted UI"]
     end
 
-    %% Message Topics as Coffee Varieties
-    subgraph Topics["📨 Small-Batch Message Topics"]
-        mfdTopic["mfd\n(Ethiopian Blend)"]
-        choosepresentTopic["choosepresent\n(Colombian Roast)"]
-        cardsTopic["cards\n(Sumatra Dark)"]
-        rawTopic["raw\n(Green Beans)"]
-        readwriteTopic["readwrite\n(French Press)"]
-        playTopic["play\n(Pour Over)"]
-        sfxctrlTopic["sfxctrl\n(Cold Brew)"]
+    %% Message Topics
+    subgraph Topics["📨 Message Topics"]
+        mfdTopic["mfd"]
+        choosepresentTopic["choosepresent"]
+        cardsTopic["cards"]
+        rawTopic["raw"]
+        readwriteTopic["readwrite"]
+        playTopic["play"]
+        sfxctrlTopic["sfxctrl"]
     end
 
     %% Game States as Vinyl Records
     subgraph GameStates["💿 Vinyl Collection Game States"]
-        registerLeaders["🎵 Register Leaders\nLimited Edition"]
-        registerDecks["🎵 Register Decks\nFirst Pressing"]
-        dealCards["🎵 Deal Cards\nAnalog Warmth"]
-        playRound["🎵 Play Round\nB-Side"]
-        playLeader["🎵 Play Leader\nCollector's Edition"]
-        roundEnd["🎵 Round End\nBonus Track"]
-        gameEnd["🎵 Game End\nVinyl Outro"]
+        registerLeaders["🎵 Register Leaders"]
+        registerDecks["🎵 Register Decks"]
+        dealCards["🎵 Deal Cards"]
+        playRound["🎵 Play Round"]
+        playLeader["🎵 Play Leader"]
+        roundEnd["🎵 Round End"]
+        gameEnd["🎵 Game End"]
     end
 
     %% Display Components as Typewriter Keys
     subgraph DisplayComponents["⌨️ Vintage Display Components"]
         boardHand["🃏 Board/Hand\nLetterpress-Printed"]
-        grave["⚰️ Grave\nReclaimed Wood"]
+        grave["⚰️ Grave\nReclaimed Soil"]
         deck["🎴 Deck\nSustainably Harvested"]
         player["👤 Player\nFree-Range"]
         close["⚔️ Close\nArtisanal Combat"]
@@ -112,7 +112,7 @@ flowchart LR
 
 ### 🔧 Handcrafted Hardware Components
 - **📡 RFID Reader (MFRC522)**: Locally-sourced RFID tag reader for cards, with sustainable power consumption
-- **✍️ RFID Writer**: Artisanal data writer for RFID tags, crafted with care
+- **✍️ RFID Writer**: Data reader/writer for RFID tags, crafted with care
 - **📱 Display**: Small-batch OLED canvas for displaying game information and menus
 - **🎛️ Rotary Button**: Vintage-inspired analog interface for navigation and selection, with authentic tactile feedback
 
@@ -123,14 +123,14 @@ flowchart LR
 - **🎵 SFX (pygame)**: Sound effects and audio system, mixed on vinyl
 - **📋 Menus**: Hand-crafted menu system with locally-sourced UI elements
 
-### 📨 Small-Batch Message Topics
-- **mfd (Ethiopian Blend)**: Single-origin display control messages
-- **choosepresent (Colombian Roast)**: Shade-grown user input selection messages
-- **cards (Sumatra Dark)**: Fair-trade card data messages
-- **raw (Green Beans)**: Unprocessed, raw RFID data
-- **readwrite (French Press)**: Slow-pressed RFID write commands
-- **play (Pour Over)**: Carefully filtered game play actions
-- **sfxctrl (Cold Brew)**: Overnight-steeped sound effect control messages
+### 📨 Message Topics
+- **mfd**: Display control messages
+- **choosepresent**: User input selection messages
+- **cards**: Card data messages
+- **raw**: Raw RFID data
+- **readwrite**: RFID write commands
+- **play**: Game play actions
+- **sfxctrl**: Sound effect control messages
 
 ### 💿 Vinyl Collection Game States
 - **🎵 Register Leaders**: Leader card registration phase, pressed on 180g vinyl
@@ -143,7 +143,7 @@ flowchart LR
 
 ### ⌨️ Vintage Display Components
 - **🃏 Board/Hand**: Letterpress-printed card display areas
-- **⚰️ Grave**: Reclaimed wood graveyard display
+- **⚰️ Grave**: Reclaimed soil graveyard display
 - **🎴 Deck**: Sustainably harvested deck display
 - **👤 Player**: Free-range player information display
 - **⚔️ Close**: Artisanal close combat row display

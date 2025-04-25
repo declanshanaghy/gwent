@@ -35,10 +35,6 @@ Welcome to the hand-crafted documentation for the Gwent Companion project, a phy
 - [Gwent README](software/gwent/README.md): Documentation for the main Gwent Python package
 - [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system
 
-### 🔧 Gwent Elements
-
-- [Gwent Elements README](software/gwent-elements/README.md): Documentation for the hardware interface components
-
 ### 🧪 Proof of Concept Scripts
 
 - [POC README](software/gwent/gwent/poc/README.md): Overview of proof-of-concept scripts

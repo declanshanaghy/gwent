@@ -300,6 +300,8 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - Keep the mood light and enjoyable - not every bullet point needs a clever reference
     - Group related components in labeled subgraphs with thematic styling
     - Include a detailed component description section with a touch of personality
+    - **IMPORTANT**: Technical implementations (like message topics, API endpoints, function names) MUST be specific and accurate without creative naming
+    - Logical descriptions and component groups may include light humor and creative naming
     - See [design/GwentPubSub.md](mdc:design/GwentPubSub.md) for a reference implementation
 
 ---
