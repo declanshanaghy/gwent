@@ -21,3 +21,10 @@ Current ADRs include:
 - [ADR-000](ADR/000-task-master-roo-code.md): Task Master Integration for AI-Driven Development
 - [ADR-001](ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
 - [ADR-002](ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
+
+## PDF Documentation
+
+The following PDF documents provide additional design specifications:
+
+- [GwentPubSub.pdf](GwentPubSub.pdf): Describes the publish-subscribe architecture used for communication between components
+- [GwentGameStages.pdf](GwentGameStages.pdf): Details the game stages and state transitions in the Gwent Companion system

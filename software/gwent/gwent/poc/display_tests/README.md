@@ -18,7 +18,7 @@ A diagnostic tool for testing OLED displays with both SSD1306 and SSD1305 driver
 python oled_test.py
 ```
 
-### display_test.py
+### TCA9548A-MatrixI2C-test.py
 
 Tests multiple displays using a TCA9548A I2C multiplexer.
 
@@ -29,7 +29,7 @@ Tests multiple displays using a TCA9548A I2C multiplexer.
 
 #### Usage:
 ```bash
-python display_test.py
+python TCA9548A-MatrixI2C-test.py
 ```
 
 ### ssd1305_luma_demo.py
@@ -48,15 +48,6 @@ Demo script for SSD1305 displays using the Pillow library.
 #### Usage:
 ```bash
 python ssd1305_pillow_demo.py
-```
-
-### test_displays.py
-
-Additional display test script for testing various display configurations.
-
-#### Usage:
-```bash
-python test_displays.py
 ```
 
 ## Troubleshooting
