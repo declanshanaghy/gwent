@@ -61,9 +61,6 @@ setuptools.setup(
         # RFID libraries
         'mfrc522-python==0.0.7',
         
-        # Input libraries
-        'gaugette>=1.2',
-        
         # I2C multiplexer
         'sparkfun-qwiic-tca9548a>=0.9.0',
         
@@ -90,14 +87,21 @@ setuptools.setup(
             # POC script entry points
             'rotary-rpigpio-test=gwent.poc.input_tests.rotary_rpigpio:run',
             'rotary-gpiozero-test=gwent.poc.input_tests.rotary_gpiozero:run',
+            'rotary-diagnostic=gwent.poc.input_tests.rotary_diagnostic:run',
+            'rotary-pin-test=gwent.poc.input_tests.rotary_pin_test:run',
+            'rotary-debounce-test=gwent.poc.input_tests.rotary_debounce_test:run',
+            'rotary-pigpio=gwent.poc.input_tests.rotary_pigpio:run',
+            'gpio-check=gwent.poc.diagnostic_tools.gpio_permissions_check:run',
+            'gpio-service-manager=gwent.poc.diagnostic_tools.gpio_service_manager:run',
             'rfid-test=gwent.poc.rfid_tests.rfid:run',
             'oled-ssd1306-test=gwent.poc.display_tests.oled_test:run',
             'oled-ssd1305-pillow-test=gwent.poc.display_tests.ssd1305_pillow_demo:main',
             'oled-ssd1305-luma-test=gwent.poc.display_tests.ssd1305_luma_demo:main',
-            'matrix-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            # Fix entry points with hyphens in module names
+            'matrix-test=gwent.poc.display_tests:run_matrix_test',
             'oled-test=gwent.poc.display_tests.oled_test:run',
-            'oled-direct-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
-            'display-diagnostic=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            'oled-direct-test=gwent.poc.display_tests:run_matrix_test',
+            'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
         ],
     }
 )
