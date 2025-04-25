@@ -37,7 +37,7 @@ The Gwent project uses the following hardware components:
 
 ## GPIO Pin Connections
 
-Refer to the hardware requirements document for detailed GPIO pin connections. Here's a summary:
+Based on the implementation in the `software/gwent/gwent/hal` directory, here are the actual GPIO pin connections used in the code:
 
 | Component | GPIO Pin | Pin Number | Function |
 |-----------|---------|------------|----------|
@@ -46,22 +46,176 @@ Refer to the hardware requirements document for detailed GPIO pin connections. H
 | RFID-RC522 MOSI | GPIO10 | Pin 19 | SPI MOSI |
 | RFID-RC522 MISO | GPIO9 | Pin 21 | SPI MISO |
 | RFID-RC522 RST | GPIO25 | Pin 22 | Reset |
-| Rotary Encoder A | GPIO7 | Pin 26 | Encoder A input |
-| Rotary Encoder B | GPIO9 | Pin 21 | Encoder B input |
-| Rotary Encoder SW | GPIO2 | Pin 3 | Encoder push button |
+| Rotary Encoder A | GPIO17 | Pin 11 | Encoder A input |
+| Rotary Encoder B | GPIO22 | Pin 15 | Encoder B input |
+| Rotary Encoder SW | GPIO27 | Pin 13 | Encoder push button |
 | I2C SDA | GPIO2 | Pin 3 | I2C data |
 | I2C SCL | GPIO3 | Pin 5 | I2C clock |
 | OLED DC | GPIO24 | Pin 18 | OLED data/command |
 | OLED CLK | GPIO11 | Pin 23 | SPI clock |
 | OLED MOSI | GPIO10 | Pin 19 | SPI MOSI |
-| OLED CS | GPIO8 | Pin 24 | SPI chip select |
+| OLED CS | GPIO7 | Pin 26 | SPI chip select (CE1) |
 | OLED RESET | GPIO25 | Pin 22 | OLED reset |
 
-**Note:** There are GPIO pin conflicts that must be managed in software:
-- GPIO9 is shared between RFID-RC522 MISO and Rotary Encoder B
-- GPIO2 is shared between Rotary Encoder SW and I2C SDA
-- GPIO3 is shared between Power Button and I2C SCL
-- SPI bus is shared between RFID reader and OLED display
+### Raspberry Pi GPIO Pinout Diagram
+
+```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
+graph TB
+    classDef header fill:#6d1a36,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef power fill:#f4cccc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef ground fill:#000000,stroke:#5D4037,stroke-width:1px,color:#fff,font-family:'Courier New'
+    classDef gpio fill:#d9ead3,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef spi fill:#fff2cc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef i2c fill:#cfe2f3,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef uart fill:#ead1dc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef rotary fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef oled fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
+    classDef rfid fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
+    classDef i2cbus fill:#EFEBE9,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
+    classDef matrix fill:#F5F5F5,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
+    
+    %% Header row
+    header["Raspberry Pi GPIO Pinout"]:::header
+    
+    %% Create the main grid structure
+    subgraph pins["Physical Pins"]
+        %% Left side pins (odd numbers)
+        p1["1: 3.3V"]:::power --- p3["3: GPIO2/SDA"]:::i2c
+        p3 --- p5["5: GPIO3/SCL"]:::i2c
+        p5 --- p7["7: GPIO4"]:::gpio
+        p7 --- p9["9: GND"]:::ground
+        p9 --- p11["11: GPIO17"]:::rotary
+        p11 --- p13["13: GPIO27"]:::rotary
+        p13 --- p15["15: GPIO22"]:::rotary
+        p15 --- p17["17: 3.3V"]:::power
+        p17 --- p19["19: GPIO10/MOSI"]:::spi
+        p19 --- p21["21: GPIO9/MISO"]:::spi
+        p21 --- p23["23: GPIO11/SCLK"]:::spi
+        p23 --- p25["25: GND"]:::ground
+        p25 --- p27["27: ID_SD"]:::i2c
+        p27 --- p29["29: GPIO5"]:::gpio
+        p29 --- p31["31: GPIO6"]:::gpio
+        p31 --- p33["33: GPIO13"]:::gpio
+        p33 --- p35["35: GPIO19"]:::gpio
+        p35 --- p37["37: GPIO26"]:::gpio
+        p37 --- p39["39: GND"]:::ground
+        
+        %% Right side pins (even numbers)
+        p2["2: 5V"]:::power --- p4["4: 5V"]:::power
+        p4 --- p6["6: GND"]:::ground
+        p6 --- p8["8: GPIO14/TXD"]:::uart
+        p8 --- p10["10: GPIO15/RXD"]:::uart
+        p10 --- p12["12: GPIO18"]:::gpio
+        p12 --- p14["14: GND"]:::ground
+        p14 --- p16["16: GPIO23"]:::gpio
+        p16 --- p18["18: GPIO24"]:::oled
+        p18 --- p20["20: GND"]:::ground
+        p20 --- p22["22: GPIO25"]:::oled
+        p22 --- p24["24: GPIO8/CE0"]:::rfid
+        p24 --- p26["26: GPIO7/CE1"]:::oled
+        p26 --- p28["28: ID_SC"]:::i2c
+        p28 --- p30["30: GND"]:::ground
+        p30 --- p32["32: GPIO12"]:::gpio
+        p32 --- p34["34: GND"]:::ground
+        p34 --- p36["36: GPIO16"]:::gpio
+        p36 --- p38["38: GPIO20"]:::gpio
+        p38 --- p40["40: GPIO21"]:::gpio
+    end
+    
+    %% Component groupings
+    subgraph rotary_encoder["Rotary Encoder"]
+        rotary_a["A: GPIO17 (Pin 11)"]:::rotary
+        rotary_b["B: GPIO22 (Pin 15)"]:::rotary
+        rotary_sw["SW: GPIO27 (Pin 13)"]:::rotary
+    end
+    
+    subgraph oled_display["OLED Display (SSD1306)"]
+        oled_dc["DC: GPIO24 (Pin 18)"]:::oled
+        oled_reset["RESET: GPIO25 (Pin 22)"]:::oled
+        oled_cs["CS: GPIO7 (Pin 26)"]:::oled
+        oled_mosi["MOSI: GPIO10 (Pin 19)"]:::spi
+        oled_sck["SCK: GPIO11 (Pin 23)"]:::spi
+    end
+    
+    subgraph rfid_reader["RFID Reader (RC522)"]
+        rfid_sda["SDA: GPIO8 (Pin 24)"]:::rfid
+        rfid_miso["MISO: GPIO9 (Pin 21)"]:::spi
+        rfid_mosi["MOSI: GPIO10 (Pin 19)"]:::spi
+        rfid_sck["SCK: GPIO11 (Pin 23)"]:::spi
+        rfid_rst["RST: GPIO25 (Pin 22)"]:::rfid
+    end
+    
+    subgraph i2c_bus["I2C Bus"]
+        i2c_sda["SDA: GPIO2 (Pin 3)"]:::i2cbus
+        i2c_scl["SCL: GPIO3 (Pin 5)"]:::i2cbus
+    end
+    
+    subgraph matrix_components["Matrix Display Components"]
+        matrix_multiplexer["I2C Multiplexer (TCA9548A)"]:::i2cbus
+        matrix_display1["LED Matrix Display 1 (IS31FL3731)"]:::i2cbus
+        matrix_display2["LED Matrix Display 2 (IS31FL3731)"]:::i2cbus
+    end
+    
+    %% Connect components to pins
+    rotary_a --- p11
+    rotary_b --- p15
+    rotary_sw --- p13
+    
+    oled_dc --- p18
+    oled_reset --- p22
+    oled_cs --- p26
+    oled_mosi --- p19
+    oled_sck --- p23
+    
+    rfid_sda --- p24
+    rfid_miso --- p21
+    rfid_mosi --- p19
+    rfid_sck --- p23
+    rfid_rst --- p22
+    
+    i2c_sda --- p3
+    i2c_scl --- p5
+    
+    %% Matrix connections through I2C
+    matrix_multiplexer --- i2c_sda
+    matrix_multiplexer --- i2c_scl
+    matrix_display1 --- matrix_multiplexer
+    matrix_display2 --- matrix_multiplexer
+    
+    %% Shared connections callouts
+    shared1["Shared: GPIO25 (OLED RESET & RFID RST)"]
+    shared2["Shared: GPIO10/MOSI (OLED & RFID)"]
+    shared3["Shared: GPIO11/SCLK (OLED & RFID)"]
+    
+    shared1 --- p22
+    shared2 --- p19
+    shared3 --- p23
+```
+
+![Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
+
+**Note:** The following GPIO pins are shared between components:
+- GPIO25 is shared between RFID-RC522 RST and OLED RESET
+- SPI bus (GPIO10/MOSI, GPIO11/SCLK) is shared between RFID reader and OLED display
+- I2C bus (GPIO2/SDA, GPIO3/SCL) is shared between the I2C Multiplexer and other I2C devices
+- The LED Matrix Displays are connected to the I2C Multiplexer (TCA9548A) to allow multiple displays on the same I2C bus
+
+For a detailed visual reference of the Raspberry Pi GPIO pinout, you can also refer to this image:
+[Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
 
 ## Setup Instructions
 
@@ -72,15 +226,39 @@ git clone https://github.com/declanshanaghy/gwent.git
 cd gwent
 ```
 
-### 2. Run the Setup Script
+### 2. Prepare the System
 
-The setup script will install all necessary dependencies, configure the system, and set up the Python environment.
+Before running the installation scripts, you need to perform some manual setup steps:
 
 ```bash
-sudo ./setup_raspberry_pi.sh
+# Update system packages
+sudo apt-get update
+
+# Enable SPI & I2C interfaces
+sudo raspi-config
+# Navigate to "Interface Options" and enable both SPI and I2C
+
+# Create a user for the application (optional)
+sudo useradd -m geralt
+sudo usermod -G sudo,gpio,spi,i2c -a geralt
+
+# Install SSH public key (if using remote access)
+# Place your public key in ~geralt/.ssh/authorized_keys
+
+# Configure sudo without password (optional)
+# Add the following line to /etc/sudoers using visudo:
+# %sudo  ALL=(ALL) NOPASSWD: ALL
 ```
 
-The script performs the following actions:
+### 3. Run the Setup Script
+
+After completing the manual setup steps, run the installation script to set up the environment:
+
+```bash
+make install
+```
+
+The `make install` command runs the installation scripts that perform the following actions:
 - Updates the system packages
 - Installs system dependencies
 - Installs WiringPi
@@ -92,7 +270,11 @@ The script performs the following actions:
 - Creates a hardware test script
 - Creates a convenience script to activate the virtual environment
 
-### 3. Reboot the Raspberry Pi
+You can also run specific installation steps:
+- `make install-app`: Install just the application
+- `make install-system`: Install just the system dependencies
+
+### 4. Reboot the Raspberry Pi
 
 After the setup script completes, reboot the Raspberry Pi to apply all changes:
 
@@ -100,7 +282,7 @@ After the setup script completes, reboot the Raspberry Pi to apply all changes:
 sudo reboot
 ```
 
-### 4. Activate the Virtual Environment
+### 5. Activate the Virtual Environment
 
 After rebooting, activate the virtual environment:
 
@@ -108,7 +290,7 @@ After rebooting, activate the virtual environment:
 source ./activate_gwent.sh
 ```
 
-### 5. Test the Hardware
+### 6. Test the Hardware
 
 Run the hardware test script to verify that all components are working correctly:
 
@@ -126,7 +308,7 @@ The test script will check:
 - MQTT broker
 - Redis server
 
-### 6. Run the Gwent Game
+### 7. Run the Gwent Game
 
 Once everything is set up and tested, you can run the Gwent game:
 
@@ -144,7 +326,7 @@ read_card
 write_card
 ```
 
-### 7. Development
+### 8. Development
 
 The new Gwent implementation is structured as follows:
 
@@ -217,9 +399,8 @@ sudo systemctl start redis-server
 
 ## Additional Resources
 
-- [Raspberry Pi GPIO Documentation](https://www.raspberrypi.org/documentation/usage/gpio/)
-- [SPI Documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/spi/README.md)
+- [Raspberry Pi GPIO Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio)
+- [SPI Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi-overview)
 - [I2C Documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/i2c/README.md)
-- [MFRC522 Python Library](https://github.com/pimylifeup/MFRC522-python)
+- [MFRC522 Python Library](https://github.com/declanshanaghy/MFRC522-python/tree/handle_all_sectors)
 - [Luma.OLED Documentation](https://luma-oled.readthedocs.io/)
-- [Gaugette Library](https://github.com/guyc/py-gaugette)

@@ -215,7 +215,10 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          - Fixed bug in related component that was preventing proper integration"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
-     *   When using git commands like `log`, `branch`, or `diff`, disable the pager to avoid interactive prompts by using the `--no-pager` option (e.g., `git --no-pager log`) or setting `GIT_PAGER=cat` before the command.
+     *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
+         * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
+         * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
+         * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
 
 9.  **Mark Task Complete:**
      *   **IMPORTANT**: After committing all changes to git (as described in step 8) and verifying the implementation, mark the task or subtask as completed: `set_task_status` / `task-master set-status --id=<taskId> --status=done`.
@@ -267,6 +270,17 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - For remote branches, use `git push origin --delete <branch-name>` after the PR is merged.
     - This practice helps maintain a clean repository and makes it clear which branches are still being worked on.
 
+## Documentation Requirements
+
+- **Official style**:
+
+- The style guide MUST be followed for all design documentation in the project. The "latte drinking l33tC0dzr long hair, hippy trousers architect in an ivory tower style" is not just a recommendation—it's a requirement for maintaining consistent documentation aesthetics across the project.
+- Technical specifications should use accurate names and terms however logical diagrams, high level architectural descriptions and analogies may be used lightly to add some levity while reading.
+
+- **Mermaid Diagrams**:
+
+- Design documentation should use mermaid diagrams using the standard l33tC0dzr style for visual consistency
+
 ## Code Style and Typing Requirements
 
 - **Strict Typing**:
@@ -281,6 +295,27 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         - Use explicit type annotations rather than relying on type inference.
         - Enable strict mode in tsconfig.json.
     - Strict typing improves code quality, readability, and helps catch errors early.
+
+---
+
+## Design Documentation Style Requirements
+
+- **Architecture Diagram Style**:
+    - All architecture diagrams MUST be created in the "latte drinking l33tC0dzr long hair, hippy trousers architect in an ivory tower style" 🧙‍♂️☕
+    - Use Mermaid diagrams with custom styling for all architecture visualizations
+    - **REQUIRED**: Follow the [Mermaid Style Guide](mdc:design/MermaidStyleGuide.md) for consistent styling across all diagrams
+    - Include appropriate emojis as visual indicators for different component types
+    - Hardware components MUST have nice visual references (e.g., 📱 for displays, 🎛️ for controls)
+    - Software components should use computing-related emojis (💻, 🖥️, 📨)
+    - Apply a consistent color scheme that enhances readability while maintaining the aesthetic
+    - Use creative, slightly whimsical naming for component groups (e.g., "Artisanal Hardware" instead of just "Hardware")
+    - Keep the mood light and enjoyable - not every bullet point needs a clever reference
+    - Group related components in labeled subgraphs with thematic styling
+    - Include a detailed component description section with a touch of personality
+    - **IMPORTANT**: Technical implementations (like message topics, API endpoints, function names) MUST be specific and accurate without creative naming
+    - Logical descriptions and component groups may include light humor and creative naming
+    - See [design/GwentPubSub.md](mdc:design/GwentPubSub.md) for a reference implementation
+    - All new mermaid diagrams MUST include the initialization directive from the [Mermaid Style Guide](mdc:design/MermaidStyleGuide.md)
 
 ---
 

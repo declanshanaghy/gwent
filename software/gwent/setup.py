@@ -86,6 +86,18 @@ setuptools.setup(
             'gwent=gwent.game.main:main',
             'read_card=gwent.game.card_tools:read_card',
             'write_card=gwent.game.card_tools:write_card',
+            
+            # POC script entry points
+            'rotary-rpigpio-test=gwent.poc.input_tests.rotary_rpigpio:run',
+            'rotary-gpiozero-test=gwent.poc.input_tests.rotary_gpiozero:run',
+            'rfid-test=gwent.poc.rfid_tests.rfid:run',
+            'oled-ssd1306-test=gwent.poc.display_tests.oled_test:run',
+            'oled-ssd1305-pillow-test=gwent.poc.display_tests.ssd1305_pillow_demo:main',
+            'oled-ssd1305-luma-test=gwent.poc.display_tests.ssd1305_luma_demo:main',
+            'matrix-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            'oled-test=gwent.poc.display_tests.oled_test:run',
+            'oled-direct-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            'display-diagnostic=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
         ],
     }
 )
