@@ -1,4 +1,5 @@
 import threading
+import time
 
 import gwent.cards
 import gwent.messaging.factory
@@ -53,9 +54,9 @@ class MFD(gwent.game.ThreadComponent):
                     self._log.info("Setting stop event for chooser thread")
                     self._chooser_stop_event.set()
                     self._log.info("Joining chooser thread with 1.0s timeout")
-                    start_time = threading.time.time()
+                    start_time = time.time()
                     self._chooser_thread.join(timeout=1.0)
-                    elapsed = threading.time.time() - start_time
+                    elapsed = time.time() - start_time
                     self._log.info(f"Join completed after {elapsed:.3f}s")
                     
                     if self._chooser_thread.is_alive():

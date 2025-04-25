@@ -82,7 +82,14 @@ class MQTTClient:
         self._log.info("Disconnecting from MQTT broker")
         self._client.loop_stop()
         self._client.disconnect()
-        return self._connected.wait_for(lambda: not self._connected.is_set(), timeout=5)
+        
+        # Wait for the connected event to be cleared (with timeout)
+        start_time = time.time()
+        timeout = 5  # 5 seconds timeout
+        while self._connected.is_set() and (time.time() - start_time) < timeout:
+            time.sleep(0.1)
+        
+        return not self._connected.is_set()
     
     def subscribe(self, topic, callback):
         """Subscribe to a topic with a callback"""
