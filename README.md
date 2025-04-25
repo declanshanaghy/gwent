@@ -1,6 +1,6 @@
-# Gwent Companion
+# ☕ Gwent Companion: The Artisanal Card Game Experience 🧙‍♂️
 
-A digital companion for the physical card game Gwent from The Witcher III. This project combines physical cards with digital tracking to enhance the gameplay experience while maintaining the tactile feel of the original game.
+A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.
 
 ## Overview
 
@@ -75,6 +75,8 @@ For detailed information about architectural decisions, see the Architecture Dec
 - [ADR-001](design/ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
 - [ADR-002](design/ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
 
+For a comprehensive view of all project documentation, see our [📚 Documentation Table of Contents](toc.md).
+
 ## Why This Project?
 
 Gwent is a complex card game where score tracking can be cumbersome. This companion device:
@@ -98,13 +100,20 @@ The project is organized into several key areas:
 
 See the design documentation for detailed information about each component.
 
-## Documentation
+## 📚 Documentation
 
-- [Design Documentation](design/README.md): Complete design documentation including architecture decisions, tasks, and specifications
+- [Complete Documentation Table of Contents](toc.md): Comprehensive guide to all project documentation
+- [Design Documentation](design/README.md): Artisanal design documentation including architecture decisions, tasks, and specifications
 - [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system
 - [Technical Design Documents](design/):
-  - PDF Documents:
-    - [GwentPubSub.pdf](design/GwentPubSub.pdf): Publish-subscribe architecture for component communication
-    - [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
-  - Mermaid Diagrams:
+  - 📊 Architecture Diagrams:
     - [GwentPubSub.md](design/GwentPubSub.md): Interactive diagram of the publish-subscribe architecture
+    - [GwentPubSub.pdf](design/GwentPubSub.pdf): PDF version of the publish-subscribe architecture
+    - [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
+  - 🎭 Style Guidelines:
+    - [Design Documentation Style Guide](design/DesignDocumentationStyleGuide.md): Guidelines for creating consistent design documentation
+- [Software Components](software/):
+  - [Gwent Core](software/gwent/README.md): Main game logic and system service
+  - [Gwent Elements](software/gwent-elements/README.md): Hardware interface components
+  - [Glory Gate](software/glory-gate/README.md): React-based web interface
+- [Development Tools](scripts/README.md): Scripts and utilities for development
