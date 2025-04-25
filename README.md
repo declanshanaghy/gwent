@@ -1,72 +1,88 @@
 # ☕ Gwent Companion: The Artisanal Card Game Experience 🧙‍♂️
 
+![Gwent Logo](https://i.imgur.com/XYZ123.png) <!-- Replace with actual Gwent logo image URL -->
+
 A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.
 
-## Overview
+![Gwent Companion Hardware](https://i.imgur.com/ABC456.png) <!-- Replace with actual hardware image URL -->
+
+## 🔍 Overview
 
 The Gwent Companion is a digital device that works alongside physical Gwent cards to:
-- Track game and round scores automatically
-- Manage player decks
-- Provide a digital interface for game management
-- Maintain the authentic feel of physical card play
-- Guide players through the entire game process
+- 🎮 Track game and round scores automatically
+- 🃏 Manage player decks
+- 💻 Provide a digital interface for game management
+- 👐 Maintain the authentic feel of physical card play
+- 🧭 Guide players through the entire game process
 
-## Hardware Components
+![Gwent Game Flow](https://i.imgur.com/DEF789.png) <!-- Replace with actual game flow diagram -->
 
-- **RFID-Enabled Cards**: Each physical Gwent card contains an RFID chip for identification
-- **Cloth Game Mat**: Traditional playing surface
-- **Digital Companion**:
-  - Raspberry Pi for hardware interfacing and game management
-  - Integrated RFID card reader
-  - Round score display
-  - Game score display
-  - LCD menu system with interactive navigation
-  - Rotary dial for menu navigation and selection
-  - Power management system
+## 🔌 Hardware Components
 
-## Software Components
+- **💳 RFID-Enabled Cards**: Each physical Gwent card contains an RFID chip for identification
+- **🧵 Cloth Game Mat**: Traditional playing surface
+- **🖥️ Digital Companion**:
+  - 🥧 Raspberry Pi for hardware interfacing and game management
+  - 📡 Integrated RFID card reader
+  - 🔢 Round score display
+  - 🏆 Game score display
+  - 📱 LCD menu system with interactive navigation
+  - 🎛️ Rotary dial for menu navigation and selection
+  - ⚡ Power management system
 
-- **Game Server**: Runs on the Raspberry Pi
+![Hardware Components Diagram](https://i.imgur.com/GHI101.png) <!-- Replace with actual hardware diagram -->
+
+## 💾 Software Components
+
+- **🖥️ Game Server**: Runs on the Raspberry Pi
   - `gwent`: System service application for game state management
-    - Primary service: Game state management and hardware interfacing
-    - Secondary service: REST API for external interfaces
-- **Glory Gate**: React-based Single Page Application
+    - 🎮 Primary service: Game state management and hardware interfacing
+    - 🌐 Secondary service: REST API for external interfaces
+- **⚔️ Glory Gate**: React-based Single Page Application
   - Application name: `glory-gate`
-  - Web-based interface for game management
-  - Connects to the game server via REST API
-  - Named after one of the six gates in Novigrad, connecting Farcorners district to Glory Lane
+  - 🌍 Web-based interface for game management
+  - 🔌 Connects to the game server via REST API
+  - 🏙️ Named after one of the six gates in Novigrad, connecting Farcorners district to Glory Lane
 
-## Features
+![Software Architecture](https://i.imgur.com/JKL112.png) <!-- Replace with actual architecture diagram -->
 
-- **Automatic Score Tracking**: Eliminates manual score keeping
-- **Deck Management**: Track and manage player decks
-- **Game History**: Record and review past games
-- **Rule Reference**: Quick access to game rules
-- **Statistics**: Track win/loss records and performance metrics
-- **Game Guidance**: Step-by-step assistance through the game process
-- **Menu System**: Interactive menu system for device configuration and control
-- **Web Interface**: Access game data and controls through Glory Gate
+## ✨ Features
 
-## How It Works
+- **🧮 Automatic Score Tracking**: Eliminates manual score keeping
+- **🃏 Deck Management**: Track and manage player decks
+- **📜 Game History**: Record and review past games
+- **📖 Rule Reference**: Quick access to game rules
+- **📊 Statistics**: Track win/loss records and performance metrics
+- **🧭 Game Guidance**: Step-by-step assistance through the game process
+- **📋 Menu System**: Interactive menu system for device configuration and control
+- **🌐 Web Interface**: Access game data and controls through Glory Gate
 
-1. The Raspberry Pi runs the `gwent` system service that manages the entire game state
-2. Players use their physical Gwent cards as normal
-3. The companion reads cards via its integrated RFID reader when cards are placed on the mat
-4. The `gwent` service processes card data and updates the game state
-6. The rotary interface allows for easy menu navigation and configuration
-7. The menu system provides access to audio settings and other configuration options
-8. The `gwent` service guides players through each phase of the game
-9. Game state is maintained throughout the match
-10. The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
+![Feature Showcase](https://i.imgur.com/MNO131.png) <!-- Replace with actual feature showcase image -->
 
-## Project Status
+## ⚙️ How It Works
+
+1. 🥧 The Raspberry Pi runs the `gwent` system service that manages the entire game state
+2. 🃏 Players use their physical Gwent cards as normal
+3. 📡 The companion reads cards via its integrated RFID reader when cards are placed on the mat
+4. 🔄 The `gwent` service processes card data and updates the game state
+5. 🎛️ The rotary interface allows for easy menu navigation and configuration
+6. 📱 The menu system provides access to audio settings and other configuration options
+7. 🧭 The `gwent` service guides players through each phase of the game
+8. 💾 Game state is maintained throughout the match
+9. 🌐 The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
+
+![How It Works Diagram](https://i.imgur.com/PQR415.png) <!-- Replace with actual workflow diagram -->
+
+## 🚧 Project Status
 
 This project is currently in active development. The following components have been implemented:
 
-- **Hardware Interface**: Physical interface controls including rotary encoder and OLED display
-- **Audio System**: Multi-channel audio playback with background music and sound effects
-- **Menu System**: Interactive menu system with navigation and selection via rotary encoder
-- **Service Management**: Systemd service for automatic startup and management
+- **🔌 Hardware Interface**: Physical interface controls including rotary encoder and OLED display
+- **🔊 Audio System**: Multi-channel audio playback with background music and sound effects
+- **📱 Menu System**: Interactive menu system with navigation and selection via rotary encoder
+- **⚙️ Service Management**: Systemd service for automatic startup and management
+
+![Development Progress](https://i.imgur.com/STU161.png) <!-- Replace with actual development progress image -->
 
 The design documentation starts with the [Product Requirements Document](design/000-product-requirements.md), which outlines the core requirements and features. See the [task-list.mdc](task-list.mdc) file for current progress and upcoming tasks.
 
@@ -77,28 +93,32 @@ For detailed information about architectural decisions, see the Architecture Dec
 
 For a comprehensive view of all project documentation, see our [📚 Documentation Table of Contents](toc.md).
 
-## Why This Project?
+## 🤔 Why This Project?
 
 Gwent is a complex card game where score tracking can be cumbersome. This companion device:
-- Maintains the physical card play experience
-- Automates tedious score keeping
-- Adds digital features without compromising the game's essence
-- Makes the game more accessible to new players
-- Provides guidance through the game process
-- Offers both physical and web-based interfaces
+- 🃏 Maintains the physical card play experience
+- 🧮 Automates tedious score keeping
+- 💻 Adds digital features without compromising the game's essence
+- 🔰 Makes the game more accessible to new players
+- 🧭 Provides guidance through the game process
+- 🌐 Offers both physical and web-based interfaces
 
-## Getting Started
+![User Experience Benefits](https://i.imgur.com/VWX718.png) <!-- Replace with actual UX benefits image -->
+
+## 🚀 Getting Started
 
 The project is organized into several key areas:
-- Hardware design and implementation
-- Software development
+- 🔌 Hardware design and implementation
+- 💻 Software development
   - `gwent` system service
-    - Game state management
-    - Hardware interfacing
-    - REST API implementation
+    - 🎮 Game state management
+    - 🔌 Hardware interfacing
+    - 🌐 REST API implementation
   - `glory-gate` React front-end development
 
-See the design documentation for detailed information about each component.
+See the [design documentation](design/README.md) for detailed information about each component.
+
+![Project Structure](https://i.imgur.com/YZA819.png) <!-- Replace with actual project structure diagram -->
 
 ## 📚 Documentation
 

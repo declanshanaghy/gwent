@@ -42,3 +42,13 @@ Many of these POC scripts have corresponding implementations in the HAL (Hardwar
 - RFID POC scripts → `gwent/hal/rfid.py`
 
 The game functionality that uses these hardware components is implemented in the `gwent/game/` directory.
+
+## Hardware Setup
+
+For detailed instructions on setting up the Raspberry Pi hardware environment, including GPIO pin connections and component configuration, please refer to the [Raspberry Pi Development Environment Setup Instructions](../../../../SETUP_INSTRUCTIONS.md).
+
+This document provides:
+- Hardware component details
+- GPIO pin connection diagrams
+- Installation instructions
+- Troubleshooting tips

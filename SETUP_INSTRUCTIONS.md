@@ -212,9 +212,33 @@ git clone https://github.com/declanshanaghy/gwent.git
 cd gwent
 ```
 
-### 2. Run the Setup Script
+### 2. Prepare the System
 
-The setup script will install all necessary dependencies, configure the system, and set up the Python environment.
+Before running the installation scripts, you need to perform some manual setup steps:
+
+```bash
+# Update system packages
+sudo apt-get update
+
+# Enable SPI & I2C interfaces
+sudo raspi-config
+# Navigate to "Interface Options" and enable both SPI and I2C
+
+# Create a user for the application (optional)
+sudo useradd -m geralt
+sudo usermod -G sudo,gpio,spi,i2c -a geralt
+
+# Install SSH public key (if using remote access)
+# Place your public key in ~geralt/.ssh/authorized_keys
+
+# Configure sudo without password (optional)
+# Add the following line to /etc/sudoers using visudo:
+# %sudo  ALL=(ALL) NOPASSWD: ALL
+```
+
+### 3. Run the Setup Script
+
+After completing the manual setup steps, run the installation script to set up the environment:
 
 ```bash
 make install
@@ -236,7 +260,7 @@ You can also run specific installation steps:
 - `make install-app`: Install just the application
 - `make install-system`: Install just the system dependencies
 
-### 3. Reboot the Raspberry Pi
+### 4. Reboot the Raspberry Pi
 
 After the setup script completes, reboot the Raspberry Pi to apply all changes:
 
@@ -244,7 +268,7 @@ After the setup script completes, reboot the Raspberry Pi to apply all changes:
 sudo reboot
 ```
 
-### 4. Activate the Virtual Environment
+### 5. Activate the Virtual Environment
 
 After rebooting, activate the virtual environment:
 
@@ -252,7 +276,7 @@ After rebooting, activate the virtual environment:
 source ./activate_gwent.sh
 ```
 
-### 5. Test the Hardware
+### 6. Test the Hardware
 
 Run the hardware test script to verify that all components are working correctly:
 
@@ -270,7 +294,7 @@ The test script will check:
 - MQTT broker
 - Redis server
 
-### 6. Run the Gwent Game
+### 7. Run the Gwent Game
 
 Once everything is set up and tested, you can run the Gwent game:
 
@@ -288,7 +312,7 @@ read_card
 write_card
 ```
 
-### 7. Development
+### 8. Development
 
 The new Gwent implementation is structured as follows:
 
