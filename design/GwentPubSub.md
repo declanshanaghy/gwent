@@ -1,97 +1,105 @@
-# Gwent Publish-Subscribe Architecture
+# 📊 Gwent Publish-Subscribe Architecture: The l33tC0dzr Edition ☕
 
-This diagram represents the publish-subscribe architecture used for communication between components in the Gwent Companion system.
+This artisanal diagram represents the publish-subscribe architecture used for communication between components in the Gwent Companion system, crafted with care by our ivory tower architects.
 
 ```mermaid
-flowchart TB
-    %% Hardware Components
-    subgraph Hardware
-        rfidReader["RFID Reader\n(MFRC522)"]
-        rfidWriter["RFID Writer"]
-        display["Display"]
-        rotaryBtn["Rotary Button"]
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#5D4037',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9'
+  }
+}}%%
+
+flowchart LR
+    %% Hardware Components with Hipster Icons
+    subgraph Hardware["🔧 Artisanal Hardware Components"]
+        rfidReader["📡 RFID Reader\n(MFRC522)"]
+        rfidWriter["✍️ RFID Writer\nFair-Trade Data Inscriber"]
+        display["📱 Display\nOLED Canvas"]
+        rotaryBtn["🎛️ Rotary Button\nVintage Interface"]
     end
 
     %% Software Components
-    subgraph Software
-        mfd["MFD"]
-        pubsub["Pub/Sub System"]
-        gameControl["Game Control"]
-        sfx["SFX\n(pygame)"]
-        menus["Menus"]
+    subgraph Software["💻 Craft Software"]
+        mfd["🖥️ MFD\nMulti-Function Display"]
+        pubsub["☕ Pub/Sub System\nFair-Trade Message Broker"]
+        gameControl["🎮 Game Control\nOrganic Game Logic"]
+        sfx["🎵 SFX\n(pygame)"]
+        menus["📋 Menus\nHand-Crafted UI"]
     end
 
-    %% Game States
-    subgraph GameStates
-        registerLeaders["Register Leaders"]
-        registerDecks["Register Decks"]
-        dealCards["Deal Cards"]
-        playRound["Play Round"]
-        playLeader["Play Leader"]
-        roundEnd["Round End"]
-        gameEnd["Game End"]
+    %% Message Topics as Coffee Varieties
+    subgraph Topics["📨 Small-Batch Message Topics"]
+        mfdTopic["mfd\n(Ethiopian Blend)"]
+        choosepresentTopic["choosepresent\n(Colombian Roast)"]
+        cardsTopic["cards\n(Sumatra Dark)"]
+        rawTopic["raw\n(Green Beans)"]
+        readwriteTopic["readwrite\n(French Press)"]
+        playTopic["play\n(Pour Over)"]
+        sfxctrlTopic["sfxctrl\n(Cold Brew)"]
     end
 
-    %% Display Components
-    subgraph DisplayComponents
-        boardHand["Board/Hand"]
-        grave["Grave"]
-        deck["Deck"]
-        player["Player"]
-        close["Close"]
-        range["Range"]
-        siegeTot["Siege Total"]
+    %% Game States as Vinyl Records
+    subgraph GameStates["💿 Vinyl Collection Game States"]
+        registerLeaders["🎵 Register Leaders\nLimited Edition"]
+        registerDecks["🎵 Register Decks\nFirst Pressing"]
+        dealCards["🎵 Deal Cards\nAnalog Warmth"]
+        playRound["🎵 Play Round\nB-Side"]
+        playLeader["🎵 Play Leader\nCollector's Edition"]
+        roundEnd["🎵 Round End\nBonus Track"]
+        gameEnd["🎵 Game End\nVinyl Outro"]
     end
 
-    %% Message Topics
-    mfdTopic["mfd"]
-    choosepresentTopic["choosepresent"]
-    cardsTopic["cards"]
-    rawTopic["raw"]
-    readwriteTopic["readwrite"]
-    playTopic["play"]
-    sfxctrlTopic["sfxctrl"]
+    %% Display Components as Typewriter Keys
+    subgraph DisplayComponents["⌨️ Vintage Display Components"]
+        boardHand["🃏 Board/Hand\nLetterpress-Printed"]
+        grave["⚰️ Grave\nReclaimed Wood"]
+        deck["🎴 Deck\nSustainably Harvested"]
+        player["👤 Player\nFree-Range"]
+        close["⚔️ Close\nArtisanal Combat"]
+        range["🏹 Range\nHand-Forged"]
+        siegeTot["🏰 Siege Total\nSmall-Batch"]
+    end
 
-    %% Connections
-    rfidReader --> rawTopic
-    rawTopic --> mfd
-    mfd --> mfdTopic
-    mfdTopic --> pubsub
+    %% Connections with Artisanal Flow
+    rfidReader ==> rawTopic
+    rawTopic ==> mfd
+    mfd ==> mfdTopic
+    mfdTopic ==> pubsub
     
-    rotaryBtn --> choosepresentTopic
-    choosepresentTopic --> pubsub
+    rotaryBtn ==> choosepresentTopic
+    choosepresentTopic ==> pubsub
     
-    pubsub --> cardsTopic
-    cardsTopic --> gameControl
+    pubsub ==> cardsTopic
+    cardsTopic ==> gameControl
     
-    gameControl --> playTopic
-    playTopic --> pubsub
+    gameControl ==> playTopic
+    playTopic ==> pubsub
     
-    pubsub --> sfxctrlTopic
-    sfxctrlTopic --> sfx
+    pubsub ==> sfxctrlTopic
+    sfxctrlTopic ==> sfx
     
-    gameControl --> menus
-    menus --> display
+    gameControl ==> menus
+    menus ==> display
     
-    pubsub --> readwriteTopic
-    readwriteTopic --> rfidWriter
+    pubsub ==> readwriteTopic
+    readwriteTopic ==> rfidWriter
     
-    gameControl --> registerLeaders
-    gameControl --> registerDecks
-    gameControl --> dealCards
-    gameControl --> playRound
-    gameControl --> playLeader
-    gameControl --> roundEnd
-    gameControl --> gameEnd
+    gameControl ==> GameStates
     
-    display --> DisplayComponents
+    display ==> DisplayComponents
     
-    %% Styling
-    classDef hardware fill:#f9d5e5,stroke:#333,stroke-width:1px
-    classDef software fill:#eeeeee,stroke:#333,stroke-width:1px
-    classDef topic fill:#d5f9e5,stroke:#333,stroke-width:1px
-    classDef gameState fill:#e5d5f9,stroke:#333,stroke-width:1px
-    classDef display fill:#f9e5d5,stroke:#333,stroke-width:1px
+    %% Hipster Styling
+    classDef hardware fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef software fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
+    classDef topic fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
+    classDef gameState fill:#EFEBE9,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
+    classDef display fill:#F5F5F5,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
     
     class rfidReader,rfidWriter,display,rotaryBtn hardware
     class mfd,pubsub,gameControl,sfx,menus software
@@ -100,44 +108,44 @@ flowchart TB
     class boardHand,grave,deck,player,close,range,siegeTot display
 ```
 
-## Component Descriptions
+## 📜 Artisanal Component Descriptions
 
-### Hardware Components
-- **RFID Reader (MFRC522)**: Reads RFID tags from cards
-- **RFID Writer**: Writes data to RFID tags
-- **Display**: Shows game information and menus
-- **Rotary Button**: User input device for navigation and selection
+### 🔧 Handcrafted Hardware Components
+- **📡 RFID Reader (MFRC522)**: Locally-sourced RFID tag reader for cards, with sustainable power consumption
+- **✍️ RFID Writer**: Artisanal data writer for RFID tags, crafted with care
+- **📱 Display**: Small-batch OLED canvas for displaying game information and menus
+- **🎛️ Rotary Button**: Vintage-inspired analog interface for navigation and selection, with authentic tactile feedback
 
-### Software Components
-- **MFD**: Multi-Function Display controller
-- **Pub/Sub System**: Central message broker for component communication
-- **Game Control**: Main game logic controller
-- **SFX (pygame)**: Sound effects and audio system
-- **Menus**: Menu system for user interaction
+### 💻 Craft Software Components
+- **🖥️ MFD**: Multi-Function Display controller, coded in a Brooklyn warehouse
+- **☕ Pub/Sub System**: Fair-trade message broker for component communication, with zero waste architecture
+- **🎮 Game Control**: Organic game logic controller with gluten-free algorithms
+- **🎵 SFX (pygame)**: Sound effects and audio system, mixed on vinyl
+- **📋 Menus**: Hand-crafted menu system with locally-sourced UI elements
 
-### Message Topics
-- **mfd**: Display control messages
-- **choosepresent**: User input selection messages
-- **cards**: Card data messages
-- **raw**: Raw RFID data
-- **readwrite**: RFID write commands
-- **play**: Game play actions
-- **sfxctrl**: Sound effect control messages
+### 📨 Small-Batch Message Topics
+- **mfd (Ethiopian Blend)**: Single-origin display control messages
+- **choosepresent (Colombian Roast)**: Shade-grown user input selection messages
+- **cards (Sumatra Dark)**: Fair-trade card data messages
+- **raw (Green Beans)**: Unprocessed, raw RFID data
+- **readwrite (French Press)**: Slow-pressed RFID write commands
+- **play (Pour Over)**: Carefully filtered game play actions
+- **sfxctrl (Cold Brew)**: Overnight-steeped sound effect control messages
 
-### Game States
-- **Register Leaders**: Leader card registration phase
-- **Register Decks**: Deck registration phase
-- **Deal Cards**: Card dealing phase
-- **Play Round**: Round gameplay phase
-- **Play Leader**: Leader card play phase
-- **Round End**: End of round processing
-- **Game End**: End of game processing
+### 💿 Vinyl Collection Game States
+- **🎵 Register Leaders**: Leader card registration phase, pressed on 180g vinyl
+- **🎵 Register Decks**: Deck registration phase, limited edition pressing
+- **🎵 Deal Cards**: Card dealing phase, with analog warmth
+- **🎵 Play Round**: Round gameplay phase, remastered from original tapes
+- **🎵 Play Leader**: Leader card play phase, collector's edition
+- **🎵 Round End**: End of round processing, with bonus tracks
+- **🎵 Game End**: End of game processing, includes digital download code
 
-### Display Components
-- **Board/Hand**: Card display areas
-- **Grave**: Graveyard display
-- **Deck**: Deck display
-- **Player**: Player information display
-- **Close**: Close combat row display
-- **Range**: Ranged combat row display
-- **Siege Tot**: Siege total display
+### ⌨️ Vintage Display Components
+- **🃏 Board/Hand**: Letterpress-printed card display areas
+- **⚰️ Grave**: Reclaimed wood graveyard display
+- **🎴 Deck**: Sustainably harvested deck display
+- **👤 Player**: Free-range player information display
+- **⚔️ Close**: Artisanal close combat row display
+- **🏹 Range**: Hand-forged ranged combat row display
+- **🏰 Siege Tot**: Small-batch siege total display, aged in oak barrels
