@@ -51,35 +51,82 @@ def test_display_initialization():
     
     successful_combinations = []
     
+    print("\n=== MFD Display Initialization Test ===")
+    print("This test will try different device/port combinations for the display.")
+    print("You will be prompted for feedback after each test.\n")
+    
     for device, port in device_port_combinations:
+        print(f"\nTesting device={device}, port={port}...")
         logger.info(f"Testing device={device}, port={port}")
+        
+        presenter = None
         try:
             presenter = gwent.hal.oled_ssd1306.SSD1306Presenter(device=device, port=port)
             logger.info(f"Successfully initialized with device={device}, port={port}")
             
             # Test basic display functionality
             presenter.clear()
-            presenter.println("Test Line 1")
-            presenter.println("Test Line 2")
+            presenter.println(f"Test: dev={device}, port={port}")
+            presenter.println("Line 1")
+            presenter.println("Line 2")
+            presenter.println("Line 3")
             presenter.term.flush()
             
             logger.info("Display test successful")
-            successful_combinations.append((device, port))
+            
+            # Ask for user feedback
+            print("\nCheck the display. Do you see the test message?")
+            print("1. Yes, display is working correctly")
+            print("2. No, display is not working")
+            print("3. Skip remaining tests")
+            print("4. Exit test")
+            
+            while True:
+                try:
+                    response = input("Enter your choice (1-4): ").strip()
+                    if response == '1':
+                        logger.info("User confirmed display is working correctly")
+                        successful_combinations.append((device, port))
+                        break
+                    elif response == '2':
+                        logger.info("User reported display is not working")
+                        break
+                    elif response == '3':
+                        logger.info("User chose to skip remaining tests")
+                        # Clean up current display
+                        if presenter:
+                            presenter.clear()
+                            presenter.term.flush()
+                        return successful_combinations[0] if successful_combinations else None
+                    elif response == '4':
+                        logger.info("User chose to exit test")
+                        sys.exit(0)
+                    else:
+                        print("Invalid choice. Please enter 1, 2, 3, or 4.")
+                except KeyboardInterrupt:
+                    logger.info("Test interrupted by user")
+                    sys.exit(0)
+                except Exception as e:
+                    logger.error(f"Error getting user input: {e}")
+                    break
             
             # Clean up
-            time.sleep(2)  # Keep the test message visible briefly
-            presenter.clear()
-            presenter.term.flush()
+            if presenter:
+                presenter.clear()
+                presenter.term.flush()
             
         except Exception as e:
             logger.error(f"Failed with device={device}, port={port}: {e}")
             logger.debug(traceback.format_exc())
+            print(f"Error: Failed to initialize display with device={device}, port={port}")
+            print(f"Error details: {e}")
     
     if successful_combinations:
         logger.info(f"Successful combinations: {successful_combinations}")
         return successful_combinations[0]  # Return the first successful combination
     else:
         logger.error("All display initialization attempts failed")
+        print("\nAll display initialization attempts failed.")
         return None
 
 def test_font_loading():
@@ -148,18 +195,45 @@ def test_mfd_display():
         
         # Test error display
         logger.info("Testing error display")
+        print("\nTesting error display...")
         error_msg = gwent.messaging.mfd.Message.with_error("Test Error Message")
         mfd_instance.present_error(error_msg, lambda delta, choice: None)
-        time.sleep(3)
+        
+        print("\nDo you see the error message on the display?")
+        print("1. Yes, continue to next test")
+        print("2. No, skip to next test")
+        print("3. Exit test")
+        
+        while True:
+            try:
+                response = input("Enter your choice (1-3): ").strip()
+                if response == '1':
+                    logger.info("User confirmed error display is working")
+                    break
+                elif response == '2':
+                    logger.info("User reported error display is not working")
+                    break
+                elif response == '3':
+                    logger.info("User chose to exit test")
+                    sys.exit(0)
+                else:
+                    print("Invalid choice. Please enter 1, 2, or 3.")
+            except KeyboardInterrupt:
+                logger.info("Test interrupted by user")
+                sys.exit(0)
+            except Exception as e:
+                logger.error(f"Error getting user input: {e}")
+                break
         
         # Test prompt display
         logger.info("Testing prompt display")
+        print("\nTesting prompt display...")
         prompt_msg = gwent.messaging.mfd.Message.with_prompt("Test Prompt", ok=True, cancel=True)
         
         # Create a non-blocking thread to select OK after a delay
         import threading
         def select_ok():
-            time.sleep(2)
+            time.sleep(5)  # Longer delay to give user time to observe
             # Simulate a button press by directly setting the stop event
             # This is a hack for testing only
             if hasattr(mfd_instance._chooser, '_stop_event'):
@@ -167,11 +241,42 @@ def test_mfd_display():
         
         threading.Thread(target=select_ok, daemon=True).start()
         
+        print("\nThe display should now show a prompt with OK and Cancel options.")
+        print("The test will automatically select OK after 5 seconds.")
+        print("Please observe the display...")
+        
         result = mfd_instance.present_prompt(prompt_msg, lambda delta, choice: None)
         logger.info(f"Prompt result: {result}")
         
+        print("\nDid you see the prompt with OK and Cancel options?")
+        print("1. Yes, continue to next test")
+        print("2. No, skip to next test")
+        print("3. Exit test")
+        
+        while True:
+            try:
+                response = input("Enter your choice (1-3): ").strip()
+                if response == '1':
+                    logger.info("User confirmed prompt display is working")
+                    break
+                elif response == '2':
+                    logger.info("User reported prompt display is not working")
+                    break
+                elif response == '3':
+                    logger.info("User chose to exit test")
+                    sys.exit(0)
+                else:
+                    print("Invalid choice. Please enter 1, 2, or 3.")
+            except KeyboardInterrupt:
+                logger.info("Test interrupted by user")
+                sys.exit(0)
+            except Exception as e:
+                logger.error(f"Error getting user input: {e}")
+                break
+        
         # Test choices display
         logger.info("Testing choices display")
+        print("\nTesting choices display...")
         choices = [
             gwent.messaging.choice.Message.from_properties("1", "Option 1"),
             gwent.messaging.choice.Message.from_properties("2", "Option 2"),
@@ -181,20 +286,53 @@ def test_mfd_display():
         
         # Create a non-blocking thread to select an option after a delay
         def select_option():
-            time.sleep(2)
+            time.sleep(5)  # Longer delay to give user time to observe
             # Simulate a button press by directly setting the stop event
             if hasattr(mfd_instance._chooser, '_stop_event'):
                 mfd_instance._chooser._stop_event.set()
         
         threading.Thread(target=select_option, daemon=True).start()
         
+        print("\nThe display should now show a list of 3 options.")
+        print("The test will automatically select an option after 5 seconds.")
+        print("Please observe the display...")
+        
         result = mfd_instance.present_choices(choices_msg, lambda delta, choice: None)
         logger.info(f"Choices result: {result}")
+        
+        print("\nDid you see the list of options?")
+        print("1. Yes, all tests passed")
+        print("2. No, choices display is not working")
+        print("3. Exit test")
+        
+        success = False
+        while True:
+            try:
+                response = input("Enter your choice (1-3): ").strip()
+                if response == '1':
+                    logger.info("User confirmed choices display is working")
+                    success = True
+                    break
+                elif response == '2':
+                    logger.info("User reported choices display is not working")
+                    success = False
+                    break
+                elif response == '3':
+                    logger.info("User chose to exit test")
+                    sys.exit(0)
+                else:
+                    print("Invalid choice. Please enter 1, 2, or 3.")
+            except KeyboardInterrupt:
+                logger.info("Test interrupted by user")
+                sys.exit(0)
+            except Exception as e:
+                logger.error(f"Error getting user input: {e}")
+                break
         
         # Restore original mode function
         gwent.hal.real_mode = original_mode
         
-        return True
+        return success
     except Exception as e:
         logger.error(f"Failed to test MFD display: {e}")
         logger.debug(traceback.format_exc())
@@ -239,38 +377,141 @@ def fix_display_issues(device_port=None):
     logger.info("2. Ensure contrast is set to maximum (255)")
     logger.info("3. Consider adding a display reset sequence at startup")
 
+def test_font_loading_interactive():
+    """Test font loading with user interaction"""
+    logger.info("=== Testing Font Loading ===")
+    print("\n=== Font Loading Test ===")
+    
+    result = test_font_loading()
+    
+    print("\nDo you want to continue to the next test?")
+    print("1. Yes, continue testing")
+    print("2. No, exit test")
+    
+    while True:
+        try:
+            response = input("Enter your choice (1-2): ").strip()
+            if response == '1':
+                logger.info("User chose to continue testing")
+                return result
+            elif response == '2':
+                logger.info("User chose to exit test")
+                sys.exit(0)
+            else:
+                print("Invalid choice. Please enter 1 or 2.")
+        except KeyboardInterrupt:
+            logger.info("Test interrupted by user")
+            sys.exit(0)
+        except Exception as e:
+            logger.error(f"Error getting user input: {e}")
+            return result
+
+def test_mfd_instance_interactive():
+    """Test creating an MFD instance with user interaction"""
+    logger.info("=== Testing MFD Instance Creation ===")
+    print("\n=== MFD Instance Creation Test ===")
+    
+    result = test_mfd_instance()
+    
+    print("\nDo you want to continue to the next test?")
+    print("1. Yes, continue testing")
+    print("2. No, exit test")
+    
+    while True:
+        try:
+            response = input("Enter your choice (1-2): ").strip()
+            if response == '1':
+                logger.info("User chose to continue testing")
+                return result
+            elif response == '2':
+                logger.info("User chose to exit test")
+                sys.exit(0)
+            else:
+                print("Invalid choice. Please enter 1 or 2.")
+        except KeyboardInterrupt:
+            logger.info("Test interrupted by user")
+            sys.exit(0)
+        except Exception as e:
+            logger.error(f"Error getting user input: {e}")
+            return result
+
+def test_mfd_display_interactive():
+    """Test MFD display functionality with user interaction"""
+    logger.info("=== Testing MFD Display Functionality ===")
+    print("\n=== MFD Display Functionality Test ===")
+    print("This test will display various screens on the MFD.")
+    print("You will be prompted for feedback after each test.\n")
+    
+    result = test_mfd_display()
+    
+    print("\nDid you see all the test screens (error, prompt, choices)?")
+    print("1. Yes, all screens displayed correctly")
+    print("2. No, some screens did not display correctly")
+    
+    while True:
+        try:
+            response = input("Enter your choice (1-2): ").strip()
+            if response == '1':
+                logger.info("User confirmed all screens displayed correctly")
+                return True
+            elif response == '2':
+                logger.info("User reported some screens did not display correctly")
+                return False
+            else:
+                print("Invalid choice. Please enter 1 or 2.")
+        except KeyboardInterrupt:
+            logger.info("Test interrupted by user")
+            sys.exit(0)
+        except Exception as e:
+            logger.error(f"Error getting user input: {e}")
+            return result
+
 def main():
     """Main diagnostic function"""
     logger.info("Starting MFD diagnostic tool")
+    print("=== MFD Diagnostic Tool ===")
+    print("This tool will help diagnose issues with the Multi-Function Display (MFD).")
+    print("You will be guided through a series of tests and asked for feedback.\n")
     
     # Test display initialization
     device_port = test_display_initialization()
     
     # Test font loading
-    font_ok = test_font_loading()
+    font_ok = test_font_loading_interactive()
     
     # Test MFD instance creation
-    mfd_instance = test_mfd_instance()
+    mfd_instance = test_mfd_instance_interactive()
     
     # Test MFD display functionality if instance was created
     display_ok = False
     if mfd_instance:
-        display_ok = test_mfd_display()
+        display_ok = test_mfd_display_interactive()
     
     # Apply fixes
     fix_display_issues(device_port)
     
     # Summary
     logger.info("=== Diagnostic Summary ===")
+    print("\n=== Diagnostic Summary ===")
+    
     logger.info(f"Display initialization: {'SUCCESS' if device_port else 'FAILED'}")
+    print(f"Display initialization: {'SUCCESS' if device_port else 'FAILED'}")
+    
     logger.info(f"Font loading: {'SUCCESS' if font_ok else 'FAILED'}")
+    print(f"Font loading: {'SUCCESS' if font_ok else 'FAILED'}")
+    
     logger.info(f"MFD instance creation: {'SUCCESS' if mfd_instance else 'FAILED'}")
+    print(f"MFD instance creation: {'SUCCESS' if mfd_instance else 'FAILED'}")
+    
     logger.info(f"MFD display functionality: {'SUCCESS' if display_ok else 'FAILED'}")
+    print(f"MFD display functionality: {'SUCCESS' if display_ok else 'FAILED'}")
     
     if device_port and font_ok and mfd_instance and display_ok:
         logger.info("All tests PASSED!")
+        print("\nAll tests PASSED!")
     else:
         logger.info("Some tests FAILED. See log for details and recommended fixes.")
+        print("\nSome tests FAILED. See log for details and recommended fixes.")
 
 if __name__ == "__main__":
     main()
