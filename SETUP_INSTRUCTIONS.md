@@ -361,9 +361,8 @@ sudo systemctl start redis-server
 
 ## Additional Resources
 
-- [Raspberry Pi GPIO Documentation](https://www.raspberrypi.org/documentation/usage/gpio/)
-- [SPI Documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/spi/README.md)
+- [Raspberry Pi GPIO Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#gpio)
+- [SPI Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi-overview)
 - [I2C Documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/i2c/README.md)
-- [MFRC522 Python Library](https://github.com/pimylifeup/MFRC522-python)
+- [MFRC522 Python Library](https://github.com/declanshanaghy/MFRC522-python/tree/handle_all_sectors)
 - [Luma.OLED Documentation](https://luma-oled.readthedocs.io/)
-- [Gaugette Library](https://github.com/guyc/py-gaugette)
