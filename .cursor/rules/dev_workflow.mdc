@@ -270,6 +270,17 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - For remote branches, use `git push origin --delete <branch-name>` after the PR is merged.
     - This practice helps maintain a clean repository and makes it clear which branches are still being worked on.
 
+## Documentation Requirements
+
+- **Official style**:
+
+- The style guide MUST be followed for all design documentation in the project. The "latte drinking l33tC0dzr long hair, hippy trousers architect in an ivory tower style" is not just a recommendation—it's a requirement for maintaining consistent documentation aesthetics across the project.
+- Technical specifications should use accurate names and terms however logical diagrams, high level architectural descriptions and analogies may be used lightly to add some levity while reading.
+
+- **Mermaid Diagrams**:
+
+- Design documentation should use mermaid diagrams using the standard l33tC0dzr style for visual consistency
+
 ## Code Style and Typing Requirements
 
 - **Strict Typing**:
@@ -292,6 +303,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
 - **Architecture Diagram Style**:
     - All architecture diagrams MUST be created in the "latte drinking l33tC0dzr long hair, hippy trousers architect in an ivory tower style" 🧙‍♂️☕
     - Use Mermaid diagrams with custom styling for all architecture visualizations
+    - **REQUIRED**: Follow the [Mermaid Style Guide](mdc:design/MermaidStyleGuide.md) for consistent styling across all diagrams
     - Include appropriate emojis as visual indicators for different component types
     - Hardware components MUST have nice visual references (e.g., 📱 for displays, 🎛️ for controls)
     - Software components should use computing-related emojis (💻, 🖥️, 📨)
@@ -303,6 +315,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - **IMPORTANT**: Technical implementations (like message topics, API endpoints, function names) MUST be specific and accurate without creative naming
     - Logical descriptions and component groups may include light humor and creative naming
     - See [design/GwentPubSub.md](mdc:design/GwentPubSub.md) for a reference implementation
+    - All new mermaid diagrams MUST include the initialization directive from the [Mermaid Style Guide](mdc:design/MermaidStyleGuide.md)
 
 ---
 

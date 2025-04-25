@@ -7,10 +7,24 @@
 A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph TD
-    classDef hardware fill:#d9ead3,stroke:#333,stroke-width:1px
-    classDef cards fill:#fff2cc,stroke:#333,stroke-width:1px
-    classDef digital fill:#cfe2f3,stroke:#333,stroke-width:1px
+    classDef hardware fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef cards fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
+    classDef digital fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
     
     subgraph companion["🖥️ Digital Companion"]
         rpi["🥧 Raspberry Pi"]:::digital
@@ -43,11 +57,25 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
 - 🧭 Guide players through the entire game process
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 flowchart TD
-    classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px
-    classDef process fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
-    classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px
-    classDef endNode fill:#f8cecc,stroke:#b85450,stroke-width:1px
+    classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px,font-family:'Courier New'
+    classDef process fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px,font-family:'Courier New'
+    classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px,font-family:'Courier New'
+    classDef endNode fill:#f8cecc,stroke:#b85450,stroke-width:1px,font-family:'Courier New'
     
     A[Start Game]:::start --> B[Register Leaders]:::process
     B --> C[Register Decks]:::process
@@ -75,11 +103,25 @@ flowchart TD
   - ⚡ Power management system
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph TD
-    classDef rpi fill:#f5f5f5,stroke:#333,stroke-width:2px
-    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px
-    classDef i2c fill:#d9ead3,stroke:#333,stroke-width:1px
-    classDef gpio fill:#cfe2f3,stroke:#333,stroke-width:1px
+    classDef rpi fill:#6d1a36,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef spi fill:#A1887F,stroke:#5D4037,stroke-width:1px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef i2c fill:#BCAAA4,stroke:#5D4037,stroke-width:1px,color:#3E2723,font-family:'Courier New',font-weight:bold
+    classDef gpio fill:#D7CCC8,stroke:#5D4037,stroke-width:1px,color:#3E2723,font-family:'Courier New',font-style:italic
     
     rpi["🥧 Raspberry Pi"]:::rpi
     
@@ -120,11 +162,25 @@ graph TD
   - 🏙️ Named after one of the six gates in Novigrad, connecting Farcorners district to Glory Lane
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph TD
-    classDef service fill:#d5e8d4,stroke:#82b366,stroke-width:2px
-    classDef component fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
-    classDef api fill:#fff2cc,stroke:#d6b656,stroke-width:1px
-    classDef ui fill:#f8cecc,stroke:#b85450,stroke-width:1px
+    classDef service fill:#d5e8d4,stroke:#82b366,stroke-width:2px,font-family:'Courier New'
+    classDef component fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px,font-family:'Courier New'
+    classDef api fill:#fff2cc,stroke:#d6b656,stroke-width:1px,font-family:'Courier New'
+    classDef ui fill:#f8cecc,stroke:#b85450,stroke-width:1px,font-family:'Courier New'
     
     subgraph rpi["🥧 Raspberry Pi"]
         gwent["🎮 Gwent Service"]:::service
@@ -160,6 +216,23 @@ graph TD
 - **🌐 Web Interface**: Access game data and controls through Glory Gate
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px',
+    'nodeBorder': '#5D4037',
+    'mainBkg': '#EFEBE9',
+    'nodeBkg': '#BCAAA4'
+  }
+}}%%
+
 mindmap
     root((Gwent Companion))
         🧮 Score Tracking
@@ -202,6 +275,26 @@ mindmap
 9. 🌐 The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px',
+    'actorBkg': '#A1887F',
+    'actorBorder': '#5D4037',
+    'actorTextColor': '#fff',
+    'noteBkgColor': '#EFEBE9',
+    'noteBorderColor': '#5D4037',
+    'noteTextColor': '#3E2723'
+  }
+}}%%
+
 sequenceDiagram
     participant Player
     participant Cards as 🃏 RFID Cards
@@ -230,7 +323,30 @@ This project is currently in active development. The following components have b
 - **⚙️ Service Management**: Systemd service for automatic startup and management
 
 ```mermaid
-%%{init: {'theme': 'default'}}%%
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px',
+    'ganttBkg': '#F5F5F5',
+    'ganttFontSize': '16px',
+    'sectionBkgColor': '#A1887F',
+    'sectionFontColor': '#fff',
+    'taskBkgColor': '#BCAAA4',
+    'taskBorderColor': '#5D4037',
+    'taskTextColor': '#3E2723',
+    'activeTaskBkgColor': '#d4af37',
+    'activeTaskBorderColor': '#5D4037',
+    'gridColor': '#EFEBE9'
+  }
+}}%%
+
 gantt
     title Development Progress
     dateFormat YYYY-MM-DD
@@ -273,9 +389,23 @@ Gwent is a complex card game where score tracking can be cumbersome. This compan
 - 🌐 Offers both physical and web-based interfaces
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph LR
-    classDef benefit fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333
-    classDef problem fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333
+    classDef benefit fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333,font-family:'Courier New'
+    classDef problem fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333,font-family:'Courier New'
     
     subgraph problems["❌ Traditional Problems"]
         p1["Manual Score Tracking"]:::problem
@@ -311,11 +441,25 @@ The project is organized into several key areas:
 See the [design documentation](design/README.md) for detailed information about each component.
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph TD
-    classDef root fill:#f5f5f5,stroke:#333,stroke-width:2px
-    classDef dir fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
-    classDef code fill:#d5e8d4,stroke:#82b366,stroke-width:1px
-    classDef docs fill:#fff2cc,stroke:#d6b656,stroke-width:1px
+    classDef root fill:#6d1a36,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef dir fill:#A1887F,stroke:#5D4037,stroke-width:1px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef code fill:#BCAAA4,stroke:#5D4037,stroke-width:1px,color:#3E2723,font-family:'Courier New',font-weight:bold
+    classDef docs fill:#D7CCC8,stroke:#5D4037,stroke-width:1px,color:#3E2723,font-family:'Courier New',font-style:italic
     
     root["📁 gwent/"]:::root
     
@@ -360,6 +504,7 @@ graph TD
     - [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
   - 🎭 Style Guidelines:
     - [Design Documentation Style Guide](design/DesignDocumentationStyleGuide.md): Guidelines for creating consistent design documentation
+    - [Mermaid Style Guide](design/MermaidStyleGuide.md): Standard styling for all mermaid diagrams
 - [Software Components](software/):
   - [Gwent Core](software/gwent/README.md): Main game logic and system service
   - [Glory Gate](software/glory-gate/README.md): React-based web interface

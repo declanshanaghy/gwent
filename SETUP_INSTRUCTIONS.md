@@ -60,19 +60,33 @@ Based on the implementation in the `software/gwent/gwent/hal` directory, here ar
 ### Raspberry Pi GPIO Pinout Diagram
 
 ```mermaid
+%%{init: {
+  'theme': 'base',
+  'themeVariables': {
+    'primaryColor': '#6d1a36',
+    'primaryTextColor': '#fff',
+    'primaryBorderColor': '#7C4DFF',
+    'lineColor': '#7C4DFF',
+    'secondaryColor': '#D7CCC8',
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
+  }
+}}%%
+
 graph TB
-    classDef header fill:#f9f9f9,stroke:#333,stroke-width:1px
-    classDef power fill:#f4cccc,stroke:#333,stroke-width:1px,color:#000
-    classDef ground fill:#000000,stroke:#333,stroke-width:1px,color:#fff
-    classDef gpio fill:#d9ead3,stroke:#333,stroke-width:1px,color:#000
-    classDef spi fill:#fff2cc,stroke:#333,stroke-width:1px,color:#000
-    classDef i2c fill:#cfe2f3,stroke:#333,stroke-width:1px,color:#000
-    classDef uart fill:#ead1dc,stroke:#333,stroke-width:1px,color:#000
-    classDef rotary fill:#ff9900,stroke:#333,stroke-width:2px,color:#000
-    classDef oled fill:#00ccff,stroke:#333,stroke-width:2px,color:#000
-    classDef rfid fill:#cc99ff,stroke:#333,stroke-width:2px,color:#000
-    classDef i2cbus fill:#ffcc99,stroke:#333,stroke-width:2px,color:#000
-    classDef matrix fill:#99cc00,stroke:#333,stroke-width:2px,color:#000
+    classDef header fill:#6d1a36,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef power fill:#f4cccc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef ground fill:#000000,stroke:#5D4037,stroke-width:1px,color:#fff,font-family:'Courier New'
+    classDef gpio fill:#d9ead3,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef spi fill:#fff2cc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef i2c fill:#cfe2f3,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef uart fill:#ead1dc,stroke:#5D4037,stroke-width:1px,color:#000,font-family:'Courier New'
+    classDef rotary fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
+    classDef oled fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
+    classDef rfid fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
+    classDef i2cbus fill:#EFEBE9,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
+    classDef matrix fill:#F5F5F5,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
     
     %% Header row
     header["Raspberry Pi GPIO Pinout"]:::header

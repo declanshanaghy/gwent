@@ -9,6 +9,7 @@ All design documentation, especially diagrams and architecture visualizations, M
 ### 1. Artisanal Visual Aesthetic
 
 - **Use Mermaid diagrams** for all architecture and flow visualizations, with custom styling
+- **Follow the [Mermaid Style Guide](MermaidStyleGuide.md)** for consistent styling across all diagrams
 - **Include appropriate emojis** as visual indicators for different component types
 - **Apply consistent color schemes** that enhance readability while maintaining the aesthetic
 - **Use creative, slightly whimsical naming** for component groups (e.g., "Artisanal Hardware" instead of just "Hardware")
@@ -43,6 +44,18 @@ All design documentation, especially diagrams and architecture visualizations, M
 ## 🎭 Example Implementation
 
 See [GwentPubSub.md](GwentPubSub.md) for an example of these style guidelines applied to the publish-subscribe architecture documentation.
+
+## 🎨 Mermaid Diagram Styling
+
+All mermaid diagrams must follow the standardized styling defined in the [Mermaid Style Guide](MermaidStyleGuide.md). This ensures visual consistency across all project documentation and adheres to the l33tC0dzr aesthetic.
+
+The style guide includes:
+- Base template with initialization directives
+- Standard class definitions
+- Color palette for different component types
+- Diagram-specific styling (flowcharts, sequence diagrams, gantt charts)
+- Emoji usage guidelines
+- Implementation examples
 
 ## 🔄 Integration with Development Workflow
 

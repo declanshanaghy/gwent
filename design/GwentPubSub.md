@@ -6,12 +6,14 @@ This artisanal diagram represents the publish-subscribe architecture used for co
 %%{init: {
   'theme': 'base',
   'themeVariables': {
-    'primaryColor': '#5D4037',
+    'primaryColor': '#6d1a36',
     'primaryTextColor': '#fff',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
-    'tertiaryColor': '#EFEBE9'
+    'tertiaryColor': '#EFEBE9',
+    'fontFamily': 'Courier New',
+    'fontSize': '16px'
   }
 }}%%
 
