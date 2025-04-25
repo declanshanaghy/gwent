@@ -1,4 +1,5 @@
 import time
+import logging
 from typing import Any, Callable
 
 import gwent.game
