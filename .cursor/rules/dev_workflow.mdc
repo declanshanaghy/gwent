@@ -203,6 +203,9 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
             - References to code implementations using file paths or PR numbers
             - Detailed explanation of what was changed and why
             - Any important technical decisions made during implementation
+         4. **REQUIRED Development Metrics:**
+            - Dev Time: Total development time spent on this commit (e.g., "Dev Time: 2 hours")
+            - API Cost: Total API cost for this commit (e.g., "API Cost: $5.75")
      *   Execute the commit command using a multi-line format to ensure proper spacing:
          ```
          git commit -m "feat(module): Implement feature X for subtask <subtaskId>
@@ -212,7 +215,11 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          - Implemented feature X according to [PRD-123](mdc:docs/prd/feature-x.md)
          - Referenced architecture decisions in [ADR-456](mdc:design/ADR/feature-x-architecture.md)
          - Modified code in src/module/feature.js to support new requirements
-         - Fixed bug in related component that was preventing proper integration"
+         - Fixed bug in related component that was preventing proper integration
+         
+         Development Metrics:
+         - Dev Time: 2 hours
+         - API Cost: $5.75"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
      *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
@@ -269,6 +276,19 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - Use `git branch -d <branch-name>` for local branches after merging.
     - For remote branches, use `git push origin --delete <branch-name>` after the PR is merged.
     - This practice helps maintain a clean repository and makes it clear which branches are still being worked on.
+
+- **PR Description Requirements**:
+    - PR descriptions must always be kept up to date with the total cost and dev time of all commits on that branch.
+    - Include a "Development Metrics" section in the PR description with:
+      - Total Dev Time: Sum of all dev time from commits on the branch
+      - Total API Cost: Sum of all API costs from commits on the branch
+    - Update these metrics whenever new commits are added to the PR.
+    - Example format:
+      ```
+      ## Development Metrics
+      - Total Dev Time: 8.5 hours
+      - Total API Cost: $12.45
+      ```
 
 ## Documentation Requirements
 
