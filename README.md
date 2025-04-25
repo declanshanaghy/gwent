@@ -1,18 +1,8 @@
 # ☕ Gwent Companion: The Artisanal Card Game Experience 🧙‍♂️
 
-```mermaid
-graph TD
-    classDef logo fill:#6d1a36,stroke:#333,stroke-width:2px,color:#fff
-    
-    subgraph logo["🎮 Gwent Companion"]
-        G["G"]:::logo --- W["W"]:::logo
-        W --- E["E"]:::logo
-        E --- N["N"]:::logo
-        N --- T["T"]:::logo
-    end
-    
-    style logo fill:#f9f9f9,stroke:#6d1a36,stroke-width:4px,color:#6d1a36
-```
+<div align="center">
+  <img src="design/logo/gwent_logo.svg" alt="Gwent Companion Logo" width="800">
+</div>
 
 A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.
 
@@ -57,7 +47,7 @@ flowchart TD
     classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px
     classDef process fill:#dae8fc,stroke:#6c8ebf,stroke-width:1px
     classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px
-    classDef end fill:#f8cecc,stroke:#b85450,stroke-width:1px
+    classDef endNode fill:#f8cecc,stroke:#b85450,stroke-width:1px
     
     A[Start Game]:::start --> B[Register Leaders]:::process
     B --> C[Register Decks]:::process
@@ -68,7 +58,7 @@ flowchart TD
     G --> H[Update Score]:::process
     H --> I{Game Over?}:::decision
     I -->|No| F
-    I -->|Yes| J[Declare Winner]:::end
+    I -->|Yes| J[Declare Winner]:::endNode
 ```
 
 ## 🔌 Hardware Components
@@ -240,26 +230,27 @@ This project is currently in active development. The following components have b
 - **⚙️ Service Management**: Systemd service for automatic startup and management
 
 ```mermaid
+%%{init: {'theme': 'default'}}%%
 gantt
     title Development Progress
-    dateFormat  YYYY-MM-DD
+    dateFormat YYYY-MM-DD
     
     section Hardware
-    RFID Integration       :done, rfid, 2023-01-01, 60d
-    Display Implementation :done, disp, 2023-02-15, 45d
-    Rotary Encoder         :done, rot, 2023-03-01, 30d
-    LED Matrix Integration :active, led, 2023-04-01, 45d
+    RFID Integration       :done, rfid, 2023-01-01, 2023-03-01
+    Display Implementation :done, disp, 2023-02-15, 2023-03-31
+    Rotary Encoder         :done, rot, 2023-03-01, 2023-03-30
+    LED Matrix Integration :active, led, 2023-04-01, 2023-05-15
     
     section Software
-    Core Game Logic        :done, core, 2023-01-15, 90d
-    Hardware Abstraction   :done, hal, 2023-02-01, 60d
-    Menu System            :done, menu, 2023-03-15, 45d
-    Web Interface          :active, web, 2023-04-15, 60d
+    Core Game Logic        :done, core, 2023-01-15, 2023-04-15
+    Hardware Abstraction   :done, hal, 2023-02-01, 2023-04-01
+    Menu System            :done, menu, 2023-03-15, 2023-04-30
+    Web Interface          :active, web, 2023-04-15, 2023-06-15
     
     section Documentation
-    Design Documents       :done, docs, 2023-01-01, 30d
-    API Documentation      :active, api, 2023-04-01, 30d
-    User Manual            :todo, manual, 2023-05-01, 45d
+    Design Documents       :done, docs, 2023-01-01, 2023-01-30
+    API Documentation      :active, api, 2023-04-01, 2023-04-30
+    User Manual            :crit, manual, 2023-05-01, 2023-06-15
 ```
 
 The design documentation starts with the [Product Requirements Document](design/000-product-requirements.md), which outlines the core requirements and features. See the [task-list.mdc](task-list.mdc) file for current progress and upcoming tasks.
