@@ -18,3 +18,4 @@ from . import diagnostic_tools
 from . import display_tests
 from . import input_tests
 from . import rfid_tests
+from . import util
