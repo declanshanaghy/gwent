@@ -6,6 +6,7 @@ import gwent.messaging.base
 
 KIND = 'card'
 
+CONTENT_ID = 'content_id'
 RFID = 'rfid'
 
 NAME = 'name'
@@ -61,9 +62,23 @@ class Message(gwent.messaging.base.Message):
     def announcement(self):
         return self.name
 
+    # content_id is only used during MQTT communications and not stored in the card files
     @property
     def content_id(self):
-        return self.rfid
+        return self.instance.get(CONTENT_ID)
+
+    @content_id.setter
+    def content_id(self, content_id):
+        self.instance[CONTENT_ID] = content_id
+
+    @property
+    def rfid(self):
+        return self.instance.get(RFID)
+
+    @rfid.setter
+    def rfid(self, rfid):
+        self.instance[RFID] = rfid
+
 
     def validate_extra(self):
         super().validate_extra()
@@ -140,14 +155,6 @@ class Message(gwent.messaging.base.Message):
                             f"ranges than {self.ranges} because they have the "
                             f"{AGILE} ability",
                     path=(ABILITIES, RANGES))
-
-    @property
-    def rfid(self):
-        return self.instance.get(RFID)
-
-    @rfid.setter
-    def rfid(self, rfid):
-        self.instance[RFID] = rfid
 
     @property
     def full_name(self):

@@ -13,13 +13,21 @@ DEPLOY_DIR := "~/gwent"
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
 	@rsync \
-	    -avzl --delete \
+	    -talvx \
+		--delete \
+	    --exclude=software/data/cards \
 	    --exclude=*.pyc \
 	    --exclude=software/gwent/.eggs \
 	    --exclude .git \
 	    --exclude *.egg-info \
 	    --exclude __pycache__ \
 	    -e "ssh -i $(SSH_KEY)" . ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/
+
+rsync-cards:
+	@echo "rsync from $(DEPLOY_TGT)"
+	@rsync \
+	    -talvx \
+	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/* ./software/data/cards/
 
 install: rsync
 	@echo "Install to $(DEPLOY_TGT)"
@@ -172,8 +180,17 @@ read-card-util: rsync
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards read"
 
 write-card-util: rsync
-	@echo "Running card writer utility on $(DEPLOY_TGT)"
+	@echo "Running card reader utility on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards write"
+
+card-manager: rsync
+	@echo "Running card manager utility on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.card_manager"
+
+sync-cards:
+	@echo "Syncing card files from $(DEPLOY_TGT)"
+	@rsync -avzl \
+	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/ software/data/cards/
 
 validate-cards: rsync
 	@echo "Validating cards on $(DEPLOY_TGT)"
