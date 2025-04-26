@@ -8,6 +8,7 @@ import threading
 import hashlib
 import glob
 import re
+from typing import Dict, List, Tuple, Optional, Any, Union
 
 import gwent.log
 import gwent.game
@@ -16,8 +17,10 @@ import gwent.cards.all
 import gwent.messaging.card
 import gwent.cards.util
 import gwent.hal.rfid
-import gwent.hal.sfx
 
+# Type aliases
+CardData = Dict[str, Any]
+FilePath = str
 
 class CardManager(gwent.game.BaseComponent):
     def __init__(self, log_verbose: bool = False):
@@ -26,9 +29,9 @@ class CardManager(gwent.game.BaseComponent):
         self.cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 
                                                      '..', '..', '..', '..', 'data', 'cards'))
         
-    def setup_signal_handlers(self):
+    def setup_signal_handlers(self) -> None:
         """Setup signal handlers for graceful exit"""
-        def signal_handler(sig, frame):
+        def signal_handler(sig: int, frame: Any) -> None:
             self._log.info(f'Received exit signal {signal.Signals(sig).name}...')
             self._stop_event.set()
             
@@ -36,13 +39,13 @@ class CardManager(gwent.game.BaseComponent):
                   signal.SIGQUIT, signal.SIGTERM):
             signal.signal(s, signal_handler)
 
-    def read_rfid_card(self):
+    def read_rfid_card(self) -> Optional[gwent.messaging.card.Message]:
         """Read a card using the RFID reader"""
         print("\nPlease place a card on the reader...")
         self._log.info("Please place a card on the reader...")
         reader = gwent.hal.rfid.instance()
 
-        card = None
+        card: Optional[gwent.messaging.card.Message] = None
         while card is None and not self._stop_event.is_set():
             card = reader.read_card()
             if card is None:
@@ -51,7 +54,7 @@ class CardManager(gwent.game.BaseComponent):
         
         if card is not None:
             # Log card information
-            card_info = {'action': 'got card', 'rfid': card.rfid}
+            card_info: Dict[str, Any] = {'action': 'got card', 'rfid': card.rfid}
             
             # Add name and faction if available
             if hasattr(card, 'name'):
@@ -65,18 +68,11 @@ class CardManager(gwent.game.BaseComponent):
                 
             self._log.info(card_info)
 
-            # Play sound effect for the card
-            try:
-                sfx = gwent.hal.sfx.SFXPlayer()
-                sfx.announce_card(card)
-            except Exception as e:
-                self._log.error(f"Error playing sound: {e}")
-
         return card
 
-    def find_card_in_database(self, rfid_id):
-        """Find a card in the database by RFID ID"""
-        self._log.info(f"Searching for card with RFID ID: {rfid_id}")
+    def find_card_in_database(self, rfid: int) -> Tuple[Optional[CardData], Optional[FilePath]]:
+        """Find a card in the database by RFID"""
+        self._log.info(f"Searching for card with RFID: {rfid}")
         
         # Search through all faction directories
         for faction_dir in os.listdir(self.cards_dir):
@@ -87,8 +83,8 @@ class CardManager(gwent.game.BaseComponent):
                     try:
                         with open(json_file, 'r') as f:
                             card_data = json.load(f)
-                            # Check if this card has the matching RFID ID
-                            if card_data.get('rfid') == rfid_id:
+                            # Check if this card has the matching RFID
+                            if card_data.get('rfid') == rfid:
                                 self._log.info(f"Found card in {json_file}")
                                 return card_data, json_file
                     except Exception as e:
@@ -97,7 +93,7 @@ class CardManager(gwent.game.BaseComponent):
         self._log.info("Card not found in database by content ID")
         return None, None
         
-    def find_card_by_name_and_faction(self, name, faction):
+    def find_card_by_name_and_faction(self, name: str, faction: str) -> Tuple[Optional[CardData], Optional[FilePath]]:
         """Find a card in the database by name and faction"""
         if not name or not faction:
             self._log.info("Name or faction not provided")
@@ -125,7 +121,7 @@ class CardManager(gwent.game.BaseComponent):
 
     # content_id is no longer used in the card files
 
-    def prompt_for_card_details(self, default_name=None, default_faction=None):
+    def prompt_for_card_details(self, default_name: Optional[str] = None, default_faction: Optional[str] = None) -> CardData:
         """Prompt the user for card details"""
         print("\nEnter card details:")
         
@@ -139,7 +135,7 @@ class CardManager(gwent.game.BaseComponent):
             name = input("Name (required): ")
         
         # Prompt for faction with validation
-        valid_factions = ["Northern Realms", "Monsters", "Nilfgaardian", "Scoia'tael", "Skellige"]
+        valid_factions: List[str] = ["Northern Realms", "Monsters", "Nilfgaardian", "Scoia'tael", "Skellige"]
         faction_prompt = f"Faction (required) [{default_faction}]: " if default_faction else f"Faction (required) - Choose from {', '.join(valid_factions)}: "
         faction = input(faction_prompt)
         if not faction and default_faction:
@@ -152,10 +148,10 @@ class CardManager(gwent.game.BaseComponent):
         owner = input("Owner (optional): ")
         
         # Ranges
-        valid_ranges = ["close", "ranged", "siege"]
+        valid_ranges: List[str] = ["close", "ranged", "siege"]
         print(f"Valid ranges: {', '.join(valid_ranges)}")
         ranges_input = input("Ranges (comma-separated, optional): ")
-        ranges = [r.strip() for r in ranges_input.split(',')] if ranges_input else []
+        ranges: List[str] = [r.strip() for r in ranges_input.split(',')] if ranges_input else []
         # Validate ranges
         ranges = [r for r in ranges if r in valid_ranges]
         
@@ -173,15 +169,15 @@ class CardManager(gwent.game.BaseComponent):
                 strength = 0
         
         # Abilities
-        valid_abilities = ["agile", "berserker", "commander", "morale", "medic", "muster", "scorch", "spy", "summon", "bond"]
+        valid_abilities: List[str] = ["agile", "berserker", "commander", "morale", "medic", "muster", "scorch", "spy", "summon", "bond"]
         print(f"Valid abilities: {', '.join(valid_abilities)}")
         abilities_input = input("Abilities (comma-separated, optional): ")
-        abilities = [a.strip() for a in abilities_input.split(',')] if abilities_input else []
+        abilities: List[str] = [a.strip() for a in abilities_input.split(',')] if abilities_input else []
         # Validate abilities
         abilities = [a for a in abilities if a in valid_abilities]
         
         # Specialty
-        valid_specialties = ["commander", "decoy", "leader", "scorch", "weather", "hero", "mardroeme"]
+        valid_specialties: List[str] = ["commander", "decoy", "leader", "scorch", "weather", "hero", "mardroeme"]
         print(f"Valid specialties: {', '.join(valid_specialties)}")
         specialty = input("Specialty (optional): ")
         if specialty and specialty not in valid_specialties:
@@ -196,7 +192,7 @@ class CardManager(gwent.game.BaseComponent):
         content_id = hashlib.md5(f"{name}{faction}".encode()).hexdigest()
         
         # Create card data
-        card_data = {
+        card_data: CardData = {
             "content_id": content_id,
             "name": name,
             "faction": faction
@@ -222,7 +218,7 @@ class CardManager(gwent.game.BaseComponent):
         
         return card_data
 
-    def write_card_to_database(self, card_data):
+    def write_card_to_database(self, card_data: CardData) -> FilePath:
         """Write a card to the database"""
         faction = card_data["faction"]
         name = card_data["name"]
@@ -243,10 +239,10 @@ class CardManager(gwent.game.BaseComponent):
         self._log.info(f"Card written to {filepath}")
         return filepath
 
-    def write_card_to_rfid(self, card_data):
+    def write_card_to_rfid(self, card_data: CardData) -> Optional[int]:
         """Write a card to an RFID tag"""
         # Convert card data to a Message object
-        card = gwent.messaging.card.Message.from_properties(card_data)
+        card: gwent.messaging.card.Message = gwent.messaging.card.Message.from_properties(card_data)
         
         self._log.info({
             'action': 'Hold a tag near the writer to receive the data',
@@ -256,50 +252,43 @@ class CardManager(gwent.game.BaseComponent):
 
         writer = gwent.hal.rfid.instance()
 
-        rfid_id = None
-        while rfid_id is None and not self._stop_event.is_set():
-            rfid_id = writer.write_card(card)
-            if rfid_id is None:
+        rfid: Optional[int] = None
+        while rfid is None and not self._stop_event.is_set():
+            rfid = writer.write_card(card)
+            if rfid is None:
                 # Small delay to prevent CPU hogging
                 time.sleep(0.1)
 
-        if rfid_id is not None:
+        if rfid is not None:
             self._log.info({
                 'action': 'card written successfully',
-                'id': rfid_id,
+                'id': rfid,
             })
             
-            # Update the card data with the RFID ID
-            card_data['rfid'] = rfid_id
+            # Update the card data with the RFID
+            card_data['rfid'] = rfid
             
-            return rfid_id
+            return rfid
         
         return None
 
-    def run(self):
+    def run(self) -> None:
         """Run the card manager utility"""
         self.setup_signal_handlers()
         
-        # Initialize pygame before reading the card
-        try:
-            import pygame
-            pygame.init()
-        except ImportError:
-            pass
-        
         # Read the RFID card
-        card = self.read_rfid_card()
+        card: Optional[gwent.messaging.card.Message] = self.read_rfid_card()
         
         if card is None:
             self._log.error("Failed to read card")
             return
         
         # Try to find the card in the database
-        card_data = None
-        card_file = None
+        card_data: Optional[CardData] = None
+        card_file: Optional[FilePath] = None
         
         try:
-            # First try by RFID ID if available
+            # First try by RFID if available
             if hasattr(card, 'rfid') and card.rfid:
                 card_data, card_file = self.find_card_in_database(card.rfid)
             
@@ -320,64 +309,91 @@ class CardManager(gwent.game.BaseComponent):
             card_file = None
         
         if card_data:
-            # Check if the card data needs to be updated with the RFID ID
-            updated = False
+            # Check if the card data needs to be updated with the RFID
+            updated: bool = False
             if hasattr(card, 'rfid') and card.rfid and ('rfid' not in card_data or card_data['rfid'] != card.rfid):
-                # Update the card data with the RFID ID
+                # Update the card data with the RFID
                 card_data['rfid'] = card.rfid
                 updated = True
-                self._log.info(f"Updating card with RFID ID: {card.rfid}")
+                self._log.info(f"Updating card with RFID: {card.rfid}")
                 
                 # Write the updated card data to the file
                 if card_file:
                     try:
-                        # Make sure the RFID ID is properly set in the card data
-                        card_data['rfid'] = int(card.rfid)
+                        # Make sure the RFID is properly set in the card data
+                        rfid_value: int = int(card.rfid)
+                        card_data['rfid'] = rfid_value
                         
                         # Write the updated card data to the file
                         with open(card_file, 'w') as f:
                             json.dump(card_data, f, indent=4)
-                        self._log.info(f"Card file updated with RFID ID: {card_file}")
+                        self._log.info(f"Card file updated with RFID: {card_file}")
                         
                         # Verify the file was updated correctly
                         with open(card_file, 'r') as f:
-                            updated_data = json.load(f)
+                            updated_data: CardData = json.load(f)
                             if 'rfid' in updated_data and updated_data['rfid'] == card.rfid:
-                                self._log.info(f"Verified RFID ID was added to file: {card_file}")
+                                self._log.info(f"Verified RFID was added to file: {card_file}")
                             else:
-                                self._log.error(f"Failed to verify RFID ID in file: {card_file}")
+                                self._log.error(f"Failed to verify RFID in file: {card_file}")
                     except Exception as e:
-                        self._log.error(f"Error updating card file with RFID ID: {e}")
+                        self._log.error(f"Error updating card file with RFID: {e}")
             
             # Card exists, print information
-            print("\nCard found in database:")
-            print(f"Name: {card_data.get('name', 'Unknown')}")
-            print(f"Faction: {card_data.get('faction', 'Unknown')}")
+            print("\n" + "="*50)
+            print(f"  CARD FOUND: {card_data.get('name', 'Unknown')}")
+            print("="*50)
             
-            if 'ranges' in card_data:
-                print(f"Ranges: {', '.join(card_data['ranges'])}")
+            # Basic information
+            print(f"\nBasic Information:")
+            print(f"  Name:    {card_data.get('name', 'Unknown')}")
+            print(f"  Faction: {card_data.get('faction', 'Unknown')}")
             
+            # Card attributes
+            print("\nCard Attributes:")
             if 'strength' in card_data:
-                print(f"Strength: {card_data['strength']}")
-            
-            if 'abilities' in card_data:
-                print(f"Abilities: {', '.join(card_data['abilities'])}")
-            
-            if 'specialty' in card_data:
-                print(f"Specialty: {card_data['specialty']}")
-            
-            if 'owner' in card_data:
-                print(f"Owner: {card_data['owner']}")
-            
-            if 'starter' in card_data and card_data['starter']:
-                print("Starter card: Yes")
+                print(f"  Strength: {card_data['strength']}")
             else:
-                print("Starter card: No")
+                print("  Strength: N/A")
+                
+            if 'ranges' in card_data:
+                print(f"  Ranges:   {', '.join(card_data['ranges'])}")
+            else:
+                print("  Ranges:   N/A")
+                
+            if 'specialty' in card_data:
+                print(f"  Specialty: {card_data['specialty']}")
+            else:
+                print("  Specialty: None")
+                
+            if 'abilities' in card_data:
+                print(f"  Abilities: {', '.join(card_data['abilities'])}")
+            else:
+                print("  Abilities: None")
+            
+            # Additional information
+            print("\nAdditional Information:")
+            if 'owner' in card_data:
+                print(f"  Owner:       {card_data['owner']}")
+            else:
+                print("  Owner:       None")
+                
+            if 'starter' in card_data and card_data['starter']:
+                print("  Starter card: Yes")
+            else:
+                print("  Starter card: No")
             
             if 'rfid' in card_data:
-                print(f"RFID ID: {card_data['rfid']}")
+                print(f"  RFID:      {card_data['rfid']}")
+            else:
+                print("  RFID:      Not assigned")
                 
-            print(f"File: {card_file}")
+            if 'content_id' in card_data:
+                print(f"  Content ID:   {card_data['content_id']}")
+            
+            # File information
+            print(f"\nFile: {card_file}")
+            print("="*50)
             
             if updated:
                 print("\nCard file updated")
@@ -387,8 +403,8 @@ class CardManager(gwent.game.BaseComponent):
                 print("\nCard not found in database. Creating a new card.")
                 
                 # Get card name and faction from the RFID card if available
-                default_name = card.name if hasattr(card, 'name') else None
-                default_faction = card.faction if hasattr(card, 'faction') else None
+                default_name: Optional[str] = card.name if hasattr(card, 'name') else None
+                default_faction: Optional[str] = card.faction if hasattr(card, 'faction') else None
                 
                 card_data = self.prompt_for_card_details(default_name, default_faction)
                 
@@ -396,15 +412,15 @@ class CardManager(gwent.game.BaseComponent):
                 card_file = self.write_card_to_database(card_data)
                 
                 # Write card to RFID tag
-                rfid_id = self.write_card_to_rfid(card_data)
+                rfid: Optional[int] = self.write_card_to_rfid(card_data)
                 
-                if rfid_id:
-                    # Update the card in the database with the RFID ID
-                    card_data['rfid'] = rfid_id
+                if rfid:
+                    # Update the card in the database with the RFID
+                    card_data['rfid'] = rfid
                     with open(card_file, 'w') as f:
                         json.dump(card_data, f, indent=4)
                     
-                    print(f"\nCard successfully written to RFID tag with ID: {rfid_id}")
+                    print(f"\nCard successfully written to RFID tag with ID: {rfid}")
                 else:
                     print("\nFailed to write card to RFID tag")
             except Exception as e:
@@ -412,7 +428,7 @@ class CardManager(gwent.game.BaseComponent):
                 print(f"\nError creating card: {e}")
 
 
-def main():
+def main() -> int:
     """Command-line entry point for the card manager utility"""
     # Set up logging
     gwent.log.setup(level='debug')

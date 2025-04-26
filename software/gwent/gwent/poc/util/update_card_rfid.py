@@ -4,14 +4,14 @@ import os
 import sys
 import glob
 
-def update_card_rfid(card_name, card_faction, rfid_id):
+def update_card_rfid(card_name, card_faction, rfid):
     """
-    Update a card file with an RFID ID
+    Update a card file with an RFID
     
     Args:
         card_name: The name of the card
         card_faction: The faction of the card
-        rfid_id: The RFID ID to add to the card
+        rfid: The RFID to add to the card
     
     Returns:
         True if the card was updated, False otherwise
@@ -20,11 +20,11 @@ def update_card_rfid(card_name, card_faction, rfid_id):
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 
                                           '..', '..', '..', '..', 'data', 'cards'))
     
-    # Convert RFID ID to integer
+    # Convert RFID to integer
     try:
-        rfid_id = int(rfid_id)
+        rfid = int(rfid)
     except ValueError:
-        print(f"Error: RFID ID must be an integer: {rfid_id}")
+        print(f"Error: RFID must be an integer: {rfid}")
         return False
     
     # Find the card file
@@ -40,23 +40,23 @@ def update_card_rfid(card_name, card_faction, rfid_id):
             with open(json_file, 'r') as f:
                 card_data = json.load(f)
                 if card_data.get('name') == card_name and card_data.get('faction') == card_faction:
-                    # Found the card, update it with the RFID ID
-                    card_data['rfid'] = rfid_id
+                    # Found the card, update it with the RFID
+                    card_data['rfid'] = rfid
                     
                     # Write the updated card data back to the file
                     with open(json_file, 'w') as f:
                         json.dump(card_data, f, indent=4)
                     
-                    print(f"Updated card file with RFID ID: {json_file}")
+                    print(f"Updated card file with RFID: {json_file}")
                     found = True
                     
                     # Verify the update
                     with open(json_file, 'r') as f:
                         updated_data = json.load(f)
-                        if 'rfid' in updated_data and updated_data['rfid'] == rfid_id:
-                            print(f"Verified RFID ID was added to file: {json_file}")
+                        if 'rfid' in updated_data and updated_data['rfid'] == rfid:
+                            print(f"Verified RFID was added to file: {json_file}")
                         else:
-                            print(f"Failed to verify RFID ID in file: {json_file}")
+                            print(f"Failed to verify RFID in file: {json_file}")
                             return False
                     
                     break
@@ -71,16 +71,16 @@ def update_card_rfid(card_name, card_faction, rfid_id):
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
-        print("Usage: python update_card_rfid.py <card_name> <card_faction> <rfid_id>")
+        print("Usage: python update_card_rfid.py <card_name> <card_faction> <rfid>")
         sys.exit(1)
     
     card_name = sys.argv[1]
     card_faction = sys.argv[2]
-    rfid_id = sys.argv[3]
+    rfid = sys.argv[3]
     
-    if update_card_rfid(card_name, card_faction, rfid_id):
-        print(f"Successfully updated card {card_name} ({card_faction}) with RFID ID {rfid_id}")
+    if update_card_rfid(card_name, card_faction, rfid):
+        print(f"Successfully updated card {card_name} ({card_faction}) with RFID {rfid}")
         sys.exit(0)
     else:
-        print(f"Failed to update card {card_name} ({card_faction}) with RFID ID {rfid_id}")
+        print(f"Failed to update card {card_name} ({card_faction}) with RFID {rfid}")
         sys.exit(1)
