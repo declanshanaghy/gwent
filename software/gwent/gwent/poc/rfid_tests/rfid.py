@@ -51,8 +51,8 @@ def run():
         GPIO.setmode(GPIO.BCM)
         
         # Initialize the RFID reader using RealWriter from gwent.hal.rfid
-        loop = asyncio.new_event_loop()
-        reader = RealWriter(loop, log_verbose=False)
+        # Note: RealWriter doesn't use a loop parameter
+        reader = RealWriter(log_verbose=False)
         gpio_initialized = True
         
         print("RFID reader initialized successfully")

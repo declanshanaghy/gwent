@@ -2,8 +2,6 @@
 
 This document provides instructions for setting up a Raspberry Pi development environment for the Gwent project.
 
-**Note:** The original asyncio-based implementation has been moved to `software/gwent-asyncio`. The new implementation in `software/gwent` is designed to be compatible with the hardware libraries.
-
 ## Prerequisites
 
 - Raspberry Pi 3 Model B (or newer) with at least 2GB RAM
@@ -228,19 +226,21 @@ cd gwent
 
 ### 2. Prepare the System
 
-Before running the installation scripts, you need to perform some manual setup steps:
+Before running the installation scripts, you need to perform these manual setup steps:
 
 ```bash
 # Update system packages
 sudo apt-get update
 
+# Update Raspberry Pi firmware (recommended)
+sudo rpi-update
+
 # Enable SPI & I2C interfaces
 sudo raspi-config
 # Navigate to "Interface Options" and enable both SPI and I2C
 
-# Create a user for the application (optional)
-sudo useradd -m geralt
-sudo usermod -G sudo,gpio,spi,i2c -a geralt
+# Add your user to the required groups
+sudo usermod -G sudo,gpio,spi,i2c -a ${USER}
 
 # Install SSH public key (if using remote access)
 # Place your public key in ~geralt/.ssh/authorized_keys
@@ -248,7 +248,12 @@ sudo usermod -G sudo,gpio,spi,i2c -a geralt
 # Configure sudo without password (optional)
 # Add the following line to /etc/sudoers using visudo:
 # %sudo  ALL=(ALL) NOPASSWD: ALL
+
+# Create mosquitto user with password "gwent" (hardcoded in the application)
+sudo mosquitto_passwd -c /etc/mosquitto/passwd geralt
 ```
+
+These steps ensure that your Raspberry Pi is properly configured with all the necessary permissions and settings before installing the Gwent application.
 
 ### 3. Run the Setup Script
 
@@ -266,7 +271,7 @@ The `make install` command runs the installation scripts that perform the follow
 - Adds the user to required groups
 - Creates a Python virtual environment
 - Installs Python packages
-- Configures services (MQTT, Redis)
+- Configures services (MQTT)
 - Creates a hardware test script
 - Creates a convenience script to activate the virtual environment
 
@@ -306,7 +311,6 @@ The test script will check:
 - OLED display
 - Rotary encoder
 - MQTT broker
-- Redis server
 
 ### 7. Run the Gwent Game
 
@@ -383,18 +387,16 @@ If the hardware test script reports issues with specific components:
 
 ### Service Issues
 
-If MQTT or Redis services are not running:
+If MQTT services are not running:
 
 ```bash
 sudo systemctl status mosquitto
-sudo systemctl status redis-server
 ```
 
 If they are not running, start them:
 
 ```bash
 sudo systemctl start mosquitto
-sudo systemctl start redis-server
 ```
 
 ## Additional Resources

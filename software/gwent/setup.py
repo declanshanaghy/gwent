@@ -40,7 +40,7 @@ setuptools.setup(
     },
     install_requires=[
         # Core dependencies
-        'RPi.GPIO>=0.7.0',
+        'paho-mqtt>=2.1.0',
         'gpiozero>=1.6.2',
         'lgpio>=0.1.0',  # Required for LGPIOFactory in gpiozero
         'pigpio>=1.78',  # Required for PiGPIOFactory in gpiozero
@@ -57,12 +57,6 @@ setuptools.setup(
         'luma.oled>=3.8.1',
         'luma.core',
         'pillow',
-        
-        # RFID libraries
-        'mfrc522-python==0.0.7',
-        
-        # Input libraries
-        'gaugette>=1.2',
         
         # I2C multiplexer
         'sparkfun-qwiic-tca9548a>=0.9.0',
@@ -83,21 +77,36 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'gwent=gwent.game.main:main',
+            'gwent=gwent.game.main:run',
             'read_card=gwent.game.card_tools:read_card',
             'write_card=gwent.game.card_tools:write_card',
             
             # POC script entry points
             'rotary-rpigpio-test=gwent.poc.input_tests.rotary_rpigpio:run',
             'rotary-gpiozero-test=gwent.poc.input_tests.rotary_gpiozero:run',
+            'rotary-diagnostic=gwent.poc.input_tests.rotary_diagnostic:run',
+            'rotary-pin-test=gwent.poc.input_tests.rotary_pin_test:run',
+            'rotary-debounce-test=gwent.poc.input_tests.rotary_debounce_test:run',
+            'rotary-diagnostics=gwent.poc.input_tests.run_rotary_diagnostics:main',
+            'rotary-robust=gwent.poc.input_tests.rotary_robust:run',
+            'rotary-lgpio=gwent.poc.input_tests.rotary_lgpio:run',
+            'rotary-pigpio=gwent.poc.input_tests.rotary_pigpio:run',
+            'rotary-test=gwent.poc.input_tests.test_rotary_implementations:run',
+            'gpio-check=gwent.poc.diagnostic_tools.gpio_permissions_check:run',
+            'gpio-service-manager=gwent.poc.diagnostic_tools.gpio_service_manager:run',
+            'gpio-service-start=gwent.poc.diagnostic_tools.gpio_service_manager:run',
+            'gpio-service-stop=gwent.poc.diagnostic_tools.gpio_service_manager:run',
             'rfid-test=gwent.poc.rfid_tests.rfid:run',
             'oled-ssd1306-test=gwent.poc.display_tests.oled_test:run',
             'oled-ssd1305-pillow-test=gwent.poc.display_tests.ssd1305_pillow_demo:main',
             'oled-ssd1305-luma-test=gwent.poc.display_tests.ssd1305_luma_demo:main',
-            'matrix-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            # Fix entry points with hyphens in module names
+            'matrix-test=gwent.poc.display_tests:run_matrix_test',
             'oled-test=gwent.poc.display_tests.oled_test:run',
-            'oled-direct-test=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
-            'display-diagnostic=gwent.poc.display_tests.TCA9548A-MatrixI2C-test:run',
+            'oled-direct-test=gwent.poc.display_tests:run_matrix_test',
+            'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
+            'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
+            'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
         ],
     }
 )

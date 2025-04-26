@@ -1,20 +1,28 @@
 #!/usr/bin/env bash
 
-# Do this manually
+#############################################################################
+#
+# Perform all the following steps before running `make install-system`
+#
+#############################################################################
 #
 # sudo apt-get update
+# sudo rpi-update
 #
 # Enable SPI & I2C
 # sudo raspi-config
 #
-# sudo useradd -m geralt
-# sudo usermod -G sudo,gpio,spi,i2c -a geralt
+# sudo usermod -G sudo,gpio,spi,i2c -a ${USER}
 #
-# Install ssh pub key in ~geralt/.ssh/authorized_keys
+# Install ssh pub key in ~/.ssh/authorized_keys
 #
 # no password sudo
 # %sudo  ALL=(ALL) NOPASSWD: ALL
 #
+# Create mosquitto user with password "gwent" (hardcoded)
+# sudo mosquitto_passwd -c /etc/mosquitto/passwd geralt
+#
+#############################################################################
 
 set -e
 
@@ -43,12 +51,12 @@ sudo apt-get install -y \
 
 echo "Installing audio and display dependencies..."
 sudo apt-get install -y \
-  ffmpeg \
+  ffmpeg mpg123 \
   libasound2-dev libpulse-dev \
   libsdl2-dev libsmpeg-dev \
   libavformat-dev libavcodec-dev \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
-  mosquitto rpi.gpio
+  mosquitto
 
 echo "Installing GPIO libraries for rotary encoder support..."
 sudo apt-get install -y \
@@ -59,3 +67,14 @@ sudo apt-get install -y \
 echo "Enabling and starting pigpio daemon..."
 sudo systemctl enable pigpiod
 sudo systemctl start pigpiod
+
+# Configure mosquitto only if the config file doesn't exist
+MOSQUITTO_CONF="/etc/mosquitto/conf.d/50-listen-mqtt.conf"
+if [ ! -f "$MOSQUITTO_CONF" ]; then
+    echo "Configuring mosquitto..."
+    sudo cp ${DIR}/50-listen-mqtt.conf $MOSQUITTO_CONF
+    echo "Restarting mosquitto service..."
+    sudo systemctl restart mosquitto
+else
+    echo "Mosquitto already configured, skipping configuration."
+fi

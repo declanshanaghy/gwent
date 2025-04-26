@@ -28,66 +28,160 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
             log_verbose: Whether to enable verbose logging
         """
         super().__init__(log_verbose=log_verbose)
-        self.rotary = RotaryEncoder(implementation=implementation, log_verbose=log_verbose)
+        self._log.info(f"Initializing RotaryChooser with implementation: {implementation.name}")
+        try:
+            self._log.info("Creating RotaryEncoder instance")
+            self.rotary = RotaryEncoder(implementation=implementation, log_verbose=log_verbose)
+            self._log.info("RotaryEncoder created successfully")
+        except Exception as e:
+            self._log.error(f"Failed to create RotaryEncoder: {e}", exc_info=True)
+            raise
+            
         self._stop_event = threading.Event()
         self._choice = None
         self._choices = None
         self._select_callback = None
+        self._log.info("RotaryChooser initialized successfully")
 
     def choose(self, choices: List[gwent.messaging.choice.Message],
                     selected_idx: int,
                     select: Callable[
                         [int, gwent.messaging.choice.Message], Any]) -> \
             gwent.messaging.choice.Message:
-        self.rotary.start()
+        self._log.info(f"choose() called with {len(choices)} choices, selected_idx={selected_idx}")
         
+        if not choices:
+            self._log.error("No choices provided")
+            return None
+            
+        if selected_idx < 0 or selected_idx >= len(choices):
+            self._log.warning(f"Invalid selected_idx {selected_idx}, using 0 instead")
+            selected_idx = 0
+        
+        try:
+            self._log.info("Starting rotary encoder")
+            self.rotary.start()
+            self._log.info("Rotary encoder started successfully")
+        except Exception as e:
+            self._log.error(f"Failed to start rotary encoder: {e}", exc_info=True)
+            raise
+        
+        self._log.info("Clearing stop event")
         self._stop_event.clear()
         self._choices = choices
         self._select_callback = select
         
         # Start with the selected choice
         choice = choices[selected_idx]
+        self._log.info(f"Initial choice: id={choice.id}, text={choice.text}")
+        self._choice = choice
         
         # Create a thread to monitor the rotary encoder
-        monitor_thread = threading.Thread(target=self._monitor_rotary, 
-                                         args=(choices, selected_idx, select))
+        self._log.info("Creating monitor thread")
+        monitor_thread = threading.Thread(
+            target=self._monitor_rotary,
+            args=(choices, selected_idx, select),
+            name="RotaryMonitor"
+        )
         monitor_thread.daemon = True
+        self._log.info("Starting monitor thread")
         monitor_thread.start()
         
         # Wait for a selection to be made
+        self._log.info("Waiting for selection to be made")
+        wait_count = 0
         while not self._stop_event.is_set():
             time.sleep(gwent.game.DEFAULT_YIELD_TIME)
+            wait_count += 1
+            if wait_count % 100 == 0:  # Log every ~5 seconds (assuming DEFAULT_YIELD_TIME is 0.05s)
+                self._log.debug(f"Still waiting for selection... ({wait_count} cycles)")
             
+        self._log.info("Stop event set, joining monitor thread")
         monitor_thread.join(timeout=1.0)
+        if monitor_thread.is_alive():
+            self._log.warning("Monitor thread did not terminate within timeout")
+        else:
+            self._log.info("Monitor thread terminated successfully")
+            
+        self._log.info(f"Returning choice: id={self._choice.id}, text={self._choice.text}")
         return self._choice
 
     def _monitor_rotary(self, choices, selected_idx, select):
+        thread_id = threading.get_ident()
+        self._log.info(f"Monitor thread started (id={thread_id})")
+        
         choice = choices[selected_idx]
         self._choice = choice
+        self._log.info(f"Initial choice in monitor: id={choice.id}, text={choice.text}")
+        
+        loop_count = 0
+        last_delta_time = time.time()
+        last_switch_time = time.time()
         
         while not self._stop_event.is_set():
-            delta, count, sw_changed, sw_state = self.rotary.loop()
+            loop_count += 1
             
-            if delta != 0:
-                idx = count % len(choices)
-                choice = choices[idx]
-                self._choice = choice
-                self._log.debug({
-                    'action': 'select',
-                    'delta': delta,
-                    'count': count,
-                    'len(choices)': len(choices),
-                    'idx': idx,
-                    'choice.id': choice.id,
-                    'choice.text': choice.text,
-                })
-                select(delta, choice)
-
-            if sw_changed and not sw_state:  # Release click
-                self._stop_event.set()
-                return
+            try:
+                delta, count, sw_changed, sw_state = self.rotary.loop()
                 
-            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
+                if delta != 0:
+                    current_time = time.time()
+                    time_since_last = current_time - last_delta_time
+                    last_delta_time = current_time
+                    
+                    idx = count % len(choices)
+                    choice = choices[idx]
+                    self._choice = choice
+                    self._log.info({
+                        'action': 'select',
+                        'delta': delta,
+                        'count': count,
+                        'time_since_last_delta': f"{time_since_last:.3f}s",
+                        'len(choices)': len(choices),
+                        'idx': idx,
+                        'choice.id': choice.id,
+                        'choice.text': choice.text,
+                    })
+                    
+                    try:
+                        self._log.debug("Calling select callback")
+                        select(delta, choice)
+                        self._log.debug("Select callback completed")
+                    except Exception as e:
+                        self._log.error(f"Error in select callback: {e}", exc_info=True)
+
+                if sw_changed:
+                    current_time = time.time()
+                    time_since_last = current_time - last_switch_time
+                    last_switch_time = current_time
+                    
+                    self._log.info({
+                        'action': 'switch_change',
+                        'sw_state': sw_state,
+                        'time_since_last_switch': f"{time_since_last:.3f}s"
+                    })
+                    
+                    if not sw_state:  # Release click
+                        self._log.info("Switch released, setting stop event")
+                        self._stop_event.set()
+                        return
+                
+                # Log status periodically (every ~5 seconds)
+                if loop_count % 100 == 0:
+                    self._log.debug({
+                        'action': 'monitor_status',
+                        'loop_count': loop_count,
+                        'current_choice': self._choice.id if self._choice else None,
+                        'stop_event': self._stop_event.is_set()
+                    })
+                    
+                time.sleep(gwent.game.DEFAULT_YIELD_TIME)
+                
+            except Exception as e:
+                self._log.error(f"Error in monitor loop: {e}", exc_info=True)
+                time.sleep(gwent.game.DEFAULT_YIELD_TIME)  # Sleep to avoid tight error loop
+        
+        self._log.info(f"Monitor thread exiting (id={thread_id})")
 
 
 class RotaryEncoder(gwent.game.BaseComponent):
@@ -117,56 +211,106 @@ class RotaryEncoder(gwent.game.BaseComponent):
             log_verbose: Whether to enable verbose logging
         """
         super().__init__(log_verbose=log_verbose)
+        self._log.info(f"Initializing RotaryEncoder with implementation: {implementation.name}")
         self._implementation = implementation
+        self._log.info(f"Using pins: A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")
+        self._log.info("RotaryEncoder instance created (hardware not initialized yet)")
 
     def start(self):
+        self._log.info("start() called")
         if self._encoder is None:
-            self._log.info(f"Initializing rotary encoder with pins A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")
+            self._log.info(f"Initializing rotary encoder hardware")
             
-            if self._implementation == RotaryImplementation.DIRECT_GPIO:
-                self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
-                self._sw = DirectGPIOSwitch(self.SW_PIN)
-                self._log.info("Direct GPIO rotary encoder initialized successfully")
-            elif self._implementation == RotaryImplementation.GPIOZERO:
-                self._encoder = GwentGPIOZeroRotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
-                self._sw = GPIOZeroSwitch(self.SW_PIN)
-                self._log.info("GPIOZero rotary encoder initialized successfully")
-            elif self._implementation == RotaryImplementation.PIGPIO:
-                self._encoder = PiGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
-                self._sw = PiGPIOSwitch(self.SW_PIN)
-                self._log.info("PiGPIO rotary encoder initialized successfully")
-            else:
-                raise ValueError(f"Unknown implementation: {self._implementation}")
+            try:
+                if self._implementation == RotaryImplementation.DIRECT_GPIO:
+                    self._log.info("Creating DirectGPIORotaryEncoder")
+                    self._encoder = DirectGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
+                    self._log.info("Creating DirectGPIOSwitch")
+                    self._sw = DirectGPIOSwitch(self.SW_PIN)
+                    self._log.info("Direct GPIO rotary encoder initialized successfully")
+                    
+                elif self._implementation == RotaryImplementation.GPIOZERO:
+                    self._log.info("Creating GwentGPIOZeroRotaryEncoder")
+                    self._encoder = GwentGPIOZeroRotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
+                    self._log.info("Creating GPIOZeroSwitch")
+                    self._sw = GPIOZeroSwitch(self.SW_PIN)
+                    self._log.info("GPIOZero rotary encoder initialized successfully")
+                    
+                elif self._implementation == RotaryImplementation.PIGPIO:
+                    self._log.info("Creating PiGPIORotaryEncoder")
+                    self._encoder = PiGPIORotaryEncoder(self.A_PIN, self.B_PIN, log=self._log)
+                    self._log.info("Creating PiGPIOSwitch")
+                    self._sw = PiGPIOSwitch(self.SW_PIN)
+                    self._log.info("PiGPIO rotary encoder initialized successfully")
+                    
+                else:
+                    self._log.error(f"Unknown implementation: {self._implementation}")
+                    raise ValueError(f"Unknown implementation: {self._implementation}")
+                    
+                self._log.info("Starting encoder monitoring")
+                self._encoder.start()
+                self._log.info("Encoder monitoring started successfully")
                 
-            self._encoder.start()
+            except Exception as e:
+                self._log.error(f"Failed to initialize rotary encoder: {e}", exc_info=True)
+                raise
 
+        self._log.info("Resetting encoder state")
         self.reset()
+        self._log.info("Encoder started and reset successfully")
 
     def reset(self):
+        self._log.info("reset() called")
         self._counter = 0
         self._delta = 0
+        
         if self._encoder:
-            self._encoder.reset()
+            self._log.debug("Resetting encoder counter")
+            try:
+                self._encoder.reset()
+                self._log.debug("Encoder counter reset successfully")
+            except Exception as e:
+                self._log.error(f"Error resetting encoder: {e}", exc_info=True)
+                
         if self._sw:
-            self._sw_state = self._sw.get_state()
+            self._log.debug("Reading initial switch state")
+            try:
+                self._sw_state = self._sw.get_state()
+                self._log.debug(f"Initial switch state: {self._sw_state}")
+            except Exception as e:
+                self._log.error(f"Error reading switch state: {e}", exc_info=True)
+                self._sw_state = False  # Default to not pressed
 
     def loop(self) -> (int, int, bool, bool):
         loop_start = time.time()
         should_log = self.should_log()
 
-        self._delta = self._encoder.get_cycles() if self._encoder else 0
+        # Get encoder delta
+        try:
+            self._delta = self._encoder.get_cycles() if self._encoder else 0
+        except Exception as e:
+            self._log.error(f"Error getting encoder cycles: {e}", exc_info=True)
+            self._delta = 0
+            
         if self._delta != 0:
             self._counter += self._delta
-            self._log.debug(f'count is {self._counter}')
+            self._log.debug(f'Encoder count is {self._counter} (delta: {self._delta})')
 
-        state = self._sw.get_state() if self._sw else False
+        # Get switch state
+        try:
+            state = self._sw.get_state() if self._sw else False
+        except Exception as e:
+            self._log.error(f"Error getting switch state: {e}", exc_info=True)
+            state = self._sw_state  # Keep previous state
+            
         self._sw_changed = state != self._sw_state
         if self._sw_changed:
-            self._log.debug(f'switch changed to {state}')
+            self._log.info(f'Switch changed to {state} (was {self._sw_state})')
             self._sw_state = state
 
+        # Log changes
         if self._delta != 0 or self._sw_changed:
-            self._log.debug({
+            self._log.info({
                 'action': 'loop',
                 'delta': self._delta,
                 'counter': self._counter,
@@ -176,6 +320,7 @@ class RotaryEncoder(gwent.game.BaseComponent):
 
         if should_log:
             self.log_time('loop', loop_start)
+            
         return self._delta, self._counter, self._sw_changed, self._sw_state
 
 

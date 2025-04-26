@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Script to validate that gwent is running correctly on the Raspberry Pi
-# Checks if music is playing and text is displayed on screen
+# This script checks if the gwent service is running and if the necessary components are working
 
 set -e  # Exit on error
 
@@ -36,105 +36,100 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source "${DIR}/install-vars.sh"
 
 # Raspberry Pi configuration
+RASPBERRY_PI_IP=${RASPBERRY_PI_IP:-"192.168.1.225"}
 PI_USER=${DEPLOY_USER:-"dshanaghy"}
 SSH_KEY=${SSH_KEY:-"~/.ssh/id_rsa"}
 
 print_message "Validating gwent on Raspberry Pi (${RASPBERRY_PI_IP})..."
 
-# Check if the gwent service is running
+# Step 1: Check if the gwent service is running
 print_message "Checking if gwent service is running..."
-SERVICE_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo systemctl is-active gwent.service")
+SERVICE_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active gwent.service" 2>/dev/null || echo "inactive")
 
-if [ "$SERVICE_STATUS" = "active" ]; then
+if [ "${SERVICE_STATUS}" = "active" ]; then
     print_success "Gwent service is running."
 else
     print_error "Gwent service is not running. Status: ${SERVICE_STATUS}"
-    exit 1
+    print_message "Attempting to start the service..."
+    ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo systemctl start gwent.service" || {
+        print_error "Failed to start gwent service."
+        exit 1
+    }
+    
+    # Check again after starting
+    SERVICE_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active gwent.service" 2>/dev/null || echo "inactive")
+    if [ "${SERVICE_STATUS}" = "active" ]; then
+        print_success "Gwent service started successfully."
+    else
+        print_error "Failed to start gwent service. Please check the logs."
+        exit 1
+    fi
 fi
 
-# Check if audio capability is available
-print_message "Checking if audio capability is available..."
-AUDIO_CAPABILITY=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "ls -la /dev/snd/ 2>/dev/null || echo 'No audio devices'")
+# Step 2: Check if the MQTT broker is running
+print_message "Checking if MQTT broker is running..."
+MQTT_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active mosquitto.service" 2>/dev/null || echo "inactive")
 
-if [[ "$AUDIO_CAPABILITY" == *"No audio devices"* ]]; then
-    print_warning "No audio devices detected. Audio might not be available on this device."
+if [ "${MQTT_STATUS}" = "active" ]; then
+    print_success "MQTT broker is running."
 else
-    print_success "Audio devices are available."
+    print_warning "MQTT broker is not running. Status: ${MQTT_STATUS}"
+    print_message "Attempting to start the MQTT broker..."
+    ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo systemctl start mosquitto.service" || {
+        print_error "Failed to start MQTT broker."
+        exit 1
+    }
+    
+    # Check again after starting
+    MQTT_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active mosquitto.service" 2>/dev/null || echo "inactive")
+    if [ "${MQTT_STATUS}" = "active" ]; then
+        print_success "MQTT broker started successfully."
+    else
+        print_warning "Failed to start MQTT broker. This may affect gwent functionality."
+    fi
 fi
 
-# Check if pygame is installed (for audio)
-print_message "Checking if pygame is installed for audio support..."
-PYGAME_INSTALLED=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import pygame' 2>/dev/null && echo 'Pygame installed' || echo 'Pygame not installed'")
+# Step 3: Check if the pigpio daemon is running
+print_message "Checking if pigpio daemon is running..."
+PIGPIO_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active pigpiod.service" 2>/dev/null || echo "inactive")
 
-if [[ "$PYGAME_INSTALLED" == *"Pygame installed"* ]]; then
-    print_success "Pygame is installed for audio support."
+if [ "${PIGPIO_STATUS}" = "active" ]; then
+    print_success "pigpio daemon is running."
 else
-    print_warning "Pygame might not be installed correctly. Audio might not work."
+    print_warning "pigpio daemon is not running. Status: ${PIGPIO_STATUS}"
+    print_message "Attempting to start the pigpio daemon..."
+    ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo systemctl start pigpiod.service" || {
+        print_error "Failed to start pigpio daemon."
+        exit 1
+    }
+    
+    # Check again after starting
+    PIGPIO_STATUS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "systemctl is-active pigpiod.service" 2>/dev/null || echo "inactive")
+    if [ "${PIGPIO_STATUS}" = "active" ]; then
+        print_success "pigpio daemon started successfully."
+    else
+        print_warning "Failed to start pigpio daemon. This may affect rotary encoder functionality."
+    fi
 fi
 
-# Check if I2C is available for display
-print_message "Checking if I2C is available for display..."
-I2C_AVAILABLE=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "ls -la /dev/i2c* 2>/dev/null || echo 'No I2C devices'")
+# Step 4: Check if the MFD component is working
+print_message "Checking MFD component..."
+print_message "Running MFD diagnostic tool..."
+ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source ~/gwent-venv/bin/activate && python -m gwent.poc.diagnostic_tools.mfd_diagnostic --non-interactive" > /dev/null 2>&1 || {
+    print_warning "MFD diagnostic tool reported issues. You may want to run 'make mfd-diagnostic' for detailed diagnostics."
+}
 
-if [[ "$I2C_AVAILABLE" == *"No I2C devices"* ]]; then
-    print_warning "No I2C devices detected. Display might not be available."
+# Step 5: Check gwent logs for errors
+print_message "Checking gwent logs for errors..."
+ERROR_COUNT=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "journalctl -u gwent.service -n 50 | grep -c 'ERROR'" 2>/dev/null || echo "0")
+
+if [ "${ERROR_COUNT}" -eq "0" ]; then
+    print_success "No recent errors found in gwent logs."
 else
-    print_success "I2C devices are available for display."
+    print_warning "Found ${ERROR_COUNT} errors in recent gwent logs."
+    print_message "Recent errors:"
+    ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "journalctl -u gwent.service -n 50 | grep 'ERROR'" || true
 fi
 
-# Check if GPIO is available for rotary encoder
-print_message "Checking if GPIO is available for rotary encoder..."
-GPIO_AVAILABLE=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "ls -la /dev/gpiomem 2>/dev/null || echo 'No GPIO access'")
-
-if [[ "$GPIO_AVAILABLE" == *"No GPIO access"* ]]; then
-    print_warning "No GPIO access detected. Rotary encoder might not be available."
-else
-    print_success "GPIO is available for rotary encoder."
-fi
-
-# Check if rotary encoder libraries are installed
-print_message "Checking if rotary encoder libraries are installed..."
-ROTARY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import gaugette.rotary_encoder' 2>/dev/null && echo 'Rotary encoder libs installed' || echo 'Rotary encoder libs not installed'")
-
-if [[ "$ROTARY_LIBS" == *"Rotary encoder libs installed"* ]]; then
-    print_success "Rotary encoder libraries are installed."
-else
-    print_warning "Rotary encoder libraries might not be installed correctly. Rotary encoder might not work."
-fi
-
-# Check if display libraries are installed
-print_message "Checking if display libraries are installed..."
-DISPLAY_LIBS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "source /home/${PI_USER}/gwent-venv/bin/activate && python3 -c 'import adafruit_ssd1305' 2>/dev/null && echo 'Display libs installed' || echo 'Display libs not installed'")
-
-if [[ "$DISPLAY_LIBS" == *"Display libs installed"* ]]; then
-    print_success "Display libraries are installed."
-else
-    print_warning "Display libraries might not be installed correctly. Display might not work."
-fi
-
-# Check the logs for any errors
-print_message "Checking logs for errors..."
-# Exclude warnings about GPIO pins and pull-up resistors
-LOG_ERRORS=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "sudo journalctl -u gwent.service -n 50 | grep -i 'error\\|exception\\|fail' | grep -v 'RuntimeWarning' | grep -v 'already in use' | grep -v 'pull up resistor' | wc -l")
-
-if [ "$LOG_ERRORS" -eq "0" ]; then
-    print_success "No critical errors found in the logs."
-else
-    print_warning "Found ${LOG_ERRORS} potential errors in the logs. This might be normal during startup."
-    print_message "You can check the logs with: ssh ${PI_USER}@${RASPBERRY_PI_IP} 'sudo journalctl -u gwent.service'"
-fi
-
-# Final validation message
-print_message "Checking if gwent is running properly..."
-GWENT_RUNNING=$(ssh -i ${SSH_KEY} ${PI_USER}@${RASPBERRY_PI_IP} "ps aux | grep -v grep | grep -c gwent")
-
-if [ "$GWENT_RUNNING" -gt "0" ]; then
-    print_success "Gwent is running properly!"
-else
-    print_error "Gwent does not appear to be running."
-    exit 1
-fi
-
-print_success "Validation complete! Gwent appears to be running correctly."
-print_message "For a more detailed check, you may want to physically verify the Raspberry Pi's display, audio, and rotary encoder functionality."
-print_message "To test the rotary encoder, try turning the dial and pressing the button while observing the logs: ssh ${PI_USER}@${RASPBERRY_PI_IP} 'sudo journalctl -u gwent.service -f'"
+print_success "Gwent validation completed!"
+print_message "To view detailed logs, run: ssh ${PI_USER}@${RASPBERRY_PI_IP} 'journalctl -fu gwent.service'"

@@ -12,6 +12,7 @@ import sys
 import time
 import threading
 import logging
+import logging.handlers
 import json
 import pathlib
 from typing import Dict, Optional, Any, Union
@@ -255,6 +256,10 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
         level (int, optional): The log level for the root logger
         log_file (str, optional): Path to a log file to write logs to
     """
+    # Set default log file path if not specified
+    if log_file is None:
+        log_file = "/tmp/log/gwent.log"
+    
     # Set up the root logger
     root_logger = logging.getLogger()
     
@@ -272,17 +277,27 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
     # Add the handler to the root logger
     root_logger.addHandler(console_handler)
     
-    # If a log file is specified, add a file handler
-    if log_file:
-        # Ensure the directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-            
-        # Create a file handler
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
+    # Add a rotating file handler
+    # Ensure the directory exists
+    log_dir = os.path.dirname(log_file)
+    if log_dir and not os.path.exists(log_dir):
+        os.makedirs(log_dir, exist_ok=True)
+        
+    # Create a rotating file handler
+    # maxBytes=100MB, backupCount=5
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=100 * 1024 * 1024,  # 100MB
+        backupCount=5,
+        delay=True  # Only create the file when it's first written to
+    )
+    file_handler.setFormatter(formatter)
+    root_logger.addHandler(file_handler)
+    
+    # Force rotation on startup if the file exists and has content
+    if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+        root_logger.info("Rotating log file on startup")
+        file_handler.doRollover()
     
     # Set the log level
     if level is None:

@@ -55,7 +55,7 @@ class BaseComponent(object):
 
     def log_time(self, action, start):
         end = time.time()
-        self._log.info({
+        self._log.debug({
             'action': action,
             'start': f'{start:.5f}',
             'end': f'{end:.5f}',
@@ -175,11 +175,13 @@ class ThreadComponent(BaseComponent):
 
     def publish_effect(self, effect: str):
         """Publish a sound effect"""
+        self._log.info(f"Publishing sound effect: {effect}")
         e = gwent.messaging.sfx.Message.with_effect(effect)
         self.publish(CH_SFX, e)
 
     def publish_music(self, music: str = None):
         """Publish background music"""
+        self._log.info(f"Publishing background music: {music}")
         e = gwent.messaging.sfx.Message.with_music(music=music)
         self.publish(CH_SFX, e)
 

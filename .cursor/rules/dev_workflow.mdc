@@ -1,6 +1,6 @@
 ---
-description: Guide for using Task Master to manage task-driven development workflows
-globs: **/*
+description: 
+globs: 
 alwaysApply: true
 ---
 
@@ -51,7 +51,7 @@ Task Master offers two primary ways to interact:
 -   Maintain valid dependency structure with `add_dependency`/`remove_dependency` tools or `task-master add-dependency`/`remove-dependency` commands, `validate_dependencies` / `task-master validate-dependencies`, and `fix_dependencies` / `task-master fix-dependencies` (see [`taskmaster.mdc`](mdc:.cursor/rules/taskmaster.mdc)) when needed
 -   Respect dependency chains and task priorities when selecting work
 -   Report progress regularly using `get_tasks` / `task-master list`
--   **IMPORTANT**: A git commit MUST be performed after every task is finished, following the format described in the "Commit Changes to Git" section
+-   **IMPORTANT**: A git commit MUST be performed before every task is finished, following the format described in the "Commit Changes to Git" section
 
 ## Task Complexity Analysis
 
@@ -193,7 +193,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     *   Identify any new or modified code patterns, conventions, or best practices established during the implementation.
     *   Create new or update existing Cursor rules in the `.cursor/rules/` directory to capture these patterns, following the guidelines in [`cursor_rules.mdc`](mdc:.cursor/rules/cursor_rules.mdc) and [`self_improve.mdc`](mdc:.cursor/rules/self_improve.mdc).
 
-8.  **Commit Changes to Git (REQUIRED for EVERY Task and Subtask):**
+8.  **Commit Changes to Git (REQUIRED for EVERY Task):**
      *   Stage the relevant code changes and any updated/new rule files (`git add .`).
      *   Craft a Git commit message following this strict format:
          1. A one-line summary of all the changes (e.g., `feat(module): Implement feature X for subtask <subtaskId>`)
@@ -203,8 +203,8 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
             - References to code implementations using file paths or PR numbers
             - Detailed explanation of what was changed and why
             - Any important technical decisions made during implementation
-         4. **REQUIRED Development Metrics:**
-            - Dev Time: Total development time spent on this commit (e.g., "Dev Time: 2 hours")
+         4. **REQUIRED Development Cost Metrics:**
+            - Dev Time: Total development time spent on this commit based on git history (e.g., "Dev Time: 2 hours")
             - API Cost: Total API cost for this commit (e.g., "API Cost: $5.75")
      *   Execute the commit command using a multi-line format to ensure proper spacing:
          ```
@@ -222,6 +222,9 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          - API Cost: $5.75"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
+     * When creating a git commit create a one line summary for the title on the first line, then leave 2 blank lines followed by
+     a summary of all changes since last commit. ALWAYS Include Development Cost Metrics in the commit message
+     * When creating or updating a Pull Request (PR) on GitHub ensure the title is one line summary of changes. The description should have a summary of all changes on the PR branch as compared to the master branch. ALWAYS include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for in the description of the PR.
      *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
          * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
          * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`

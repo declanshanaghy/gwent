@@ -82,7 +82,14 @@ class MQTTClient:
         self._log.info("Disconnecting from MQTT broker")
         self._client.loop_stop()
         self._client.disconnect()
-        return self._connected.wait_for(lambda: not self._connected.is_set(), timeout=5)
+        
+        # Wait for the connected event to be cleared (with timeout)
+        start_time = time.time()
+        timeout = 5  # 5 seconds timeout
+        while self._connected.is_set() and (time.time() - start_time) < timeout:
+            time.sleep(0.1)
+        
+        return not self._connected.is_set()
     
     def subscribe(self, topic, callback):
         """Subscribe to a topic with a callback"""
@@ -223,15 +230,14 @@ class Gwent:
         self._log.info('Creating components')
         
         # Create component adapters
-        controller = gwent.game.controller.Controller(self.pubsub)
-        player1 = gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub)
-        player2 = gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub)
-        reader = gwent.game.cards.Reader(self.pubsub)
-        mfd = gwent.game.mfd.MFD(self.pubsub)
-        sfx = gwent.game.sfx.SFX(self.pubsub)
+        self.components = []
+        self.components.append(gwent.game.controller.Controller(self.pubsub))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub))
+        self.components.append(gwent.game.cards.Reader(self.pubsub))
+        self.components.append(gwent.game.mfd.MFD(self.pubsub))
+        self.components.append(gwent.game.sfx.SFX(self.pubsub))
         
-        self.components = [controller, player1, player2, reader, mfd, sfx]
-    
     def initialize_components(self):
         """Initialize all components"""
         self._log.info('Initializing components')

@@ -19,8 +19,7 @@ Environment=RUNNING_ON_PI=true
 ExecStart=/home/dshanaghy/gwent-venv/bin/gwent
 Restart=on-failure
 RestartSec=5
-# Stop restarting after 5 failures
-RestartMax=5
+# Restart attempts are limited by StartLimitBurst in the [Unit] section
 StandardOutput=journal
 StandardError=journal
 

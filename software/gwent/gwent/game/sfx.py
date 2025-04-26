@@ -23,11 +23,18 @@ class SFX(gwent.game.ThreadComponent):
             'body': sfx.body,
         })
 
-        if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
-            self._tts.announce(sfx)
-        elif sfx.subkind == gwent.messaging.sfx.EFFECT:
-            self._tts.play_effect(sfx)
-        elif sfx.subkind == gwent.messaging.sfx.MUSIC:
-            self._tts.play_music(sfx)
-        else:
-            self._log.error(f'Unhandled subkind: {sfx.subkind}')
+        try:
+            if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
+                self._log.info(f"Playing announcement: {sfx.announcement}")
+                self._tts.announce(sfx)
+            elif sfx.subkind == gwent.messaging.sfx.EFFECT:
+                self._log.info(f"Playing effect: {sfx.effect}")
+                self._tts.play_effect(sfx)
+            elif sfx.subkind == gwent.messaging.sfx.MUSIC:
+                music_info = f"music: {sfx.music}" if hasattr(sfx, 'music') else "random music"
+                self._log.info(f"Playing {music_info}")
+                self._tts.play_music(sfx)
+            else:
+                self._log.error(f'Unhandled subkind: {sfx.subkind}')
+        except Exception as e:
+            self._log.error(f"Error processing audio: {e}", exc_info=True)
