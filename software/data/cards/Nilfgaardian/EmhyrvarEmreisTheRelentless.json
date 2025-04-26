@@ -1,5 +1,4 @@
 {
-    "content_id": "b63e4407912c2eb171c936647e52c502",
     "faction": "Nilfgaardian",
     "kind": "card",
     "leader": {
@@ -9,5 +8,6 @@
     "name": "Emhyr var Emreis - The Relentless",
     "owner": "Declan Shanaghy",
     "specialty": "leader",
-    "starter": true
+    "starter": true,
+    "rfid": 413287665097
 }

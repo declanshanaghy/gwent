@@ -1,8 +1,8 @@
 {
-    "content_id": "5fbb9541f7531c85324ce0e0e3a6dae3",
     "faction": "Skellige",
     "kind": "card",
-    "name": "Clear Weather: 2",
+    "name": "Clear Weather",
     "owner": "Declan Shanaghy",
-    "specialty": "weather"
+    "specialty": "weather",
+    "rfid": 139584294349
 }
