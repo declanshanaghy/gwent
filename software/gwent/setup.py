@@ -82,6 +82,12 @@ setuptools.setup(
             'write_card=gwent.game.card_tools:write_card',
             
             # POC script entry points
+            'read-card-util=gwent.poc.util.read_write_cards:read_card',
+            'write-card-util=gwent.poc.util.read_write_cards:write_card',
+            'validate-cards=gwent.cards.util:validate_cards_main',
+            'write-cards-to-disk=gwent.cards.util:write_all_to_disk_main',
+            'read-card-file=gwent.cards.util:read_card_main',
+            'get-random-card=gwent.cards.util:random_card_main',
             'rotary-rpigpio-test=gwent.poc.input_tests.rotary_rpigpio:run',
             'rotary-gpiozero-test=gwent.poc.input_tests.rotary_gpiozero:run',
             'rotary-diagnostic=gwent.poc.input_tests.rotary_diagnostic:run',

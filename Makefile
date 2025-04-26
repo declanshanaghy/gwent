@@ -8,7 +8,7 @@ DEPLOY_TGT := 192.168.1.225
 
 DEPLOY_DIR := "~/gwent"
 
-.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game
+.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game read-card-util write-card-util validate-cards write-cards-to-disk read-card-file get-random-card
 
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
@@ -16,6 +16,7 @@ rsync:
 	    -avzl --delete \
 	    --exclude=*.pyc \
 	    --exclude=software/gwent/.eggs \
+	    --exclude .git \
 	    --exclude *.egg-info \
 	    --exclude __pycache__ \
 	    -e "ssh -i $(SSH_KEY)" . ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/
@@ -165,3 +166,27 @@ game: rsync start
 audio-diagnostic: rsync
 	@echo "Running audio diagnostic tool on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.diagnostic_tools.audio_diagnostic"
+
+read-card-util: rsync
+	@echo "Running card reader utility on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards read"
+
+write-card-util: rsync
+	@echo "Running card writer utility on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards write"
+
+validate-cards: rsync
+	@echo "Validating cards on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && validate-cards"
+
+write-cards-to-disk: rsync
+	@echo "Writing all cards to disk on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && write-cards-to-disk"
+
+read-card-file: rsync
+	@echo "Reading card file on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && read-card-file"
+
+get-random-card: rsync
+	@echo "Getting random card on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && get-random-card"
