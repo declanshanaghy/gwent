@@ -149,12 +149,8 @@ oled-test: rsync
 	@echo "Running comprehensive OLED display test on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.oled_test"
 
-oled-direct-test: rsync
+TCA9548A-MatrixI2C-test: rsync
 	@echo "Running direct OLED display test on $(DEPLOY_TGT)"
-	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-test"
-
-display-diagnostic: rsync
-	@echo "Running display diagnostic on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-test"
 
 mfd-diagnostic: rsync

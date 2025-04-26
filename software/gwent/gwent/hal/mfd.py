@@ -51,7 +51,13 @@ def instance():
             raise
 
     logger.info("Creating _MFD instance with presenter and chooser")
-    return _MFD(presenter, chooser)
+    
+    mfd = _MFD(presenter, chooser)
+
+    error_msg = gwent.messaging.mfd.Message.with_error("Test Message")
+    mfd.present_error(error_msg, lambda delta, choice: None)
+
+    return mfd
 
 
 class _MFD(gwent.game.BaseComponent):

@@ -39,34 +39,19 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
 
     def _init_luma(self, device, port):
         """Initialize using luma.oled driver with SSD1306"""
-        # Try multiple device/port combinations if the specified one fails
-        combinations_to_try = [
-            (device, port),  # Try the provided parameters first
-            (1, 0),          # Default in code
-            (0, 0),          # Alternative combinations
-            (0, 1),
-            (1, 1)
-        ]
         
-        # Remove duplicates while preserving order
-        seen = set()
-        combinations_to_try = [x for x in combinations_to_try if not (x in seen or seen.add(x))]
-        
-        last_exception = None
-        for dev, prt in combinations_to_try:
-            try:
-                self._log.info(f"Attempting to initialize SPI interface with device={dev}, port={prt}")
-                self._log.debug("Creating SPI interface with noop GPIO")
-                self.interface = spi(device=dev, port=prt, gpio=noop())
-                self._log.info(f"SPI interface initialized successfully with device={dev}, port={prt}")
-                
-                # Store the successful combination
-                self._device_param = dev
-                self._port_param = prt
-                break
-            except Exception as e:
-                self._log.warning(f"Failed to initialize SPI interface with device={dev}, port={prt}: {e}")
-                last_exception = e
+        try:
+            self._log.info(f"Attempting to initialize SPI interface with device={device}, port={port}")
+            self._log.debug("Creating SPI interface with noop GPIO")
+            self.interface = spi(device=device, port=port)
+            self._log.info(f"SPI interface initialized successfully with device={device}, port={port}")
+            
+            # Store the successful combination
+            self._device_param = device
+            self._port_param = device
+        except Exception as e:
+            self._log.warning(f"Failed to initialize SPI interface with device={device}, port={port}: {e}")
+            last_exception = e
         
         if not hasattr(self, 'interface') or self.interface is None:
             self._log.error("All SPI interface initialization attempts failed")

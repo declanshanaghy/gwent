@@ -58,9 +58,6 @@ setuptools.setup(
         'luma.core',
         'pillow',
         
-        # RFID libraries
-        'mfrc522-python==0.0.7',
-        
         # I2C multiplexer
         'sparkfun-qwiic-tca9548a>=0.9.0',
         

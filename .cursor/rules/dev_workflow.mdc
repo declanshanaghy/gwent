@@ -224,7 +224,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
      * When creating a git commit create a one line summary for the title on the first line, then leave 2 blank lines followed by
      a summary of all changes since last commit. ALWAYS Include Development Cost Metrics in the commit message
-     * When creating or updating pull requests ensure the title is one line summary of changes. The description should have a summary of all changes on the PR branch as compared to the master branch. ALWAYS include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for in the description of the PR.
+     * When creating or updating a Pull Request (PR) on GitHub ensure the title is one line summary of changes. The description should have a summary of all changes on the PR branch as compared to the master branch. ALWAYS include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for in the description of the PR.
      *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
          * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
          * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
