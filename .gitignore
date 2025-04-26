@@ -159,3 +159,6 @@ tasks.json
 tasks/
 pr_description.md
 pr_body.txt
+
+# Secrets
+.cursor/mcp.json
