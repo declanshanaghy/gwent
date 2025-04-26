@@ -206,6 +206,17 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          4. **REQUIRED Development Cost Metrics:**
             - Dev Time: Total development time spent on this commit based on git history (e.g., "Dev Time: 2 hours")
             - API Cost: Total API cost for this commit (e.g., "API Cost: $5.75")
+<<<<<<< Updated upstream
+=======
+            - Use the latest API cost of this task for Development Cost
+            - Use time difference between now and the last commit timestamp for the development time metric taking into account that the days may have rolled over. 
+            - Assume no development work took place between 10pm and 8am between days
+            - Always use a dollar sign in the API Cost metric.
+            - Always use the following terms for the metrics to avoid ambiguity
+                Development Cost Metrics:
+                - Development Time: 2 hours 30 minutes
+                - API Cost: $69.78
+>>>>>>> Stashed changes
      *   Execute the commit command using a multi-line format to ensure proper spacing:
          ```
          git commit -m "feat(module): Implement feature X for subtask <subtaskId>
@@ -222,6 +233,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          - API Cost: $5.75"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
+<<<<<<< Updated upstream
      * When creating a git commit create a one line summary for the title on the first line, then leave 2 blank lines followed by
      a summary of all changes since last commit. ALWAYS Include Development Cost Metrics in the commit message
      * When creating or updating a Pull Request (PR) on GitHub ensure the title is one line summary of changes. The description should have a summary of all changes on the PR branch as compared to the master branch. ALWAYS include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for in the description of the PR.
@@ -229,6 +241,24 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
          * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
          * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
+=======
+     * When creating a git commit
+        * Use the l33tc0dzer markup style
+        * Create a one line summary for the title on the first line, then leave 2 blank lines 
+        * Summarize all changes since last commit in the main commit message
+        * Don't list filenames in the message
+        * ALWAYS Include Development Cost Metrics in the commit message
+     * When creating or updating a Pull Request (PR) on GitHub
+        * Title should be a one summary of all the chages on the branch vs the PR target branch. 
+        * The description should have a summary of all changes on the PR branch vs the PR target branch using the l33tc0dzer markup style. 
+        * Always include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for.
+        * Don't include lists of changed files in the PR
+     *   **Always disable the pager** 
+        * When using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
+        * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
+        * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
+        * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
+>>>>>>> Stashed changes
 
 9.  **Mark Task Complete:**
      *   **IMPORTANT**: After committing all changes to git (as described in step 8) and verifying the implementation, mark the task or subtask as completed: `set_task_status` / `task-master set-status --id=<taskId> --status=done`.
