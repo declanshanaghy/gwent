@@ -51,7 +51,7 @@ sudo apt-get install -y \
 
 echo "Installing audio and display dependencies..."
 sudo apt-get install -y \
-  ffmpeg \
+  ffmpeg mpg123 \
   libasound2-dev libpulse-dev \
   libsdl2-dev libsmpeg-dev \
   libavformat-dev libavcodec-dev \

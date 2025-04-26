@@ -106,6 +106,7 @@ setuptools.setup(
             'oled-direct-test=gwent.poc.display_tests:run_matrix_test',
             'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
             'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
+            'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
         ],
     }
 )

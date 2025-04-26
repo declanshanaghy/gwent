@@ -89,54 +89,125 @@ class _SFX(gwent.game.BaseComponent):
             ch.play(sound)
 
     def play_music(self, sfx: gwent.messaging.sfx.Message):
-        fwav = self.music_filename(sfx)
-        self._log.info({
-            'action': 'play',
-            'fwav': fwav,
-        })
-        pygame.mixer.music.load(fwav)
-        pygame.mixer.music.play(-1)
+        try:
+            fwav = self.music_filename(sfx)
+            self._log.info({
+                'action': 'play_music',
+                'fwav': fwav,
+                'exists': os.path.exists(fwav),
+                'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0,
+                'mixer_initialized': pygame.mixer.get_init() is not None
+            })
+            
+            if not os.path.exists(fwav):
+                self._log.error(f"Music file not found: {fwav}")
+                return
+                
+            pygame.mixer.music.load(fwav)
+            pygame.mixer.music.play(-1)
+            
+            # Verify music is playing
+            if pygame.mixer.music.get_busy():
+                self._log.info("Music started playing successfully")
+            else:
+                self._log.error("Music failed to start playing")
+        except Exception as e:
+            self._log.error(f"Error playing music: {e}", exc_info=True)
 
     def play_effect(self, sfx: gwent.messaging.sfx.Message):
-        start = time.time()
-        fwav = self.effect_filename(sfx)
-        self._log.info({
-            'action': 'play_effect',
-            'effect': sfx.effect,
-            'fwav': fwav,
-        })
-        speech = self.load_sound(fwav)
-        self.play_sound(speech, CHANNEL_EFFECT)
+        try:
+            start = time.time()
+            fwav = self.effect_filename(sfx)
+            self._log.info({
+                'action': 'play_effect',
+                'effect': sfx.effect,
+                'fwav': fwav,
+                'exists': os.path.exists(fwav),
+                'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0,
+                'mixer_initialized': pygame.mixer.get_init() is not None
+            })
+            
+            if not os.path.exists(fwav):
+                self._log.error(f"Effect file not found: {fwav}")
+                return 0
+                
+            speech = self.load_sound(fwav)
+            self.play_sound(speech, CHANNEL_EFFECT)
+            
+            duration = speech.get_length()
+            self._log.info({
+                'action': 'effect_played',
+                'effect': sfx.effect,
+                'duration': duration
+            })
 
-        self.log_time('play_effect', start)
-        return speech.get_length()
+            self.log_time('play_effect', start)
+            return duration
+        except Exception as e:
+            self._log.error(f"Error playing effect: {e}", exc_info=True)
+            return 0
 
     def announce(self, msg: gwent.messaging.base.Message):
-        self._log.info({
-            'action': 'announce',
-            'speech': msg.announcement,
-        })
-        start = time.time()
-        fmp3 = self.tts_filename(msg)
-        fwav = self.tts_filename(msg, extn='wav')
-
-        # Cache TTS if needed
-        if not os.path.exists(fmp3):
-            self._log.debug({
-                'action': 'tts',
+        try:
+            self._log.info({
+                'action': 'announce',
                 'speech': msg.announcement,
-                'tts_name_file': fmp3,
             })
-            tts_name = gtts.gTTS(msg.announcement, lang='en')
-            tts_name.save(fmp3)
+            start = time.time()
+            fmp3 = self.tts_filename(msg)
+            fwav = self.tts_filename(msg, extn='wav')
+            
+            self._log.debug({
+                'action': 'announce_paths',
+                'fmp3': fmp3,
+                'fwav': fwav,
+                'fmp3_exists': os.path.exists(fmp3),
+                'fwav_exists': os.path.exists(fwav),
+                'mixer_initialized': pygame.mixer.get_init() is not None
+            })
 
-        if not os.path.exists(fwav):
-            # convert to wav for pygame
-            sound = pydub.AudioSegment.from_mp3(fmp3)
-            sound.export(fwav, format="wav")
+            # Cache TTS if needed
+            if not os.path.exists(fmp3):
+                self._log.debug({
+                    'action': 'tts_generate',
+                    'speech': msg.announcement,
+                    'tts_name_file': fmp3,
+                })
+                tts_name = gtts.gTTS(msg.announcement, lang='en')
+                tts_name.save(fmp3)
+                self._log.debug({
+                    'action': 'tts_saved',
+                    'file': fmp3,
+                    'size': os.path.getsize(fmp3) if os.path.exists(fmp3) else 0
+                })
 
-        speech = self.load_sound(fwav)
-        self.play_sound(speech, channel=CHANNEL_TTS)
+            if not os.path.exists(fwav):
+                # convert to wav for pygame
+                self._log.debug({
+                    'action': 'convert_to_wav',
+                    'source': fmp3,
+                    'target': fwav
+                })
+                sound = pydub.AudioSegment.from_mp3(fmp3)
+                sound.export(fwav, format="wav")
+                self._log.debug({
+                    'action': 'wav_saved',
+                    'file': fwav,
+                    'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0
+                })
 
-        self.log_time('announce', start)
-        return speech.get_length()
+            speech = self.load_sound(fwav)
+            self.play_sound(speech, channel=CHANNEL_TTS)
+            
+            duration = speech.get_length()
+            self._log.info({
+                'action': 'announcement_played',
+                'speech': msg.announcement,
+                'duration': duration
+            })
+
+            self.log_time('announce', start)
+            return duration
+        except Exception as e:
+            self._log.error(f"Error playing announcement: {e}", exc_info=True)
+            return 0
