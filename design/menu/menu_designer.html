@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gwent OLED Menu Designer</title>
+    <style>
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #121212;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            text-transform: uppercase;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .display-info {
+            background-color: #1a1a1a;
+            border: 1px solid #00ff00;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        .theme-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+        }
+        .theme-table th {
+            background-color: #1a1a1a;
+            color: #00ff00;
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #00ff00;
+            text-transform: uppercase;
+        }
+        .theme-table td {
+            padding: 15px;
+            text-align: center;
+            border: 1px solid #00ff00;
+            vertical-align: middle;
+        }
+        .theme-name {
+            font-weight: bold;
+            font-size: 1.2em;
+            color: #00ff00;
+            text-shadow: 0 0 3px #00ff00;
+        }
+        .oled-display {
+            width: 128px;
+            height: 64px;
+            background-color: #000;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+        .download-btn {
+            display: block;
+            margin: 5px auto;
+            padding: 6px 12px;
+            background-color: #1a1a1a;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+        .download-btn:hover {
+            background-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.8);
+        }
+        .mockup-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        /* Add styles for SVG elements */
+        svg text {
+            font-family: 'Courier New', monospace;
+        }
+        .recommended {
+            background-color: rgba(0, 255, 0, 0.1);
+        }
+        .chosen-theme-container {
+            margin: 30px 0;
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+        .chosen-theme-heading {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-transform: uppercase;
+            color: #00ff00;
+            text-shadow: 0 0 8px #00ff00;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gwent OLED Menu Designer</h1>
+        
+        <div class="display-info">
+            <h2>Display Information</h2>
+            <p><strong>Display Type:</strong> SSD1306 OLED</p>
+            <p><strong>Resolution:</strong> 128x64 pixels</p>
+            <p><strong>Color Mode:</strong> Monochrome (Black & White)</p>
+            <p><strong>Interaction:</strong> Rotary Encoder (Rotation & Button Press)</p>
+        </div>
+        
+        <div class="chosen-theme-container">
+            <h2 class="chosen-theme-heading">★ R3C0MM3ND3D TH3M3 ★</h2>
+            <table class="theme-table">
+                <thead>
+                    <tr>
+                        <th>Theme Name</th>
+                        <th>Menu Mockup</th>
+                        <th>Prompt Mockup</th>
+                        <th>Error Mockup</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- The Chosen One -->
+                    <tr class="recommended">
+                        <td class="theme-name">Th3Ch0zen1</td>
+                        <td>
+                            <div class="mockup-container">
+                                <svg class="oled-display" id="Th3Ch0zen1-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="128" height="64" fill="black"/>
+                                    <text x="5" y="10" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━━━━━━━━━━━┓</text>
+                                    <text x="5" y="20" fill="white" font-family="monospace" font-size="8">┃ $ ./gwent_menu             ┃</text>
+                                    <text x="5" y="30" fill="white" font-family="monospace" font-size="8">┃ audio_settings.sh          ┃</text>
+                                    <rect x="5" y="35" width="100" height="10" fill="white"/>
+                                    <text x="5" y="43" fill="black" font-family="monospace" font-size="8">┃ g4m3s.exe                  ┃</text>
+                                    <text x="5" y="55" fill="white" font-family="monospace" font-size="8">┃ $ _                        ┃</text>
+                                    <text x="5" y="60" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━━━━━━━━━━━┛</text>
+                                </svg>
+                                <button class="download-btn" data-type="menu" data-theme="Th3Ch0zen1">Download SVG</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="mockup-container">
+                                <svg class="oled-display" id="Th3Ch0zen1-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="128" height="64" fill="black"/>
+                                    <text x="5" y="15" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━━━━━━━━━━━┓</text>
+                                    <text x="5" y="25" fill="white" font-family="monospace" font-size="8">┃ $ ./confirm.sh              ┃</text>
+                                    <rect x="5" y="30" width="100" height="10" fill="white"/>
+                                    <text x="5" y="38" fill="black" font-family="monospace" font-size="8">┃ [Y] Continue                ┃</text>
+                                    <text x="5" y="48" fill="white" font-family="monospace" font-size="8">┃ [N] Cancel                  ┃</text>
+                                    <text x="5" y="58" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━━━━━━━━━━━┛</text>
+                                </svg>
+                                <button class="download-btn" data-type="prompt" data-theme="Th3Ch0zen1">Download SVG</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="mockup-container">
+                                <svg class="oled-display" id="Th3Ch0zen1-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                    <rect width="128" height="64" fill="black"/>
+                                    <text x="5" y="15" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━━━━━━━━━━━┓</text>
+                                    <text x="5" y="25" fill="white" font-family="monospace" font-size="8">┃ $ ./connect.sh              ┃</text>
+                                    <rect x="5" y="30" width="100" height="10" fill="white"/>
+                                    <text x="5" y="38" fill="black" font-family="monospace" font-size="8">┃ ⚠ ERROR: Connection failed  ┃</text>
+                                    <text x="5" y="48" fill="white" font-family="monospace" font-size="8">┃ ⚠ Exit code: 1              ┃</text>
+                                    <text x="5" y="58" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━━━━━━━━━━━┛</text>
+                                </svg>
+                                <button class="download-btn" data-type="error" data-theme="Th3Ch0zen1">Download SVG</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <h2>L33TC0DZR Theme Options</h2>
+        <p>Below are theme options for the OLED display. Each row represents a different theme style, and columns show how menus, prompts, and errors would appear.</p>
+        
+        <table class="theme-table">
+            <thead>
+                <tr>
+                    <th>Theme Name</th>
+                    <th>Menu Mockup</th>
+                    <th>Prompt Mockup</th>
+                    <th>Error Mockup</th>
+                </tr>
+            </thead>
+            <tbody>
+                
+                <!-- Theme 1: h4x0r -->
+                <tr>
+                    <td class="theme-name">h4x0r</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="h4x0r-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="10" fill="white" font-family="monospace" font-size="10">⚡ M41N M3NU ⚡</text>
+                                <text x="5" y="20" fill="white" font-family="monospace" font-size="8">┌───────────────┐</text>
+                                <text x="5" y="30" fill="white" font-family="monospace" font-size="8">│ ⬦ 4UD10 S3TT1NGS</text>
+                                <rect x="5" y="35" width="60" height="10" fill="white"/>
+                                <text x="5" y="43" fill="black" font-family="monospace" font-size="8">│ ⬤ G4M3S</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">└───────────────┘</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="h4x0r">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="h4x0r-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="15" fill="white" font-family="monospace" font-size="8" text-anchor="middle">┌─────────────────┐</text>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ ⚡ PR0MPT ⚡ │</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ PR3SS [0K] │</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ 0R [C4NC3L] │</text>
+                                <text x="64" y="55" fill="white" font-family="monospace" font-size="8" text-anchor="middle">└─────────────────┘</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="h4x0r">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="h4x0r-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="15" fill="white" font-family="monospace" font-size="8" text-anchor="middle">┌─────────────────┐</text>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ ⚠ 3RR0R ⚠ │</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ C0NN3CT10N │</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">│ F41L3D: 0x3F │</text>
+                                <text x="64" y="55" fill="white" font-family="monospace" font-size="8" text-anchor="middle">└─────────────────┘</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="h4x0r">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 2: t3rm1n4l -->
+                <tr>
+                    <td class="theme-name">t3rm1n4l</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="t3rm1n4l-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="10" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━┓</text>
+                                <text x="5" y="20" fill="white" font-family="monospace" font-size="8">┃ $ ./gwent_menu</text>
+                                <text x="5" y="30" fill="white" font-family="monospace" font-size="8">┃ ○ audio_settings</text>
+                                <rect x="5" y="35" width="60" height="10" fill="white"/>
+                                <text x="5" y="43" fill="black" font-family="monospace" font-size="8">┃ ● games</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">┃ $ _</text>
+                                <text x="5" y="60" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━┛</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="t3rm1n4l">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="t3rm1n4l-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="15" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━┓</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">┃ $ ./confirm.sh</text>
+                                <text x="5" y="35" fill="white" font-family="monospace" font-size="8">┃ [Y] Continue</text>
+                                <text x="5" y="45" fill="white" font-family="monospace" font-size="8">┃ [N] Cancel</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━┛</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="t3rm1n4l">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="t3rm1n4l-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="15" fill="white" font-family="monospace" font-size="8">┏━━━━━━━━━━━━━━━┓</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">┃ $ ./connect.sh</text>
+                                <text x="5" y="35" fill="white" font-family="monospace" font-size="8">┃ ⚠ ERROR: Connection failed</text>
+                                <text x="5" y="45" fill="white" font-family="monospace" font-size="8">┃ ⚠ Exit code: 1</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">┗━━━━━━━━━━━━━━━┛</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="t3rm1n4l">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 3: bl0ck -->
+                <tr>
+                    <td class="theme-name">bl0ck</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="bl0ck-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="10" fill="white" font-family="monospace" font-size="8">██████████████████</text>
+                                <text x="5" y="20" fill="white" font-family="monospace" font-size="10">█▓▒░ MAIN MENU ░▒▓█</text>
+                                <text x="5" y="30" fill="white" font-family="monospace" font-size="8">▓ ■ AUDIO SETTINGS</text>
+                                <rect x="5" y="35" width="70" height="10" fill="white"/>
+                                <text x="5" y="43" fill="black" font-family="monospace" font-size="8">▓ ■ GAMES ◄</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">██████████████████</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="bl0ck">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="bl0ck-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="15" fill="white" font-family="monospace" font-size="8" text-anchor="middle">██████████████████</text>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">█▓▒░ PROMPT ░▒▓█</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">■ PRESS OK TO CONTINUE</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">■ PRESS CANCEL TO EXIT</text>
+                                <text x="64" y="55" fill="white" font-family="monospace" font-size="8" text-anchor="middle">██████████████████</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="bl0ck">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="bl0ck-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="15" fill="white" font-family="monospace" font-size="8" text-anchor="middle">██████████████████</text>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">█▓▒░ ⚠ 3RR0R ⚠ ░▒▓█</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">■ C0NN3CT10N F41L3D</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">■ R3TR1ES: 0</text>
+                                <text x="64" y="55" fill="white" font-family="monospace" font-size="8" text-anchor="middle">██████████████████</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="bl0ck">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 4: m1n1m4l -->
+                <tr>
+                    <td class="theme-name">m1n1m4l</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m1n1m4l-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">MENU</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">AUDIO</text>
+                                <rect x="5" y="32" width="40" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">GAMES</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="m1n1m4l">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m1n1m4l-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="30" fill="white" font-family="monospace" font-size="8" text-anchor="middle">CONTINUE?</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">OK / CANCEL</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="m1n1m4l">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m1n1m4l-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">3RR0R</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="m1n1m4l">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 5: r3tr0 -->
+                <tr>
+                    <td class="theme-name">r3tr0</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="r3tr0-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">== MAIN MENU ==</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">AUDIO SETTINGS</text>
+                                <rect x="5" y="32" width="60" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">>> GAMES</text>
+                                <text x="5" y="55" fill="white" font-family="monospace" font-size="8">===============</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="r3tr0">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="r3tr0-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">===============</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">PRESS OK/CANCEL</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">===============</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="r3tr0">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="r3tr0-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">!!!3RR0R!!!</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C0NN3CT10N L0ST</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">!!!3RR0R!!!</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="r3tr0">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 6: cyb3r -->
+                <tr>
+                    <td class="theme-name">cyb3r</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="cyb3r-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">[MAIN_MENU]</text>
+                                <rect x="5" y="17" width="100" height="10" fill="white"/>
+                                <text x="5" y="25" fill="black" font-family="monospace" font-size="8">> AUDIO_SETTINGS</text>
+                                <text x="5" y="40" fill="white" font-family="monospace" font-size="8">GAMES</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="cyb3r">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="cyb3r-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">[SYSTEM_PROMPT]</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">PRESS OK TO CONTINUE</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">OR CANCEL TO EXIT</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="cyb3r">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="cyb3r-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">[SYST3M_3RR0R]</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C0NN3CT10N F41L3D</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">R3TRY? [Y/N]</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="cyb3r">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 7: gl1tch -->
+                <tr>
+                    <td class="theme-name">gl1tch</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="gl1tch-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">M̶A̶I̶N̶ ̶M̶E̶N̶U̶</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">A̶U̶D̶I̶O̶ ̶S̶E̶T̶T̶I̶N̶G̶S̶</text>
+                                <rect x="5" y="32" width="60" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">> G̶A̶M̶E̶S̶</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="gl1tch">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="gl1tch-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="30" fill="white" font-family="monospace" font-size="8" text-anchor="middle">P̶R̶E̶S̶S̶ ̶0̶K̶ ̶T̶0̶ ̶C̶0̶N̶T̶1̶N̶U̶3̶</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">0̶R̶ ̶C̶4̶N̶C̶3̶L̶ ̶T̶0̶ ̶G̶0̶ ̶B̶4̶C̶K̶</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="gl1tch">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="gl1tch-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="30" fill="white" font-family="monospace" font-size="8" text-anchor="middle">3̶R̶R̶0̶R̶:̶ ̶F̶4̶1̶L̶3̶D̶</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C̶0̶N̶N̶3̶C̶T̶1̶0̶N̶ ̶R̶3̶F̶U̶S̶3̶D̶</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="gl1tch">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 8: w4v3 -->
+                <tr>
+                    <td class="theme-name">w4v3</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="w4v3-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">～～ MAIN MENU ～～</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">～ AUDIO SETTINGS</text>
+                                <rect x="5" y="32" width="60" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">～> GAMES</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="w4v3">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="w4v3-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">～～～～～～～～～～～～</text>
+                                <text x="64" y="40" fill="white" font-family="monospace" font-size="8" text-anchor="middle">0K ～ C0NT1NU3?</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="w4v3">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="w4v3-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="25" fill="white" font-family="monospace" font-size="8" text-anchor="middle">～～ 3RR0R ～～</text>
+                                <text x="64" y="40" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C0NN3CT10N L0ST</text>
+                                <text x="64" y="55" fill="white" font-family="monospace" font-size="8" text-anchor="middle">～～～～～～～～～～～～</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="w4v3">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 9: m4tr1x -->
+                <tr>
+                    <td class="theme-name">m4tr1x</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m4tr1x-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">// MAIN MENU</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">01: AUDIO SETTINGS</text>
+                                <rect x="5" y="32" width="70" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">> 02: GAMES</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="m4tr1x">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m4tr1x-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">SYSTEM PROMPT:</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">PR3SS [0K] T0 C0NT1NU3</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">PR3SS [C4NC3L] T0 3X1T</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="m4tr1x">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="m4tr1x-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="20" fill="white" font-family="monospace" font-size="8" text-anchor="middle">SYST3M F41LUR3</text>
+                                <text x="64" y="35" fill="white" font-family="monospace" font-size="8" text-anchor="middle">3RR0R C0D3: 0x4F52</text>
+                                <text x="64" y="50" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C0NN3CT10N T3RM1N4T3D</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="m4tr1x">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+                
+                <!-- Theme 10: n30n -->
+                <tr>
+                    <td class="theme-name">n30n</td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="n30n-menu" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="5" y="12" fill="white" font-family="monospace" font-size="10">MAIN MENU</text>
+                                <text x="5" y="25" fill="white" font-family="monospace" font-size="8">AUDIO SETTINGS</text>
+                                <rect x="5" y="32" width="60" height="10" fill="white"/>
+                                <text x="5" y="40" fill="black" font-family="monospace" font-size="8">> GAMES</text>
+                            </svg>
+                            <button class="download-btn" data-type="menu" data-theme="n30n">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="n30n-prompt" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="30" fill="white" font-family="monospace" font-size="8" text-anchor="middle">PR3SS 0K T0 C0NT1NU3</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">0R C4NC3L T0 G0 B4CK</text>
+                            </svg>
+                            <button class="download-btn" data-type="prompt" data-theme="n30n">Download SVG</button>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="mockup-container">
+                            <svg class="oled-display" id="n30n-error" viewBox="0 0 128 64" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="128" height="64" fill="black"/>
+                                <text x="64" y="30" fill="white" font-family="monospace" font-size="8" text-anchor="middle">3RR0R: UN4BL3 T0</text>
+                                <text x="64" y="45" fill="white" font-family="monospace" font-size="8" text-anchor="middle">C0NN3CT T0 D3V1C3</text>
+                            </svg>
+                            <button class="download-btn" data-type="error" data-theme="n30n">Download SVG</button>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // Function to convert SVG to downloadable format
+        function svgToDownloadableData(svgElement) {
+            // Clone the SVG to avoid modifying the original
+            const clonedSvg = svgElement.cloneNode(true);
+            
+            // Add XML declaration and namespace
+            const svgData = new XMLSerializer().serializeToString(clonedSvg);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            return URL.createObjectURL(svgBlob);
+        }
+        
+        // Function to download SVG
+        function downloadSVG(svgElement, filename) {
+            const url = svgToDownloadableData(svgElement);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        }
+        
+        // Add event listeners to download buttons
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadButtons = document.querySelectorAll('.download-btn');
+            
+            downloadButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const themeName = this.closest('tr').querySelector('.theme-name').textContent;
+                    const displayType = this.dataset.type || 'theme';
+                    const svgElement = this.parentElement.querySelector('svg');
+                    
+                    if (svgElement) {
+                        downloadSVG(svgElement, `gwent_${displayType}_${themeName.toLowerCase()}.svg`);
+                    } else {
+                        alert(`Could not find SVG for ${themeName} ${displayType}`);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
