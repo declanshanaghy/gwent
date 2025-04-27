@@ -6,5 +6,6 @@
         "siege"
     ],
     "specialty": "weather",
-    "starter": true
+    "starter": true,
+    "rfid": 346061294931
 }

@@ -313,7 +313,17 @@ class RealWriter(_BaseWriter, _RealReader):
                     'len(sector_written)': len(sector_written),
                 })
 
-            written += sector_written
+            # Check if sector_written is None before concatenating
+            if sector_written is not None:
+                written += sector_written
+            else:
+                self._log.error({
+                    'action': 'sector write failed',
+                    'sector': sector,
+                    'id': id
+                })
+                # Return None to indicate write failure
+                return None, None
             s = e
 
         written = written.strip()

@@ -1,3 +1,4 @@
+import json
 import logging
 import signal
 import sys
@@ -86,8 +87,17 @@ class CardReaderUtil(gwent.game.BaseComponent):
     def read_card(self) -> gwent.messaging.card.Message:
         """Read a card using the RFID reader"""
         reader = gwent.hal.rfid.instance()
-
-        card = reader.read_card()
+        
+        print("\nPlease place a card on the reader...")
+        self._log.info("Please place a card on the reader...")
+        
+        card = None
+        while card is None and not self._stop_event.is_set():
+            card = reader.read_card()
+            if card is None:
+                # Small delay to prevent CPU hogging
+                time.sleep(0.1)
+        
         if card is not None:
             self._log.info({
                 'action': 'got card',
@@ -102,6 +112,22 @@ class CardReaderUtil(gwent.game.BaseComponent):
                 sfx.announce_card(card)
             except Exception as e:
                 self._log.error(f"Error playing sound: {e}")
+                
+            # Print card details
+            print(f"\nCard Read:")
+            print(f"  Name:    {card.name if hasattr(card, 'name') else 'Unknown'}")
+            print(f"  Faction: {card.faction if hasattr(card, 'faction') else 'Unknown'}")
+            print(f"  RFID:    {card.rfid if hasattr(card, 'rfid') else 'Unknown'}")
+            if hasattr(card, 'instance'):
+                print("\nCard Attributes:")
+                if 'strength' in card.instance:
+                    print(f"  Strength: {card.instance['strength']}")
+                if 'ranges' in card.instance:
+                    print(f"  Ranges:   {', '.join(card.instance['ranges'])}")
+                if 'specialty' in card.instance:
+                    print(f"  Specialty: {card.instance['specialty']}")
+                if 'abilities' in card.instance:
+                    print(f"  Abilities: {', '.join(card.instance['abilities'])}")
 
         return card
 
@@ -113,33 +139,56 @@ class CardReaderUtil(gwent.game.BaseComponent):
 
 
 # entrypoint to write a card
-def write_card(card: gwent.messaging.card.Message):
-    # Set up logging
-    gwent.log.setup(level='debug')
-
+def write_card(card: gwent.messaging.card.Message, file_path: str = None):
     # Create and run the card writer utility
     writer = CardWriterUtil()
-    return writer.run(card)
+    rfid = writer.run(card)
+    
+    # If successful and we have a file path, update the JSON file with the RFID
+    if rfid is not None and file_path is not None:
+        try:
+            # Read the current JSON file
+            with open(file_path, 'r') as f:
+                card_data = json.load(f)
+            
+            # Update the RFID
+            card_data['rfid'] = rfid
+            
+            # Write back to the file
+            with open(file_path, 'w') as f:
+                json.dump(card_data, f, indent=4)
+                
+            print(f"\nUpdated JSON file with RFID: {rfid}")
+            logging.getLogger('read-write-cards').info(f"Updated JSON file with RFID: {rfid}")
+        except Exception as e:
+            print(f"\nError updating JSON file: {e}")
+            logging.getLogger('read-write-cards').error(f"Error updating JSON file: {e}")
+    
+    return rfid
 
 
 # entrypoint to read a card
 def read_card():
-    # Set up logging
-    gwent.log.setup(level='debug')
-
     # Create and run the card reader utility
     reader = CardReaderUtil()
     return reader.run()
 
 
 if __name__ == '__main__':
+    # Set up logging
+    gwent.log.setup(level='debug')
+
+    log = logging.getLogger(f'read-write-cards')
+    log.info(f'Received args {sys.argv}...')
+
     if len(sys.argv) > 1 and sys.argv[1] == 'write':
         card = None
+        file_path = None
         if len(sys.argv) == 3:
-            card = sys.argv[2]  # Fixed index from 3 to 2
-            card = gwent.cards.util.read_card(card)
+            file_path = sys.argv[2]  # Get the file path
+            card = gwent.cards.util.read_card(file_path)
         else:
             card = gwent.cards.util.random_card()
-        write_card(card)
+        write_card(card, file_path)
     else:
         read_card()

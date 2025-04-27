@@ -175,7 +175,7 @@ read-card-util: rsync
 
 write-card-util: rsync
 	@echo "Running card reader utility on $(DEPLOY_TGT)"
-	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards write"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.read_write_cards write ${FILE}"
 
 card-manager: rsync
 	@echo "Running card manager utility on $(DEPLOY_TGT)"
@@ -208,6 +208,12 @@ download-cards-from-pi:
 	@rsync \
 	    -talvx \
 	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/* ./software/data/cards/
+
+upload-cards-to-pi:
+	@echo "rsync from $(DEPLOY_TGT)"
+	@rsync \
+	    -talvx \
+	    -e "ssh -i $(SSH_KEY)" ./software/data/cards/* ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/
 
 download-skellige-cards-to-pi: rsync
 	@echo "Downloading and comparing Skellige cards from Witcher Wiki"

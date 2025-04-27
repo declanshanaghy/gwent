@@ -10,6 +10,29 @@ import glob
 import re
 from typing import Dict, List, Tuple, Optional, Any, Union
 
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich import box
+from rich.prompt import Prompt
+from rich.prompt import Confirm
+from rich.prompt import IntPrompt
+from rich.prompt import PromptBase
+from rich.theme import Theme
+from rich.style import Style
+from rich.highlighter import Highlighter
+from rich.prompt import PromptBase
+from rich.console import RenderableType
+from rich.prompt import Prompt
+from rich.prompt import PromptBase
+from rich.console import Console
+from rich.console import RenderableType
+from rich.style import Style
+from rich.text import Text
+from rich.theme import Theme
+import readchar
+
 import gwent.log
 import gwent.game
 import gwent.messaging.base
@@ -17,6 +40,7 @@ import gwent.cards.all
 import gwent.messaging.card
 import gwent.cards.util
 import gwent.hal.rfid
+import RPi.GPIO as GPIO  # Import GPIO library to suppress warnings
 
 # Type aliases
 CardData = Dict[str, Any]
@@ -26,8 +50,15 @@ class CardManager(gwent.game.BaseComponent):
     def __init__(self, log_verbose: bool = False):
         super().__init__(log_verbose=log_verbose)
         self._stop_event = threading.Event()
-        self.cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 
+        self.cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                      '..', '..', '..', '..', 'data', 'cards'))
+        # Suppress GPIO warnings
+        GPIO.setwarnings(False)
+        # Initialize RFID reader once as a class member
+        self._rfid_reader = gwent.hal.rfid.instance()
+        
+        # Initialize Rich console
+        self.console = Console()
         
     def setup_signal_handlers(self) -> None:
         """Setup signal handlers for graceful exit"""
@@ -39,15 +70,212 @@ class CardManager(gwent.game.BaseComponent):
                   signal.SIGQUIT, signal.SIGTERM):
             signal.signal(s, signal_handler)
 
+    def cleanup(self) -> None:
+        """Clean up resources, especially the RFID reader"""
+        try:
+            if hasattr(self, '_rfid_reader') and self._rfid_reader is not None:
+                self._log.info("Cleaning up RFID reader...")
+                # Call any cleanup methods needed for the RFID reader
+                # This depends on what cleanup methods are available in the RFID reader class
+                if hasattr(self._rfid_reader, 'cleanup') and callable(self._rfid_reader.cleanup):
+                    self._rfid_reader.cleanup()
+                elif hasattr(self._rfid_reader, 'close') and callable(self._rfid_reader.close):
+                    self._rfid_reader.close()
+                self._rfid_reader = None
+        except Exception as e:
+            self._log.error(f"Error during RFID reader cleanup: {e}")
+
+    def format_box_line(self, label: str, value: str, box_width: int = 48) -> str:
+        """Format a line for the box with proper padding
+        
+        Args:
+            label: Label for the line (e.g., "Name: ")
+            value: Value to display
+            box_width: Total width of the box interior (default: 48)
+            
+        Returns:
+            Formatted line with proper padding for consistent right border
+        """
+        # Calculate the total available space for content (excluding borders and initial spacing)
+        available_space = box_width - 4  # -4 for "║  " and " ║"
+        
+        # Combine label and value
+        content = f"{label}{value}"
+        
+        # If content is too long, truncate it
+        if len(content) > available_space:
+            # Special handling for important fields
+            if label == "CARD READ: " or label == "CARD FOUND: " or label == "Name:    ":
+                max_value_length = available_space - len(label)
+                if len(value) > max_value_length:
+                    value = value[:max_value_length-3] + "..."
+                content = f"{label}{value}"
+            else:
+                # For other fields, simple truncation
+                content = content[:available_space-3] + "..."
+        
+        # Calculate exact padding to ensure consistent right border
+        padding = available_space - len(content)
+        
+        # Return the formatted line with exact padding
+        return f"║  {content}" + " " * padding + "║"
+    
+    def format_card_display(self, card_data: Union[gwent.messaging.card.Message, CardData],
+                           header_text: str = "CARD READ",
+                           file_path: Optional[str] = None,
+                           show_additional_info: bool = False) -> Panel:
+        """Format card data for display using Rich Panel
+        
+        Args:
+            card_data: Card data to display (either Message object or dictionary)
+            header_text: Text to display in the header (e.g., "CARD READ" or "CARD FOUND")
+            file_path: Path to the card file (optional)
+            show_additional_info: Whether to show additional information section
+            
+        Returns:
+            Rich Panel object for display
+        """
+        if card_data is None:
+            return Panel("No card data available")
+        
+        # Determine if we're dealing with a Message object or a dictionary
+        is_message = isinstance(card_data, gwent.messaging.card.Message)
+        
+        # Get card properties based on the type
+        if is_message:
+            name = card_data.name if hasattr(card_data, 'name') else 'Unknown'
+            faction = card_data.faction if hasattr(card_data, 'faction') else 'Unknown'
+            rfid = str(card_data.rfid) if hasattr(card_data, 'rfid') else 'Unknown'
+            instance = card_data.instance if hasattr(card_data, 'instance') else {}
+        else:
+            name = card_data.get('name', 'Unknown')
+            faction = card_data.get('faction', 'Unknown')
+            rfid = str(card_data.get('rfid', 'Unknown'))
+            instance = card_data  # The dictionary itself contains the attributes
+        
+        # Create a Text object for the card information
+        card_text = Text()
+        
+        # Basic information
+        card_text.append("Basic Information:\n", style="bold cyan")
+        card_text.append("Name:    ", style="cyan")
+        card_text.append(f"{name}\n", style="green")
+        card_text.append("Faction: ", style="cyan")
+        card_text.append(f"{faction}\n", style="green")
+        
+        if not show_additional_info:
+            card_text.append("RFID:    ", style="cyan")
+            card_text.append(f"{rfid}\n", style="green")
+        
+        # Card attributes
+        card_text.append("\nCard Attributes:\n", style="bold cyan")
+        
+        # Strength
+        strength = instance.get('strength') if is_message else card_data.get('strength')
+        card_text.append("Strength: ", style="cyan")
+        if strength is not None:
+            card_text.append(f"{strength}\n", style="green")
+        else:
+            card_text.append("N/A\n", style="green")
+            
+        # Ranges
+        ranges = instance.get('ranges') if is_message else card_data.get('ranges')
+        card_text.append("Ranges:   ", style="cyan")
+        if ranges:
+            ranges_str = ', '.join(ranges)
+            card_text.append(f"{ranges_str}\n", style="green")
+        else:
+            card_text.append("N/A\n", style="green")
+            
+        # Specialty
+        specialty = instance.get('specialty') if is_message else card_data.get('specialty')
+        card_text.append("Specialty: ", style="cyan")
+        if specialty:
+            card_text.append(f"{specialty}\n", style="green")
+        else:
+            card_text.append("None\n", style="green")
+            
+        # Abilities
+        abilities = instance.get('abilities') if is_message else card_data.get('abilities')
+        card_text.append("Abilities: ", style="cyan")
+        if abilities:
+            abilities_str = ', '.join(abilities)
+            card_text.append(f"{abilities_str}\n", style="green")
+        else:
+            card_text.append("None\n", style="green")
+        
+        # Additional information (for database cards)
+        if show_additional_info:
+            card_text.append("\nAdditional Information:\n", style="bold cyan")
+            
+            # Owner
+            owner = card_data.get('owner')
+            card_text.append("Owner:       ", style="cyan")
+            if owner:
+                card_text.append(f"{owner}\n", style="green")
+            else:
+                card_text.append("None\n", style="green")
+                
+            # Starter card
+            starter = card_data.get('starter', False)
+            card_text.append("Starter card: ", style="cyan")
+            if starter:
+                card_text.append("Yes\n", style="green")
+            else:
+                card_text.append("No\n", style="green")
+            
+            # RFID
+            card_text.append("RFID:         ", style="cyan")
+            if 'rfid' in card_data:
+                card_text.append(f"{card_data['rfid']}\n", style="green")
+            else:
+                card_text.append("Not assigned\n", style="green")
+                
+            # Content ID
+            content_id = card_data.get('content_id')
+            if content_id:
+                card_text.append("Content ID:   ", style="cyan")
+                card_text.append(f"{content_id}\n", style="green")
+            
+            # File information
+            if file_path:
+                card_text.append("\nFile: ", style="cyan")
+                card_text.append(f"{file_path}\n", style="green")
+        
+        # Create a panel with the card information
+        panel = Panel(
+            card_text,
+            title=f"[bold yellow]{header_text}: {name}[/bold yellow]",
+            border_style="bright_blue",
+            box=box.DOUBLE,
+            width=80,
+            expand=False
+        )
+        
+        return panel
+    
+    def pretty_print_card(self, card: gwent.messaging.card.Message) -> None:
+        """Pretty print a card to the console"""
+        if card is None:
+            return
+        
+        # Format the card display
+        display = self.format_card_display(card, "CARD READ")
+        
+        # Print the formatted display
+        self.console.print(display)
+        
+        # Add debug log to verify the method is being called
+        self._log.info("Pretty printed card to console")
+
     def read_rfid_card(self) -> Optional[gwent.messaging.card.Message]:
         """Read a card using the RFID reader"""
-        print("\nPlease place a card on the reader...")
+        self.console.print("\n[bold cyan]Please place a card on the reader...[/bold cyan]")
         self._log.info("Please place a card on the reader...")
-        reader = gwent.hal.rfid.instance()
-
+        
         card: Optional[gwent.messaging.card.Message] = None
         while card is None and not self._stop_event.is_set():
-            card = reader.read_card()
+            card = self._rfid_reader.read_card()
             if card is None:
                 # Small delay to prevent CPU hogging
                 time.sleep(0.1)
@@ -55,7 +283,6 @@ class CardManager(gwent.game.BaseComponent):
         if card is not None:
             # Log card information
             card_info: Dict[str, Any] = {'action': 'got card', 'rfid': card.rfid}
-            
             # Add name and faction if available
             if hasattr(card, 'name'):
                 card_info['name'] = card.name
@@ -67,6 +294,9 @@ class CardManager(gwent.game.BaseComponent):
                 card_info['content_id'] = card.instance['content_id']
                 
             self._log.info(card_info)
+            
+            # Pretty print the card immediately after reading
+            self.pretty_print_card(card)
 
         return card
 
@@ -123,70 +353,108 @@ class CardManager(gwent.game.BaseComponent):
 
     def prompt_for_card_details(self, default_name: Optional[str] = None, default_faction: Optional[str] = None) -> CardData:
         """Prompt the user for card details"""
+        self._log.info("Prompting user for card details")
         print("\nEnter card details:")
         
         # Required fields
         name_prompt = f"Name (required) [{default_name}]: " if default_name else "Name (required): "
+        self._log.info(f"Prompting for card name with default: {default_name}")
         name = input(name_prompt)
+        self._log.info(f"User input for card name: '{name}'")
+        
         if not name and default_name:
             name = default_name
+            self._log.info(f"Using default name: {name}")
+        
         while not name:
+            self._log.info("Name is required, prompting again")
             print("Name is required.")
             name = input("Name (required): ")
+            self._log.info(f"User input for card name (retry): '{name}'")
         
         # Prompt for faction with validation
         valid_factions: List[str] = ["Northern Realms", "Monsters", "Nilfgaardian", "Scoia'tael", "Skellige"]
         faction_prompt = f"Faction (required) [{default_faction}]: " if default_faction else f"Faction (required) - Choose from {', '.join(valid_factions)}: "
+        self._log.info(f"Prompting for card faction with default: {default_faction}")
         faction = input(faction_prompt)
+        self._log.info(f"User input for card faction: '{faction}'")
+        
         if not faction and default_faction:
             faction = default_faction
+            self._log.info(f"Using default faction: {faction}")
+        
         while faction not in valid_factions:
+            self._log.info(f"Invalid faction '{faction}', prompting again")
             print(f"Invalid faction. Please choose from: {', '.join(valid_factions)}")
             faction = input("Faction (required): ")
+            self._log.info(f"User input for card faction (retry): '{faction}'")
         
         # Optional fields
+        self._log.info("Prompting for card owner")
         owner = input("Owner (optional): ")
+        self._log.info(f"User input for card owner: '{owner}'")
         
         # Ranges
         valid_ranges: List[str] = ["close", "ranged", "siege"]
         print(f"Valid ranges: {', '.join(valid_ranges)}")
+        self._log.info("Prompting for card ranges")
         ranges_input = input("Ranges (comma-separated, optional): ")
+        self._log.info(f"User input for card ranges: '{ranges_input}'")
+        
         ranges: List[str] = [r.strip() for r in ranges_input.split(',')] if ranges_input else []
         # Validate ranges
         ranges = [r for r in ranges if r in valid_ranges]
+        self._log.info(f"Validated card ranges: {ranges}")
         
         # Strength
+        self._log.info("Prompting for card strength")
         strength_input = input("Strength (0-15, optional): ")
+        self._log.info(f"User input for card strength: '{strength_input}'")
+        
         strength = None
         if strength_input:
             try:
                 strength = int(strength_input)
                 if strength < 0 or strength > 15:
+                    self._log.info(f"Invalid strength value {strength}, setting to 0")
                     print("Strength must be between 0 and 15. Setting to 0.")
                     strength = 0
             except ValueError:
+                self._log.info(f"Invalid strength value '{strength_input}', setting to 0")
                 print("Invalid strength value. Setting to 0.")
                 strength = 0
         
         # Abilities
         valid_abilities: List[str] = ["agile", "berserker", "commander", "morale", "medic", "muster", "scorch", "spy", "summon", "bond"]
         print(f"Valid abilities: {', '.join(valid_abilities)}")
+        self._log.info("Prompting for card abilities")
         abilities_input = input("Abilities (comma-separated, optional): ")
+        self._log.info(f"User input for card abilities: '{abilities_input}'")
+        
         abilities: List[str] = [a.strip() for a in abilities_input.split(',')] if abilities_input else []
         # Validate abilities
         abilities = [a for a in abilities if a in valid_abilities]
+        self._log.info(f"Validated card abilities: {abilities}")
         
         # Specialty
         valid_specialties: List[str] = ["commander", "decoy", "leader", "scorch", "weather", "hero", "mardroeme"]
         print(f"Valid specialties: {', '.join(valid_specialties)}")
+        self._log.info("Prompting for card specialty")
         specialty = input("Specialty (optional): ")
+        self._log.info(f"User input for card specialty: '{specialty}'")
+        
         if specialty and specialty not in valid_specialties:
+            self._log.info(f"Invalid specialty '{specialty}', setting to None")
             print(f"Invalid specialty. Setting to None.")
             specialty = None
         
         # Starter
+        self._log.info("Prompting for starter card status")
         starter_input = input("Starter card? (yes/no, default: no): ")
+        self._log.info(f"User input for starter card: '{starter_input}'")
+        
         starter = starter_input.lower() in ['yes', 'y', 'true']
+        self._log.info(f"Starter card status: {starter}")
         
         # Generate a content_id (MD5 hash of name + faction)
         content_id = hashlib.md5(f"{name}{faction}".encode()).hexdigest()
@@ -250,11 +518,10 @@ class CardManager(gwent.game.BaseComponent):
             'faction': card.faction,
         })
 
-        writer = gwent.hal.rfid.instance()
-
+        # Use the class member RFID reader instance
         rfid: Optional[int] = None
         while rfid is None and not self._stop_event.is_set():
-            rfid = writer.write_card(card)
+            rfid = self._rfid_reader.write_card(card)
             if rfid is None:
                 # Small delay to prevent CPU hogging
                 time.sleep(0.1)
@@ -271,22 +538,207 @@ class CardManager(gwent.game.BaseComponent):
             return rfid
         
         return None
-
-    def run(self) -> None:
-        """Run the card manager utility"""
-        self.setup_signal_handlers()
         
+    def write_card_to_rfid_safely(self, card_data: CardData) -> Optional[int]:
+        """Write a card to an RFID tag, but only if the tag is blank"""
+        # Prompt the user to place a card on the reader
+        self.console.print("\n[bold cyan]Please place a blank RFID chip on the writer...[/bold cyan]")
+        self.console.print("[dim]Note: If the chip already contains data, the write will be aborted.[/dim]")
+        
+        # Wait a moment for the user to place the card
+        time.sleep(1)
+        
+        # Now try to read the card to see if it already has data
+        try:
+            # We'll use the RFID reader directly instead of read_rfid_card to avoid pretty printing
+            self._log.info("Checking if RFID chip is blank...")
+            existing_card = self._rfid_reader.read_card()
+            
+            # Check if the card has data
+            if existing_card is not None and hasattr(existing_card, 'name') and existing_card.name:
+                # Card already has data
+                self._log.warning(f"RFID chip already contains data: {existing_card.name}")
+                error_panel = Panel(
+                    Text.from_markup(
+                        f"This RFID chip already contains card data:\n\n"
+                        f"[bold]Name:[/bold] {existing_card.name}\n"
+                        f"[bold]Faction:[/bold] {existing_card.faction if hasattr(existing_card, 'faction') else 'Unknown'}\n\n"
+                        f"Please use a blank RFID chip."
+                    ),
+                    title="[bold red]ERROR: RFID CHIP ALREADY HAS DATA[/bold red]",
+                    border_style="red",
+                    box=box.DOUBLE
+                )
+                self.console.print("\n")
+                self.console.print(error_panel)
+                return None
+                
+            # If we get here, either the card is blank or there was an error reading it
+            # In either case, we'll try to write to it
+            self._log.info("RFID chip appears to be blank. Proceeding with write...")
+            print("\nRFID chip appears to be blank. Proceeding with write...")
+            
+            # Now write the card data
+            return self.write_card_to_rfid(card_data)
+            
+        except Exception as e:
+            # If there's an error reading the card, it might be blank or there might be a problem
+            # Let's log the error and try to write anyway
+            self._log.error(f"Error checking if card is blank: {e}")
+            print(f"\nCould not determine if RFID chip is blank: {e}")
+            print("Attempting to write anyway...")
+            
+            # Try to write the card data
+            return self.write_card_to_rfid(card_data)
+
+    def interactive_menu(self, title: str, options: List[str], exit_option: str = "Back") -> int:
+        """Display an interactive menu with keyboard navigation and scrolling
+        
+        Args:
+            title: The title of the menu
+            options: List of menu options
+            exit_option: Text for the exit/back option
+            
+        Returns:
+            Index of the selected option (-1 for exit)
+        """
+        # Add the exit option
+        all_options = options + [exit_option]
+        
+        # Initial selection
+        selected = 0
+        
+        # Scrolling parameters
+        max_visible_items = 15  # Maximum number of items to show at once
+        scroll_offset = 0       # Current scroll position
+        
+        try:
+            while True:
+                # Clear the screen
+                self.console.clear()
+                
+                # Create the menu panel
+                menu_text = Text()
+                menu_text.append(f"Use ↑/↓ arrows to navigate, Enter to select, Ctrl+C to exit\n\n", style="bold white")
+                
+                # Calculate visible range
+                total_items = len(all_options)
+                
+                # Adjust scroll_offset if needed to keep selected item visible
+                if selected < scroll_offset:
+                    scroll_offset = selected
+                elif selected >= scroll_offset + max_visible_items:
+                    scroll_offset = selected - max_visible_items + 1
+                
+                # Ensure scroll_offset is within bounds
+                scroll_offset = max(0, min(scroll_offset, total_items - max_visible_items))
+                
+                # Show scroll indicator if there are items above the visible area
+                if scroll_offset > 0:
+                    menu_text.append("  ↑ More options above ↑\n", style="bold yellow")
+                
+                # Display visible items
+                visible_end = min(scroll_offset + max_visible_items, total_items)
+                for i in range(scroll_offset, visible_end):
+                    option = all_options[i]
+                    if i == selected:
+                        # Highlight the selected option
+                        menu_text.append(f"▶ {option}\n", style="bold green")
+                    else:
+                        style = "bold red" if i == len(all_options) - 1 else "cyan"
+                        menu_text.append(f"  {option}\n", style=style)
+                
+                # Show scroll indicator if there are items below the visible area
+                if visible_end < total_items:
+                    menu_text.append("  ↓ More options below ↓\n", style="bold yellow")
+                
+                # Add scrolling instructions if the list is scrollable
+                if total_items > max_visible_items:
+                    menu_text.append(f"\nShowing {visible_end - scroll_offset} of {total_items} options", style="dim")
+                
+                panel = Panel(
+                    menu_text,
+                    title=f"[bold yellow]{title}[/bold yellow]",
+                    border_style="bright_blue",
+                    box=box.DOUBLE
+                )
+                
+                # Print the panel
+                self.console.print(panel)
+                
+                try:
+                    # Get key press with exception handling
+                    key = readchar.readkey()
+                    
+                    # Handle key press
+                    if key == readchar.key.UP or key == 'k':
+                        selected = max(0, selected - 1)
+                    elif key == readchar.key.DOWN or key == 'j':
+                        selected = min(len(all_options) - 1, selected + 1)
+                    elif key == readchar.key.PAGE_UP:
+                        # Jump up by max_visible_items
+                        selected = max(0, selected - max_visible_items)
+                    elif key == readchar.key.PAGE_DOWN:
+                        # Jump down by max_visible_items
+                        selected = min(len(all_options) - 1, selected + max_visible_items)
+                    elif key == readchar.key.HOME:
+                        # Jump to the first item
+                        selected = 0
+                    elif key == readchar.key.END:
+                        # Jump to the last item
+                        selected = len(all_options) - 1
+                    elif key == readchar.key.ENTER:
+                        # Return -1 for exit option
+                        if selected == len(all_options) - 1:
+                            self._log.info(f"User selected: {exit_option} from menu '{title}'")
+                            return -1
+                        
+                        selected_option = all_options[selected]
+                        self._log.info(f"User selected: '{selected_option}' from menu '{title}'")
+                        return selected
+                    elif key == readchar.key.CTRL_C or key == readchar.key.ESC:
+                        # Exit on Ctrl+C or Escape
+                        self._log.info(f"User pressed Ctrl+C or Escape to exit menu '{title}'")
+                        self._stop_event.set()  # Set the stop event to exit gracefully
+                        return -1
+                except KeyboardInterrupt:
+                    # Handle Ctrl+C
+                    self._log.info(f"User pressed Ctrl+C to exit menu '{title}'")
+                    self._stop_event.set()  # Set the stop event to exit gracefully
+                    return -1
+        except Exception as e:
+            self._log.error(f"Error in interactive menu: {e}")
+            self._stop_event.set()  # Set the stop event to exit gracefully
+            return -1
+    
+    def display_menu(self) -> str:
+        """Display the main menu and get user selection"""
+        options = ["Read card", "Write card"]
+        
+        self._log.info("Displaying main menu")
+        selected = self.interactive_menu("CARD MANAGER MENU", options, "Exit")
+        
+        if selected == -1:
+            self._log.info("User selected to exit the application")
+            return '0'  # Exit
+        else:
+            choice = str(selected + 1)  # 1-based indexing for compatibility
+            self._log.info(f"User selected main menu option: {options[selected]} (choice {choice})")
+            return choice
+    
+    def handle_read_card(self) -> None:
+        """Handle the 'Read card' option"""
         # Read the RFID card
         card: Optional[gwent.messaging.card.Message] = self.read_rfid_card()
         
         if card is None:
-            self._log.error("Failed to read card")
+            self._log.error("Failed to read card or operation was cancelled")
             return
         
         # Try to find the card in the database
         card_data: Optional[CardData] = None
         card_file: Optional[FilePath] = None
-        
+    
         try:
             # First try by RFID if available
             if hasattr(card, 'rfid') and card.rfid:
@@ -328,79 +780,29 @@ class CardManager(gwent.game.BaseComponent):
                         with open(card_file, 'w') as f:
                             json.dump(card_data, f, indent=4)
                         self._log.info(f"Card file updated with RFID: {card_file}")
-                        
-                        # Verify the file was updated correctly
-                        with open(card_file, 'r') as f:
-                            updated_data: CardData = json.load(f)
-                            if 'rfid' in updated_data and updated_data['rfid'] == card.rfid:
-                                self._log.info(f"Verified RFID was added to file: {card_file}")
-                            else:
-                                self._log.error(f"Failed to verify RFID in file: {card_file}")
                     except Exception as e:
                         self._log.error(f"Error updating card file with RFID: {e}")
             
-            # Card exists, print information
-            print("\n" + "="*50)
-            print(f"  CARD FOUND: {card_data.get('name', 'Unknown')}")
-            print("="*50)
+            # Card exists, print information in a pretty format
+            display = self.format_card_display(
+                card_data,
+                "CARD FOUND",
+                file_path=card_file,
+                show_additional_info=True
+            )
             
-            # Basic information
-            print(f"\nBasic Information:")
-            print(f"  Name:    {card_data.get('name', 'Unknown')}")
-            print(f"  Faction: {card_data.get('faction', 'Unknown')}")
+            # Print the formatted display
+            print(display, flush=True)
             
-            # Card attributes
-            print("\nCard Attributes:")
-            if 'strength' in card_data:
-                print(f"  Strength: {card_data['strength']}")
-            else:
-                print("  Strength: N/A")
-                
-            if 'ranges' in card_data:
-                print(f"  Ranges:   {', '.join(card_data['ranges'])}")
-            else:
-                print("  Ranges:   N/A")
-                
-            if 'specialty' in card_data:
-                print(f"  Specialty: {card_data['specialty']}")
-            else:
-                print("  Specialty: None")
-                
-            if 'abilities' in card_data:
-                print(f"  Abilities: {', '.join(card_data['abilities'])}")
-            else:
-                print("  Abilities: None")
-            
-            # Additional information
-            print("\nAdditional Information:")
-            if 'owner' in card_data:
-                print(f"  Owner:       {card_data['owner']}")
-            else:
-                print("  Owner:       None")
-                
-            if 'starter' in card_data and card_data['starter']:
-                print("  Starter card: Yes")
-            else:
-                print("  Starter card: No")
-            
-            if 'rfid' in card_data:
-                print(f"  RFID:      {card_data['rfid']}")
-            else:
-                print("  RFID:      Not assigned")
-                
-            if 'content_id' in card_data:
-                print(f"  Content ID:   {card_data['content_id']}")
-            
-            # File information
-            print(f"\nFile: {card_file}")
-            print("="*50)
+            # Add debug log to verify the method is being called
+            self._log.info("Pretty printed card details to console")
             
             if updated:
-                print("\nCard file updated")
+                self.console.print("\n[bold green]Card file updated[/bold green]")
         else:
             try:
                 # Card doesn't exist, prompt for details
-                print("\nCard not found in database. Creating a new card.")
+                self.console.print("\n[bold yellow]Card not found in database. Creating a new card.[/bold yellow]")
                 
                 # Get card name and faction from the RFID card if available
                 default_name: Optional[str] = card.name if hasattr(card, 'name') else None
@@ -420,24 +822,282 @@ class CardManager(gwent.game.BaseComponent):
                     with open(card_file, 'w') as f:
                         json.dump(card_data, f, indent=4)
                     
-                    print(f"\nCard successfully written to RFID tag with ID: {rfid}")
+                    self.console.print(f"\n[bold green]Card successfully written to RFID tag with ID: {rfid}[/bold green]")
                 else:
-                    print("\nFailed to write card to RFID tag")
+                    self.console.print("\n[bold red]Failed to write card to RFID tag[/bold red]")
             except Exception as e:
                 self._log.error(f"Error creating card: {e}")
-                print(f"\nError creating card: {e}")
+                self.console.print(f"\n[bold red]Error creating card: {e}[/bold red]")
+        
+        # Wait for user to press Enter before returning to the menu
+        self._log.info("Prompting user to press Enter to return to the menu")
+        self.console.print("\n[dim]Press Enter to return to the menu...[/dim]")
+        input()
+        self._log.info("User pressed Enter to return to the menu")
+    
+    def select_faction(self) -> Optional[str]:
+        """Display a list of factions and let the user select one"""
+        # Get a list of faction directories
+        factions = []
+        for faction_dir in os.listdir(self.cards_dir):
+            faction_path = os.path.join(self.cards_dir, faction_dir)
+            if os.path.isdir(faction_path):
+                factions.append(faction_dir)
+        
+        self._log.info(f"Found {len(factions)} factions: {', '.join(factions)}")
+        
+        if not factions:
+            self._log.warning("No faction directories found")
+            self.console.print("[bold red]No faction directories found.[/bold red]")
+            return None
+        
+        # Display interactive menu
+        self._log.info("Displaying faction selection menu")
+        selected = self.interactive_menu("SELECT FACTION", factions, "Back to main menu")
+        
+        if selected == -1:
+            self._log.info("User cancelled faction selection")
+            return None
+        else:
+            selected_faction = factions[selected]
+            self._log.info(f"User selected faction: {selected_faction}")
+            return selected_faction
+    
+    def select_card_file(self, faction_dir: str, exclude_with_rfid: bool = False) -> Optional[str]:
+        """Display a list of card files in the faction directory and let the user select one
+        
+        Args:
+            faction_dir: The faction directory to list cards from
+            exclude_with_rfid: If True, exclude cards that already have an RFID assigned
+        """
+        # Get a list of card files
+        faction_path = os.path.join(self.cards_dir, faction_dir)
+        card_files_dict = {}  # Dictionary to map card names to file paths
+        excluded_count = 0
+        
+        self._log.info(f"Searching for cards in faction: {faction_dir}")
+        self._log.info(f"Exclude cards with RFID: {exclude_with_rfid}")
+        
+        for json_file in glob.glob(os.path.join(faction_path, "*.json")):
+            # If we need to exclude cards with RFID, check the file content
+            if exclude_with_rfid:
+                try:
+                    with open(json_file, 'r') as f:
+                        card_data = json.load(f)
+                        # Skip this card if it already has an RFID
+                        if 'rfid' in card_data:
+                            excluded_count += 1
+                            continue
+                except Exception as e:
+                    self._log.error(f"Error reading {json_file}: {e}")
+                    # If there's an error reading the file, skip it
+                    continue
+            
+            # Extract the card name from the file path
+            card_name = os.path.basename(json_file).replace('.json', '')
+            card_files_dict[card_name] = json_file
+        
+        self._log.info(f"Found {len(card_files_dict)} cards in faction {faction_dir}")
+        if exclude_with_rfid:
+            self._log.info(f"Excluded {excluded_count} cards that already have RFID")
+        
+        if not card_files_dict:
+            if exclude_with_rfid:
+                self._log.warning(f"No cards without RFID found in {faction_path}")
+                self.console.print(f"[bold red]No cards without RFID found in {faction_path}.[/bold red]")
+            else:
+                self._log.warning(f"No card files found in {faction_path}")
+                self.console.print(f"[bold red]No card files found in {faction_path}.[/bold red]")
+            return None
+        
+        # Sort card names alphabetically
+        sorted_card_names = sorted(card_files_dict.keys())
+        
+        # Display interactive menu
+        self._log.info(f"Displaying card selection menu for faction {faction_dir}")
+        selected = self.interactive_menu(f"SELECT CARD - {faction_dir}", sorted_card_names, "Back to faction selection")
+        
+        if selected == -1:
+            self._log.info("User cancelled card selection")
+            return None
+        else:
+            selected_card_name = sorted_card_names[selected]
+            selected_card_file = card_files_dict[selected_card_name]
+            self._log.info(f"User selected card: {selected_card_name} ({selected_card_file})")
+            return selected_card_file
+    
+    def handle_write_card(self) -> None:
+        """Handle the 'Write card' option"""
+        # Select faction
+        faction_dir = self.select_faction()
+        if faction_dir is None:
+            return
+        
+        # Continuously select cards for writing until 0 is selected
+        while True:
+            # Select card file, excluding those that already have an RFID
+            card_file = self.select_card_file(faction_dir, exclude_with_rfid=True)
+            if card_file is None:
+                # User selected 0 to go back
+                break
+            
+            # Read card data from file
+            try:
+                with open(card_file, 'r') as f:
+                    card_data = json.load(f)
+            except Exception as e:
+                self._log.error(f"Error reading card file: {e}")
+                print(f"Error reading card file: {e}")
+                continue
+            
+            # Display card information
+            display = self.format_card_display(
+                card_data,
+                "SELECTED CARD",
+                file_path=card_file,
+                show_additional_info=True
+            )
+            self.console.print(display)
+            
+            # Confirm with user
+            self._log.info(f"Prompting user to confirm writing card: {card_data.get('name', 'Unknown')}")
+            confirm = input("\nWrite this card to an RFID chip? (y/n): ")
+            self._log.info(f"User input for write confirmation: '{confirm}'")
+            
+            if confirm.lower() not in ['y', 'yes']:
+                self._log.info(f"User cancelled writing card: {card_data.get('name', 'Unknown')}")
+                self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
+                continue
+            
+            self._log.info(f"User confirmed writing card: {card_data.get('name', 'Unknown')} to RFID chip")
+            
+            # Write card to RFID tag - we'll check if it's blank during the write process
+            
+            # Create a modified version of write_card_to_rfid that checks for existing data
+            rfid = self.write_card_to_rfid_safely(card_data)
+            
+            if rfid:
+                # Update the card data with the RFID
+                card_data['rfid'] = rfid
+                
+                # Write the updated card data to the file
+                try:
+                    with open(card_file, 'w') as f:
+                        json.dump(card_data, f, indent=4)
+                    self.console.print(f"\n[bold green]Card successfully written to RFID chip with ID: {rfid}[/bold green]")
+                    self.console.print(f"[green]Card file updated with RFID: {card_file}[/green]")
+                except Exception as e:
+                    self._log.error(f"Error updating card file with RFID: {e}")
+                    self.console.print(f"[bold red]Error updating card file with RFID: {e}[/bold red]")
+            else:
+                self.console.print("\n[bold red]Failed to write card to RFID chip[/bold red]")
+            
+            # Ask if the user wants to write another card
+            self._log.info("Prompting user to write another card")
+            self.console.print("\n[bold cyan]Write another card? (y/n):[/bold cyan]")
+            another = input()
+            self._log.info(f"User input for write another card: '{another}'")
+            
+            if another.lower() not in ['y', 'yes']:
+                self._log.info("User chose not to write another card")
+                break
+            
+            self._log.info("User chose to write another card")
+    
+    def run(self) -> None:
+        """Run the card manager utility"""
+        self.setup_signal_handlers()
+        
+        self.console.print("\n[bold blue]Card Manager Utility[/bold blue]")
+        self.console.print("[dim]Press Ctrl+C to exit[/dim]\n")
+        
+        try:
+            while not self._stop_event.is_set():
+                try:
+                    # Display menu and get user choice
+                    choice = self.display_menu()
+                    
+                    if choice == '1':
+                        # Read card
+                        self.handle_read_card()
+                    elif choice == '2':
+                        # Write card
+                        self.handle_write_card()
+                    elif choice == '0':
+                        # Exit
+                        self.console.print("[bold yellow]Exiting...[/bold yellow]")
+                        break
+                    else:
+                        self.console.print("[bold red]Invalid choice. Please enter 0, 1, or 2.[/bold red]")
+                except KeyboardInterrupt:
+                    # Handle Ctrl+C gracefully
+                    self._log.info("User pressed Ctrl+C to exit the application")
+                    self.console.print("\n[bold yellow]Exiting due to Ctrl+C...[/bold yellow]")
+                    break
+                except Exception as e:
+                    self._log.error(f"Error during card processing: {e}")
+                    self.console.print(f"\n[bold red]Error: {e}[/bold red]")
+                    self.console.print("[yellow]Continuing...[/yellow]")
+                    time.sleep(1)
+        finally:
+            # Ensure cleanup happens regardless of how we exit the loop
+            self.cleanup()
 
+
+def setup_logging():
+    """Set up logging to file"""
+    # Create tmp directory if it doesn't exist
+    log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..', 'tmp'))
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+    
+    # Set up log file path
+    log_file = os.path.join(log_dir, 'card-manager.log')
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    
+    # Remove any existing handlers to avoid duplicate logs
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Create file handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
+    
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    
+    # Add handler to logger
+    root_logger.addHandler(file_handler)
+    
+    # Log startup message
+    logging.info(f"Card Manager started. Logging to {log_file}")
+    
+    return log_file
 
 def main() -> int:
     """Command-line entry point for the card manager utility"""
-    # Set up logging
-    gwent.log.setup(level='debug')
+    # Set up logging to file
+    log_file = setup_logging()
+    
+    # Display startup message
+    console = Console()
+    console.print(f"\n[bold blue]Card Manager Utility[/bold blue]")
+    console.print(f"[dim]Logging to {log_file}[/dim]")
     
     # Create and run the card manager utility
     manager = CardManager()
     manager.run()
     
-    return 0
+    # Ensure we catch any exceptions at the top level
+    try:
+        return 0
+    except Exception as e:
+        logging.error(f"Unhandled exception in main: {e}")
+        return 1
 
 
 if __name__ == '__main__':

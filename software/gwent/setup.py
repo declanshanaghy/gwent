@@ -71,6 +71,8 @@ setuptools.setup(
         'python-dotenv>=0.19.0',
         'python-json-logger==3.3.0',
         'watchdog>=2.1.0',  # For monitoring file changes
+        'rich>=13.3.0',     # For improved terminal formatting
+        'readchar>=4.0.0',  # For interactive keyboard input
         
         # Performance monitoring
         'psutil>=5.9.0',  # For monitoring CPU and memory usage
