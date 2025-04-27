@@ -45,10 +45,53 @@ class _BaseReader(gwent.game.BaseComponent):
         id, s_details = self.read_card_impl(should_log)
 
         card = None
-        if id is not None and s_details is not None:
-            j_details = json.loads(s_details)
-            card = gwent.messaging.card.Message.from_properties(j_details,
-                                                               rfid=id)
+        if id is not None:
+            # If we have an ID but no details, it's a blank card
+            if s_details is None or not s_details.strip():
+                self._log.info({
+                    'action': 'blank_or_uninitialized_card',
+                    'id': id,
+                    'message': 'Card detected but appears to be blank or uninitialized'
+                })
+                # Create a minimal card with just the RFID
+                card = gwent.messaging.card.Message.from_properties(rfid=id)
+            else:
+                try:
+                    # Check if the string contains valid JSON
+                    if '{' in s_details and '}' in s_details:
+                        j_details = json.loads(s_details)
+                        # Ensure the RFID is included
+                        if 'rfid' not in j_details:
+                            j_details['rfid'] = id
+                        card = gwent.messaging.card.Message.from_properties(j_details)
+                    else:
+                        self._log.warning({
+                            'action': 'invalid_card_data',
+                            'id': id,
+                            'reason': 'No JSON content found',
+                            'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                        })
+                        # Create a minimal card with just the RFID
+                        card = gwent.messaging.card.Message.from_properties(rfid=id)
+                except json.JSONDecodeError as e:
+                    self._log.warning({
+                        'action': 'json_decode_error_in_card_data',
+                        'id': id,
+                        'error': str(e),
+                        'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                    })
+                    # Create a minimal card with just the RFID
+                    card = gwent.messaging.card.Message.from_properties(rfid=id)
+                except Exception as e:
+                    self._log.error({
+                        'action': 'unexpected_error_parsing_card_data',
+                        'id': id,
+                        'error': str(e),
+                        'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                    })
+                    # Create a minimal card with just the RFID
+                    card = gwent.messaging.card.Message.from_properties(rfid=id)
+                
         if should_log or card is not None:
             self.log_time('read_card', start)
 
@@ -108,17 +151,95 @@ class _RealReader(_BaseReader):
                     self._rfid = mfrc522.SimpleMFRC522()
 
     def read_card_impl(self, should_log: bool) -> (int, str):
-        id, header = self._read_card_header()
-        if header is not None:
-            id, body = self._read_card_body(n_bytes=header['bytes'])
-            if id is None:
-                self._log.error({
-                    'action': 'read card body failed',
-                })
-                return None, None
-            return id, body
-        else:
+        self._log.info({
+            'action': 'starting card read',
+            'timestamp': time.time()
+        })
+        
+        # First check if a card is physically present by reading its ID
+        id, _ = self._rfid.read_id(attempts=3)
+        if id is None:
+            self._log.warning({
+                'action': 'no card detected',
+                'timestamp': time.time()
+            })
             return None, None
+            
+        self._log.info({
+            'action': 'card detected',
+            'id': id,
+            'timestamp': time.time()
+        })
+        
+        # Try to read the header
+        id, header = self._read_card_header()
+        
+        # If header read fails, this is likely a blank card
+        if header is None:
+            self._log.info({
+                'action': 'blank card detected',
+                'id': id,
+                'timestamp': time.time()
+            })
+            # Return the ID but no details to indicate a blank card
+            return id, None
+            
+        self._log.info({
+            'action': 'read card header success',
+            'id': id,
+            'header': header
+        })
+        
+        # Add a longer delay before reading the body
+        time.sleep(1.5)
+        
+        # Add retry logic for body reads
+        max_body_attempts = 2  # Reduced from 3 to 2
+        body = None
+        
+        for attempt in range(1, max_body_attempts + 1):
+            self._log.info({
+                'action': 'attempting card body read',
+                'attempt': attempt,
+                'max_attempts': max_body_attempts
+            })
+            
+            id, body = self._read_card_body(n_bytes=header['bytes'])
+            
+            if id is not None and body is not None:
+                break
+                
+            if attempt < max_body_attempts:
+                self._log.warning({
+                    'action': 'retrying card body read',
+                    'attempt': attempt,
+                    'timestamp': time.time()
+                })
+                # Reset reader between attempts
+                if hasattr(self, 'reset') and callable(self.reset):
+                    self.reset()
+                time.sleep(1.0)  # Longer delay between retry attempts
+        
+        if id is None or body is None:
+            self._log.error({
+                'action': 'read card body failed after all attempts',
+                'timestamp': time.time()
+            })
+            # Try to reset the reader before returning
+            if hasattr(self, 'reset') and callable(self.reset):
+                self._log.info("Resetting RFID reader after failed body read")
+                self.reset()
+                time.sleep(1.0)  # Add a longer delay after reset
+            # Return the ID but no details to indicate a blank card
+            return id, None
+        
+        self._log.info({
+            'action': 'read card body success',
+            'id': id,
+            'body_length': len(body) if body else 0
+        })
+        
+        return id, body
 
     @staticmethod
     def get_blocks(sector: int) -> (int, [int]):
@@ -131,12 +252,32 @@ class _RealReader(_BaseReader):
 
     def read_sector(self, trailer: int = 11,
                    blocks: [int] = (8, 9, 10)) -> (int, str):
+        self._log.debug({
+            'action': 'read_sector',
+            'trailer': trailer,
+            'blocks': blocks
+        })
+        
+        # Add a small delay before reading
+        time.sleep(0.05)
+        
         id, text, _ = self._rfid.read(
             trailer=trailer, blocks=blocks, attempts=MAX_ATTEMPTS)
+            
         if id:
             text = text.strip()
+            self._log.debug({
+                'action': 'read_sector_success',
+                'id': id,
+                'text_length': len(text) if text else 0
+            })
             return id, text
         else:
+            self._log.debug({
+                'action': 'read_sector_failed',
+                'trailer': trailer,
+                'blocks': blocks
+            })
             return None, None
 
     def _read_card_header(self) -> (int, dict):
@@ -147,9 +288,36 @@ class _RealReader(_BaseReader):
         id, header = self.read_sector(trailer=trailer, blocks=blocks)
 
         if id is not None and header is not None:
-            last = header.find('}') + 1
-            header = json.loads(header[:last])
-            self.log_time('read card header', start)
+            try:
+                # Check if header contains any JSON data
+                if '{' in header and '}' in header:
+                    last = header.find('}') + 1
+                    header = json.loads(header[:last])
+                    self.log_time('read card header', start)
+                else:
+                    self._log.warning({
+                        'action': 'invalid_header_format',
+                        'header': header,
+                        'reason': 'No JSON brackets found'
+                    })
+                    # Return None for header to indicate invalid format
+                    header = None
+            except json.JSONDecodeError as e:
+                self._log.warning({
+                    'action': 'json_decode_error',
+                    'error': str(e),
+                    'header': header
+                })
+                # Return None for header to indicate parsing failure
+                header = None
+            except Exception as e:
+                self._log.error({
+                    'action': 'unexpected_error_parsing_header',
+                    'error': str(e),
+                    'header': header
+                })
+                # Return None for header to indicate parsing failure
+                header = None
 
         return id, header
 
@@ -161,12 +329,51 @@ class _RealReader(_BaseReader):
 
         debug_enabled = self._log.isEnabledFor(logging.DEBUG)
         body_start = time.time()
+        
+        self._log.info({
+            'action': 'starting card body read',
+            'n_bytes': n_bytes,
+            'sectors_to_read': list(sectors)
+        })
 
         for sector in sectors:
             sector_start = time.time()
-            trailer, blocks = _RealReader.get_blocks(sector)
-            id, sector_data = self.read_sector(trailer=trailer, blocks=blocks)
-            if id is None:  # The card was removed
+            self._log.info({
+                'action': 'reading sector',
+                'sector': sector
+            })
+            
+            # Add a longer delay before reading each sector
+            time.sleep(0.5)  # Increased from 0.3 to 0.5
+            
+            # Try multiple times to read each sector
+            max_sector_attempts = 3  # Increased from 2 to 3
+            sector_data = None
+            
+            for attempt in range(1, max_sector_attempts + 1):
+                trailer, blocks = _RealReader.get_blocks(sector)
+                id, sector_data = self.read_sector(trailer=trailer, blocks=blocks)
+                
+                if id is not None and sector_data is not None:
+                    break
+                    
+                if attempt < max_sector_attempts:
+                    self._log.warning({
+                        'action': 'retrying sector read',
+                        'sector': sector,
+                        'attempt': attempt
+                    })
+                    time.sleep(0.5)  # Increased from 0.3 to 0.5
+            
+            if id is None:  # The card was removed or read failed
+                self._log.error({
+                    'action': 'read card body failed',
+                    'sector': sector
+                })
+                # Try to reset the reader before returning
+                if hasattr(self, 'reset') and callable(self.reset):
+                    self._log.info("Resetting RFID reader after failed read")
+                    self.reset()
                 return None, None
 
             end = time.time()
@@ -183,8 +390,18 @@ class _RealReader(_BaseReader):
                     'duration': end - sector_start,
                 })
             body += sector_data
+            
+            # Add a longer delay after reading each sector
+            time.sleep(0.8)  # Increased from 0.5 to 0.8
 
         self.log_time('read card body', body_start)
+        
+        self._log.info({
+            'action': 'completed card body read',
+            'body_length': len(body),
+            'n_bytes': n_bytes,
+            'duration': time.time() - body_start
+        })
 
         # We will have read the entire sector but the JSON
         # will most likely only take up a portion of it.
@@ -235,7 +452,48 @@ class _FakeWriter(_BaseWriter, _FakeReader):
 
 
 class RealWriter(_BaseWriter, _RealReader):
+    def reset(self):
+        """Reset the RFID reader to ensure it's in a clean state"""
+        self._log.info({
+            'action': 'resetting_rfid_reader',
+            'timestamp': time.time()
+        })
+        
+        try:
+            # Try to re-initialize the RFID reader
+            # Use False for log_verbose since we're already logging the reset
+            self._setup_rfid(log_verbose=False)
+            
+            # Add a longer delay after reset
+            time.sleep(1.0)
+            
+            # Try to read the ID to ensure the reader is working
+            id, _ = self._rfid.read_id(attempts=1)
+            if id is not None:
+                self._log.info({
+                    'action': 'rfid_reader_reset_complete_with_card_present',
+                    'id': id,
+                    'timestamp': time.time()
+                })
+            else:
+                self._log.info({
+                    'action': 'rfid_reader_reset_complete_no_card_detected',
+                    'timestamp': time.time()
+                })
+            
+            return True
+        except Exception as e:
+            self._log.error({
+                'action': 'rfid_reader_reset_failed',
+                'error': str(e),
+                'timestamp': time.time()
+            })
+            return False
+    
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
+        # Reset the reader before writing
+        self.reset()
+        
         id1, _ = self._write_card_header(card)
         if id1 is not None:
             id2, _ = self._write_card_body(card)

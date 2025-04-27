@@ -38,6 +38,7 @@ import gwent.game
 import gwent.messaging.base
 import gwent.cards.all
 import gwent.messaging.card
+from gwent.messaging.card import NAME, FACTION, RFID  # Import constants
 import gwent.cards.util
 import gwent.hal.rfid
 import RPi.GPIO as GPIO  # Import GPIO library to suppress warnings
@@ -141,14 +142,29 @@ class CardManager(gwent.game.BaseComponent):
         # Determine if we're dealing with a Message object or a dictionary
         is_message = isinstance(card_data, gwent.messaging.card.Message)
         
+        # Check if this is a blank card
+        is_blank_card = False
+        if is_message:
+            # A card is blank if it has an RFID but no name attribute or the name is not in the instance
+            # OR if the name starts with "Blank Card" (indicating it was auto-generated)
+            is_blank_card = (hasattr(card_data, 'rfid') and
+                            (not (hasattr(card_data, 'name') and NAME in card_data.instance) or
+                             (hasattr(card_data, 'name') and card_data.name.startswith("Blank Card"))))
+        else:
+            # For dictionary data, check if it has RFID but no name or name starts with "Blank Card"
+            is_blank_card = ('rfid' in card_data and
+                            ('name' not in card_data or
+                             not card_data['name'] or
+                             (isinstance(card_data.get('name'), str) and card_data['name'].startswith("Blank Card"))))
+        
         # Get card properties based on the type
         if is_message:
-            name = card_data.name if hasattr(card_data, 'name') else 'Unknown'
-            faction = card_data.faction if hasattr(card_data, 'faction') else 'Unknown'
+            name = card_data.name if hasattr(card_data, 'name') and NAME in card_data.instance else f"Blank Card {card_data.rfid}" if hasattr(card_data, 'rfid') else 'Unknown'
+            faction = card_data.faction if hasattr(card_data, 'faction') and FACTION in card_data.instance else 'Unknown'
             rfid = str(card_data.rfid) if hasattr(card_data, 'rfid') else 'Unknown'
             instance = card_data.instance if hasattr(card_data, 'instance') else {}
         else:
-            name = card_data.get('name', 'Unknown')
+            name = card_data.get('name', f"Blank Card {card_data.get('rfid', 'Unknown')}" if 'rfid' in card_data else 'Unknown')
             faction = card_data.get('faction', 'Unknown')
             rfid = str(card_data.get('rfid', 'Unknown'))
             instance = card_data  # The dictionary itself contains the attributes
@@ -243,14 +259,23 @@ class CardManager(gwent.game.BaseComponent):
                 card_text.append(f"{file_path}\n", style="green")
         
         # Create a panel with the card information
-        panel = Panel(
-            card_text,
-            title=f"[bold yellow]{header_text}: {name}[/bold yellow]",
-            border_style="bright_blue",
-            box=box.DOUBLE,
-            width=80,
-            expand=False
-        )
+        try:
+            panel = Panel(
+                card_text,
+                title=f"[bold yellow]{header_text}: {name}[/bold yellow]",
+                border_style="bright_blue",
+                box=box.DOUBLE,
+                width=80,
+                expand=False
+            )
+        except Exception as e:
+            self._log.error(f"Error creating panel: {e}")
+            # Create a simple panel as fallback
+            panel = Panel(
+                f"Card: {name}\nFaction: {faction}\nRFID: {rfid}",
+                title=f"[bold yellow]{header_text}[/bold yellow]",
+                border_style="bright_blue"
+            )
         
         return panel
     
@@ -270,15 +295,80 @@ class CardManager(gwent.game.BaseComponent):
 
     def read_rfid_card(self) -> Optional[gwent.messaging.card.Message]:
         """Read a card using the RFID reader"""
-        self.console.print("\n[bold cyan]Please place a card on the reader...[/bold cyan]")
-        self._log.info("Please place a card on the reader...")
+        self.console.print("\n[bold cyan]===== CARD READING PROCESS =====[/bold cyan]")
+        self.console.print("[bold cyan]STEP 1:[/bold cyan] Place your card on the reader")
+        self.console.print("[bold cyan]STEP 2:[/bold cyan] Press Enter when the card is in position")
+        self.console.print("[bold cyan]STEP 3:[/bold cyan] Keep the card on the reader until the process completes")
         
+        # Wait for the user to place the card and press Enter
+        self.console.print("\n[bold green]Please place your card on the reader and press Enter when ready (or ESC/Ctrl+C to cancel)...[/bold green]")
+        try:
+            key = readchar.readkey()
+            if key == readchar.key.ESC:
+                self._log.info("User pressed ESC to cancel card reading")
+                self.console.print("\n[yellow]Card reading cancelled.[/yellow]")
+                return None
+        except KeyboardInterrupt:
+            self._log.info("User pressed Ctrl+C to cancel card reading")
+            self.console.print("\n[yellow]Card reading cancelled.[/yellow]")
+            return None
+        
+        self._log.info("User confirmed card is placed on reader")
+        self.console.print("[bold cyan]Reading card...[/bold cyan]")
+        
+        # First check if a card is physically present by reading its ID
+        id, _ = self._rfid_reader._rfid.read_id(attempts=3)
+        if id is None:
+            self._log.warning("No card detected on reader")
+            self.console.print("\n[bold red]ERROR: No card detected on reader![/bold red]")
+            self.console.print("[yellow]Please make sure a card is placed on the reader and try again.[/yellow]")
+            return None
+            
+        self._log.info(f"Card detected with ID: {id}")
+        self.console.print(f"[green]Card detected with ID: {id}[/green]")
+        
+        # Log the start time of the read operation
+        start_time = time.time()
+        self._log.info(f"Starting card data read at timestamp: {start_time}")
+        
+        # Now try to read the card data
         card: Optional[gwent.messaging.card.Message] = None
-        while card is None and not self._stop_event.is_set():
+        max_attempts = 2  # Limit attempts to avoid excessive retries
+        attempts = 0
+        
+        # Simple loop to try reading the card
+        while card is None and not self._stop_event.is_set() and attempts < max_attempts:
+            attempts += 1
+            self._log.debug(f"Card data read attempt #{attempts}")
+            
+            # Try to read the card
             card = self._rfid_reader.read_card()
-            if card is None:
-                # Small delay to prevent CPU hogging
-                time.sleep(0.1)
+            
+            # If we got a card (even a blank one), we're done
+            if card is not None:
+                self._log.info(f"Card read successfully on attempt {attempts}")
+                break
+                
+            # If this isn't the last attempt, provide feedback and try again
+            if attempts < max_attempts:
+                self.console.print(f"[yellow]Attempt {attempts}/{max_attempts}: No card data read. Trying again...[/yellow]")
+                # Small delay between attempts
+                time.sleep(0.5)
+        
+        # If we still couldn't read card data but we have an ID, it's likely a blank card
+        if card is None and id is not None:
+            self._log.info(f"Card with ID {id} appears to be blank or uninitialized")
+            self.console.print("\n[bold yellow]Card detected but appears to be blank or uninitialized.[/bold yellow]")
+            
+            # Create a minimal card object with just the RFID
+            # This will allow the handle_read_card method to recognize it as a blank card
+            # that needs initialization rather than a completely missing card
+            card = gwent.messaging.card.Message.from_properties(rfid=id)
+        
+        # Log the end time and duration of the read operation
+        end_time = time.time()
+        duration = end_time - start_time
+        self._log.info(f"Card read completed at timestamp: {end_time}, duration: {duration:.2f}s, attempts: {attempts}")
         
         if card is not None:
             # Log card information
@@ -297,6 +387,10 @@ class CardManager(gwent.game.BaseComponent):
             
             # Pretty print the card immediately after reading
             self.pretty_print_card(card)
+            
+            # Add a longer delay after successful read to allow the RFID reader to reset
+            time.sleep(1.0)
+            self._log.info("Added 1.0s delay after successful card read to allow reader to reset")
 
         return card
 
@@ -508,88 +602,205 @@ class CardManager(gwent.game.BaseComponent):
         return filepath
 
     def write_card_to_rfid(self, card_data: CardData) -> Optional[int]:
-        """Write a card to an RFID tag"""
-        # Convert card data to a Message object
-        card: gwent.messaging.card.Message = gwent.messaging.card.Message.from_properties(card_data)
+        """Write a card to an RFID tag
         
-        self._log.info({
-            'action': 'Hold a tag near the writer to receive the data',
-            'name': card.name,
-            'faction': card.faction,
-        })
-
-        # Use the class member RFID reader instance
-        rfid: Optional[int] = None
-        while rfid is None and not self._stop_event.is_set():
-            rfid = self._rfid_reader.write_card(card)
-            if rfid is None:
-                # Small delay to prevent CPU hogging
-                time.sleep(0.1)
-
-        if rfid is not None:
-            self._log.info({
-                'action': 'card written successfully',
-                'id': rfid,
-            })
-            
-            # Update the card data with the RFID
-            card_data['rfid'] = rfid
-            
-            return rfid
+        IMPORTANT: This method does NOT check if the card already has data.
+        Use write_card_to_rfid_safely instead to ensure the card is blank.
+        """
+        self._log.warning("write_card_to_rfid called directly - this method does not check for existing data")
+        self._log.info("Redirecting to write_card_to_rfid_safely for safety")
         
-        return None
+        # Always use the safe version that checks for existing data
+        return self.write_card_to_rfid_safely(card_data)
         
     def write_card_to_rfid_safely(self, card_data: CardData) -> Optional[int]:
         """Write a card to an RFID tag, but only if the tag is blank"""
-        # Prompt the user to place a card on the reader
-        self.console.print("\n[bold cyan]Please place a blank RFID chip on the writer...[/bold cyan]")
-        self.console.print("[dim]Note: If the chip already contains data, the write will be aborted.[/dim]")
+        # Clear instructions for the user
+        self.console.print("\n[bold cyan]===== CARD WRITING PROCESS =====[/bold cyan]")
+        self.console.print("[bold cyan]STEP 1:[/bold cyan] Place your RFID chip on the writer")
+        self.console.print("[bold cyan]STEP 2:[/bold cyan] Press Enter when the chip is in position")
+        self.console.print("[bold cyan]STEP 3:[/bold cyan] Keep the chip on the writer until the process completes")
+        self.console.print("[bold yellow]WARNING:[/bold yellow] If the chip already contains data, the write will be aborted to prevent data loss.")
         
-        # Wait a moment for the user to place the card
-        time.sleep(1)
-        
-        # Now try to read the card to see if it already has data
+        # Wait for the user to place the card and press Enter
+        self.console.print("\n[bold green]Please place your RFID chip on the writer and press Enter when ready (or ESC/Ctrl+C to cancel)...[/bold green]")
         try:
-            # We'll use the RFID reader directly instead of read_rfid_card to avoid pretty printing
-            self._log.info("Checking if RFID chip is blank...")
+            key = readchar.readkey()
+            if key == readchar.key.ESC:
+                self._log.info("User pressed ESC to cancel card writing")
+                self.console.print("\n[yellow]Card writing cancelled.[/yellow]")
+                return None
+        except KeyboardInterrupt:
+            self._log.info("User pressed Ctrl+C to cancel card writing")
+            self.console.print("\n[yellow]Card writing cancelled.[/yellow]")
+            return None
+        
+        self.console.print("[bold cyan]Checking for RFID chip...[/bold cyan]")
+        
+        # Try to read the card to see if it already has data
+        try:
+            # First try to get just the ID of the card with multiple attempts
+            self._log.info("Checking if RFID chip is present...")
+            self.console.print("\n[bold cyan]Detecting RFID chip...[/bold cyan]")
+            
+            # Try multiple times with feedback
+            max_attempts = 5
+            for attempt in range(1, max_attempts + 1):
+                self._log.info(f"Attempt {attempt}/{max_attempts} to detect RFID chip")
+                id, _ = self._rfid_reader._rfid.read_id(attempts=2)
+                
+                if id is not None:
+                    break
+                    
+                if attempt < max_attempts:
+                    self.console.print(f"[yellow]Attempt {attempt}/{max_attempts}: No chip detected. Please adjust position...[/yellow]")
+                    time.sleep(0.1)  # Give user time to adjust
+            
+            if id is None:
+                self._log.warning("No RFID chip detected after multiple attempts")
+                self.console.print("\n[bold red]ERROR: No RFID chip detected after multiple attempts![/bold red]")
+                self.console.print("[yellow]Please make sure the chip is placed directly on the writer and try again.[/yellow]")
+                self.console.print("[yellow]Tips: Try moving the chip slightly, or use a different chip.[/yellow]")
+                return None
+                
+            self._log.info(f"RFID chip detected with ID: {id}")
+            self.console.print(f"\n[bold green]RFID chip detected with ID: {id}[/bold green]")
+            
+            # Now check if the card has data
+            self._log.info("Checking if RFID chip has existing data...")
+            self.console.print("[bold cyan]Checking if chip already contains data...[/bold cyan]")
             existing_card = self._rfid_reader.read_card()
             
             # Check if the card has data
-            if existing_card is not None and hasattr(existing_card, 'name') and existing_card.name:
-                # Card already has data
-                self._log.warning(f"RFID chip already contains data: {existing_card.name}")
-                error_panel = Panel(
-                    Text.from_markup(
-                        f"This RFID chip already contains card data:\n\n"
-                        f"[bold]Name:[/bold] {existing_card.name}\n"
-                        f"[bold]Faction:[/bold] {existing_card.faction if hasattr(existing_card, 'faction') else 'Unknown'}\n\n"
-                        f"Please use a blank RFID chip."
-                    ),
-                    title="[bold red]ERROR: RFID CHIP ALREADY HAS DATA[/bold red]",
-                    border_style="red",
-                    box=box.DOUBLE
-                )
-                self.console.print("\n")
-                self.console.print(error_panel)
-                return None
+            if existing_card is not None:
+                # Card has some data
+                card_info = {}
+                if hasattr(existing_card, 'name') and existing_card.name:
+                    card_info['name'] = existing_card.name
+                if hasattr(existing_card, 'faction') and existing_card.faction:
+                    card_info['faction'] = existing_card.faction
+                if hasattr(existing_card, 'rfid') and existing_card.rfid:
+                    card_info['rfid'] = existing_card.rfid
                 
-            # If we get here, either the card is blank or there was an error reading it
-            # In either case, we'll try to write to it
-            self._log.info("RFID chip appears to be blank. Proceeding with write...")
-            print("\nRFID chip appears to be blank. Proceeding with write...")
+                if card_info:
+                    # Card has meaningful data
+                    self._log.warning(f"RFID chip already contains data: {card_info}")
+                    
+                    # Create a detailed error panel using a single Text.from_markup call
+                    error_message = f"This RFID chip already contains card data:\n\n"
+                    
+                    if 'name' in card_info:
+                        error_message += f"[bold]Name:[/bold] {card_info['name']}\n"
+                    if 'faction' in card_info:
+                        error_message += f"[bold]Faction:[/bold] {card_info['faction']}\n"
+                    if 'rfid' in card_info:
+                        error_message += f"[bold]RFID:[/bold] {card_info['rfid']}\n"
+                    
+                    error_message += "\n[bold red]Writing to this card would overwrite existing data.[/bold red]\n"
+                    error_message += "Please use a blank RFID chip or explicitly choose to overwrite."
+                    
+                    error_text = Text.from_markup(error_message)
+                    
+                    error_panel = Panel(
+                        error_text,
+                        title="[bold red]ERROR: RFID CHIP ALREADY HAS DATA[/bold red]",
+                        border_style="red",
+                        box=box.DOUBLE
+                    )
+                    self.console.print("\n")
+                    self.console.print(error_panel)
+                    
+                    # Ask if the user wants to overwrite
+                    self.console.print("\n[bold cyan]Do you want to overwrite the existing data? This cannot be undone! (y/n or ESC/Ctrl+C to cancel)[/bold cyan]")
+                    try:
+                        key = readchar.readkey()
+                        if key == readchar.key.ESC:
+                            self._log.info("User pressed ESC to cancel overwriting existing card data")
+                            self.console.print("\n[bold green]Operation cancelled.[/bold green]")
+                            return None
+                        
+                        overwrite = key.lower() in ['y']
+                        if overwrite:
+                            self._log.warning("User chose to overwrite existing card data")
+                            self.console.print("\n[bold yellow]Proceeding with overwrite...[/bold yellow]")
+                        else:
+                            self._log.info("User chose not to overwrite existing card data")
+                            self.console.print("\n[bold green]Operation cancelled.[/bold green]")
+                            return None
+                    except KeyboardInterrupt:
+                        self._log.info("User pressed Ctrl+C to cancel overwriting existing card data")
+                        self.console.print("\n[bold green]Operation cancelled.[/bold green]")
+                        return None
             
-            # Now write the card data
-            return self.write_card_to_rfid(card_data)
+            # If we get here, either the card is blank or the user has chosen to overwrite
+            self._log.info("RFID chip is blank or user has chosen to overwrite. Proceeding with write...")
+            
+            if existing_card is None:
+                self.console.print("\n[bold green]✓ Chip is blank and ready for writing[/bold green]")
+            else:
+                self.console.print("\n[bold yellow]⚠ Proceeding with overwrite as confirmed[/bold yellow]")
+            
+            # Show card details that will be written
+            self.console.print(f"\n[bold cyan]Writing card data:[/bold cyan]")
+            self.console.print(f"[cyan]Name:[/cyan] [green]{card_data.get('name', 'Unknown')}[/green]")
+            self.console.print(f"[cyan]Faction:[/cyan] [green]{card_data.get('faction', 'Unknown')}[/green]")
+            
+            self.console.print("\n[bold cyan]IMPORTANT: Keep the chip on the writer until writing is complete![/bold cyan]")
+            
+            # Convert card data to a Message object
+            card: gwent.messaging.card.Message = gwent.messaging.card.Message.from_properties(card_data)
+            
+            self._log.info({
+                'action': 'Hold the tag steady while writing data',
+                'name': card.name,
+                'faction': card.faction,
+            })
+            
+            # Use the class member RFID reader instance
+            rfid: Optional[int] = None
+            attempts = 0
+            max_attempts = 5
+            
+            while rfid is None and not self._stop_event.is_set() and attempts < max_attempts:
+                attempts += 1
+                self._log.info(f"Write attempt #{attempts}")
+                
+                rfid = self._rfid_reader.write_card(card)
+                if rfid is None:
+                    # Small delay to prevent CPU hogging
+                    time.sleep(0.1)
+            
+            if rfid is not None:
+                self._log.info({
+                    'action': 'card written successfully',
+                    'id': rfid,
+                })
+                
+                # Update the card data with the RFID
+                card_data['rfid'] = rfid
+                
+                self.console.print("\n[bold green]✓ SUCCESS: Card data written successfully![/bold green]")
+                self.console.print(f"[green]Card ID: {rfid}[/green]")
+                self.console.print("[cyan]You can now remove the card from the writer.[/cyan]")
+                
+                return rfid
+            else:
+                self._log.error("Failed to write card after multiple attempts")
+                self.console.print("\n[bold red]✗ ERROR: Failed to write card after multiple attempts.[/bold red]")
+                self.console.print("[yellow]Possible causes:[/yellow]")
+                self.console.print("  [yellow]- Card was removed during writing[/yellow]")
+                self.console.print("  [yellow]- Card is write-protected[/yellow]")
+                self.console.print("  [yellow]- Card is damaged or incompatible[/yellow]")
+                self.console.print("  [yellow]- RFID reader hardware issue[/yellow]")
+                self.console.print("\n[cyan]Please try again with the same or different card.[/cyan]")
+                return None
             
         except Exception as e:
-            # If there's an error reading the card, it might be blank or there might be a problem
-            # Let's log the error and try to write anyway
-            self._log.error(f"Error checking if card is blank: {e}")
-            print(f"\nCould not determine if RFID chip is blank: {e}")
-            print("Attempting to write anyway...")
-            
-            # Try to write the card data
-            return self.write_card_to_rfid(card_data)
+            # If there's an error reading the card, log it and abort
+            self._log.error(f"Error checking or writing to RFID chip: {e}")
+            self.console.print(f"\n[bold red]Error: {e}[/bold red]")
+            self.console.print("[bold red]Card writing aborted for safety.[/bold red]")
+            return None
 
     def interactive_menu(self, title: str, options: List[str], exit_option: str = "Back") -> int:
         """Display an interactive menu with keyboard navigation and scrolling
@@ -697,14 +908,12 @@ class CardManager(gwent.game.BaseComponent):
                         self._log.info(f"User selected: '{selected_option}' from menu '{title}'")
                         return selected
                     elif key == readchar.key.CTRL_C or key == readchar.key.ESC:
-                        # Exit on Ctrl+C or Escape
-                        self._log.info(f"User pressed Ctrl+C or Escape to exit menu '{title}'")
-                        self._stop_event.set()  # Set the stop event to exit gracefully
+                        # ESC key now acts like selecting the "Back" option
+                        self._log.info(f"User pressed ESC to go back from menu '{title}'")
                         return -1
                 except KeyboardInterrupt:
-                    # Handle Ctrl+C
-                    self._log.info(f"User pressed Ctrl+C to exit menu '{title}'")
-                    self._stop_event.set()  # Set the stop event to exit gracefully
+                    # Handle Ctrl+C - now acts like selecting the "Back" option
+                    self._log.info(f"User pressed Ctrl+C to go back from menu '{title}'")
                     return -1
         except Exception as e:
             self._log.error(f"Error in interactive menu: {e}")
@@ -719,6 +928,7 @@ class CardManager(gwent.game.BaseComponent):
         selected = self.interactive_menu("CARD MANAGER MENU", options, "Exit")
         
         if selected == -1:
+            # This could be from selecting "Exit" or pressing ESC/Ctrl+C
             self._log.info("User selected to exit the application")
             return '0'  # Exit
         else:
@@ -728,13 +938,132 @@ class CardManager(gwent.game.BaseComponent):
     
     def handle_read_card(self) -> None:
         """Handle the 'Read card' option"""
-        # Read the RFID card
-        card: Optional[gwent.messaging.card.Message] = self.read_rfid_card()
+        self._log.info("=== Starting handle_read_card() ===")
         
-        if card is None:
-            self._log.error("Failed to read card or operation was cancelled")
+        # Read the RFID card with additional logging
+        self._log.info("Calling read_rfid_card()")
+        self.console.print("\n[bold cyan]Please place a card on the reader...[/bold cyan]")
+        
+        try:
+            card: Optional[gwent.messaging.card.Message] = self.read_rfid_card()
+        except Exception as e:
+            self._log.error(f"Exception during card read: {e}")
+            self.console.print(f"\n[bold red]Error reading card: {e}[/bold red]")
+            self.console.print("[yellow]Please try again or use a different card.[/yellow]")
+            self._log.info("=== Ending handle_read_card() - exception during read ===")
             return
         
+        # Check if a card was detected
+        if card is None:
+            # No card detected at all
+            self._log.error("No card detected or operation was cancelled")
+            self.console.print("\n[bold red]No card detected or operation was cancelled.[/bold red]")
+            self.console.print("[yellow]Please make sure the card is properly positioned on the reader.[/yellow]")
+            self._log.info("=== Ending handle_read_card() - no card detected ===")
+            return
+        
+        # Check if this is a blank card (has RFID but no other data)
+        is_blank_card = hasattr(card, 'rfid') and card.rfid and not (hasattr(card, 'name') and hasattr(card, 'faction'))
+        
+        if is_blank_card:
+            # This is a blank card with just an RFID
+            id = card.rfid
+            self._log.info(f"Detected blank or uninitialized card with ID: {id}")
+            self.console.print("\n[bold yellow]Blank or uninitialized card detected.[/bold yellow]")
+            self.console.print(f"Card ID: {id}")
+            
+            # Ask if the user wants to initialize this card
+            self.console.print("\n[bold cyan]Would you like to initialize this card? (y/n or ESC/Ctrl+C to cancel)[/bold cyan]")
+            try:
+                key = readchar.readkey()
+                if key == readchar.key.ESC:
+                    self._log.info("User pressed ESC to cancel card initialization")
+                    self.console.print("[yellow]Card initialization cancelled.[/yellow]")
+                    return
+                
+                initialize = key.lower() in ['y']
+                if initialize:
+                    self._log.info("User chose to initialize blank card")
+                else:
+                    self._log.info("User chose not to initialize blank card")
+                    self.console.print("[yellow]Card initialization cancelled.[/yellow]")
+                    return
+            except KeyboardInterrupt:
+                self._log.info("User pressed Ctrl+C to cancel card initialization")
+                self.console.print("[yellow]Card initialization cancelled.[/yellow]")
+                return
+                
+            if True:  # This block was previously inside the Confirm.ask() condition
+                
+                # Ask how they want to initialize the card
+                self.console.print("\n[bold cyan]How would you like to initialize this card?[/bold cyan]")
+                options = ["Select an existing card from database", "Manually enter card details"]
+                selected = self.interactive_menu("CARD INITIALIZATION", options, "Cancel initialization")
+                
+                if selected == -1:
+                    self._log.info("User cancelled card initialization")
+                    self.console.print("\n[yellow]Card initialization cancelled.[/yellow]")
+                    return
+                
+                card_data = None
+                
+                if selected == 0:  # Select existing card
+                    self._log.info("User chose to select an existing card from database")
+                    
+                    # Select faction
+                    faction_dir = self.select_faction()
+                    if faction_dir is None:
+                        self._log.info("User cancelled faction selection")
+                        self.console.print("\n[yellow]Card initialization cancelled.[/yellow]")
+                        return
+                    
+                    # Select card file, including those with RFID (we'll just copy the data)
+                    card_file = self.select_card_file(faction_dir, exclude_with_rfid=False)
+                    if card_file is None:
+                        self._log.info("User cancelled card selection")
+                        self.console.print("\n[yellow]Card initialization cancelled.[/yellow]")
+                        return
+                    
+                    # Read card data from file
+                    try:
+                        with open(card_file, 'r') as f:
+                            card_data = json.load(f)
+                            
+                        # Create a copy of the card data without the RFID
+                        if 'rfid' in card_data:
+                            self._log.info(f"Removing existing RFID {card_data['rfid']} from template card")
+                            del card_data['rfid']
+                            
+                        self._log.info(f"Using card template: {card_data.get('name', 'Unknown')}")
+                        self.console.print(f"\n[bold green]Using card template: {card_data.get('name', 'Unknown')}[/bold green]")
+                    except Exception as e:
+                        self._log.error(f"Error reading card file: {e}")
+                        self.console.print(f"\n[bold red]Error reading card file: {e}[/bold red]")
+                        return
+                else:  # Manually enter details
+                    self._log.info("User chose to manually enter card details")
+                    # Prompt for card details
+                    card_data = self.prompt_for_card_details()
+                
+                if card_data:
+                    # Add RFID to the card data
+                    card_data['rfid'] = id
+                    
+                    # Write the card to the database
+                    file_path = self.write_card_to_database(card_data)
+                    self._log.info(f"Card written to {file_path}")
+                    
+                    # Write the card to the RFID chip
+                    rfid = self.write_card_to_rfid_safely(card_data)
+                    if rfid is not None:
+                        self.console.print(f"\n[bold green]Card successfully initialized with ID: {rfid}[/bold green]")
+                        self._log.info(f"Card initialized with ID: {rfid}")
+                    else:
+                        self.console.print("\n[bold red]Failed to initialize card.[/bold red]")
+                        self._log.error("Failed to initialize card")
+            
+            self._log.info("=== Ending handle_read_card() - blank card handling complete ===")
+            return
         # Try to find the card in the database
         card_data: Optional[CardData] = None
         card_file: Optional[FilePath] = None
@@ -744,8 +1073,8 @@ class CardManager(gwent.game.BaseComponent):
             if hasattr(card, 'rfid') and card.rfid:
                 card_data, card_file = self.find_card_in_database(card.rfid)
             
-            # Try by name and faction if available
-            if card_data is None and hasattr(card, 'name') and hasattr(card, 'faction'):
+            # Try by name and faction if available and card is not blank
+            if card_data is None and not is_blank_card and hasattr(card, 'name') and hasattr(card, 'faction'):
                 # For weather cards, strip any number suffix
                 name = card.name
                 if hasattr(card, 'instance') and card.instance.get('specialty') == 'weather':
@@ -769,71 +1098,60 @@ class CardManager(gwent.game.BaseComponent):
                 updated = True
                 self._log.info(f"Updating card with RFID: {card.rfid}")
                 
-                # Write the updated card data to the file
+                # Write the updated card data back to the file
                 if card_file:
                     try:
-                        # Make sure the RFID is properly set in the card data
-                        rfid_value: int = int(card.rfid)
-                        card_data['rfid'] = rfid_value
-                        
-                        # Write the updated card data to the file
                         with open(card_file, 'w') as f:
                             json.dump(card_data, f, indent=4)
-                        self._log.info(f"Card file updated with RFID: {card_file}")
+                        self._log.info(f"Updated card file: {card_file}")
                     except Exception as e:
-                        self._log.error(f"Error updating card file with RFID: {e}")
+                        self._log.error(f"Error updating card file: {e}")
             
-            # Card exists, print information in a pretty format
-            display = self.format_card_display(
-                card_data,
-                "CARD FOUND",
-                file_path=card_file,
-                show_additional_info=True
-            )
-            
-            # Print the formatted display
-            print(display, flush=True)
-            
-            # Add debug log to verify the method is being called
-            self._log.info("Pretty printed card details to console")
-            
-            if updated:
-                self.console.print("\n[bold green]Card file updated[/bold green]")
-        else:
+            # Display the card details from the database
             try:
-                # Card doesn't exist, prompt for details
-                self.console.print("\n[bold yellow]Card not found in database. Creating a new card.[/bold yellow]")
-                
-                # Get card name and faction from the RFID card if available
-                default_name: Optional[str] = card.name if hasattr(card, 'name') else None
-                default_faction: Optional[str] = card.faction if hasattr(card, 'faction') else None
-                
-                card_data = self.prompt_for_card_details(default_name, default_faction)
-                
-                # Write card to database
-                card_file = self.write_card_to_database(card_data)
-                
-                # Write card to RFID tag
-                rfid: Optional[int] = self.write_card_to_rfid(card_data)
-                
-                if rfid:
-                    # Update the card in the database with the RFID
-                    card_data['rfid'] = rfid
-                    with open(card_file, 'w') as f:
-                        json.dump(card_data, f, indent=4)
-                    
-                    self.console.print(f"\n[bold green]Card successfully written to RFID tag with ID: {rfid}[/bold green]")
-                else:
-                    self.console.print("\n[bold red]Failed to write card to RFID tag[/bold red]")
+                display = self.format_card_display(
+                    card_data,
+                    header_text="CARD FOUND",
+                    file_path=card_file,
+                    show_additional_info=True
+                )
+                # Ensure we're printing the panel correctly
+                self.console.print(display)
+                self._log.info("Pretty printed card details to console")
             except Exception as e:
-                self._log.error(f"Error creating card: {e}")
-                self.console.print(f"\n[bold red]Error creating card: {e}[/bold red]")
-        
-        # Wait for user to press Enter before returning to the menu
+                self._log.error(f"Error displaying card details: {e}")
+                # Fallback display method
+                self.console.print(f"\n[bold green]Card found: {card_data.get('name', 'Unknown')}[/bold green]")
+                self.console.print(f"[cyan]Faction:[/cyan] {card_data.get('faction', 'Unknown')}")
+                self.console.print(f"[cyan]RFID:[/cyan] {card_data.get('rfid', 'Unknown')}")
+            
+            # If the card was updated, inform the user
+            if updated:
+                self.console.print("\n[bold green]Card database entry updated with RFID.[/bold green]")
+        else:
+            # Card not found in database
+            self._log.info("Card not found in database")
+            self.console.print("\n[bold yellow]Card not found in database.[/bold yellow]")
+                    
+        # Prompt user to press Enter to return to the menu
         self._log.info("Prompting user to press Enter to return to the menu")
-        self.console.print("\n[dim]Press Enter to return to the menu...[/dim]")
-        input()
-        self._log.info("User pressed Enter to return to the menu")
+        self.console.print("\n[bold cyan]Press Enter to return to the menu (or ESC/Ctrl+C)...[/bold cyan]")
+        try:
+            # Check if a key is pressed without blocking
+            key = readchar.readkey()
+            if key == readchar.key.ESC:
+                self._log.info("User pressed ESC to return to the menu")
+                self.console.print("\n[yellow]Returning to menu...[/yellow]")
+            else:
+                self._log.info("User pressed a key to return to the menu")
+        except KeyboardInterrupt:
+            self._log.info("User interrupted the prompt with Ctrl+C")
+            self.console.print("\n[yellow]Returning to menu...[/yellow]")
+        
+        # Add a delay before returning to the menu to allow the RFID reader to reset
+        self._log.info("Adding 0.1s delay before returning to menu")
+        time.sleep(0.1)
+        self._log.info("=== Ending handle_read_card() ===")
     
     def select_faction(self) -> Optional[str]:
         """Display a list of factions and let the user select one"""
@@ -961,11 +1279,22 @@ class CardManager(gwent.game.BaseComponent):
             
             # Confirm with user
             self._log.info(f"Prompting user to confirm writing card: {card_data.get('name', 'Unknown')}")
-            confirm = input("\nWrite this card to an RFID chip? (y/n): ")
-            self._log.info(f"User input for write confirmation: '{confirm}'")
-            
-            if confirm.lower() not in ['y', 'yes']:
-                self._log.info(f"User cancelled writing card: {card_data.get('name', 'Unknown')}")
+            self.console.print("\n[bold cyan]Write this card to an RFID chip? (y/n or ESC/Ctrl+C to cancel):[/bold cyan]")
+            try:
+                key = readchar.readkey()
+                if key == readchar.key.ESC:
+                    self._log.info(f"User pressed ESC to cancel writing card: {card_data.get('name', 'Unknown')}")
+                    self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
+                    continue
+                confirm = key
+                self._log.info(f"User input for write confirmation: '{confirm}'")
+                
+                if confirm.lower() not in ['y', 'yes']:
+                    self._log.info(f"User cancelled writing card: {card_data.get('name', 'Unknown')}")
+                    self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
+                    continue
+            except KeyboardInterrupt:
+                self._log.info(f"User pressed Ctrl+C to cancel writing card: {card_data.get('name', 'Unknown')}")
                 self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
                 continue
             
@@ -994,12 +1323,22 @@ class CardManager(gwent.game.BaseComponent):
             
             # Ask if the user wants to write another card
             self._log.info("Prompting user to write another card")
-            self.console.print("\n[bold cyan]Write another card? (y/n):[/bold cyan]")
-            another = input()
-            self._log.info(f"User input for write another card: '{another}'")
-            
-            if another.lower() not in ['y', 'yes']:
-                self._log.info("User chose not to write another card")
+            self.console.print("\n[bold cyan]Write another card? (y/n or ESC/Ctrl+C to cancel):[/bold cyan]")
+            try:
+                key = readchar.readkey()
+                if key == readchar.key.ESC:
+                    self._log.info("User pressed ESC to cancel writing more cards")
+                    self.console.print("[yellow]Returning to main menu...[/yellow]")
+                    break
+                another = key
+                self._log.info(f"User input for write another card: '{another}'")
+                
+                if another.lower() not in ['y', 'yes']:
+                    self._log.info("User chose not to write another card")
+                    break
+            except KeyboardInterrupt:
+                self._log.info("User pressed Ctrl+C to cancel writing more cards")
+                self.console.print("[yellow]Returning to main menu...[/yellow]")
                 break
             
             self._log.info("User chose to write another card")
@@ -1030,15 +1369,15 @@ class CardManager(gwent.game.BaseComponent):
                     else:
                         self.console.print("[bold red]Invalid choice. Please enter 0, 1, or 2.[/bold red]")
                 except KeyboardInterrupt:
-                    # Handle Ctrl+C gracefully
-                    self._log.info("User pressed Ctrl+C to exit the application")
-                    self.console.print("\n[bold yellow]Exiting due to Ctrl+C...[/bold yellow]")
+                    # Handle Ctrl+C gracefully - treat as "Exit" selection
+                    self._log.info("User pressed Ctrl+C at main menu")
+                    self.console.print("\n[bold yellow]Exiting...[/bold yellow]")
                     break
                 except Exception as e:
                     self._log.error(f"Error during card processing: {e}")
                     self.console.print(f"\n[bold red]Error: {e}[/bold red]")
                     self.console.print("[yellow]Continuing...[/yellow]")
-                    time.sleep(1)
+                    time.sleep(0.1)
         finally:
             # Ensure cleanup happens regardless of how we exit the loop
             self.cleanup()

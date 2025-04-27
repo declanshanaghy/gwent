@@ -52,7 +52,10 @@ class Message(gwent.messaging.base.Message):
         if rfid is not None:
             details[RFID] = rfid
 
-        return Message(details)
+        # Create a blank card message if only RFID is provided
+        is_blank_card = rfid is not None and name is None and faction is None and not details.get(NAME) and not details.get(FACTION)
+        
+        return BlankCardMessage(details) if is_blank_card else Message(details)
 
     @property
     def kind(self):
@@ -60,7 +63,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def announcement(self):
-        return self.name
+        return self.name if hasattr(self, 'name') and NAME in self.instance else f"Card {self.rfid}"
 
     # content_id is only used during MQTT communications and not stored in the card files
     @property
@@ -83,6 +86,10 @@ class Message(gwent.messaging.base.Message):
     def validate_extra(self):
         super().validate_extra()
 
+        # Skip validation for blank cards
+        if not hasattr(self, 'name') or NAME not in self.instance or not hasattr(self, 'faction') or FACTION not in self.instance:
+            return
+            
         self._validate_starter()
         self._validate_leader()
         self._validate_agile()
@@ -158,16 +165,18 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def full_name(self):
-        return self.instance[NAME]
+        return self.instance.get(NAME, f"Blank Card {self.rfid}")
 
     @property
     def name(self):
+        if NAME not in self.instance:
+            return f"Blank Card {self.rfid}"
         parts = self.instance[NAME].split(':')
         return parts[0]
 
     @property
     def faction(self):
-        return self.instance[FACTION]
+        return self.instance.get(FACTION, "Unknown")
 
     @property
     def strength(self):
@@ -289,3 +298,13 @@ class Message(gwent.messaging.base.Message):
     @property
     def body_sectors(self):
         return Message.sector_range(Message.body_sector_start(), self.bytes)
+
+
+# Special class for blank cards that skips validation
+class BlankCardMessage(Message):
+    def should_validate(self):
+        return False
+        
+    @property
+    def announcement(self):
+        return f"Blank Card {self.rfid}"
