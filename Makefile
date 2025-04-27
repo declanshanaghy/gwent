@@ -8,7 +8,7 @@ DEPLOY_TGT := 192.168.1.225
 
 DEPLOY_DIR := "~/gwent"
 
-.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game read-card-util write-card-util validate-cards write-cards-to-disk read-card-file get-random-card
+.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game read-card-util write-card-util validate-cards write-cards-to-disk read-card-file get-random-card download-skellige-cards download-skellige-cards-local
 
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
@@ -22,12 +22,6 @@ rsync:
 	    --exclude *.egg-info \
 	    --exclude __pycache__ \
 	    -e "ssh -i $(SSH_KEY)" . ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/
-
-rsync-cards:
-	@echo "rsync from $(DEPLOY_TGT)"
-	@rsync \
-	    -talvx \
-	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/* ./software/data/cards/
 
 install: rsync
 	@echo "Install to $(DEPLOY_TGT)"
@@ -187,11 +181,6 @@ card-manager: rsync
 	@echo "Running card manager utility on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.card_manager"
 
-sync-cards:
-	@echo "Syncing card files from $(DEPLOY_TGT)"
-	@rsync -avzl \
-	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/ software/data/cards/
-
 validate-cards: rsync
 	@echo "Validating cards on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && validate-cards"
@@ -207,3 +196,22 @@ read-card-file: rsync
 get-random-card: rsync
 	@echo "Getting random card on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && get-random-card"
+
+download-tmp-from-pi:
+	@echo "rsync from $(DEPLOY_TGT)"
+	@rsync \
+	    -talvx \
+	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/tmp/* ./tmp/
+
+download-cards-from-pi:
+	@echo "rsync from $(DEPLOY_TGT)"
+	@rsync \
+	    -talvx \
+	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/* ./software/data/cards/
+
+download-skellige-cards-to-pi: rsync
+	@echo "Downloading and comparing Skellige cards from Witcher Wiki"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} \
+		"cd ${DEPLOY_DIR} && \
+		source ~/gwent-venv/bin/activate && \
+		python -m gwent.poc.util.card_downloader_witcher_fandom_com"

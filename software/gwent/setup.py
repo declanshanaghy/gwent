@@ -74,6 +74,10 @@ setuptools.setup(
         
         # Performance monitoring
         'psutil>=5.9.0',  # For monitoring CPU and memory usage
+        
+        # Web scraping and parsing
+        'requests>=2.25.0',
+        'beautifulsoup4>=4.9.0',
     ],
     entry_points={
         'console_scripts': [
@@ -113,6 +117,7 @@ setuptools.setup(
             'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
             'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
             'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
+            'download-skellige-cards=gwent.poc.util.card_downloader_witcher_fandom_com:main',
         ],
     }
 )
