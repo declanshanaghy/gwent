@@ -120,6 +120,8 @@ class _BaseReader(gwent.game.BaseComponent):
                     card = gwent.messaging.card.Message.from_properties(rfid=id)
             else:
                 try:
+                    # Ensure to strip all trailing null bytes
+                    s_details = s_details.rstrip('\x00')
                     # Check if the string contains valid JSON
                     if '{' in s_details and '}' in s_details:
                         j_details = json.loads(s_details)
@@ -132,26 +134,26 @@ class _BaseReader(gwent.game.BaseComponent):
                             'action': 'invalid_card_data',
                             'id': id,
                             'reason': 'No JSON content found',
-                            'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                            's_details': s_details
                         })
                         # Create a minimal card with just the RFID
-                        card = gwent.messaging.card.Message.from_properties(rfid=id)
+                        card = gwent.messaging.card.BlankCardMessage.from_properties(rfid=id)
                 except json.JSONDecodeError as e:
-                    self._log.warning({
+                    self._log.error({
                         'action': 'json_decode_error_in_card_data',
                         'id': id,
                         'error': str(e),
-                        'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                        's_details': s_details
                     })
                     # Create a minimal card with just the RFID
-                    card = gwent.messaging.card.Message.from_properties(rfid=id)
+                    card = gwent.messaging.card.BlankCardMessage.from_properties(rfid=id)
                 except Exception as e:
                     self._log.error({
                         'action': 'unexpected_error_parsing_card_data',
                         'id': id,
                         'error': str(e),
                         'error_traceback': traceback.format_exc(),
-                        'data': s_details[:50] + ('...' if len(s_details) > 50 else '')
+                        's_details': s_details
                     })
                     # Create a minimal card with just the RFID
                     card = gwent.messaging.card.Message.from_properties(rfid=id)
@@ -300,6 +302,7 @@ class _RealReader(_BaseReader):
                 self._log.info({
                     'action': 'body_read_success',
                     'attempt': attempt,
+                    'body': body,
                     'duration': body_read_duration
                 })
                 break
@@ -345,6 +348,7 @@ class _RealReader(_BaseReader):
         self._log.info({
             'action': 'read card body success',
             'id': id,
+            'body': body,
             'body_length': len(body) if body else 0
         })
         
@@ -479,6 +483,7 @@ class _RealReader(_BaseReader):
         self._log.debug({
             'action': 'read_card_header_raw',
             'id': id,
+            'header': header,
             'raw_header': repr(header) if header is not None else None,
             'header_length': len(header) if header is not None else 0,
             'header_type': type(header).__name__ if header is not None else None,

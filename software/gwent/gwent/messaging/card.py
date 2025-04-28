@@ -280,7 +280,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def header(self):
-        return json.dumps({"bytes": self.bytes})
+        return json.dumps({"bytes": self.bytes}).strip()
 
     @staticmethod
     def body_sector_start():
