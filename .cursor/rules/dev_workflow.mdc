@@ -222,7 +222,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         * Always include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for.
         * Don't include lists of changed files in the PR
      *   **Always disable the pager** 
-        * When using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
+        * Disable the pager on all git commands when composing a commit message
         * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
         * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
         * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
