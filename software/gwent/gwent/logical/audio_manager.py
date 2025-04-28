@@ -44,7 +44,7 @@ class AudioStateManager:
                 self._audio_player = AudioPlayer()
                 logger.info("Audio player initialized")
             except Exception as e:
-                logger.error(f"Failed to initialize audio player: {e}")
+                logger.error(f"Failed to initialize audio player: {e}", exc_info=True)
     
     @property
     def audio_enabled(self) -> bool:
@@ -179,7 +179,7 @@ class AudioStateManager:
                     buffer_size = perf_data['mixer_settings'][3] if len(perf_data['mixer_settings']) > 3 else "default"
                     logger.info(f"Using mixer settings: Frequency={freq}Hz, Size={size}, Channels={channels}, Buffer={buffer_size}")
         except Exception as e:
-            logger.error(f"Error checking playback performance: {e}")
+            logger.error(f"Error checking playback performance: {e}", exc_info=True)
     
     def cleanup(self) -> None:
         """Clean up the audio player"""

@@ -48,15 +48,19 @@ CardData = Dict[str, Any]
 FilePath = str
 
 class CardManager(gwent.game.BaseComponent):
-    def __init__(self, log_verbose: bool = False):
+    def __init__(self, log_verbose: bool = True):  # Default to verbose logging
         super().__init__(log_verbose=log_verbose)
         self._stop_event = threading.Event()
         self.cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
                                                      '..', '..', '..', '..', 'data', 'cards'))
         # Suppress GPIO warnings
         GPIO.setwarnings(False)
-        # Initialize RFID reader once as a class member
-        self._rfid_reader = gwent.hal.rfid.instance()
+        # No longer initializing RFID reader as a class member
+        self._log.info({
+            'action': 'card_manager_initialized',
+            'log_verbose': log_verbose,
+            'cards_dir': self.cards_dir
+        })
         
         # Initialize Rich console
         self.console = Console()
@@ -72,19 +76,9 @@ class CardManager(gwent.game.BaseComponent):
             signal.signal(s, signal_handler)
 
     def cleanup(self) -> None:
-        """Clean up resources, especially the RFID reader"""
-        try:
-            if hasattr(self, '_rfid_reader') and self._rfid_reader is not None:
-                self._log.info("Cleaning up RFID reader...")
-                # Call any cleanup methods needed for the RFID reader
-                # This depends on what cleanup methods are available in the RFID reader class
-                if hasattr(self._rfid_reader, 'cleanup') and callable(self._rfid_reader.cleanup):
-                    self._rfid_reader.cleanup()
-                elif hasattr(self._rfid_reader, 'close') and callable(self._rfid_reader.close):
-                    self._rfid_reader.close()
-                self._rfid_reader = None
-        except Exception as e:
-            self._log.error(f"Error during RFID reader cleanup: {e}")
+        """Clean up resources"""
+        # No longer need to clean up RFID reader as it's now created locally when needed
+        pass
 
     def format_box_line(self, label: str, value: str, box_width: int = 48) -> str:
         """Format a line for the box with proper padding
@@ -269,7 +263,7 @@ class CardManager(gwent.game.BaseComponent):
                 expand=False
             )
         except Exception as e:
-            self._log.error(f"Error creating panel: {e}")
+            self._log.error(f"Error creating panel: {e}", exc_info=True)
             # Create a simple panel as fallback
             panel = Panel(
                 f"Card: {name}\nFaction: {faction}\nRFID: {rfid}",
@@ -317,7 +311,8 @@ class CardManager(gwent.game.BaseComponent):
         self.console.print("[bold cyan]Reading card...[/bold cyan]")
         
         # First check if a card is physically present by reading its ID
-        id, _ = self._rfid_reader._rfid.read_id(attempts=3)
+        rfid_reader = gwent.hal.rfid.instance()
+        id, _ = rfid_reader._rfid.read_id(attempts=3)
         if id is None:
             self._log.warning("No card detected on reader")
             self.console.print("\n[bold red]ERROR: No card detected on reader![/bold red]")
@@ -342,7 +337,8 @@ class CardManager(gwent.game.BaseComponent):
             self._log.debug(f"Card data read attempt #{attempts}")
             
             # Try to read the card
-            card = self._rfid_reader.read_card()
+            rfid_reader = gwent.hal.rfid.instance()
+            card = rfid_reader.read_card()
             
             # If we got a card (even a blank one), we're done
             if card is not None:
@@ -412,7 +408,7 @@ class CardManager(gwent.game.BaseComponent):
                                 self._log.info(f"Found card in {json_file}")
                                 return card_data, json_file
                     except Exception as e:
-                        self._log.error(f"Error reading {json_file}: {e}")
+                        self._log.error(f"Error reading {json_file}: {e}", exc_info=True)
         
         self._log.info("Card not found in database by content ID")
         return None, None
@@ -438,7 +434,7 @@ class CardManager(gwent.game.BaseComponent):
                             self._log.info(f"Found card in {json_file}")
                             return card_data, json_file
                 except Exception as e:
-                    self._log.error(f"Error reading {json_file}: {e}")
+                    self._log.error(f"Error reading {json_file}: {e}", exc_info=True)
         
         self._log.info("Card not found in database by name and faction")
         return None, None
@@ -647,7 +643,8 @@ class CardManager(gwent.game.BaseComponent):
             max_attempts = 5
             for attempt in range(1, max_attempts + 1):
                 self._log.info(f"Attempt {attempt}/{max_attempts} to detect RFID chip")
-                id, _ = self._rfid_reader._rfid.read_id(attempts=2)
+                rfid_reader = gwent.hal.rfid.instance()
+                id, _ = rfid_reader._rfid.read_id(attempts=2)
                 
                 if id is not None:
                     break
@@ -669,7 +666,8 @@ class CardManager(gwent.game.BaseComponent):
             # Now check if the card has data
             self._log.info("Checking if RFID chip has existing data...")
             self.console.print("[bold cyan]Checking if chip already contains data...[/bold cyan]")
-            existing_card = self._rfid_reader.read_card()
+            rfid_reader = gwent.hal.rfid.instance()
+            existing_card = rfid_reader.read_card()
             
             # Check if the card has data
             if existing_card is not None:
@@ -765,7 +763,8 @@ class CardManager(gwent.game.BaseComponent):
                 attempts += 1
                 self._log.info(f"Write attempt #{attempts}")
                 
-                rfid = self._rfid_reader.write_card(card)
+                rfid_reader = gwent.hal.rfid.instance()
+                rfid = rfid_reader.write_card(card)
                 if rfid is None:
                     # Small delay to prevent CPU hogging
                     time.sleep(0.1)
@@ -797,7 +796,7 @@ class CardManager(gwent.game.BaseComponent):
             
         except Exception as e:
             # If there's an error reading the card, log it and abort
-            self._log.error(f"Error checking or writing to RFID chip: {e}")
+            self._log.error(f"Error checking or writing to RFID chip: {e}", exc_info=True)
             self.console.print(f"\n[bold red]Error: {e}[/bold red]")
             self.console.print("[bold red]Card writing aborted for safety.[/bold red]")
             return None
@@ -916,7 +915,7 @@ class CardManager(gwent.game.BaseComponent):
                     self._log.info(f"User pressed Ctrl+C to go back from menu '{title}'")
                     return -1
         except Exception as e:
-            self._log.error(f"Error in interactive menu: {e}")
+            self._log.error(f"Error in interactive menu: {e}", exc_info=True)
             self._stop_event.set()  # Set the stop event to exit gracefully
             return -1
     
@@ -947,7 +946,7 @@ class CardManager(gwent.game.BaseComponent):
         try:
             card: Optional[gwent.messaging.card.Message] = self.read_rfid_card()
         except Exception as e:
-            self._log.error(f"Exception during card read: {e}")
+            self._log.error(f"Exception during card read: {e}", exc_info=True)
             self.console.print(f"\n[bold red]Error reading card: {e}[/bold red]")
             self.console.print("[yellow]Please try again or use a different card.[/yellow]")
             self._log.info("=== Ending handle_read_card() - exception during read ===")
@@ -1037,7 +1036,7 @@ class CardManager(gwent.game.BaseComponent):
                         self._log.info(f"Using card template: {card_data.get('name', 'Unknown')}")
                         self.console.print(f"\n[bold green]Using card template: {card_data.get('name', 'Unknown')}[/bold green]")
                     except Exception as e:
-                        self._log.error(f"Error reading card file: {e}")
+                        self._log.error(f"Error reading card file: {e}", exc_info=True)
                         self.console.print(f"\n[bold red]Error reading card file: {e}[/bold red]")
                         return
                 else:  # Manually enter details
@@ -1085,7 +1084,7 @@ class CardManager(gwent.game.BaseComponent):
                 self._log.info(f"Trying to find card by name and faction: {name}, {card.faction}")
                 card_data, card_file = self.find_card_by_name_and_faction(name, card.faction)
         except Exception as e:
-            self._log.error(f"Error finding card: {e}")
+            self._log.error(f"Error finding card: {e}", exc_info=True)
             card_data = None
             card_file = None
         
@@ -1105,7 +1104,7 @@ class CardManager(gwent.game.BaseComponent):
                             json.dump(card_data, f, indent=4)
                         self._log.info(f"Updated card file: {card_file}")
                     except Exception as e:
-                        self._log.error(f"Error updating card file: {e}")
+                        self._log.error(f"Error updating card file: {e}", exc_info=True)
             
             # Display the card details from the database
             try:
@@ -1119,7 +1118,7 @@ class CardManager(gwent.game.BaseComponent):
                 self.console.print(display)
                 self._log.info("Pretty printed card details to console")
             except Exception as e:
-                self._log.error(f"Error displaying card details: {e}")
+                self._log.error(f"Error displaying card details: {e}", exc_info=True)
                 # Fallback display method
                 self.console.print(f"\n[bold green]Card found: {card_data.get('name', 'Unknown')}[/bold green]")
                 self.console.print(f"[cyan]Faction:[/cyan] {card_data.get('faction', 'Unknown')}")
@@ -1207,7 +1206,7 @@ class CardManager(gwent.game.BaseComponent):
                             excluded_count += 1
                             continue
                 except Exception as e:
-                    self._log.error(f"Error reading {json_file}: {e}")
+                    self._log.error(f"Error reading {json_file}: {e}", exc_info=True)
                     # If there's an error reading the file, skip it
                     continue
             
@@ -1264,7 +1263,7 @@ class CardManager(gwent.game.BaseComponent):
                 with open(card_file, 'r') as f:
                     card_data = json.load(f)
             except Exception as e:
-                self._log.error(f"Error reading card file: {e}")
+                self._log.error(f"Error reading card file: {e}", exc_info=True)
                 print(f"Error reading card file: {e}")
                 continue
             
@@ -1316,7 +1315,7 @@ class CardManager(gwent.game.BaseComponent):
                     self.console.print(f"\n[bold green]Card successfully written to RFID chip with ID: {rfid}[/bold green]")
                     self.console.print(f"[green]Card file updated with RFID: {card_file}[/green]")
                 except Exception as e:
-                    self._log.error(f"Error updating card file with RFID: {e}")
+                    self._log.error(f"Error updating card file with RFID: {e}", exc_info=True)
                     self.console.print(f"[bold red]Error updating card file with RFID: {e}[/bold red]")
             else:
                 self.console.print("\n[bold red]Failed to write card to RFID chip[/bold red]")
@@ -1374,7 +1373,7 @@ class CardManager(gwent.game.BaseComponent):
                     self.console.print("\n[bold yellow]Exiting...[/bold yellow]")
                     break
                 except Exception as e:
-                    self._log.error(f"Error during card processing: {e}")
+                    self._log.error(f"Error during card processing: {e}", exc_info=True)
                     self.console.print(f"\n[bold red]Error: {e}[/bold red]")
                     self.console.print("[yellow]Continuing...[/yellow]")
                     time.sleep(0.1)
@@ -1413,7 +1412,7 @@ def setup_logging():
     root_logger.addHandler(file_handler)
     
     # Log startup message
-    logging.info(f"Card Manager started. Logging to {log_file}")
+    logging.info(f"Card Manager started with DEBUG logging enabled. Logging to {log_file}")
     
     return log_file
 
@@ -1427,8 +1426,8 @@ def main() -> int:
     console.print(f"\n[bold blue]Card Manager Utility[/bold blue]")
     console.print(f"[dim]Logging to {log_file}[/dim]")
     
-    # Create and run the card manager utility
-    manager = CardManager()
+    # Create and run the card manager utility with verbose logging enabled
+    manager = CardManager(log_verbose=True)
     manager.run()
     
     # Ensure we catch any exceptions at the top level

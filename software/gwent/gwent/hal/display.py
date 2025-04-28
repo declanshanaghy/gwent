@@ -57,7 +57,7 @@ class OLEDDisplay:
             # Log debug information
             logger.debug(f"SPI Configuration: device=1, port=0, gpio_DC={dc_pin}, gpio_RST={reset_pin}, gpio_CS={cs_pin}")
         except Exception as e:
-            logger.error(f"Error initializing SPI interface: {e}")
+            logger.error(f"Error initializing SPI interface: {e}", exc_info=True)
             raise
         
         # Initialize SSD1306 display
@@ -310,7 +310,7 @@ class OLEDDisplay:
             self.device.display(image)
             logger.debug(f"Displayed image: {image_path}")
         except Exception as e:
-            logger.error(f"Error displaying image: {e}")
+            logger.error(f"Error displaying image: {e}", exc_info=True)
     
     def display_datetime(self, x=0, y=0, font_name="pixelmix.ttf", font_size=8, fill="white", format_str="%Y-%m-%d %H:%M:%S"):
         """
