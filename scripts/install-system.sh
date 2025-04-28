@@ -29,21 +29,55 @@ set -e
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source ${DIR}/install-vars.sh
 
-# Install WiringPi if the package exists
-if [ -f "${DIR}/../software/wiringpi-latest.deb" ]; then
-  echo "Installing WiringPi from package..."
-  sudo dpkg -i "${DIR}/../software/wiringpi-latest.deb" || {
-    echo "Warning: Failed to install WiringPi package. Attempting to fix broken packages..."
-    sudo apt --fix-broken install -y
-  }
-else
-  echo "WiringPi package not found. Skipping installation."
-  echo "If WiringPi is required, please install it manually."
-fi
-
 # Update package lists
 echo "Updating package lists..."
 sudo apt-get update
+
+# Download and install WiringPi from GitHub
+echo "Downloading WiringPi from GitHub..."
+WIRINGPI_URL="https://github.com/WiringPi/WiringPi/releases/download/3.14/wiringpi_3.14_arm64.deb"
+WIRINGPI_DEB="/tmp/wiringpi_3.14_arm64.deb"
+
+# Download the package
+if command -v wget > /dev/null; then
+  wget -q -O "$WIRINGPI_DEB" "$WIRINGPI_URL" || {
+    echo "Failed to download WiringPi package using wget. Trying curl..."
+    if command -v curl > /dev/null; then
+      curl -s -L -o "$WIRINGPI_DEB" "$WIRINGPI_URL" || {
+        echo "Error: Failed to download WiringPi package. Please check your internet connection."
+        echo "If WiringPi is required, please install it manually."
+      }
+    else
+      echo "Error: Neither wget nor curl is available. Cannot download WiringPi package."
+      echo "If WiringPi is required, please install it manually."
+    fi
+  }
+else
+  if command -v curl > /dev/null; then
+    curl -s -L -o "$WIRINGPI_DEB" "$WIRINGPI_URL" || {
+      echo "Error: Failed to download WiringPi package. Please check your internet connection."
+      echo "If WiringPi is required, please install it manually."
+    }
+  else
+    echo "Error: Neither wget nor curl is available. Cannot download WiringPi package."
+    echo "If WiringPi is required, please install it manually."
+  fi
+fi
+
+# Install the package if download was successful
+if [ -f "$WIRINGPI_DEB" ]; then
+  echo "Installing WiringPi from downloaded package..."
+  sudo dpkg -i "$WIRINGPI_DEB" || {
+    echo "Warning: Failed to install WiringPi package. Attempting to fix broken packages..."
+    sudo apt --fix-broken install -y
+  }
+  
+  # Clean up the downloaded file
+  rm -f "$WIRINGPI_DEB"
+else
+  echo "WiringPi package download failed or file not found."
+  echo "If WiringPi is required, please install it manually."
+fi
 
 echo "Installing Python and development packages..."
 sudo apt-get install -y \
