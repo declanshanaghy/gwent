@@ -8,6 +8,8 @@ import threading
 import hashlib
 import glob
 import re
+import argparse
+from logging.handlers import RotatingFileHandler
 from typing import Dict, List, Tuple, Optional, Any, Union
 
 from rich.console import Console
@@ -38,7 +40,7 @@ import gwent.game
 import gwent.messaging.base
 import gwent.cards.all
 import gwent.messaging.card
-from gwent.messaging.card import NAME, FACTION, RFID  # Import constants
+from gwent.messaging.card import NAME, FACTION, RFID, BlankCardMessage  # Import constants
 import gwent.cards.util
 import gwent.hal.rfid
 import RPi.GPIO as GPIO  # Import GPIO library to suppress warnings
@@ -383,10 +385,6 @@ class CardManager(gwent.game.BaseComponent):
             
             # Pretty print the card immediately after reading
             self.pretty_print_card(card)
-            
-            # Add a longer delay after successful read to allow the RFID reader to reset
-            time.sleep(1.0)
-            self._log.info("Added 1.0s delay after successful card read to allow reader to reset")
 
         return card
 
@@ -670,7 +668,7 @@ class CardManager(gwent.game.BaseComponent):
             existing_card = rfid_reader.read_card()
             
             # Check if the card has data
-            if existing_card is not None:
+            if existing_card is not None and not isinstance(existing_card, BlankCardMessage):
                 # Card has some data
                 card_info = {}
                 if hasattr(existing_card, 'name') and existing_card.name:
@@ -709,7 +707,7 @@ class CardManager(gwent.game.BaseComponent):
                     self.console.print(error_panel)
                     
                     # Ask if the user wants to overwrite
-                    self.console.print("\n[bold cyan]Do you want to overwrite the existing data? This cannot be undone! (y/n or ESC/Ctrl+C to cancel)[/bold cyan]")
+                    self.console.print("\n[bold cyan]Do you want to overwrite the existing data? This cannot be undone! (y/n or Enter to confirm, ESC/Ctrl+C to cancel)[/bold cyan]")
                     try:
                         key = readchar.readkey()
                         if key == readchar.key.ESC:
@@ -717,8 +715,15 @@ class CardManager(gwent.game.BaseComponent):
                             self.console.print("\n[bold green]Operation cancelled.[/bold green]")
                             return None
                         
-                        overwrite = key.lower() in ['y']
+                        # Accept 'y', 'yes', or Enter (CR or LF) as confirmation
+                        overwrite = key.lower() in ['y', 'yes', '\r', '\n', readchar.key.ENTER]
                         if overwrite:
+                            # Log what key was used for confirmation
+                            if key.lower() in ['\r', '\n', readchar.key.ENTER]:
+                                self._log.info("User pressed Enter to confirm overwriting existing card data")
+                            else:
+                                self._log.info("User pressed 'y' to confirm overwriting existing card data")
+                                
                             self._log.warning("User chose to overwrite existing card data")
                             self.console.print("\n[bold yellow]Proceeding with overwrite...[/bold yellow]")
                         else:
@@ -972,7 +977,7 @@ class CardManager(gwent.game.BaseComponent):
             self.console.print(f"Card ID: {id}")
             
             # Ask if the user wants to initialize this card
-            self.console.print("\n[bold cyan]Would you like to initialize this card? (y/n or ESC/Ctrl+C to cancel)[/bold cyan]")
+            self.console.print("\n[bold cyan]Would you like to initialize this card? (y/n or Enter to confirm, ESC/Ctrl+C to cancel)[/bold cyan]")
             try:
                 key = readchar.readkey()
                 if key == readchar.key.ESC:
@@ -980,8 +985,15 @@ class CardManager(gwent.game.BaseComponent):
                     self.console.print("[yellow]Card initialization cancelled.[/yellow]")
                     return
                 
-                initialize = key.lower() in ['y']
+                # Accept 'y', 'yes', or Enter (CR or LF) as confirmation
+                initialize = key.lower() in ['y', 'yes', '\r', '\n', readchar.key.ENTER]
                 if initialize:
+                    # Log what key was used for confirmation
+                    if key.lower() in ['\r', '\n', readchar.key.ENTER]:
+                        self._log.info("User pressed Enter to confirm initializing blank card")
+                    else:
+                        self._log.info("User pressed 'y' to confirm initializing blank card")
+                        
                     self._log.info("User chose to initialize blank card")
                 else:
                     self._log.info("User chose not to initialize blank card")
@@ -1180,43 +1192,60 @@ class CardManager(gwent.game.BaseComponent):
             self._log.info(f"User selected faction: {selected_faction}")
             return selected_faction
     
-    def select_card_file(self, faction_dir: str, exclude_with_rfid: bool = False) -> Optional[str]:
+    def select_card_file(self, faction_dir: str, exclude_with_rfid: bool = False, show_rfid_info: bool = False) -> Optional[str]:
         """Display a list of card files in the faction directory and let the user select one
         
         Args:
             faction_dir: The faction directory to list cards from
             exclude_with_rfid: If True, exclude cards that already have an RFID assigned
+            show_rfid_info: If True, show RFID information for cards that have it
         """
         # Get a list of card files
         faction_path = os.path.join(self.cards_dir, faction_dir)
-        card_files_dict = {}  # Dictionary to map card names to file paths
+        card_files_dict = {}  # Dictionary to map display names to file paths
+        original_names = {}   # Dictionary to map display names to original file names
         excluded_count = 0
+        rfid_count = 0
         
         self._log.info(f"Searching for cards in faction: {faction_dir}")
         self._log.info(f"Exclude cards with RFID: {exclude_with_rfid}")
+        self._log.info(f"Show RFID info: {show_rfid_info}")
         
         for json_file in glob.glob(os.path.join(faction_path, "*.json")):
-            # If we need to exclude cards with RFID, check the file content
-            if exclude_with_rfid:
-                try:
-                    with open(json_file, 'r') as f:
-                        card_data = json.load(f)
-                        # Skip this card if it already has an RFID
-                        if 'rfid' in card_data:
-                            excluded_count += 1
-                            continue
-                except Exception as e:
-                    self._log.error(f"Error reading {json_file}: {e}", exc_info=True)
-                    # If there's an error reading the file, skip it
-                    continue
-            
-            # Extract the card name from the file path
-            card_name = os.path.basename(json_file).replace('.json', '')
-            card_files_dict[card_name] = json_file
+            try:
+                with open(json_file, 'r') as f:
+                    card_data = json.load(f)
+                    has_rfid = 'rfid' in card_data and card_data['rfid'] is not None
+                    
+                    # Skip this card if it already has an RFID and we're excluding those
+                    if exclude_with_rfid and has_rfid:
+                        excluded_count += 1
+                        continue
+                    
+                    if has_rfid:
+                        rfid_count += 1
+                    
+                    # Extract the card name from the file path
+                    original_name = os.path.basename(json_file).replace('.json', '')
+                    
+                    # Create display name - if the card has an RFID and we're showing RFID info, add it to the display name
+                    display_name = original_name
+                    if has_rfid and show_rfid_info:
+                        display_name = f"{original_name} (RFID: {card_data['rfid']})"
+                    
+                    # Store the mapping of display name to file path and original name
+                    card_files_dict[display_name] = json_file
+                    original_names[display_name] = original_name
+            except Exception as e:
+                self._log.error(f"Error reading {json_file}: {e}", exc_info=True)
+                # If there's an error reading the file, skip it
+                continue
         
         self._log.info(f"Found {len(card_files_dict)} cards in faction {faction_dir}")
         if exclude_with_rfid:
             self._log.info(f"Excluded {excluded_count} cards that already have RFID")
+        if show_rfid_info:
+            self._log.info(f"Found {rfid_count} cards with RFID values")
         
         if not card_files_dict:
             if exclude_with_rfid:
@@ -1238,13 +1267,18 @@ class CardManager(gwent.game.BaseComponent):
             self._log.info("User cancelled card selection")
             return None
         else:
-            selected_card_name = sorted_card_names[selected]
-            selected_card_file = card_files_dict[selected_card_name]
-            self._log.info(f"User selected card: {selected_card_name} ({selected_card_file})")
+            selected_display_name = sorted_card_names[selected]
+            selected_card_file = card_files_dict[selected_display_name]
+            original_name = original_names.get(selected_display_name, selected_display_name)
+            self._log.info(f"User selected card: {original_name} ({selected_card_file})")
             return selected_card_file
     
-    def handle_write_card(self) -> None:
-        """Handle the 'Write card' option"""
+    def handle_write_card(self, show_rfid_cards: bool = False) -> None:
+        """Handle the 'Write card' option
+        
+        Args:
+            show_rfid_cards: If True, show RFID information for cards that have it
+        """
         # Select faction
         faction_dir = self.select_faction()
         if faction_dir is None:
@@ -1252,8 +1286,15 @@ class CardManager(gwent.game.BaseComponent):
         
         # Continuously select cards for writing until 0 is selected
         while True:
-            # Select card file, excluding those that already have an RFID
-            card_file = self.select_card_file(faction_dir, exclude_with_rfid=True)
+            # If show_rfid_cards is True, show RFID information for cards that have it
+            # Otherwise, exclude cards that already have an RFID
+            if show_rfid_cards:
+                self.console.print("\n[bold cyan]Select a card to write to an RFID chip[/bold cyan]")
+                self.console.print("[bold yellow]Note: Cards with RFID values are shown with their RFID IDs[/bold yellow]")
+                card_file = self.select_card_file(faction_dir, exclude_with_rfid=False, show_rfid_info=True)
+            else:
+                # Default behavior: exclude cards that already have an RFID
+                card_file = self.select_card_file(faction_dir, exclude_with_rfid=True)
             if card_file is None:
                 # User selected 0 to go back
                 break
@@ -1278,7 +1319,7 @@ class CardManager(gwent.game.BaseComponent):
             
             # Confirm with user
             self._log.info(f"Prompting user to confirm writing card: {card_data.get('name', 'Unknown')}")
-            self.console.print("\n[bold cyan]Write this card to an RFID chip? (y/n or ESC/Ctrl+C to cancel):[/bold cyan]")
+            self.console.print("\n[bold cyan]Write this card to an RFID chip? (y/n or Enter to confirm, ESC/Ctrl+C to cancel):[/bold cyan]")
             try:
                 key = readchar.readkey()
                 if key == readchar.key.ESC:
@@ -1288,10 +1329,17 @@ class CardManager(gwent.game.BaseComponent):
                 confirm = key
                 self._log.info(f"User input for write confirmation: '{confirm}'")
                 
-                if confirm.lower() not in ['y', 'yes']:
+                # Accept 'y', 'yes', or Enter (CR or LF) as confirmation
+                if confirm.lower() not in ['y', 'yes', '\r', '\n', readchar.key.ENTER]:
                     self._log.info(f"User cancelled writing card: {card_data.get('name', 'Unknown')}")
                     self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
                     continue
+                
+                # Log what key was used for confirmation
+                if confirm.lower() in ['\r', '\n', readchar.key.ENTER]:
+                    self._log.info("User pressed Enter to confirm")
+                else:
+                    self._log.info("User pressed 'y' to confirm")
             except KeyboardInterrupt:
                 self._log.info(f"User pressed Ctrl+C to cancel writing card: {card_data.get('name', 'Unknown')}")
                 self.console.print("[bold yellow]Operation cancelled.[/bold yellow]")
@@ -1322,7 +1370,7 @@ class CardManager(gwent.game.BaseComponent):
             
             # Ask if the user wants to write another card
             self._log.info("Prompting user to write another card")
-            self.console.print("\n[bold cyan]Write another card? (y/n or ESC/Ctrl+C to cancel):[/bold cyan]")
+            self.console.print("\n[bold cyan]Write another card? (y/n or Enter to confirm, ESC/Ctrl+C to cancel):[/bold cyan]")
             try:
                 key = readchar.readkey()
                 if key == readchar.key.ESC:
@@ -1332,9 +1380,16 @@ class CardManager(gwent.game.BaseComponent):
                 another = key
                 self._log.info(f"User input for write another card: '{another}'")
                 
-                if another.lower() not in ['y', 'yes']:
+                # Accept 'y', 'yes', or Enter (CR or LF) as confirmation
+                if another.lower() not in ['y', 'yes', '\r', '\n', readchar.key.ENTER]:
                     self._log.info("User chose not to write another card")
                     break
+                
+                # Log what key was used for confirmation
+                if another.lower() in ['\r', '\n', readchar.key.ENTER]:
+                    self._log.info("User pressed Enter to confirm writing another card")
+                else:
+                    self._log.info("User pressed 'y' to confirm writing another card")
             except KeyboardInterrupt:
                 self._log.info("User pressed Ctrl+C to cancel writing more cards")
                 self.console.print("[yellow]Returning to main menu...[/yellow]")
@@ -1342,8 +1397,13 @@ class CardManager(gwent.game.BaseComponent):
             
             self._log.info("User chose to write another card")
     
-    def run(self) -> None:
-        """Run the card manager utility"""
+    
+    def run(self, show_rfid_cards: bool = True) -> None:
+        """Run the card manager utility
+        
+        Args:
+            show_rfid_cards: If True, show RFID information for cards that have it when writing
+        """
         self.setup_signal_handlers()
         
         self.console.print("\n[bold blue]Card Manager Utility[/bold blue]")
@@ -1360,7 +1420,7 @@ class CardManager(gwent.game.BaseComponent):
                         self.handle_read_card()
                     elif choice == '2':
                         # Write card
-                        self.handle_write_card()
+                        self.handle_write_card(show_rfid_cards=show_rfid_cards)
                     elif choice == '0':
                         # Exit
                         self.console.print("[bold yellow]Exiting...[/bold yellow]")
@@ -1383,7 +1443,7 @@ class CardManager(gwent.game.BaseComponent):
 
 
 def setup_logging():
-    """Set up logging to file"""
+    """Set up logging to file with rotation"""
     # Create tmp directory if it doesn't exist
     log_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', '..', '..', '..', 'tmp'))
     if not os.path.exists(log_dir):
@@ -1400,8 +1460,15 @@ def setup_logging():
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
     
-    # Create file handler
-    file_handler = logging.FileHandler(log_file)
+    # Create rotating file handler
+    # maxBytes=0 means unlimited file size
+    # backupCount=5 means keep 5 backup files
+    file_handler = RotatingFileHandler(
+        filename=log_file,
+        maxBytes=0,  # Unlimited file size
+        backupCount=5,  # Keep 5 backup files
+        delay=True  # Don't open the file until first log
+    )
     file_handler.setLevel(logging.DEBUG)
     
     # Create formatter
@@ -1411,13 +1478,25 @@ def setup_logging():
     # Add handler to logger
     root_logger.addHandler(file_handler)
     
+    # Force rotation on startup by calling doRollover
+    # This ensures a new log file is created each time the application starts
+    file_handler.doRollover()
+    
     # Log startup message
-    logging.info(f"Card Manager started with DEBUG logging enabled. Logging to {log_file}")
+    logging.info(f"Card Manager started with DEBUG logging enabled. Logging to {log_file} with rotation (5 backup files)")
     
     return log_file
 
 def main() -> int:
     """Command-line entry point for the card manager utility"""
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description='Card Manager Utility')
+    parser.add_argument('--show-rfid-cards', action='store_true', default=True,
+                        help='Show RFID information for cards that have it when writing (default: True)')
+    parser.add_argument('--no-show-rfid-cards', action='store_false', dest='show_rfid_cards',
+                        help='Only show cards without RFID values when writing')
+    args = parser.parse_args()
+    
     # Set up logging to file
     log_file = setup_logging()
     
@@ -1426,9 +1505,12 @@ def main() -> int:
     console.print(f"\n[bold blue]Card Manager Utility[/bold blue]")
     console.print(f"[dim]Logging to {log_file}[/dim]")
     
+    # Log the command-line arguments
+    logging.info(f"Command-line arguments: show_rfid_cards={args.show_rfid_cards}")
+    
     # Create and run the card manager utility with verbose logging enabled
     manager = CardManager(log_verbose=True)
-    manager.run()
+    manager.run(show_rfid_cards=args.show_rfid_cards)
     
     # Ensure we catch any exceptions at the top level
     try:

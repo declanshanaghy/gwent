@@ -16,6 +16,7 @@ rsync:
 	    -talvx \
 		--delete \
 	    --exclude=software/data/cards \
+	    --exclude=tmp \
 	    --exclude=*.pyc \
 	    --exclude=software/gwent/.eggs \
 	    --exclude .git \
@@ -179,7 +180,11 @@ write-card-util: rsync
 
 card-manager: rsync
 	@echo "Running card manager utility on $(DEPLOY_TGT)"
-	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.card_manager"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.card_manager --show-rfid-cards"
+
+card-manager-no-rfid: rsync
+	@echo "Running card manager utility without showing RFID cards on $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.util.card_manager --no-show-rfid-cards"
 
 validate-cards: rsync
 	@echo "Validating cards on $(DEPLOY_TGT)"

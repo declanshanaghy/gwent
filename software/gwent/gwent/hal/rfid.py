@@ -7,6 +7,7 @@ import time
 import logging
 import threading
 import traceback
+import mfrc522
 
 import RPi.GPIO as GPIO
 
@@ -59,9 +60,43 @@ class _BaseReader(gwent.game.BaseComponent):
                 # Before creating a blank card, check if this card exists in the database
                 # This is a last resort attempt to identify the card by its ID
                 try:
+                    # Try to find the card in the database using the card_manager's find_card_in_database method
+                    # This is a more reliable approach than using gwent.cards.all.find_by_rfid which doesn't exist
+                    
                     # Import here to avoid circular imports
-                    import gwent.cards.all
-                    card_data = gwent.cards.all.find_by_rfid(id)
+                    import os
+                    import glob
+                    
+                    # Define a function to find a card by RFID
+                    def find_card_by_rfid(rfid_value):
+                        self._log.info(f"Searching for card with RFID: {rfid_value}")
+                        
+                        # Get the cards directory path
+                        cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
+                                                               '..', '..', '..', 'data', 'cards'))
+                        
+                        # Search through all faction directories
+                        for faction_dir in os.listdir(cards_dir):
+                            faction_path = os.path.join(cards_dir, faction_dir)
+                            if os.path.isdir(faction_path):
+                                # Search through all JSON files in the faction directory
+                                for json_file in glob.glob(os.path.join(faction_path, "*.json")):
+                                    try:
+                                        with open(json_file, 'r') as f:
+                                            card_data = json.load(f)
+                                            # Check if this card has the matching RFID
+                                            if card_data.get('rfid') == rfid_value:
+                                                self._log.info(f"Found card in {json_file}")
+                                                return card_data
+                                    except Exception as e:
+                                        self._log.error(f"Error reading {json_file}: {e}")
+                        
+                        self._log.info("Card not found in database by RFID")
+                        return None
+                    
+                    # Try to find the card by RFID
+                    card_data = find_card_by_rfid(id)
+                    
                     if card_data:
                         self._log.info({
                             'action': 'found_card_in_database_by_rfid',
@@ -167,33 +202,13 @@ class _RealReader(_BaseReader):
         })
 
     def _setup_rfid(self, log_verbose):
-        import mfrc522
         self._log.debug({
             'action': 'setup_rfid_start',
             'log_verbose': log_verbose
         })
         
-        try:
-            # Try with both parameters
-            self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
-            self._log.debug({'rfid_init': 'success with both parameters'})
-        except TypeError as e:
-            self._log.debug({'rfid_init_error': str(e), 'attempt': 'both parameters'})
-            try:
-                # Try with just log_verbose
-                self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose)
-                self._log.debug({'rfid_init': 'success with log_verbose only'})
-            except TypeError as e:
-                self._log.debug({'rfid_init_error': str(e), 'attempt': 'log_verbose only'})
-                try:
-                    # Try with just pin_mode
-                    self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
-                    self._log.debug({'rfid_init': 'success with pin_mode only'})
-                except TypeError as e:
-                    self._log.debug({'rfid_init_error': str(e), 'attempt': 'pin_mode only'})
-                    # Fall back to no parameters
-                    self._rfid = mfrc522.SimpleMFRC522()
-                    self._log.debug({'rfid_init': 'success with no parameters'})
+        self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
+        self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 log_verbose={log_verbose}, pin_mode={GPIO.BCM}'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
         start_time = time.time()
@@ -260,12 +275,10 @@ class _RealReader(_BaseReader):
             'header_read_duration': header_duration
         })
         
-        # Add a longer delay before reading the body
+        # No need for delay before reading the body - card_manager handles retries
         self._log.info({
-            'action': 'pre_body_read_delay',
-            'delay_seconds': 1.5
+            'action': 'starting_body_read'
         })
-        time.sleep(1.5)
         
         # Add retry logic for body reads
         max_body_attempts = 2  # Reduced from 3 to 2
@@ -307,7 +320,7 @@ class _RealReader(_BaseReader):
                         'success': reset_success,
                         'duration': time.time() - reset_start
                     })
-                time.sleep(1.0)  # Longer delay between retry attempts
+                # No need for delay between retry attempts - card_manager handles retries
         
         if id is None or body is None:
             self._log.error({
@@ -323,14 +336,9 @@ class _RealReader(_BaseReader):
                     'action': 'body_read_failed_using_original_id',
                     'original_id': original_id
                 })
-                # Return the original ID with an empty body
-                return original_id, ""
+                # Return the ID but no details to indicate a blank card
+                return original_id, None
                 
-            # Try to reset the reader before returning
-            if hasattr(self, 'reset') and callable(self.reset):
-                self._log.info("Resetting RFID reader after failed body read")
-                self.reset()
-                time.sleep(1.0)  # Add a longer delay after reset
             # Return the ID but no details to indicate a blank card
             return id, None
         
@@ -360,8 +368,7 @@ class _RealReader(_BaseReader):
             'timestamp': time.time()
         })
         
-        # Add a small delay before reading
-        time.sleep(0.05)
+        # No need for delay before reading - card_manager handles retries
         
         # Store the original ID for comparison
         original_id = None
@@ -391,7 +398,7 @@ class _RealReader(_BaseReader):
             self._log.info({
                 'action': 'read_sector_raw_data',
                 'raw_data_type': type(raw_data).__name__ if raw_data is not None else None,
-                'raw_data_length': len(raw_data) if raw_data is not None else 0,
+                'raw_data_length': len(raw_data) if raw_data is not None and hasattr(raw_data, '__len__') else 0,
                 'raw_data_sample': str(raw_data)[:100] if raw_data is not None else None
             })
         except Exception as e:
@@ -569,13 +576,11 @@ class _RealReader(_BaseReader):
                 'timestamp': sector_start
             })
             
-            # Add a longer delay before reading each sector
+            # No need for delay before reading each sector - card_manager handles retries
             self._log.debug({
-                'action': 'pre_sector_read_delay',
-                'delay_seconds': 0.5,
+                'action': 'reading_sector',
                 'sector': sector
             })
-            time.sleep(0.5)  # Increased from 0.3 to 0.5
             
             # Try multiple times to read each sector
             max_sector_attempts = 3  # Increased from 2 to 3
@@ -603,7 +608,7 @@ class _RealReader(_BaseReader):
                         'attempt': attempt,
                         'duration': read_duration
                     })
-                    time.sleep(0.5)  # Increased from 0.3 to 0.5
+                    # No need for delay between sector read retries - card_manager handles retries
             
             if id is None:  # The card was removed or read failed
                 self._log.error({
@@ -644,8 +649,7 @@ class _RealReader(_BaseReader):
                 })
             body += sector_data
             
-            # Add a longer delay after reading each sector
-            time.sleep(0.8)  # Increased from 0.5 to 0.8
+            # No need for delay after reading each sector - card_manager handles retries
 
         self.log_time('read card body', body_start)
         
@@ -728,8 +732,7 @@ class RealWriter(_BaseWriter, _RealReader):
             # Use False for log_verbose since we're already logging the reset
             self._setup_rfid(log_verbose=True)
             
-            # Add a longer delay after reset
-            time.sleep(1.0)
+            # No need for delay after reset - card_manager handles retries
             
             # Try to read the ID to ensure the reader is working
             id, _ = self._rfid.read_id(attempts=1)
