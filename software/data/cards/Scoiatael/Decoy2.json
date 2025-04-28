@@ -1,8 +1,9 @@
 {
-    "content_id": "63eb7f60973ee242333e0503d88d1960",
     "faction": "Scoia'tael",
     "kind": "card",
     "name": "Decoy: 2",
     "owner": "Declan Shanaghy",
-    "specialty": "decoy"
+    "specialty": "decoy",
+    "content_id": "05a10c04e0de887287202828a1055c60",
+    "rfid": 140825152881
 }

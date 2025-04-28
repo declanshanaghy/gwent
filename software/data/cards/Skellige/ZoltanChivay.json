@@ -1,5 +1,4 @@
 {
-    "content_id": "8a47b69de87f68fa936e2e75a474d867",
     "faction": "Skellige",
     "kind": "card",
     "name": "Zoltan Chivay",
@@ -7,5 +6,7 @@
     "ranges": [
         "close"
     ],
-    "strength": 5
+    "strength": 5,
+    "content_id": "deb0eaa8ca2dde3e193071f7aad564ac",
+    "rfid": 482158005668
 }

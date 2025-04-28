@@ -1,5 +1,4 @@
 {
-    "content_id": "16ce3e1d583dd4c634caf15668e2e992",
     "faction": "Scoia'tael",
     "kind": "card",
     "name": "Mahakaman Defender: 2",
@@ -7,5 +6,7 @@
         "close"
     ],
     "starter": true,
-    "strength": 5
+    "strength": 5,
+    "content_id": "8525f95acae637ad147862ae49f7f3cc",
+    "rfid": 484103834973
 }

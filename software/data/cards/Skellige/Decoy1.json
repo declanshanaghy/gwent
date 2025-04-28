@@ -1,8 +1,9 @@
 {
-    "content_id": "4edaa68b91e7b327004ff9b8747dbd7f",
     "faction": "Skellige",
     "kind": "card",
     "name": "Decoy: 1",
     "owner": "Declan Shanaghy",
-    "specialty": "decoy"
+    "specialty": "decoy",
+    "content_id": "6052a4a603f071b5b20335e0e28ab5a8",
+    "rfid": 1033859976656
 }

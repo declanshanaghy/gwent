@@ -205,12 +205,12 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
             - Any important technical decisions made during implementation
             -  Development Cost and Time Metrics:
               - Development Time Metric definition: Total active work time spent on this task based on git history (e.g., "Development Time: 1 hours 5 minutes")
-              - API Cost Metric Definition: Total API cost for this commit (e.g., "API Cost: $5.75")
+              - API Cost Metric Definition: Total API cost for this commit (e.g., "API Cost: USD 5.75")
                 - Always use a dollar sign in the API Cost Metric.
               - Always use the following format for the metrics to avoid ambiguity
                   - Development Cost Metrics:
                     - Development Time: 2 hours 30 minutes
-                    - API Cost: $69.78
+                    - API Cost: USD 69.78
               - Use the latest API cost of this task for Development Cost
               - Use time difference between now and the last commit timestamp for the Development Time metric taking into account that the days may have rolled over. 
               - Assume no development work took place between 10pm and 8am between days
@@ -222,7 +222,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         * Always include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for.
         * Don't include lists of changed files in the PR
      *   **Always disable the pager** 
-        * When using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
+        * Disable the pager on all git commands when composing a commit message
         * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
         * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
         * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
@@ -238,7 +238,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
          
          Development Metrics:
          - Dev Time: 2 hours
-         - API Cost: $5.75"
+         - API Cost: USD 5.75"
          ```
      *   Consider if a Changeset is needed according to [`changeset.mdc`](mdc:.cursor/rules/changeset.mdc). If so, run `npm run changeset`, stage the generated file, and amend the commit or create a new one.
      *   **Always disable the pager** when using git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch`. This avoids interactive prompts that can interrupt automated workflows. Use one of these methods:
@@ -306,7 +306,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
       ```
       ## Development Metrics
       - Total Dev Time: 8.5 hours
-      - Total API Cost: $12.45
+      - Total API Cost: USD 12.45
       ```
 
 ## Documentation Requirements

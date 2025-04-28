@@ -194,7 +194,7 @@ class MenuSystem:
                 self.update_display()
                 
             except Exception as e:
-                logger.error(f"Error handling button event: {e}")
+                logger.error(f"Error handling button event: {e}", exc_info=True)
             finally:
                 # Clear the processing flag
                 self.processing_event = False
@@ -404,7 +404,7 @@ class MenuSystem:
                 time.sleep(0.001)
                 
             except Exception as e:
-                logger.error(f"Error processing encoder event: {e}")
+                logger.error(f"Error processing encoder event: {e}", exc_info=True)
                 # Continue processing events even if one fails
                 continue
 
@@ -524,7 +524,7 @@ def load_menu_from_json(json_path: str, display: Any, rotary: Optional[Any] = No
         with open(json_path, 'r') as f:
             menu_data = json.load(f)
     except Exception as e:
-        logger.error(f"Error loading menu JSON: {e}")
+        logger.error(f"Error loading menu JSON: {e}", exc_info=True)
         return {}
     
     # Create menu systems

@@ -1,5 +1,4 @@
 {
-    "content_id": "9ed533340779d721778e8ecdc4c2b3e6",
     "faction": "Northern Realms",
     "kind": "card",
     "name": "Ballista: 1",
@@ -7,5 +6,6 @@
         "ranged"
     ],
     "starter": true,
-    "strength": 6
+    "strength": 6,
+    "content_id": "5e70ff9a0aea7141e51e2673a40dd4e8"
 }

@@ -96,7 +96,7 @@ class ThreadComponent(BaseComponent):
         try:
             self.run()
         except Exception as e:
-            self._log.error(f"Error in component thread: {e}")
+            self._log.error(f"Error in component thread: {e}", exc_info=True)
         finally:
             self._log.info("Component stopped")
     
@@ -125,7 +125,7 @@ class ThreadComponent(BaseComponent):
             message = gwent.messaging.factory.unmarshall(payload, expect_kind=expect_kind)
             callback(message)
         except Exception as e:
-            self._log.error(f"Error processing message: {e}")
+            self._log.error(f"Error processing message: {e}", exc_info=True)
 
     def subscribe(self, topic_filter: str, expect_kind: str,
                   callback: Callable[[gwent.messaging.base.Message], Any]):

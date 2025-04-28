@@ -2,7 +2,6 @@
     "abilities": [
         "scorch"
     ],
-    "content_id": "fa8aa3345e06e59bff5877b5522cb650",
     "faction": "Monsters",
     "kind": "card",
     "name": "Villentretenmerth",
@@ -10,5 +9,7 @@
     "ranges": [
         "close"
     ],
-    "strength": 7
+    "strength": 7,
+    "content_id": "ff44c702dbede72e1d1f0c28759229d6",
+    "rfid": 964737453542
 }

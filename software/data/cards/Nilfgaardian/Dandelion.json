@@ -2,7 +2,6 @@
     "abilities": [
         "commander"
     ],
-    "content_id": "aca651232d1bebdaebd7e604f3a753a4",
     "faction": "Nilfgaardian",
     "kind": "card",
     "name": "Dandelion",
@@ -10,5 +9,7 @@
     "ranges": [
         "close"
     ],
-    "strength": 2
+    "strength": 2,
+    "content_id": "cb359f553ac0f43df634699a968269e1",
+    "rfid": 620267982189
 }

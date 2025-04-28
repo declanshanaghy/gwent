@@ -1,5 +1,4 @@
 {
-    "content_id": "8d0311bdbd0fe4681759ec86ac2a8ba0",
     "faction": "Skellige",
     "kind": "card",
     "name": "Scorch: 1",
@@ -9,5 +8,7 @@
         "ranged",
         "siege"
     ],
-    "specialty": "scorch"
+    "specialty": "scorch",
+    "content_id": "24b7e6cfc13638a10b2c8f19728b79f8",
+    "rfid": 550625692967
 }

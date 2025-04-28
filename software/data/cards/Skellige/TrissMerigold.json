@@ -1,5 +1,4 @@
 {
-    "content_id": "c4374b318c845197ae369d5a74a51ea8",
     "faction": "Skellige",
     "kind": "card",
     "name": "Triss Merigold",
@@ -8,5 +7,7 @@
         "close"
     ],
     "specialty": "hero",
-    "strength": 7
+    "strength": 7,
+    "content_id": "998e8d2d1627dc161cebdcc1a869d9ed",
+    "rfid": 553007992276
 }

@@ -2,7 +2,6 @@
     "abilities": [
         "bond"
     ],
-    "content_id": "f1184bae1eb3b51814a119888860fc29",
     "faction": "Skellige",
     "kind": "card",
     "name": "Clan Drummond Shield Maiden: 1",
@@ -10,5 +9,7 @@
         "close"
     ],
     "starter": true,
-    "strength": 4
+    "strength": 4,
+    "content_id": "cbb19ed532f504ca25e12c67278dfc19",
+    "rfid": 72374373725
 }

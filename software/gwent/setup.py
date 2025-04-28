@@ -71,9 +71,15 @@ setuptools.setup(
         'python-dotenv>=0.19.0',
         'python-json-logger==3.3.0',
         'watchdog>=2.1.0',  # For monitoring file changes
+        'rich>=13.3.0',     # For improved terminal formatting
+        'readchar>=4.0.0',  # For interactive keyboard input
         
         # Performance monitoring
         'psutil>=5.9.0',  # For monitoring CPU and memory usage
+        
+        # Web scraping and parsing
+        'requests>=2.25.0',
+        'beautifulsoup4>=4.9.0',
     ],
     entry_points={
         'console_scripts': [
@@ -113,6 +119,7 @@ setuptools.setup(
             'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
             'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
             'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
+            'download-skellige-cards=gwent.poc.util.card_downloader_witcher_fandom_com:main',
         ],
     }
 )

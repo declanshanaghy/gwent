@@ -1,0 +1,7 @@
+[submodule "software/MFRC522-python"]
+	path = software/MFRC522-python
+	url = git@github.com:declanshanaghy/MFRC522-python.git
+    branch = handle_all_sectors
+[submodule "software/gwent/gwent/poc/luma.examples"]
+	path = software/gwent/gwent/poc/luma.examples
+	url = git@github.com:rm-hull/luma.examples.git

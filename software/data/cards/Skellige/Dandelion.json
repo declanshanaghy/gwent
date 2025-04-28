@@ -2,7 +2,6 @@
     "abilities": [
         "commander"
     ],
-    "content_id": "61501e0e01fbda91d739628768be2b5e",
     "faction": "Skellige",
     "kind": "card",
     "name": "Dandelion",
@@ -10,5 +9,7 @@
     "ranges": [
         "close"
     ],
-    "strength": 2
+    "strength": 2,
+    "content_id": "0ecec5ec769888081e01b52707b905c5",
+    "rfid": 415434427718
 }

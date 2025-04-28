@@ -2,7 +2,6 @@
     "abilities": [
         "bond"
     ],
-    "content_id": "1562739986bb2fd577c09bbcdb920363",
     "faction": "Skellige",
     "kind": "card",
     "name": "Transformed Young Vildkaarl: 1",
@@ -10,5 +9,7 @@
         "ranged"
     ],
     "starter": true,
-    "strength": 8
+    "strength": 8,
+    "content_id": "7c4ef21692aa422cd0f1b75b8160cedf",
+    "rfid": 619059563820
 }

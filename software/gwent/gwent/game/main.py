@@ -68,7 +68,7 @@ class MQTTClient:
                         try:
                             callback(topic, payload)
                         except Exception as e:
-                            self._log.error(f"Error in callback: {e}")
+                            self._log.error(f"Error in callback: {e}", exc_info=True)
     
     def connect(self):
         """Connect to the MQTT broker"""
@@ -165,7 +165,7 @@ class ThreadComponent:
         try:
             self.run()
         except Exception as e:
-            self._log.error(f"Error in component thread: {e}")
+            self._log.error(f"Error in component thread: {e}", exc_info=True)
         finally:
             self._log.info("Component stopped")
     
