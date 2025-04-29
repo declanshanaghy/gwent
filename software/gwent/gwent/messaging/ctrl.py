@@ -27,8 +27,8 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def stage(self):
-        return self.instance[STAGE]
+        return self._instance[STAGE]
 
     @property
     def active(self):
-        return self.instance[ACTIVE]
+        return self._instance[ACTIVE]

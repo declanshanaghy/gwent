@@ -13,6 +13,7 @@ import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
 import gwent.game.player
+import gwent.game.round_keeper
 import gwent.game.sfx
 import gwent.hal
 import gwent.hal.matrix
@@ -236,8 +237,9 @@ class Gwent:
         # Create component adapters
         self.components = []
         self.components.append(gwent.game.controller.Controller(self.pubsub))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_DEFAULT))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_SEVEN))
+        self.components.append(gwent.game.round_keeper.RoundKeeper(gwent.game.controller.ROUND_KEEPER, self.pubsub))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub))

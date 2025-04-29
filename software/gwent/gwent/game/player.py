@@ -8,7 +8,7 @@ import gwent.hal.matrix
 
 class Player(gwent.game.ThreadComponent):
 
-    def __init__(self, player: str, pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_DEFAULT):
+    def __init__(self, player: str, pubsub, mux_channel):
         super().__init__(pubsub)
         self._player = player
         self._mux_channel = mux_channel

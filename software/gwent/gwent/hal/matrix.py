@@ -17,10 +17,12 @@ DEFAULT_MUX_ADDRESS = 0x70
 DEFAULT_MATRIX_ADDRESS = 0x74
 DEFAULT_BRIGHTNESS = 50      # Default brightness level (0-255)
 
-MATRIX_CHANNEL_DEFAULT = 0
-MATRIX_CHANNEL_SEVEN = 7
+MATRIX_CHANNEL_DEFAULT=7 # Nothing connected to this channel
+MATRIX_CHANNEL_PLAYER_ROUND_KEEPER = 0
+MATRIX_CHANNEL_PLAYER_ONE = 1
+MATRIX_CHANNEL_PLAYER_TWO = 2
 
-def instance(channel=MATRIX_CHANNEL_DEFAULT):
+def instance(channel):
     """
     Get an instance of the matrix display.
     Returns a _RealMatrix if in real mode and hardware is available,

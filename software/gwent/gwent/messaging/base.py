@@ -1,7 +1,9 @@
+import copy
 import os
 import hashlib
 import json
 import jsonschema
+
 from gwent.utils.logging import get_logger
 
 KIND = 'kind'
@@ -15,22 +17,22 @@ class InvalidSubkind(Exception):
 
 class Message(object):
     _schema = None
-    instance = None
+    _instance = None
 
     def __init__(self, instance, subkind=None):
         self._log = get_logger(
             f'{self.__class__.__module__}.{self.__class__.__name__}')
-        self.instance = instance
-        self.instance[KIND] = self.kind
+        self._instance = instance
+        self._instance[KIND] = self.kind
 
         if subkind is not None:
-            self.instance[SUBKIND] = subkind
+            self._instance[SUBKIND] = subkind
 
         if self.should_validate():
             self.validate()
 
     def __str__(self):
-        return self.instance
+        return self._instance
 
     def get_schema(self):
         if self._schema is None:
@@ -44,27 +46,30 @@ class Message(object):
         return True
 
     def validate(self):
-        jsonschema.validate(instance=self.instance, schema=self.get_schema())
+        jsonschema.validate(instance=self._instance, schema=self.get_schema())
         self.validate_extra()
 
     def validate_extra(self):
         pass
 
+    def to_object(self):
+        return copy.deepcopy(self._instance)
+    
     @property
     def body(self):
         kwargs = self._ensure_content_id()
-        content_with_id = json.dumps(self.instance, **kwargs).strip()
+        content_with_id = json.dumps(self._instance, **kwargs).strip()
         return content_with_id
 
     @property
     def body_pretty(self):
         self._ensure_content_id()
-        return json.dumps(self.instance, sort_keys=True, indent=4).strip()
+        return json.dumps(self._instance, sort_keys=True, indent=4).strip()
 
     @property
     def content_id(self):
         self._ensure_content_id()
-        return self.instance[CONTENT_ID]
+        return self._instance[CONTENT_ID]
 
     def _ensure_content_id(self):
         kwargs = {
@@ -72,9 +77,9 @@ class Message(object):
             'indent': None,
             'separators': (',', ':')
         }
-        content = json.dumps(self.instance, **kwargs).strip()
+        content = json.dumps(self._instance, **kwargs).strip()
         cid = hashlib.md5(content.encode()).hexdigest()
-        self.instance[CONTENT_ID] = cid
+        self._instance[CONTENT_ID] = cid
         return kwargs
 
 
@@ -85,7 +90,7 @@ class Message(object):
 
     @property
     def subkind(self):
-        return self.instance.get(SUBKIND)
+        return self._instance.get(SUBKIND)
 
     @property
     def announcement(self):

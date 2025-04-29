@@ -14,6 +14,7 @@ import gwent.game
 import gwent.hal.sfx
 
 
+ROUND_KEEPER = "round-keeper"
 PLAYER_ONE = "player1"
 PLAYER_TWO = "player2"
 

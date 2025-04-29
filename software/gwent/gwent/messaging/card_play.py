@@ -16,7 +16,7 @@ class Message(gwent.messaging.base.Message):
     def with_add_to_deck(player:str, card: gwent.messaging.card.Message):
         instance = {
             PLAYER: player,
-            CARD: card.instance
+            CARD: card._instance
         }
         return Message(instance, subkind=ADD_TO_DECK)
 
@@ -26,4 +26,4 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def card(self):
-        return gwent.messaging.card.Message.from_properties(self.instance[CARD])
+        return gwent.messaging.card.Message.from_properties(self._instance[CARD])

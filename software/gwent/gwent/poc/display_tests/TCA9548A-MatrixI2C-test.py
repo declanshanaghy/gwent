@@ -223,7 +223,7 @@ def run():
         i2c = busio.I2C(board.SCL, board.SDA)
         
         displays = []
-        channels = [0, 7]  # Default channels to check
+        channels = [0, 1, 2]  # Default channels to check
         
         print(f"Scanning channels: {channels}")
         for ch in channels:

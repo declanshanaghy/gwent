@@ -63,30 +63,30 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def announcement(self):
-        return self.name if hasattr(self, 'name') and NAME in self.instance else f"Card {self.rfid}"
+        return self.name if hasattr(self, 'name') and NAME in self._instance else f"Card {self.rfid}"
 
     # content_id is only used during MQTT communications and not stored in the card files
     @property
     def content_id(self):
-        return self.instance.get(CONTENT_ID)
+        return self._instance.get(CONTENT_ID)
 
     @content_id.setter
     def content_id(self, content_id):
-        self.instance[CONTENT_ID] = content_id
+        self._instance[CONTENT_ID] = content_id
 
     @property
     def rfid(self):
-        return self.instance.get(RFID)
+        return self._instance.get(RFID)
 
     @rfid.setter
     def rfid(self, rfid):
-        self.instance[RFID] = rfid
+        self._instance[RFID] = rfid
 
     def validate_extra(self):
         super().validate_extra()
 
         # Skip validation for blank cards
-        if not hasattr(self, 'name') or NAME not in self.instance or not hasattr(self, 'faction') or FACTION not in self.instance:
+        if not hasattr(self, 'name') or NAME not in self._instance or not hasattr(self, 'faction') or FACTION not in self._instance:
             return
             
         self._validate_starter()
@@ -97,7 +97,7 @@ class Message(gwent.messaging.base.Message):
 
     def _validate_starter(self):
         if self.is_starter and self.has_owner:
-            if LEADER not in self.instance:
+            if LEADER not in self._instance:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} is a starter so "
                             f"cannot be owned by {self.owner}",
@@ -105,7 +105,7 @@ class Message(gwent.messaging.base.Message):
 
     def _validate_leader(self):
         if self.is_leader:
-            if LEADER not in self.instance:
+            if LEADER not in self._instance:
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} must have {LEADER} "
                             f"property",
@@ -164,25 +164,25 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def full_name(self):
-        return self.instance.get(NAME, f"Blank Card {self.rfid}")
+        return self._instance.get(NAME, f"Blank Card {self.rfid}")
 
     @property
     def name(self):
-        if NAME not in self.instance:
+        if NAME not in self._instance:
             return f"Blank Card {self.rfid}"
-        return self.instance[NAME]
+        return self._instance[NAME]
 
     @property
     def faction(self):
-        return self.instance.get(FACTION, "Unknown")
+        return self._instance.get(FACTION, "Unknown")
 
     @property
     def strength(self):
-        return self.instance.get(STRENGTH, 0)
+        return self._instance.get(STRENGTH, 0)
 
     @property
     def has_specialty(self):
-        return SPECIALTY in self.instance
+        return SPECIALTY in self._instance
 
     @property
     def is_medic(self):
@@ -194,7 +194,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def is_starter(self):
-        return STARTER in self.instance and self.instance[STARTER] == True
+        return STARTER in self._instance and self._instance[STARTER] == True
 
     @property
     def is_weather(self):
@@ -222,23 +222,23 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def leader(self):
-        return self.instance[LEADER]
+        return self._instance[LEADER]
 
     @property
     def has_ranges(self):
-        return RANGES in self.instance
+        return RANGES in self._instance
 
     @property
     def is_agile(self):
-        return AGILE in self.instance[ABILITIES]
+        return AGILE in self._instance[ABILITIES]
 
     @property
     def abilities(self):
-        return self.instance.get(ABILITIES)
+        return self._instance.get(ABILITIES)
 
     @property
     def specialty(self):
-        return self.instance.get(SPECIALTY)
+        return self._instance.get(SPECIALTY)
 
     @property
     def num_ranges(self):
@@ -246,19 +246,19 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def ranges(self):
-        return self.instance.get(RANGES)
+        return self._instance.get(RANGES)
 
     @property
     def has_abilities(self):
-        return ABILITIES in self.instance
+        return ABILITIES in self._instance
 
     @property
     def has_owner(self):
-        return OWNER in self.instance
+        return OWNER in self._instance
 
     @property
     def owner(self):
-        return self.instance[OWNER]
+        return self._instance[OWNER]
 
     @property
     def bytes(self):

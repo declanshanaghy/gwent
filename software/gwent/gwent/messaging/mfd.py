@@ -37,7 +37,7 @@ class Message(gwent.messaging.base.Message):
     def with_choices(choices: List[gwent.messaging.choice.Message],
                      clear_prompt: bool = False):
         return Message({
-            CHOICES: [c.instance for c in choices],
+            CHOICES: [c._instance for c in choices],
             CLEAR_PROMPT: clear_prompt
         }, subkind=CHOICES)
 
@@ -47,39 +47,39 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def prompt(self):
-        return self.instance.get(PROMPT)
+        return self._instance.get(PROMPT)
 
     @property
     def error(self):
-        return self.instance.get(ERROR)
+        return self._instance.get(ERROR)
 
     @property
     def clear_choices(self):
-        return self.instance.get(CLEAR_CHOICES) == True
+        return self._instance.get(CLEAR_CHOICES) == True
 
     @property
     def clear_prompt(self):
-        return self.instance.get(CLEAR_PROMPT) == True
+        return self._instance.get(CLEAR_PROMPT) == True
 
     @property
     def has_ok(self):
-        return OK in self.instance
+        return OK in self._instance
 
     @property
     def ok(self):
-        return self.instance[OK]
+        return self._instance[OK]
 
     @property
     def has_cancel(self):
-        return CANCEL in self.instance
+        return CANCEL in self._instance
 
     @property
     def cancel(self):
-        return self.instance[CANCEL]
+        return self._instance[CANCEL]
 
     @property
     def choices(self):
-        return self.instance.get(CHOICES)
+        return self._instance.get(CHOICES)
 
     def is_valid_choice(self, id):
         return id in self.choice_id_iter()

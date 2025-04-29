@@ -41,20 +41,20 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def announcement(self):
-        return self.instance[ANNOUNCEMENT]
+        return self._instance[ANNOUNCEMENT]
 
     @property
     def effect(self):
-        return self.instance[EFFECT]
+        return self._instance[EFFECT]
 
     @property
     def music(self):
-        return self.instance[MUSIC]
+        return self._instance[MUSIC]
 
     @property
     def is_random(self):
-        return self.instance.get(RANDOM) is True
+        return self._instance.get(RANDOM) is True
 
     @property
     def random(self):
-        return self.instance[RANDOM]
+        return self._instance[RANDOM]

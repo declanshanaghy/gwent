@@ -120,14 +120,14 @@ class CardReaderUtil(gwent.game.BaseComponent):
             print(f"  RFID:    {card.rfid if hasattr(card, 'rfid') else 'Unknown'}")
             if hasattr(card, 'instance'):
                 print("\nCard Attributes:")
-                if 'strength' in card.instance:
-                    print(f"  Strength: {card.instance['strength']}")
-                if 'ranges' in card.instance:
-                    print(f"  Ranges:   {', '.join(card.instance['ranges'])}")
-                if 'specialty' in card.instance:
-                    print(f"  Specialty: {card.instance['specialty']}")
-                if 'abilities' in card.instance:
-                    print(f"  Abilities: {', '.join(card.instance['abilities'])}")
+                if 'strength' in card._instance:
+                    print(f"  Strength: {card._instance['strength']}")
+                if 'ranges' in card._instance:
+                    print(f"  Ranges:   {', '.join(card._instance['ranges'])}")
+                if 'specialty' in card._instance:
+                    print(f"  Specialty: {card._instance['specialty']}")
+                if 'abilities' in card._instance:
+                    print(f"  Abilities: {', '.join(card._instance['abilities'])}")
 
         return card
 

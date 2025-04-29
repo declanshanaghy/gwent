@@ -46,11 +46,11 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def id(self):
-        return self.instance[ID]
+        return self._instance[ID]
 
     @property
     def text(self):
-        return self.instance[TEXT]
+        return self._instance[TEXT]
 
     @property
     def kind(self):
