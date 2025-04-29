@@ -4,12 +4,13 @@ import json
 import random
 import tempfile
 import time
-import logging
 import threading
 import traceback
 import mfrc522
 
 import RPi.GPIO as GPIO
+
+from gwent.utils.logging import get_logger, DEBUG
 
 import gwent.hal
 import gwent.game
@@ -29,11 +30,11 @@ MAX_ATTEMPTS = 2
 
 
 def instance():
-    # Enable verbose logging by default to help with debugging
+    # Use logging levels from logging.json
     if gwent.hal.real_mode():
-        return RealWriter(log_verbose=True)
+        return RealWriter()
     else:
-        return _FakeWriter(log_verbose=True)
+        return _FakeWriter()
 
 
 class RFIDError(Exception):
@@ -170,8 +171,8 @@ class _BaseReader(gwent.game.BaseComponent):
 class _FakeReader(_BaseReader):
     flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
 
-    def __init__(self, log_verbose: bool = True):  # Default to verbose logging
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self):
+        super().__init__()
         self._log.debug({'flag_read_file': self.flag_read_file})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
@@ -195,26 +196,24 @@ class _FakeReader(_BaseReader):
 class _RealReader(_BaseReader):
     _rfid = None
 
-    def __init__(self, log_verbose: bool = True):  # Default to verbose logging
-        super().__init__(log_verbose=log_verbose)
-        self._setup_rfid(log_verbose)
-        self._log.info({
-            'action': 'rfid_reader_initialized',
-            'log_verbose': log_verbose
+    def __init__(self):
+        super().__init__()
+        self._setup_rfid()
+        self._log.debug({
+            'action': 'rfid_reader_initialized'
         })
 
-    def _setup_rfid(self, log_verbose):
+    def _setup_rfid(self):
         self._log.debug({
-            'action': 'setup_rfid_start',
-            'log_verbose': log_verbose
+            'action': 'setup_rfid_start'
         })
         
-        self._rfid = mfrc522.SimpleMFRC522(log_verbose=log_verbose, pin_mode=GPIO.BCM)
-        self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 log_verbose={log_verbose}, pin_mode={GPIO.BCM}'})
+        self._rfid = mfrc522.SimpleMFRC522(pin_mode=GPIO.BCM)
+        self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 pin_mode=GPIO.BCM'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
         start_time = time.time()
-        self._log.info({
+        self._log.debug({
             'action': 'starting card read',
             'timestamp': start_time
         })
@@ -225,7 +224,7 @@ class _RealReader(_BaseReader):
         read_id_duration = time.time() - read_id_start
         
         if original_id is None:
-            self._log.warning({
+            self._log.debug({
                 'action': 'no card detected',
                 'timestamp': time.time(),
                 'read_id_duration': read_id_duration
@@ -270,7 +269,7 @@ class _RealReader(_BaseReader):
             # Return the ID but no details to indicate a blank card
             return id, None
             
-        self._log.info({
+        self._log.debug({
             'action': 'read card header success',
             'id': id,
             'header': header,
@@ -278,7 +277,7 @@ class _RealReader(_BaseReader):
         })
         
         # No need for delay before reading the body - card_manager handles retries
-        self._log.info({
+        self._log.debug({
             'action': 'starting_body_read'
         })
         
@@ -299,7 +298,7 @@ class _RealReader(_BaseReader):
             body_read_duration = time.time() - body_read_start
             
             if id is not None and body is not None:
-                self._log.info({
+                self._log.debug({
                     'action': 'body_read_success',
                     'attempt': attempt,
                     'body': body,
@@ -318,7 +317,7 @@ class _RealReader(_BaseReader):
                 reset_start = time.time()
                 if hasattr(self, 'reset') and callable(self.reset):
                     reset_success = self.reset()
-                    self._log.info({
+                    self._log.warn({
                         'action': 'reset_between_attempts',
                         'success': reset_success,
                         'duration': time.time() - reset_start
@@ -345,7 +344,7 @@ class _RealReader(_BaseReader):
             # Return the ID but no details to indicate a blank card
             return id, None
         
-        self._log.info({
+        self._log.debug({
             'action': 'read card body success',
             'id': id,
             'body': body,
@@ -365,7 +364,7 @@ class _RealReader(_BaseReader):
 
     def read_sector(self, trailer: int = 11,
                    blocks: [int] = (8, 9, 10)) -> (int, str):
-        self._log.info({  # Upgraded to INFO for better visibility
+        self._log.debug({  # Upgraded to INFO for better visibility
             'action': 'read_sector_start',
             'trailer': trailer,
             'blocks': blocks,
@@ -379,7 +378,7 @@ class _RealReader(_BaseReader):
         try:
             # First check if a card is physically present by reading its ID
             original_id, _ = self._rfid.read_id(attempts=1)
-            self._log.info({
+            self._log.debug({
                 'action': 'read_sector_id_check',
                 'original_id': original_id,
                 'timestamp': time.time()
@@ -399,7 +398,7 @@ class _RealReader(_BaseReader):
                 trailer=trailer, blocks=blocks, attempts=MAX_ATTEMPTS)
             
             # Log raw data for debugging
-            self._log.info({
+            self._log.debug({
                 'action': 'read_sector_raw_data',
                 'raw_data_type': type(raw_data).__name__ if raw_data is not None else None,
                 'raw_data_length': len(raw_data) if raw_data is not None and hasattr(raw_data, '__len__') else 0,
@@ -421,7 +420,7 @@ class _RealReader(_BaseReader):
             
         if id:
             text = text.strip() if text else ""
-            self._log.info({  # Upgraded to INFO for better visibility
+            self._log.debug({  # Upgraded to INFO for better visibility
                 'action': 'read_sector_success',
                 'id': id,
                 'original_id': original_id,
@@ -445,7 +444,7 @@ class _RealReader(_BaseReader):
             # If we have the original ID but the sector read failed, try to return the ID anyway
             # This might help with cards that have a valid ID but corrupted sectors
             if original_id is not None:
-                self._log.info({
+                self._log.warn({
                     'action': 'using_original_id_despite_read_failure',
                     'original_id': original_id
                 })
@@ -459,7 +458,7 @@ class _RealReader(_BaseReader):
         header_sector = gwent.messaging.card.Message.header_sector_start()
         trailer, blocks = _RealReader.get_blocks(header_sector)
         
-        self._log.info({  # Upgraded to INFO for better visibility
+        self._log.debug({  # Upgraded to INFO for better visibility
             'action': 'read_card_header_start',
             'header_sector': header_sector,
             'trailer': trailer,
@@ -549,7 +548,7 @@ class _RealReader(_BaseReader):
         # First check if a card is physically present by reading its ID
         try:
             original_id, _ = self._rfid.read_id(attempts=1)
-            self._log.info({
+            self._log.debug({
                 'action': 'body_read_id_check',
                 'original_id': original_id,
                 'timestamp': time.time()
@@ -562,10 +561,10 @@ class _RealReader(_BaseReader):
                 'timestamp': time.time()
             })
 
-        debug_enabled = self._log.isEnabledFor(logging.DEBUG)
+        debug_enabled = self._log.isEnabledFor(DEBUG)
         body_start = time.time()
         
-        self._log.info({
+        self._log.debug({
             'action': 'starting card body read',
             'n_bytes': n_bytes,
             'sectors_to_read': list(sectors),
@@ -575,7 +574,7 @@ class _RealReader(_BaseReader):
 
         for sector in sectors:
             sector_start = time.time()
-            self._log.info({
+            self._log.debug({
                 'action': 'reading sector',
                 'sector': sector,
                 'timestamp': sector_start
@@ -598,7 +597,7 @@ class _RealReader(_BaseReader):
                 read_duration = time.time() - read_start
                 
                 if id is not None and sector_data is not None:
-                    self._log.info({
+                    self._log.debug({
                         'action': 'sector_read_success',
                         'sector': sector,
                         'attempt': attempt,
@@ -633,10 +632,6 @@ class _RealReader(_BaseReader):
                     })
                     return original_id, body
                 
-                # Try to reset the reader before returning
-                if hasattr(self, 'reset') and callable(self.reset):
-                    self._log.info("Resetting RFID reader after failed read")
-                    self.reset()
                 return None, None
 
             end = time.time()
@@ -658,7 +653,7 @@ class _RealReader(_BaseReader):
 
         self.log_time('read card body', body_start)
         
-        self._log.info({
+        self._log.debug({
             'action': 'completed card body read',
             'body_length': len(body),
             'n_bytes': n_bytes,
@@ -711,8 +706,8 @@ class _BaseWriter(_BaseReader):
 class _FakeWriter(_BaseWriter, _FakeReader):
     flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
 
-    def __init__(self, log_verbose: bool = True):  # Default to verbose logging
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self):
+        super().__init__()
         self._log.debug({'flag_write_file': self.flag_write_file})
 
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
@@ -734,21 +729,20 @@ class RealWriter(_BaseWriter, _RealReader):
         
         try:
             # Try to re-initialize the RFID reader
-            # Use False for log_verbose since we're already logging the reset
-            self._setup_rfid(log_verbose=True)
+            self._setup_rfid()
             
             # No need for delay after reset - card_manager handles retries
             
             # Try to read the ID to ensure the reader is working
             id, _ = self._rfid.read_id(attempts=1)
             if id is not None:
-                self._log.info({
+                self._log.debug({
                     'action': 'rfid_reader_reset_complete_with_card_present',
                     'id': id,
                     'timestamp': time.time()
                 })
             else:
-                self._log.info({
+                self._log.debug({
                     'action': 'rfid_reader_reset_complete_no_card_detected',
                     'timestamp': time.time()
                 })
@@ -764,9 +758,6 @@ class RealWriter(_BaseWriter, _RealReader):
             return False
     
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
-        # Reset the reader before writing
-        self.reset()
-        
         id1, _ = self._write_card_header(card)
         if id1 is not None:
             id2, _ = self._write_card_body(card)
@@ -814,7 +805,7 @@ class RealWriter(_BaseWriter, _RealReader):
         s = 0
         written = ""
         maxlen = len(text)
-        debug_enabled = self._log.isEnabledFor(logging.DEBUG)
+        debug_enabled = self._log.isEnabledFor(DEBUG)
 
         for sector in sectors:
             trailer, blocks = _RealReader.get_blocks(sector)
@@ -858,7 +849,7 @@ class RealWriter(_BaseWriter, _RealReader):
             s = e
 
         written = written.strip()
-        if self._log.isEnabledFor(logging.DEBUG):
+        if self._log.isEnabledFor(DEBUG):
             self._log.debug({
                 'action': 'string written',
                 'id': id,

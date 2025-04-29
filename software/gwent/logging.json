@@ -18,6 +18,9 @@
     "gwent.hal.rfid": {
       "level": "INFO"
     },
+    "gwent.hal.rfid.RealWriter": {
+      "level": "INFO"
+    },
     "gwent.hal.rotary": {
       "level": "INFO"
     },
@@ -28,10 +31,19 @@
       "level": "INFO"
     },
     "gwent.utils.logging": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.diagnostic.mfd": {
+      "level": "INFO"
+    },
+    "gwent.poc.util.card_manager": {
       "level": "DEBUG"
+    },
+    "MFRC522": {
+      "level": "INFO"
+    },
+    "SimpleMFRC522": {
+      "level": "INFO"
     }
   }
 }

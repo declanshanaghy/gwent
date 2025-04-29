@@ -222,7 +222,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
         * Always include the sum of all development cost metrics found in git commit message history on the branch the PR is being created for.
         * Don't include lists of changed files in the PR
      *   **Always disable the pager** 
-        * Disable the pager on all git commands when composing a commit message
+        * Disable the pager on all git commands that may have long output, such as `tag`, `show`, `diff`, `log`, or `branch` when composing a commit message        
         * Add the `--no-pager` option before the git command: `git --no-pager show <commit>`
         * Set the `GIT_PAGER=cat` environment variable: `GIT_PAGER=cat git show <commit>`
         * For specific commands, use the `-P` or `--no-pager` flag: `git -P show <commit>`
@@ -283,12 +283,13 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - Temporary files include logs, intermediate processing files, test outputs, and any other files not intended for version control.
     - Example: Use `@/tmp/test_output.log` instead of creating temporary files in the working directory.
 
-- **Always Use mv Command for Moving Files**:
+- **File Management**:
     - When moving files, always use the `mv` command rather than regenerating file contents.
     - This preserves file metadata, permissions, and is more efficient.
     - This approach prevents potential data loss or corruption that could occur during content regeneration.
     - Example: Use `mv /path/to/source/file.txt /path/to/destination/file.txt` instead of reading the content and writing it to a new location.
-|
+    - When reading code files use the list_code_definition_names to find the line numbers then use the start_line and end_line parameters when retrieving the content with the file read tool.22
+
 - **Always Delete Branches After Merging PRs**:
     - When merging a PR, always delete the branch after the merge is complete.
     - This keeps the repository clean and prevents confusion about which branches are active.
@@ -297,7 +298,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - This practice helps maintain a clean repository and makes it clear which branches are still being worked on.
 
 - **PR Description Requirements**:
-    - PR descriptions must always be kept up to date with the total cost and dev time of all commits on that branch.
+    - PR descriptions must always be kept up to date with the sum of all Development Metrics, i.e API Costs and Development Time. This is calculted from the development metrics in the commit messages of all commits on the PR branch.
     - Include a "Development Metrics" section in the PR description with:
       - Total Dev Time: Sum of all dev time from commits on the branch
       - Total API Cost: Sum of all API costs from commits on the branch

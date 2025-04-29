@@ -9,14 +9,14 @@ import os
 import time
 import pytest
 import pygame
-import logging
+from gwent.utils.logging import get_logger
 
 # Import the AudioPlayer and AudioStateManager
 from gwent.hal.audio import AudioPlayer
 from gwent.logical.audio_manager import AudioStateManager, audio_state
 
 # Set up logging
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class TestAudioStutterFix:
     """Test class for audio stuttering fix."""

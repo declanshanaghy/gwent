@@ -5,9 +5,11 @@
     "faction": "Skellige",
     "kind": "card",
     "name": "Clan Drummond Shield Maiden: 2",
-    "owner": "Declan Shanaghy",
     "ranges": [
         "close"
     ],
-    "strength": 4
+    "strength": 4,
+    "owner": "Declan Shanaghy",
+    "content_id": "cbb19ed532f504ca25e12c67278dfc19",
+    "rfid": 72374373725
 }

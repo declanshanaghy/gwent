@@ -82,7 +82,6 @@ class Message(gwent.messaging.base.Message):
     def rfid(self, rfid):
         self.instance[RFID] = rfid
 
-
     def validate_extra(self):
         super().validate_extra()
 
@@ -171,8 +170,7 @@ class Message(gwent.messaging.base.Message):
     def name(self):
         if NAME not in self.instance:
             return f"Blank Card {self.rfid}"
-        parts = self.instance[NAME].split(':')
-        return parts[0]
+        return self.instance[NAME]
 
     @property
     def faction(self):
@@ -236,11 +234,11 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def abilities(self):
-        return self.instance[ABILITIES]
+        return self.instance.get(ABILITIES)
 
     @property
     def specialty(self):
-        return self.instance[SPECIALTY]
+        return self.instance.get(SPECIALTY)
 
     @property
     def num_ranges(self):

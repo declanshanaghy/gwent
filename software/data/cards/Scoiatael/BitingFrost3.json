@@ -5,5 +5,6 @@
     "ranges": [
         "close"
     ],
-    "specialty": "weather"
+    "specialty": "weather",
+    "starter": true
 }

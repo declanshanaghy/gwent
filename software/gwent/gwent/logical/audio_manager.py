@@ -8,14 +8,14 @@ This module provides integration between AudioStateManager and AudioPlayer.
 from __future__ import annotations
 
 import os
-import logging
 from typing import Dict, Any, Optional, Union, TypedDict
+from gwent.utils.logging import get_logger
 
 # Import the AudioPlayer
 from ..hal.audio import AudioPlayer
 
 # Set up logging
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class MusicSettings(TypedDict):
     file: str

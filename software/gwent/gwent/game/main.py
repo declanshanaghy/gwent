@@ -1,4 +1,3 @@
-import logging
 import signal
 import threading
 import time
@@ -7,7 +6,7 @@ from typing import List
 
 import paho.mqtt.client as mqtt
 
-import gwent.log
+from gwent.utils.logging import configure_logging, get_logger
 import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
@@ -20,7 +19,7 @@ class MQTTClient:
     """Thread-safe MQTT client wrapper"""
     
     def __init__(self, host='localhost', username=None, password=None):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._log = get_logger(f'{self.__class__.__module__}.{self.__class__.__name__}')
         self._client = mqtt.Client()
         self._host = host
         self._username = username
@@ -137,7 +136,7 @@ class ThreadComponent:
     """Base class for threaded components"""
     
     def __init__(self, pubsub: MQTTClient):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._log = get_logger(f'{self.__class__.__module__}.{self.__class__.__name__}')
         self._pubsub = pubsub
         self._thread = None
         self._stop_event = threading.Event()
@@ -188,7 +187,7 @@ class Gwent:
     """Main Gwent application class"""
     
     def __init__(self):
-        self._log = logging.getLogger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        self._log = get_logger(f'{self.__class__.__module__}.{self.__class__.__name__}')
         self.pubsub = None
         self.components = None
         self._stop_event = threading.Event()
@@ -280,11 +279,11 @@ class Gwent:
 
 def run():
     """Run the Gwent application"""
-    gwent.log.setup(level='debug')
+    configure_logging(level=DEBUG)
     try:
         Gwent().run()
     except Exception as ex:
-        logging.error(f"Error running Gwent: {ex}")
+        get_logger(__name__).error(f"Error running Gwent: {ex}")
 
 
 if __name__ == '__main__':

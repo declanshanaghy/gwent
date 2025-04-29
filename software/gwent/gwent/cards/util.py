@@ -1,5 +1,4 @@
 import json
-import logging
 import os.path
 import shutil
 
@@ -13,9 +12,9 @@ import gwent.cards.monsters
 import gwent.cards.nilfgaardian
 import gwent.cards.northern_realms
 
-import gwent.log
+from gwent.utils.logging import get_logger, configure_logging
 
-log = logging.getLogger('card.util')
+log = get_logger('card.util')
 
 
 def random_card_details() -> dict:
@@ -48,7 +47,7 @@ def read_card(f: str) -> gwent.messaging.card.Message:
 
 
 def write_all_to_disk():
-    log = logging.getLogger(os.path.basename(__file__))
+    log = get_logger(os.path.basename(__file__))
     dir = os.path.abspath(os.path.join(__file__, '..', '../messaging', '..',
                                        '..', '..', 'data', 'cards'))
     if os.path.exists(dir):
@@ -142,7 +141,7 @@ def validate_cards() -> gwent.messaging.card.Message:
 
 def validate_cards_main():
     """Command-line entry point for validating cards"""
-    gwent.log.setup(level='info')
+    configure_logging(level=INFO)
     print("Validating cards...")
     biggest_card = validate_cards()
     print(f"Total cards validated. Biggest card: {biggest_card.name} ({biggest_card.bytes} bytes)")
@@ -151,7 +150,7 @@ def validate_cards_main():
 
 def write_all_to_disk_main():
     """Command-line entry point for writing all cards to disk"""
-    gwent.log.setup(level='info')
+    configure_logging(level=INFO)
     print("Writing all cards to disk...")
     write_all_to_disk()
     print("All cards written to disk successfully")
@@ -161,7 +160,7 @@ def write_all_to_disk_main():
 def read_card_main():
     """Command-line entry point for reading a card file"""
     import sys
-    gwent.log.setup(level='info')
+    configure_logging(level=INFO)
     
     if len(sys.argv) < 2:
         print("Error: Please provide a card file path")
@@ -182,7 +181,7 @@ def read_card_main():
 
 def random_card_main():
     """Command-line entry point for getting a random card"""
-    gwent.log.setup(level='info')
+    configure_logging(level=INFO)
     card = random_card()
     print(f"Random Card: {card.name}")
     print(f"Faction: {card.faction}")

@@ -8,18 +8,15 @@ Run this script directly on the Raspberry Pi.
 """
 
 import time
-import logging
 import sys
 import os
+from gwent.utils.logging import get_logger, configure_logging, INFO
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler(sys.stdout)]
-)
+# Configure logging with console output
+configure_logging(level=INFO)
 
-logger = logging.getLogger("display_test")
+# Get logger for this component
+logger = get_logger("display_test")
 
 def get_user_confirmation(prompt="Can you see the test pattern on the display? (y/n): "):
     """Get confirmation from the user"""

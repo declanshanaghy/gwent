@@ -31,7 +31,7 @@ ERROR = logging.ERROR
 logging.addLevelName(VERBOSE, "VERBOSE")
 
 # Default log level
-DEFAULT_LOG_LEVEL = INFO
+DEFAULT_LOG_LEVEL = DEBUG
 
 # Component log levels dictionary
 # This will store individual log level settings for each component
@@ -129,7 +129,6 @@ class ConfigFileHandler(FileSystemEventHandler):
             # Load and apply the new configuration
             config = _load_config_from_file()
             _apply_config(config)
-            print(f"Logging configuration reloaded from {CONFIG_FILE_PATH}")
 
 def _start_file_watcher() -> None:
     """
@@ -248,6 +247,7 @@ def get_log_level_from_env(component_name: str) -> int:
     return DEFAULT_LOG_LEVEL
 
 
+
 def configure_logging(level: Optional[int] = None, log_file: Optional[str] = None) -> None:
     """
     Configure the root logger with JSON formatting.
@@ -258,7 +258,7 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
     """
     # Set default log file path if not specified
     if log_file is None:
-        log_file = "/tmp/log/gwent.log"
+        log_file = "./tmp/gwent.log"
     
     # Set up the root logger
     root_logger = logging.getLogger()
@@ -267,17 +267,12 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
     
-    # Create a handler that writes to stderr
-    console_handler = logging.StreamHandler(sys.stderr)
+    # Create a JSON formatter for the file handler
+    json_formatter = GwentJsonFormatter('%(timestamp)s %(level)s %(component)s %(message)s')
     
-    # Create a formatter
-    formatter = GwentJsonFormatter('%(timestamp)s %(level)s %(component)s %(message)s')
-    console_handler.setFormatter(formatter)
+    # We don't add a console handler here because we want all logs to go to the file
+    # and only user interactions to be shown on the console via the Rich console
     
-    # Add the handler to the root logger
-    root_logger.addHandler(console_handler)
-    
-    # Add a rotating file handler
     # Ensure the directory exists
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
@@ -291,7 +286,7 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
         backupCount=5,
         delay=True  # Only create the file when it's first written to
     )
-    file_handler.setFormatter(formatter)
+    file_handler.setFormatter(json_formatter)
     root_logger.addHandler(file_handler)
     
     # Force rotation on startup if the file exists and has content

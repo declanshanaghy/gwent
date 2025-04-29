@@ -1,5 +1,5 @@
 import time
-import logging
+from gwent.utils.logging import get_logger
 from typing import Any, Callable
 
 import gwent.game
@@ -15,7 +15,7 @@ import gwent.messaging.choice
 
 
 def instance():
-    logger = logging.getLogger('gwent.hal.mfd')
+    logger = get_logger('gwent.hal.mfd')
     logger.info("Creating MFD instance")
     
     if gwent.hal.real_mode():
