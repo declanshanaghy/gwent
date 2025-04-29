@@ -72,7 +72,7 @@ class Controller(gwent.game.ThreadComponent):
         self.set_active_stage(self.main_menu, complete, cancel)
 
     def publish_card_play(self, player: str, card: gwent.messaging.card.Message):
-        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player, gwent.messaging.card_play.KIND)
+        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player)
         cp = gwent.messaging.card_play.Message.with_add_to_deck(player, card)
         self.publish(ch, cp)
 
@@ -82,7 +82,7 @@ class Controller(gwent.game.ThreadComponent):
         def complete(leader1: gwent.messaging.card.Message,
                      leader2: gwent.messaging.card.Message):
             self._log.info({
-                'action': 'complete register_leaders',
+                'action': 'completed register_leaders',
                 'leader1': leader1.full_name,
                 'leader2': leader2.full_name,
             })

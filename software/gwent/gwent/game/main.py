@@ -1,7 +1,9 @@
 import signal
+import sys
 import threading
 import time
 import queue
+import traceback
 from typing import List
 
 import paho.mqtt.client as mqtt
@@ -13,6 +15,7 @@ import gwent.game.mfd
 import gwent.game.player
 import gwent.game.sfx
 import gwent.hal
+import gwent.hal.matrix
 
 
 class MQTTClient:
@@ -62,7 +65,9 @@ class MQTTClient:
         # Find matching subscriptions and call callbacks
         with self._lock:
             for sub_topic, callbacks in self._subscriptions.items():
-                if mqtt.topic_matches_sub(sub_topic, topic):
+                match = mqtt.topic_matches_sub(sub_topic, topic)
+                self._log.info(f"Checking topic: {topic}, {sub_topic}, {match}")
+                if match:
                     for callback in callbacks:
                         try:
                             callback(topic, payload)
@@ -231,8 +236,8 @@ class Gwent:
         # Create component adapters
         self.components = []
         self.components.append(gwent.game.controller.Controller(self.pubsub))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_DEFAULT))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_SEVEN))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub))
@@ -282,7 +287,12 @@ def run():
     try:
         Gwent().run()
     except Exception as ex:
-        get_logger(__name__).error(f"Error running Gwent: {ex}")
+        logger = get_logger(__name__)
+        exception_type, exception_value, trace = sys.exc_info()
+        trace_string = "\n\t".join(traceback.format_tb(trace))
+        logger.error(f"Exception type: {exception_type}") # <class 'RuntimeError'>
+        logger.error(f"Exception value: {exception_value}") # This is an error
+        print(trace_string)
 
 
 if __name__ == '__main__':

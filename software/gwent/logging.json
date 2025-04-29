@@ -13,7 +13,7 @@
       "level": "INFO"
     },
     "__main__.MQTTClient": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.game.main": {
       "level": "INFO"
@@ -88,7 +88,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rfid.RealWriter": {
-      "level": "INFO"
+      "level": "WARNING"
     },
     "gwent.hal.rotary": {
       "level": "WARNING"

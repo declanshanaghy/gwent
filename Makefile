@@ -159,21 +159,10 @@ CHANNEL ?= 0
 BRIGHTNESS ?= 50
 SPEED ?= 0.1
 
-# Default values for matrix-marquee
-TEXT ?= "GWENT"
-CHANNEL ?= 0
-BRIGHTNESS ?= 50
-SPEED ?= 0.1
-LOG_TO_FILE ?= false
-
 matrix-marquee: rsync
 	@echo "Running matrix marquee display with TCA9548A multiplexer on $(DEPLOY_TGT)"
 	@echo "Text: '$(TEXT)', Channel: $(CHANNEL), Brightness: $(BRIGHTNESS), Speed: $(SPEED), Log to file: $(LOG_TO_FILE)"
-	@if [ "$(LOG_TO_FILE)" = "true" ]; then \
-		ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-marquee --text '$(TEXT)' --channel $(CHANNEL) --brightness $(BRIGHTNESS) --speed $(SPEED) --log-to-file"; \
-	else \
-		ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-marquee --text '$(TEXT)' --channel $(CHANNEL) --brightness $(BRIGHTNESS) --speed $(SPEED)"; \
-	fi
+	ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-marquee --text '$(TEXT)' --channel $(CHANNEL) --brightness $(BRIGHTNESS) --speed $(SPEED) --log-to-file"; \
 
 mfd-diagnostic: rsync
 	@echo "Running MFD diagnostic tool on $(DEPLOY_TGT)"

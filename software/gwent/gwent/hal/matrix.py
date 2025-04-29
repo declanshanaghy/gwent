@@ -7,30 +7,27 @@ import gwent.game
 import gwent.hal
 
 # Import the necessary libraries for the matrix display
-try:
-    import qwiic_tca9548a
-    import board
-    import busio
-    import adafruit_is31fl3731
-    HARDWARE_AVAILABLE = True
-except ImportError:
-    HARDWARE_AVAILABLE = False
-    
+import qwiic_tca9548a
+import board
+import busio
+import adafruit_is31fl3731
+
 # Default configuration
 DEFAULT_MUX_ADDRESS = 0x70
 DEFAULT_MATRIX_ADDRESS = 0x74
-DEFAULT_MATRIX_CHANNEL = 0  # Default channel for the score display
 DEFAULT_BRIGHTNESS = 50      # Default brightness level (0-255)
 
+MATRIX_CHANNEL_DEFAULT = 0
+MATRIX_CHANNEL_SEVEN = 7
 
-def instance():
+def instance(channel=MATRIX_CHANNEL_DEFAULT):
     """
     Get an instance of the matrix display.
     Returns a _RealMatrix if in real mode and hardware is available,
     otherwise returns a _FakeMatrix.
     """
-    if gwent.hal.real_mode() and HARDWARE_AVAILABLE:
-        return _RealMatrix()
+    if gwent.hal.real_mode():
+        return _RealMatrix(channel=channel)
     else:
         return _FakeMatrix()
 
@@ -45,7 +42,7 @@ class _FakeMatrix(gwent.game.BaseComponent):
 
 class _RealMatrix(gwent.game.BaseComponent):
     def __init__(self, mux_address=DEFAULT_MUX_ADDRESS,
-                 matrix_address=DEFAULT_MATRIX_ADDRESS, channel=DEFAULT_MATRIX_CHANNEL):
+                 matrix_address=DEFAULT_MATRIX_ADDRESS, channel=MATRIX_CHANNEL_DEFAULT):
         """
         Initialize the _RealMatrix class.
         
@@ -65,61 +62,53 @@ class _RealMatrix(gwent.game.BaseComponent):
         self._initialized = False
         
     def init(self):
-        """Initialize the matrix display hardware"""
-        super().init()
+        """Initialize the matrix display hardware"""                    
+        self._log.info("Initializing matrix display hardware")
         
-        if not HARDWARE_AVAILABLE:
-            self._log.warning("Hardware libraries not available, matrix display will not function")
+        # Initialize the multiplexer
+        self._log.info(f"Initializing TCA9548A multiplexer at address 0x{self._mux_address:02x}")
+        self._mux = qwiic_tca9548a.QwiicTCA9548A(address=self._mux_address)
+        
+        if not self._mux.is_connected():
+            self._log.error("TCA9548A multiplexer not found!")
             return
             
-        try:
-            self._log.info("Initializing matrix display hardware")
-            
-            # Initialize the multiplexer
-            self._log.info(f"Initializing TCA9548A multiplexer at address 0x{self._mux_address:02x}")
-            self._mux = qwiic_tca9548a.QwiicTCA9548A(address=self._mux_address)
-            
-            if not self._mux.is_connected():
-                self._log.error("TCA9548A multiplexer not found!")
-                return
-                
-            # Initialize the I2C bus
-            self._log.info("Initializing I2C bus")
-            self._i2c = busio.I2C(board.SCL, board.SDA)
-            
-            # Enable the channel for the matrix
-            self._log.info(f"Enabling channel {self._channel}")
-            self._mux.disable_all()
-            self._mux.enable_channels(self._channel)
-            
-            # Initialize the matrix
-            self._log.info(f"Initializing IS31FL3731 matrix at address 0x{self._matrix_address:02x}")
-            self._matrix = adafruit_is31fl3731.IS31FL3731(self._i2c, address=self._matrix_address)
-            
-            # Clear the display
-            self._log.info("Clearing display")
-            self.clear()
-            
-            self._initialized = True
-            self._log.info("Matrix display initialized successfully")
-            
-        except Exception as e:
-            self._log.error(f"Error initializing matrix display: {e}")
-            import traceback
-            self._log.error(f"Traceback: {traceback.format_exc()}")
-            self._initialized = False
+        # Initialize the I2C bus
+        self._log.info("Initializing I2C bus")
+        self._i2c = busio.I2C(board.SCL, board.SDA)
+        
+        self.take_control()
+        
+        # Initialize the matrix
+        self._log.info(f"Initializing IS31FL3731 matrix at address 0x{self._matrix_address:02x}")
+        self._matrix = adafruit_is31fl3731.IS31FL3731(self._i2c, address=self._matrix_address)
+        
+        # Clear the display
+        self._log.info("Clearing display")
+        self.clear()
+        
+        self._initialized = True
+        self._log.info("Matrix display initialized successfully")
     
+    def take_control(self):
+        # This will need to use a mutex eventually
+        # Enable the channel for the matrix
+        self._log.info(f"Enabling channel {self._channel}")
+        self._mux.disable_all()
+        self._mux.enable_channels(self._channel)
+        
+
     def shutdown(self):
         """Shutdown the matrix display hardware"""
         if self._initialized:
             try:
                 self._log.info("Shutting down matrix display")
+                self.take_control()
                 self.clear()
                 if self._mux:
                     self._mux.disable_all()
             except Exception as e:
                 self._log.error(f"Error shutting down matrix display: {e}")
-        super().shutdown()
     
     def clear(self):
         """Clear the display"""
@@ -155,15 +144,12 @@ class _RealMatrix(gwent.game.BaseComponent):
             return
             
         try:
-            # Clear the display first
-            self.clear()
-            
-            # Enable the channel for the matrix
-            self._mux.disable_all()
-            self._mux.enable_channels(self._channel)
-            
             # Convert the score to a string
             score_str = str(score)
+            
+            # Clear the display first
+            self.take_control()
+            self.clear()
             
             # Draw the score on the display
             self.draw_text(score_str, DEFAULT_BRIGHTNESS)

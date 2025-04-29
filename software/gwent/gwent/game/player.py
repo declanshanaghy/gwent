@@ -1,3 +1,4 @@
+import random
 import gwent.game
 import gwent.messaging.card_play
 import gwent.messaging.factory
@@ -7,20 +8,22 @@ import gwent.hal.matrix
 
 class Player(gwent.game.ThreadComponent):
 
-    def __init__(self, player: str, pubsub):
+    def __init__(self, player: str, pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_DEFAULT):
         super().__init__(pubsub)
         self._player = player
-        self._channel = gwent.game.make_channel(
-            gwent.game.CH_CARDS_PLAY, self._player)
+        self._mux_channel = mux_channel
+        self._channel = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, self._player)
 
     def init(self):
         super().init()
-        self._matrix = gwent.hal.matrix.instance()
-        self.subscribe(self._channel, gwent.messaging.card_play.KIND,
-                      self.process_card_play)
+        self._matrix = gwent.hal.matrix.instance(channel=self._mux_channel)
+        self._matrix.init()
+        self.subscribe(self._channel, gwent.messaging.card_play.KIND, 
+                       self.process_card_play)
 
     def shutdown(self):
         self.unsubscribe(self._channel)
+        self._matrix.shutdown()
         super().shutdown()
     
     def _update_display(self, score=None):
@@ -40,6 +43,6 @@ class Player(gwent.game.ThreadComponent):
         })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
-            self._update_display(cp.card.strength)
+            self._update_display(random.randint(0, 100))
         else:
             self._log.error(f'Unhandled subkind: {cp.subkind}')
