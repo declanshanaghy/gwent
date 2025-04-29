@@ -8,14 +8,11 @@ import time
 import signal
 import sys
 import argparse
-import logging
+from gwent.utils.logging import get_logger, configure_logging, DEBUG
 
 # Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger("rotary_debug")
+configure_logging(level=DEBUG)
+logger = get_logger("rotary_debug")
 
 # Import both implementations
 from gwent.hal.rotary_rpigpio import DirectGPIORotaryEncoder, DirectGPIOSwitch

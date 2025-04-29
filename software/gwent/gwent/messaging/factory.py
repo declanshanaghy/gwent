@@ -1,5 +1,5 @@
 import json
-import logging
+from gwent.utils.logging import get_logger
 
 import gwent.messaging.base
 import gwent.messaging.card
@@ -10,7 +10,7 @@ import gwent.messaging.mfd
 import gwent.messaging.sfx
 
 
-_log = logging.getLogger('factory')
+_log = get_logger('factory')
 
 
 class UnexpectedKind(Exception):

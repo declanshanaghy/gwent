@@ -1,5 +1,5 @@
-import logging
 import random
+from gwent.utils.logging import get_logger
 import threading
 
 _REAL = None
@@ -13,7 +13,7 @@ def real_mode():
     return _REAL
 
 def init():
-    log = logging.getLogger('hal')
+    log = get_logger('hal')
     random.seed()
     global _REAL
 

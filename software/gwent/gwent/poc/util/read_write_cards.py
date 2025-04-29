@@ -1,11 +1,11 @@
 import json
-import logging
 import signal
 import sys
 import time
 import threading
 
-import gwent.log
+from gwent.utils.logging import get_logger, configure_logging, DEBUG
+
 import gwent.game
 import gwent.messaging.base
 import gwent.cards.all
@@ -17,8 +17,8 @@ import gwent.hal.sfx
 
 
 class CardWriterUtil(gwent.game.BaseComponent):
-    def __init__(self, log_verbose: bool = False):
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self):
+        super().__init__()
         self._stop_event = threading.Event()
         
     def setup_signal_handlers(self):
@@ -70,8 +70,8 @@ class CardWriterUtil(gwent.game.BaseComponent):
 
 
 class CardReaderUtil(gwent.game.BaseComponent):
-    def __init__(self, log_verbose: bool = False):
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self):
+        super().__init__()
         self._stop_event = threading.Event()
         
     def setup_signal_handlers(self):
@@ -159,10 +159,10 @@ def write_card(card: gwent.messaging.card.Message, file_path: str = None):
                 json.dump(card_data, f, indent=4)
                 
             print(f"\nUpdated JSON file with RFID: {rfid}")
-            logging.getLogger('read-write-cards').info(f"Updated JSON file with RFID: {rfid}")
+            get_logger('read-write-cards').info(f"Updated JSON file with RFID: {rfid}")
         except Exception as e:
             print(f"\nError updating JSON file: {e}")
-            logging.getLogger('read-write-cards').error(f"Error updating JSON file: {e}")
+            get_logger('read-write-cards').error(f"Error updating JSON file: {e}")
     
     return rfid
 
@@ -176,9 +176,9 @@ def read_card():
 
 if __name__ == '__main__':
     # Set up logging
-    gwent.log.setup(level='debug')
+    configure_logging(level=DEBUG)
 
-    log = logging.getLogger(f'read-write-cards')
+    log = get_logger(f'read-write-cards')
     log.info(f'Received args {sys.argv}...')
 
     if len(sys.argv) > 1 and sys.argv[1] == 'write':

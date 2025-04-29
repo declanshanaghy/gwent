@@ -9,11 +9,10 @@ from __future__ import annotations
 
 import os
 import pytest
-import logging
 import tempfile
 import re
 from typing import Optional
-from gwent.utils.logging import configure_logging
+from gwent.utils.logging import configure_logging, get_logger
 
 def test_file_logging() -> None:
     """Test that logging to a file works correctly."""
@@ -26,7 +25,7 @@ def test_file_logging() -> None:
         configure_logging(log_file=log_path)
         
         # Get a logger and write some test messages
-        logger = logging.getLogger("test_logger")
+        logger = get_logger("test_logger")
         logger.info("Test info message")
         logger.warning("Test warning message")
         logger.error("Test error message")
@@ -55,7 +54,7 @@ def test_timestamp_format() -> None:
         configure_logging(log_file=log_path)
         
         # Get a logger and write a test message
-        logger = logging.getLogger("test_logger")
+        logger = get_logger("test_logger")
         logger.info("Test timestamp message")
         
         # Verify that the log file contains a properly formatted timestamp

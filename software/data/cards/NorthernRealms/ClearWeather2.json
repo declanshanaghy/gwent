@@ -2,5 +2,8 @@
     "faction": "Northern Realms",
     "kind": "card",
     "name": "Clear Weather",
-    "specialty": "weather"
+    "specialty": "weather",
+    "owner": "Declan Shanaghy",
+    "content_id": "791c1405a2d413b3ca193e8e6f63338f",
+    "rfid": 964334538234
 }

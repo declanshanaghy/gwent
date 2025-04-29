@@ -1,6 +1,9 @@
 {
     "faction": "Nilfgaardian",
     "kind": "card",
-    "name": "Clear Weather",
-    "specialty": "weather"
+    "name": "Clear Weather: 2",
+    "specialty": "weather",
+    "owner": "Declan Shanaghy",
+    "content_id": "40ef12d7b919247d71edf36633637ebb",
+    "rfid": 415250009431
 }

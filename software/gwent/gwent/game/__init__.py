@@ -1,7 +1,8 @@
-import logging
 import time
 import threading
 from typing import Any, Callable
+
+from gwent.utils.logging import get_logger
 
 import gwent.messaging.base
 import gwent.messaging.factory
@@ -39,13 +40,9 @@ class BaseComponent(object):
     _last_log = time.time() - LOG_FREQ_SECS - 1
     _log = None
 
-    def __init__(self, log_verbose: bool = False):
-        self._log = logging.getLogger(
-            f'{self.__class__.__module__}.{self.__class__.__name__}')
-        if log_verbose:
-            self._log.setLevel(logging.DEBUG)
-        else:
-            self._log.setLevel(logging.INFO)
+    def __init__(self):
+        self._log = get_logger(f'{self.__class__.__module__}.{self.__class__.__name__}')
+        # Log level is now controlled by logging.json configuration
 
     def should_log(self) -> bool:
         r = time.time() > self._last_log + LOG_FREQ_SECS
@@ -66,8 +63,8 @@ class BaseComponent(object):
 class ThreadComponent(BaseComponent):
     """Base class for threaded components"""
     
-    def __init__(self, pubsub, log_verbose: bool = False):
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self, pubsub):
+        super().__init__()
         self._pubsub = pubsub
         self._thread = None
         self._stop_event = threading.Event()

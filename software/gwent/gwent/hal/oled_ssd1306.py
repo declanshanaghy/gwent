@@ -1,5 +1,5 @@
-import logging
 import time
+from gwent.utils.logging import get_logger
 from pathlib import Path
 
 import gwent.hal.mfdi
@@ -146,7 +146,7 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
 
     @staticmethod
     def make_font(name, size):
-        logger = logging.getLogger('SSD1306Presenter')
+        logger = get_logger('SSD1306Presenter')
         try:
             font_path = str(Path(__file__).resolve().parent.joinpath('fonts', name))
             logger.debug(f"Looking for font at: {font_path}")

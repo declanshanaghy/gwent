@@ -36,8 +36,8 @@ def ensure_raspberry_pi() -> None:
     Ensure the current system is a Raspberry Pi.
     Exits with an error if not running on Raspberry Pi hardware.
     """
-    import logging
-    logger = logging.getLogger("hardware_test")
+    from gwent.utils.logging import get_logger
+    logger = get_logger("hardware_test")
     
     # Check if the platform is Linux
     if not platform.system() == 'Linux':
@@ -74,8 +74,8 @@ def pytest_configure(config: pytest.Config) -> None:
     configure_logging(log_file=log_path)
     
     # Log the start of the test session
-    import logging
-    logger = logging.getLogger("pytest")
+    from gwent.utils.logging import get_logger
+    logger = get_logger("pytest")
     logger.info(f"Starting test session at {datetime.datetime.now().isoformat()}")
     logger.info(f"Test results will be saved to {xml_path}")
     logger.info(f"Logs will be saved to {log_path}")
@@ -95,8 +95,8 @@ def raspberry_pi_hw() -> Generator[Dict[str, Any], None, None]:
         dict: A dictionary containing initialized hardware components
     """
     # Log the start of hardware initialization
-    import logging
-    logger = logging.getLogger("hardware_test")
+    from gwent.utils.logging import get_logger
+    logger = get_logger("hardware_test")
     logger.info("Initializing Raspberry Pi hardware components")
     
     # Ensure we're running on a Raspberry Pi (will exit if not)

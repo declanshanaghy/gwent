@@ -2,7 +2,7 @@ import os
 import hashlib
 import json
 import jsonschema
-import logging
+from gwent.utils.logging import get_logger
 
 KIND = 'kind'
 SUBKIND = 'subkind'
@@ -18,7 +18,7 @@ class Message(object):
     instance = None
 
     def __init__(self, instance, subkind=None):
-        self._log = logging.getLogger(
+        self._log = get_logger(
             f'{self.__class__.__module__}.{self.__class__.__name__}')
         self.instance = instance
         self.instance[KIND] = self.kind

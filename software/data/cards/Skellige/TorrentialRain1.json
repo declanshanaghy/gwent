@@ -1,12 +1,10 @@
 {
     "faction": "Skellige",
     "kind": "card",
-    "name": "Torrential Rain",
+    "name": "Torrential Rain: 1",
     "ranges": [
         "siege"
     ],
     "specialty": "weather",
-    "owner": "Declan Shanaghy",
-    "starter": true,
-    "rfid": 346061294931
+    "starter": true
 }

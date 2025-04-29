@@ -1,25 +1,21 @@
 import os
 import json
-import logging
 import sys
 import re
 import requests
 from bs4 import BeautifulSoup
 from typing import Dict, List, Set, Any, Optional, Tuple
-import gwent.log
+from gwent.utils.logging import get_logger, configure_logging, DEBUG
 
 # Type aliases
 CardData = Dict[str, Any]
 FilePath = str
 
 class CardDownloader:
-    def __init__(self, log_verbose: bool = False):
-        self.log = logging.getLogger(__name__)
-        if log_verbose:
-            self.log.setLevel(logging.DEBUG)
-        else:
-            self.log.setLevel(logging.INFO)
-            
+    def __init__(self):
+        self.log = get_logger(__name__)
+        # Log level is now controlled by logging.json configuration
+        
         # Path to the cards directory
         self.cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 
                                                      '..', '..', '..', '..', 'data', 'cards'))
@@ -716,7 +712,7 @@ class CardDownloader:
 def main() -> int:
     """Command-line entry point for the card downloader utility"""
     # Set up logging
-    gwent.log.setup(level='debug')
+    configure_logging(level=DEBUG)
     
     # Parse command-line arguments
     output_path = 'tmp/card-differences.md'
@@ -727,7 +723,7 @@ def main() -> int:
     print(f"------------------------------------------------------")
     
     # Create and run the card downloader
-    downloader = CardDownloader(log_verbose=True)
+    downloader = CardDownloader()
     result = downloader.run(output_path)
     
     return result

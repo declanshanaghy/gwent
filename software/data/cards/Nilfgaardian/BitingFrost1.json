@@ -1,11 +1,10 @@
 {
     "faction": "Nilfgaardian",
     "kind": "card",
-    "name": "Biting Frost",
+    "name": "Biting Frost: 1",
     "ranges": [
         "close"
     ],
     "specialty": "weather",
-    "starter": true,
-    "content_id": "8288f797db29ce1398231ac8bc13ddb6"
+    "starter": true
 }
