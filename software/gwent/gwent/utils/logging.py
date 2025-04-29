@@ -248,18 +248,15 @@ def get_log_level_from_env(component_name: str) -> int:
 
 
 
-def configure_logging(level: Optional[int] = None, log_file: Optional[str] = None) -> None:
+def configure_logging(level: Optional[int] = None, log_file: Optional[str] = "./tmp/gwent.log.ndjson", log_stdout: bool = False) -> None:
     """
     Configure the root logger with JSON formatting.
     
     Args:
         level (int, optional): The log level for the root logger
         log_file (str, optional): Path to a log file to write logs to
+        log_stdout (bool, optional): If True, also send log output to stdout
     """
-    # Set default log file path if not specified
-    if log_file is None:
-        log_file = "./tmp/gwent.log"
-    
     # Set up the root logger
     root_logger = logging.getLogger()
     
@@ -267,13 +264,16 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = Non
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
     
-    # Create a JSON formatter for the file handler
+    # Create a JSON formatter for the handlers
     json_formatter = GwentJsonFormatter('%(timestamp)s %(level)s %(component)s %(message)s')
     
-    # We don't add a console handler here because we want all logs to go to the file
-    # and only user interactions to be shown on the console via the Rich console
+    # Add a console handler if log_stdout is True
+    if log_stdout:
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setFormatter(json_formatter)
+        root_logger.addHandler(console_handler)
     
-    # Ensure the directory exists
+    # Ensure the directory exists for the log file
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir, exist_ok=True)
@@ -318,7 +318,6 @@ def get_logger(component_name: str) -> logging.Logger:
     Returns:
         logging.Logger: The logger for the component
     """
-    # Get the logger for the component
     logger = logging.getLogger(component_name)
     
     # Check if we have a stored log level for this component

@@ -3,17 +3,7 @@ import time
 import asyncio
 import RPi.GPIO as GPIO
 from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
-
-class SimpleLogger:
-    """A simple logger class for when a real logger is not available"""
-    def info(self, msg):
-        print(f"INFO: {msg}")
-        
-    def warning(self, msg):
-        print(f"WARNING: {msg}")
-        
-    def debug(self, msg):
-        pass  # Ignore debug messages
+from gwent.utils.logging import get_logger
 
 
 class DirectGPIORotaryEncoder(AbstractRotaryEncoder):
@@ -47,8 +37,8 @@ class DirectGPIORotaryEncoder(AbstractRotaryEncoder):
         self.running = False
         self.poll_thread = None
         
-        # Use provided logger or create a simple print wrapper
-        self._log = log or SimpleLogger()
+        # Use provided logger or create a new one
+        self._log = log or get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
         
         # Initialize GPIO
         try:
@@ -202,6 +192,9 @@ class DirectGPIOSwitch(AbstractSwitch):
         self.last_state = None
         
         try:
+            # Create a logger
+            self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+            
             # Set GPIO mode to BCM (Broadcom SOC channel numbering)
             # This is safe to call multiple times as RPi.GPIO will only set the mode if it hasn't been set already
             GPIO.setmode(GPIO.BCM)
@@ -210,10 +203,12 @@ class DirectGPIOSwitch(AbstractSwitch):
             # This means the switch should connect the pin to ground when pressed
             GPIO.setup(self.pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
             
-            print(f"Initialized switch with pin {pin}")
+            self._log.info(f"Initialized switch with pin {pin}")
             self.available = True
         except Exception as e:
-            print(f"Error setting up GPIO pin for switch: {e}")
+            # Create a logger even in the exception case
+            self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+            self._log.error(f"Error setting up GPIO pin for switch: {e}")
             self.available = False
             raise RuntimeError(f"Failed to initialize switch GPIO pin: {e}")
     

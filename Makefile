@@ -8,7 +8,7 @@ DEPLOY_TGT := 192.168.1.225
 
 DEPLOY_DIR := "~/gwent"
 
-.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game read-card-util write-card-util validate-cards write-cards-to-disk read-card-file get-random-card download-skellige-cards download-skellige-cards-local
+.PHONY: rsync install install-app install-system install-service deploy start validate deploy-and-validate test-hardware deploy-and-test rotary-rpigpio-test rotary-gpiozero-test rotary-diagnostic-test rotary-pin-test rotary-debounce-test rotary-diagnostics rotary-robust rotary-lgpio rotary-pigpio rotary-test gpio-check gpio-service-stop gpio-service-start rfid-test oled-ssd1306-test oled-ssd1305-pillow-test oled-ssd1305-luma-test matrix-test matrix-marquee oled-test oled-direct-test display-diagnostic mfd-diagnostic audio-diagnostic game read-card-util write-card-util validate-cards write-cards-to-disk read-card-file get-random-card download-skellige-cards download-skellige-cards-local
 
 rsync:
 	@echo "rsync to $(DEPLOY_TGT)"
@@ -145,10 +145,6 @@ oled-ssd1305-luma-test: rsync
 	@echo "Running SSD1305 OLED display with SSD1306 driver demo on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.ssd1305_luma_demo"
 
-matrix-test: rsync
-	@echo "Running matrix display test with TCA9548A multiplexer on $(DEPLOY_TGT)"
-	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-test"
-
 oled-test: rsync
 	@echo "Running comprehensive OLED display test on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.oled_test"
@@ -156,6 +152,28 @@ oled-test: rsync
 TCA9548A-MatrixI2C-test: rsync
 	@echo "Running direct OLED display test on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-test"
+
+# Default values for matrix-marquee
+TEXT ?= "GWENT"
+CHANNEL ?= 0
+BRIGHTNESS ?= 50
+SPEED ?= 0.1
+
+# Default values for matrix-marquee
+TEXT ?= "GWENT"
+CHANNEL ?= 0
+BRIGHTNESS ?= 50
+SPEED ?= 0.1
+LOG_TO_FILE ?= false
+
+matrix-marquee: rsync
+	@echo "Running matrix marquee display with TCA9548A multiplexer on $(DEPLOY_TGT)"
+	@echo "Text: '$(TEXT)', Channel: $(CHANNEL), Brightness: $(BRIGHTNESS), Speed: $(SPEED), Log to file: $(LOG_TO_FILE)"
+	@if [ "$(LOG_TO_FILE)" = "true" ]; then \
+		ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-marquee --text '$(TEXT)' --channel $(CHANNEL) --brightness $(BRIGHTNESS) --speed $(SPEED) --log-to-file"; \
+	else \
+		ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} "source ~/gwent-venv/bin/activate && python -m gwent.poc.display_tests.TCA9548A-MatrixI2C-marquee --text '$(TEXT)' --channel $(CHANNEL) --brightness $(BRIGHTNESS) --speed $(SPEED)"; \
+	fi
 
 mfd-diagnostic: rsync
 	@echo "Running MFD diagnostic tool on $(DEPLOY_TGT)"
@@ -213,6 +231,12 @@ download-cards-from-pi:
 	@rsync \
 	    -talvx \
 	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/data/cards/* ./software/data/cards/
+
+download-logging-json-from-pi:
+	@echo "rsync from $(DEPLOY_TGT)"
+	@rsync \
+	    -talvx \
+	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/software/gwent/logging.json ./software/gwent/
 
 upload-cards-to-pi:
 	@echo "rsync from $(DEPLOY_TGT)"

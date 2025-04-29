@@ -42,7 +42,8 @@ class RotaryEncoder(gwent.game.BaseComponent):
             implementation: Which implementation to use (DirectGPIO, GPIOZero, or PIGPIO)
             log_verbose: Whether to enable verbose logging
         """
-        super().__init__(log_verbose=log_verbose)
+        super().__init__()
+        self._log_verbose = log_verbose
         self._implementation = implementation
 
     def start(self):

@@ -3,35 +3,119 @@
     "level": "INFO"
   },
   "components": {
+    "factory": {
+      "level": "INFO"
+    },
+    "card.util": {
+      "level": "INFO"
+    },
+    "__main__.Gwent": {
+      "level": "INFO"
+    },
+    "__main__.MQTTClient": {
+      "level": "INFO"
+    },
     "gwent.game.main": {
       "level": "INFO"
     },
-    "gwent.game.card_tools": {
+    "gwent.game.controller": {
       "level": "INFO"
     },
-    "gwent.hal.display": {
-      "level": "INFO"
-    },
-    "gwent.hal.audio": {
-      "level": "INFO"
-    },
-    "gwent.hal.rfid": {
-      "level": "INFO"
-    },
-    "gwent.hal.rfid.RealWriter": {
-      "level": "INFO"
-    },
-    "gwent.hal.rotary": {
-      "level": "INFO"
-    },
-    "gwent.hal.mfd": {
+    "gwent.game.controller.Controller": {
       "level": "INFO"
     },
     "gwent.logical.menu": {
       "level": "INFO"
     },
-    "gwent.utils.logging": {
+    "gwent.game.stages.main_menu.MainMenu": {
+      "level": "WARNING"
+    },
+    "gwent.game.stages.register_leaders.RegisterLeaders": {
       "level": "DEBUG"
+    },
+    "gwent.game.stages.regsiter_decks.RegisterDecks": {
+      "level": "INFO"
+    },
+    "gwent.game.player": {
+      "level": "DEBUG"
+    },
+    "gwent.game.player.Player": {
+      "level": "DEBUG"
+    },
+    "gwent.game.cards.Reader": {
+      "level": "WARNING"
+    },
+    "gwent.game.mfd.MFD": {
+      "level": "WARNING"
+    },
+    "gwent.messaging.ctrl.Message": {
+      "level": "INFO"
+    },
+    "gwent.messaging.sfx.Message": {
+      "level": "WARNING"
+    },
+    "gwent.messaging.choice.Message": {
+      "level": "WARNING"
+    },
+    "gwent.hal.audio": {
+      "level": "WARNING"
+    },
+    "gwent.game.sfx.SFX": {
+      "level": "WARNING"
+    },
+    "gwent.hal.sfx._SFX": {
+      "level": "WARNING"
+    },
+    "hal": {
+      "level": "WARNING"
+    },
+    "gwent.hal.matrix": {
+      "level": "DEBUG"
+    },
+    "gwent.hal.matrix._RealMatrix": {
+      "level": "INFO"
+    },
+    "gwent.hal.display": {
+      "level": "WARNING"
+    },
+    "gwent.hal.rfid": {
+      "level": "WARNING"
+    },
+    "MFRC522": {
+      "level": "WARNING"
+    },
+    "SimpleMFRC522": {
+      "level": "WARNING"
+    },
+    "gwent.hal.rfid.RealWriter": {
+      "level": "INFO"
+    },
+    "gwent.hal.rotary": {
+      "level": "WARNING"
+    },
+    "gwent.hal.rotary.RotaryEncoder": {
+      "level": "WARNING"
+    },
+    "gwent.hal.rotary.RotaryChooser": {
+      "level": "WARNING"
+    },
+    "gwent.hal.rotary_pigpio.PiGPIOSwitch": {
+      "level": "WARNING"
+    },
+    "gwent.hal.mfd": {
+      "level": "WARNING"
+    },
+    "gwent.hal.mfd._MFD": {
+      "level": "WARNING"
+    },
+    "gwent.hal.oled_ssd1306.SSD1306Presenter": {
+      "level": "WARNING"
+    },
+    "SSD1306Presenter": {
+      "level": "WARNING"
+    },
+    "gwent.utils.logging": {
+      "level": "WARNING"
     },
     "gwent.diagnostic.mfd": {
       "level": "INFO"
@@ -39,10 +123,10 @@
     "gwent.poc.util.card_manager": {
       "level": "DEBUG"
     },
-    "MFRC522": {
+    "gwent.messaging.mfd.Message": {
       "level": "INFO"
     },
-    "SimpleMFRC522": {
+    "gwent.game.card_tools": {
       "level": "INFO"
     }
   }

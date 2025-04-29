@@ -6,7 +6,7 @@ from typing import List
 
 import paho.mqtt.client as mqtt
 
-from gwent.utils.logging import configure_logging, get_logger
+from gwent.utils.logging import configure_logging, get_logger, DEBUG
 import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
@@ -144,7 +144,7 @@ class ThreadComponent:
     
     def init(self):
         """Initialize the component"""
-        self._log.info("Initializing component")
+        self._log.debug("Initializing component")
         self._initialized.set()
     
     def start(self):
@@ -239,7 +239,6 @@ class Gwent:
         
     def initialize_components(self):
         """Initialize all components"""
-        self._log.info('Initializing components')
         for component in self.components:
             component.init()
     
@@ -279,7 +278,7 @@ class Gwent:
 
 def run():
     """Run the Gwent application"""
-    configure_logging(level=DEBUG)
+    configure_logging(level=DEBUG, log_stdout=True)
     try:
         Gwent().run()
     except Exception as ex:

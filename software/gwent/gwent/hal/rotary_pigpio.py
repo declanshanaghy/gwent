@@ -2,17 +2,7 @@ import threading
 import time
 import pigpio
 from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
-
-class SimpleLogger:
-    """A simple logger class for when a real logger is not available"""
-    def info(self, msg):
-        print(f"INFO: {msg}")
-        
-    def warning(self, msg):
-        print(f"WARNING: {msg}")
-        
-    def debug(self, msg):
-        pass  # Ignore debug messages
+from gwent.utils.logging import get_logger
 
 
 class PiGPIORotaryEncoder(AbstractRotaryEncoder):
@@ -48,8 +38,8 @@ class PiGPIORotaryEncoder(AbstractRotaryEncoder):
         self.running = False
         self.available = False
         
-        # Use provided logger or create a simple print wrapper
-        self._log = log or SimpleLogger()
+        # Use provided logger or create a new one
+        self._log = log or get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
         
         self._log.info(f"Initializing PiGPIORotaryEncoder with pins A={a_pin}, B={b_pin}")
         self._log.info(f"Using pigpio daemon at {host}:{port}")
@@ -117,13 +107,21 @@ class PiGPIORotaryEncoder(AbstractRotaryEncoder):
         self._log.info("Stopping rotary encoder monitoring")
         self.running = False
         
+        # Cancel callback for pin A safely
         if hasattr(self, 'cb_a') and self.cb_a:
             self._log.info("Canceling callback for pin A")
-            self.cb_a.cancel()
+            try:
+                self.cb_a.cancel()
+            except Exception as e:
+                self._log.info(f"Error canceling callback for pin A: {e}")
             
+        # Cancel callback for pin B safely
         if hasattr(self, 'cb_b') and self.cb_b:
             self._log.info("Canceling callback for pin B")
-            self.cb_b.cancel()
+            try:
+                self.cb_b.cancel()
+            except Exception as e:
+                self._log.info(f"Error canceling callback for pin B: {e}")
             
         self._log.info("Rotary encoder monitoring stopped successfully")
     
@@ -216,11 +214,24 @@ class PiGPIORotaryEncoder(AbstractRotaryEncoder):
     
     def __del__(self):
         """Clean up resources when the object is destroyed"""
-        self._log.info("Cleaning up rotary encoder resources")
-        self.stop()
-        if hasattr(self, 'pi') and self.pi.connected:
-            self._log.info("Stopping pigpio connection")
-            self.pi.stop()
+        try:
+            self._log.info("Cleaning up rotary encoder resources")
+            # Try to stop callbacks safely
+            try:
+                self.stop()
+            except Exception as e:
+                self._log.info(f"Error stopping callbacks: {e}")
+                
+            # Try to stop pigpio connection safely
+            if hasattr(self, 'pi') and hasattr(self.pi, 'connected') and self.pi.connected:
+                self._log.info("Stopping pigpio connection")
+                try:
+                    self.pi.stop()
+                except Exception as e:
+                    self._log.info(f"Error stopping pigpio connection: {e}")
+        except Exception as e:
+            # Catch any exceptions during cleanup to prevent crash
+            pass
 
 
 class PiGPIOSwitch(AbstractSwitch):
@@ -239,7 +250,7 @@ class PiGPIOSwitch(AbstractSwitch):
         self.host = host
         self.port = port
         self.available = False
-        self._log = SimpleLogger()  # Use simple logger for switch
+        self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
         
         self._log.info(f"Initializing PiGPIOSwitch with pin={pin}")
         
@@ -296,10 +307,23 @@ class PiGPIOSwitch(AbstractSwitch):
     
     def __del__(self):
         """Clean up resources when the object is destroyed"""
-        self._log.info("Cleaning up switch resources")
-        if hasattr(self, 'cb'):
-            self._log.info("Canceling callback")
-            self.cb.cancel()
-        if hasattr(self, 'pi') and self.pi.connected:
-            self._log.info("Stopping pigpio connection")
-            self.pi.stop()
+        try:
+            self._log.info("Cleaning up switch resources")
+            # Try to cancel callback safely
+            if hasattr(self, 'cb'):
+                self._log.info("Canceling callback")
+                try:
+                    self.cb.cancel()
+                except Exception as e:
+                    self._log.info(f"Error canceling callback: {e}")
+                    
+            # Try to stop pigpio connection safely
+            if hasattr(self, 'pi') and hasattr(self.pi, 'connected') and self.pi.connected:
+                self._log.info("Stopping pigpio connection")
+                try:
+                    self.pi.stop()
+                except Exception as e:
+                    self._log.info(f"Error stopping pigpio connection: {e}")
+        except Exception as e:
+            # Catch any exceptions during cleanup to prevent crash
+            pass

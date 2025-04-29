@@ -73,7 +73,7 @@ class ThreadComponent(BaseComponent):
     
     def init(self):
         """Initialize the component"""
-        self._log.info("Initializing component")
+        self._log.debug("Initializing component")
         self._initialized.set()
     
     def start(self):

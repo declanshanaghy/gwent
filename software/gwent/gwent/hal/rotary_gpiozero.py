@@ -10,18 +10,7 @@ from typing import Optional, Callable
 from gpiozero import RotaryEncoder, Button
 
 from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
-
-
-class SimpleLogger:
-    """A simple logger class for when a real logger is not available"""
-    def info(self, msg):
-        print(f"INFO: {msg}")
-        
-    def warning(self, msg):
-        print(f"WARNING: {msg}")
-        
-    def debug(self, msg):
-        pass  # Ignore debug messages
+from gwent.utils.logging import get_logger
 
 
 class GwentGPIOZeroRotaryEncoder(AbstractRotaryEncoder):
@@ -53,8 +42,8 @@ class GwentGPIOZeroRotaryEncoder(AbstractRotaryEncoder):
         self.lock = threading.Lock()
         self.available = False
         
-        # Use provided logger or create a simple print wrapper
-        self._log = log or SimpleLogger()
+        # Use provided logger or create a new one
+        self._log = log or get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
         
         # Initialize gpiozero RotaryEncoder
         try:
@@ -151,14 +140,19 @@ class GPIOZeroSwitch(AbstractSwitch):
         self.pin = pin
         
         try:
+            # Create a logger
+            self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+            
             # gpiozero uses BCM pin numbering
             # pull_up=True means the switch should connect the pin to ground when pressed
             self.button = Button(pin, pull_up=True)
             
-            print(f"Initialized switch with pin {pin}")
+            self._log.info(f"Initialized switch with pin {pin}")
             self.available = True
         except Exception as e:
-            print(f"Error setting up gpiozero switch: {e}")
+            # Create a logger even in the exception case
+            self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
+            self._log.error(f"Error setting up gpiozero switch: {e}")
             self.available = False
             raise RuntimeError(f"Failed to initialize switch gpiozero pin: {e}")
     

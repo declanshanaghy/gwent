@@ -22,6 +22,13 @@ class Player(gwent.game.ThreadComponent):
     def shutdown(self):
         self.unsubscribe(self._channel)
         super().shutdown()
+    
+    def _update_display(self, score=None):
+        """
+        Update the score display
+        """
+        self._matrix.display_score(score)
+        # self._matrix.display_score_animation(0, score)
 
     def process_card_play(self, cp: gwent.messaging.card_play.Message):
         self._log.info({
@@ -33,6 +40,6 @@ class Player(gwent.game.ThreadComponent):
         })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
-            self._matrix.display_score(cp.card.strength)
+            self._update_display(cp.card.strength)
         else:
             self._log.error(f'Unhandled subkind: {cp.subkind}')

@@ -114,12 +114,16 @@ setuptools.setup(
             'oled-ssd1305-luma-test=gwent.poc.display_tests.ssd1305_luma_demo:main',
             # Fix entry points with hyphens in module names
             'matrix-test=gwent.poc.display_tests:run_matrix_test',
+            'matrix-marquee=gwent.poc.display_tests:run_matrix_marquee',
             'oled-test=gwent.poc.display_tests.oled_test:run',
             'oled-direct-test=gwent.poc.display_tests:run_matrix_test',
             'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
             'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
             'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
             'download-skellige-cards=gwent.poc.util.card_downloader_witcher_fandom_com:main',
+            
+            # Test scripts
+            'test-player-scores=gwent.tests.test_player_scores:main',
         ],
     }
 )

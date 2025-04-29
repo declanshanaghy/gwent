@@ -27,7 +27,8 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
             implementation: Which rotary encoder implementation to use
             log_verbose: Whether to enable verbose logging
         """
-        super().__init__(log_verbose=log_verbose)
+        super().__init__()
+        self._log_verbose = log_verbose
         self._log.info(f"Initializing RotaryChooser with implementation: {implementation.name}")
         try:
             self._log.info("Creating RotaryEncoder instance")
@@ -210,7 +211,8 @@ class RotaryEncoder(gwent.game.BaseComponent):
             implementation: Which implementation to use (DirectGPIO, GPIOZero, or PIGPIO)
             log_verbose: Whether to enable verbose logging
         """
-        super().__init__(log_verbose=log_verbose)
+        super().__init__()
+        self._log_verbose = log_verbose
         self._log.info(f"Initializing RotaryEncoder with implementation: {implementation.name}")
         self._implementation = implementation
         self._log.info(f"Using pins: A={self.A_PIN}, B={self.B_PIN}, SW={self.SW_PIN}")

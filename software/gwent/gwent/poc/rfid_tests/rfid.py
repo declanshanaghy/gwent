@@ -52,7 +52,7 @@ def run():
         
         # Initialize the RFID reader using RealWriter from gwent.hal.rfid
         # Note: RealWriter doesn't use a loop parameter
-        reader = RealWriter(log_verbose=False)
+        reader = RealWriter()
         gpio_initialized = True
         
         print("RFID reader initialized successfully")

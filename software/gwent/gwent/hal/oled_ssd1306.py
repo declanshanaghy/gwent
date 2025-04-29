@@ -18,8 +18,9 @@ from luma.core.virtual import terminal
 
 
 class SSD1306Presenter(gwent.hal.mfdi.Presenter):
-    def __init__(self, log_verbose: bool = False, device=1, port=0):
-        super().__init__(log_verbose=log_verbose)
+    def __init__(self, device=1, port=0):
+        super().__init__()
+        self._log_verbose = False
 
         self._log.info("Initializing SSD1306Presenter")
         self.device = None

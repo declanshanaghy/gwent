@@ -72,7 +72,7 @@ class Controller(gwent.game.ThreadComponent):
         self.set_active_stage(self.main_menu, complete, cancel)
 
     def publish_card_play(self, player: str, card: gwent.messaging.card.Message):
-        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player)
+        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player, gwent.messaging.card_play.KIND)
         cp = gwent.messaging.card_play.Message.with_add_to_deck(player, card)
         self.publish(ch, cp)
 
