@@ -180,11 +180,11 @@ class GwentJsonFormatter(jsonlogger.JsonFormatter):
         log_record['component'] = record.name
         
         # Add file and line information
-        log_record['file'] = record.pathname
-        log_record['line'] = record.lineno
+        # log_record['file'] = record.pathname
+        # log_record['line'] = record.lineno
         
         # Add thread information
-        log_record['thread'] = record.threadName
+        # log_record['thread'] = record.threadName
         
         # Add process information
         # log_record['process'] = record.processName

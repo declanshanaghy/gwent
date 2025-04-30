@@ -64,7 +64,6 @@ class BaseComponent(object):
 
 class ThreadComponent(BaseComponent):
     """Base class for threaded components"""
-    THREAD_TIMEOUT_LONG = 10.0
     
     def __init__(self):
         super().__init__()
@@ -118,7 +117,7 @@ class PubSubComponent(ThreadComponent):
         super().__init__()
         self._pubsub = pubsub
         self._callbacks = {}
-
+        
     def shutdown(self):
         """Shutdown the component"""
         # Unsubscribe from all topics

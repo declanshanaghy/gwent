@@ -215,7 +215,6 @@ download-tmp-from-pi:
 	@echo "rsync from $(DEPLOY_TGT)"
 	@rsync \
 	    -talvx \
-		--exclude=gwent-sfx \
 	    -e "ssh -i $(SSH_KEY)" ${DEPLOY_USER}@${DEPLOY_TGT}:${DEPLOY_DIR}/tmp/* ./tmp/
 
 download-cards-from-pi:
