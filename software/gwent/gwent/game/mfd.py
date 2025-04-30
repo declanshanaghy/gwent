@@ -18,6 +18,8 @@ class MFD(gwent.game.PubSubComponent):
         self._chooser_thread = None
         self._chooser_lock = threading.RLock()
         self._chooser_stop_event = threading.Event()
+        self._current_stage = None  # Track the current stage
+        self._last_subkind = None   # Track the last subkind processed
         self._log.info("MFD component initialized")
 
     def init(self):
@@ -46,38 +48,47 @@ class MFD(gwent.game.PubSubComponent):
         self._log.info("MFD component shutdown complete")
 
     def cancel_chooser(self):
+        """
+        Cancel the chooser thread if it exists.
+        This method should only be called when we're sure we want to cancel the thread,
+        such as when shutting down or when explicitly requested.
+        """
         self._log.info("Attempting to cancel chooser thread")
         with self._chooser_lock:
             if self._chooser_thread is not None:
-                self._log.info(f"Chooser thread exists, is_alive={self._chooser_thread.is_alive()}")
+                self._log.debug(f"Chooser thread exists, is_alive={self._chooser_thread.is_alive()}")
                 if self._chooser_thread.is_alive():
-                    self._log.info("Setting stop event for chooser thread")
+                    self._log.debug("Setting stop event for chooser thread")
                     self._chooser_stop_event.set()
                     
-                    # Try joining with increasing timeouts
-                    for timeout in [0.5, 1.0, 2.0]:
-                        self._log.info(f"Joining chooser thread with {timeout:.1f}s timeout")
-                        start_time = time.time()
-                        self._chooser_thread.join(timeout=timeout)
-                        elapsed = time.time() - start_time
-                        self._log.info(f"Join attempt completed after {elapsed:.3f}s")
-                        
-                        if not self._chooser_thread.is_alive():
-                            self._log.info("Chooser thread terminated successfully")
-                            break
+                    # Try joining with a single timeout
+                    self._log.debug(f"Joining chooser thread", extra={"timeout": self.THREAD_TIMEOUT_LONG})
+                    start_time = time.time()
+                    self._chooser_thread.join(timeout=self.THREAD_TIMEOUT_LONG)
+                    elapsed = time.time() - start_time
+                    self._log.debug(f"Join completed", extra={
+                        "elapsed": elapsed, 
+                        "success": not self._chooser_thread.is_alive()
+                    })
                     
                     if self._chooser_thread.is_alive():
-                        self._log.warning("Chooser thread did not terminate gracefully after multiple timeout attempts")
+                        self._log.warning("Chooser thread did not terminate gracefully after timeout")
+                    else:
+                        self._log.info("Chooser thread terminated successfully")
                 else:
-                    self._log.info("Chooser thread exists but is not alive")
+                    self._log.warning("Chooser thread exists but is not alive")
                 
                 self._chooser_thread = None
-                self._log.info("Clearing stop event")
+                self._log.debug("Clearing stop event")
                 self._chooser_stop_event.clear()
             else:
-                self._log.info("No chooser thread to cancel")
+                self._log.debug("No chooser thread to cancel")
 
     def process_mfd(self, mfd: gwent.messaging.mfd.Message):
+        """
+        Process an MFD message.
+        Only cancel the existing chooser thread if we're changing stages or if explicitly needed.
+        """
         self._log.info({
             'action': 'received mfd',
             'kind': mfd.kind,
@@ -85,9 +96,42 @@ class MFD(gwent.game.PubSubComponent):
             'body': mfd.body,
         })
         
-        self._log.info("Canceling any existing chooser thread")
-        self.cancel_chooser()
+        # Extract stage information from the message body if available
+        stage = None
+        if 'stage' in mfd.body:
+            stage = mfd.body['stage']
+            
+        # Cancel the chooser thread if we're changing stages or if the subkind is changing
+        # This ensures that a choices message can replace a prompt message
+        should_cancel = False
+        
+        # Check for stage change
+        if stage is not None and stage != self._current_stage:
+            self._log.info(f"Stage change detected: {self._current_stage} -> {stage}")
+            self._current_stage = stage
+            should_cancel = True
+        
+        # Check if we have an existing thread and the subkind is changing
+        if (self._chooser_thread is not None and self._chooser_thread.is_alive() and
+            hasattr(self, '_last_subkind') and self._last_subkind != mfd.subkind):
+            self._log.info(f"Subkind change detected: {self._last_subkind} -> {mfd.subkind}")
+            should_cancel = True
+        
+        # Store the current subkind for future comparison
+        self._last_subkind = mfd.subkind
+        
+        # Cancel the thread if needed
+        if should_cancel:
+            self._log.info("Canceling existing chooser thread due to stage or subkind change",
+                          extra={"stage": stage, "current_stage": self._current_stage,
+                                 "subkind": mfd.subkind, "last_subkind": self._last_subkind})
+            self.cancel_chooser()
+        else:
+            self._log.info("No stage or subkind change detected, keeping existing chooser thread if any",
+                          extra={"stage": stage, "current_stage": self._current_stage,
+                                 "subkind": mfd.subkind, "last_subkind": self._last_subkind})
 
+        # Create a single function for handling selection events
         def receive_select(delta: int, choice: gwent.messaging.choice.Message):
             self._log.info({
                 'action': 'receive_select',
@@ -100,73 +144,84 @@ class MFD(gwent.game.PubSubComponent):
                 self._log.debug(f"Publishing effect {effect} (iteration {i+1}/{abs(delta)})")
                 self.publish_effect(effect)
 
-        def receive_choice_thread(mfd_method):
-            thread_id = threading.get_ident()
-            self._log.info(f"Chooser thread started (id={thread_id})")
-            try:
-                self._log.info(f"Calling MFD method: {mfd_method.__name__}")
+        # Create a single thread function for all MFD methods
+        def start_chooser_thread(mfd_method):
+            """
+            Start a chooser thread for the given MFD method.
+            This is a unified function for all MFD methods.
+            """
+            with self._chooser_lock:
+                # If there's already a thread running, we need to decide what to do
+                if self._chooser_thread is not None and self._chooser_thread.is_alive():
+                    # For prompt messages, we should update the display even if there's a thread running
+                    if mfd.subkind == gwent.messaging.mfd.PROMPT:
+                        # Call the method directly without creating a new thread
+                        # This ensures the display is updated immediately
+                        self._log.info(f"Updating display with new prompt: {mfd.prompt}")
+                        try:
+                            mfd_method(mfd, receive_select)
+                        except Exception as e:
+                            self._log.error(f"Error updating display: {e}", exc_info=True)
+                        return
+                    else:
+                        # For other message types, don't start a new thread
+                        self._log.info("Chooser thread already running, not starting a new one")
+                        return
                 
-                # Periodically check for stop event while waiting for choice
-                choice = None
-                try:
-                    # Set a timeout for the MFD method
-                    choice = mfd_method(mfd, receive_select)
-                except Exception as e:
-                    self._log.error(f"Error in MFD method: {e}", exc_info=True)
+                # Clear the stop event before starting a new thread
+                self._chooser_stop_event.clear()
                 
-                self._log.info({
-                    'action': 'mfd_method_result',
-                    'choice': choice.id if choice else None,
-                    'stop_event_set': self._chooser_stop_event.is_set()
-                })
+                # Define the thread function
+                def thread_func():
+                    thread_id = threading.get_ident()
+                    self._log.info(f"Chooser thread started (id={thread_id})")
+                    try:
+                        self._log.info(f"Calling MFD method: {mfd_method.__name__}")
+                        
+                        # Call the MFD method
+                        choice = None
+                        try:
+                            choice = mfd_method(mfd, receive_select)
+                        except Exception as e:
+                            self._log.error(f"Error in MFD method: {e}", exc_info=True)
+                        
+                        self._log.info({
+                            'action': 'mfd_method_result',
+                            'choice': choice.id if choice else None,
+                            'stop_event_set': self._chooser_stop_event.is_set()
+                        })
+                        
+                        # Publish the choice if available and not stopped
+                        if choice and not self._chooser_stop_event.is_set():
+                            self._log.info(f"Publishing choice: {choice.id}")
+                            self.publish_effect(gwent.messaging.sfx.EFFECT_MFD_CHOOSE)
+                            self.publish(gwent.game.CH_MFD_CHOOSE, choice)
+                        else:
+                            if not choice:
+                                self._log.warning("No choice returned from MFD method")
+                            if self._chooser_stop_event.is_set():
+                                self._log.info("Stop event was set, not publishing choice")
+                    except Exception as e:
+                        self._log.error(f"Error in chooser thread: {e}", exc_info=True)
+                    finally:
+                        self._log.info(f"Chooser thread exiting (id={thread_id})")
                 
-                if choice and not self._chooser_stop_event.is_set():
-                    self._log.info(f"Publishing choice: {choice.id}")
-                    self.publish_effect(gwent.messaging.sfx.EFFECT_MFD_CHOOSE)
-                    self.publish(gwent.game.CH_MFD_CHOOSE, choice)
-                else:
-                    if not choice:
-                        self._log.warning("No choice returned from MFD method")
-                    if self._chooser_stop_event.is_set():
-                        self._log.info("Stop event was set, not publishing choice")
-            except Exception as e:
-                self._log.error(f"Error in chooser thread: {e}", exc_info=True)
-            finally:
-                # Make sure we properly clean up
-                self._log.info(f"Chooser thread exiting (id={thread_id})")
+                # Create and start the thread
+                thread_name = f"MFD-{mfd.subkind.capitalize()}-Thread"
+                self._log.info(f"Creating {thread_name}")
+                self._chooser_thread = threading.Thread(
+                    target=thread_func,
+                    name=thread_name)
+                self._chooser_thread.daemon = True
+                self._log.info(f"Starting {thread_name}")
+                self._chooser_thread.start()
 
-        with self._chooser_lock:
-            self._log.info(f"Processing MFD message with subkind: {mfd.subkind}")
-            
-            if mfd.subkind == gwent.messaging.mfd.ERROR:
-                self._log.info("Creating ERROR display thread")
-                self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
-                    args=(self._mfd.present_error,),
-                    name="MFD-Error-Thread")
-                self._chooser_thread.daemon = True
-                self._log.info("Starting ERROR display thread")
-                self._chooser_thread.start()
-                
-            elif mfd.subkind == gwent.messaging.mfd.PROMPT:
-                self._log.info("Creating PROMPT display thread")
-                self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
-                    args=(self._mfd.present_prompt,),
-                    name="MFD-Prompt-Thread")
-                self._chooser_thread.daemon = True
-                self._log.info("Starting PROMPT display thread")
-                self._chooser_thread.start()
-                
-            elif mfd.subkind == gwent.messaging.mfd.CHOICES:
-                self._log.info("Creating CHOICES display thread")
-                self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
-                    args=(self._mfd.present_choices,),
-                    name="MFD-Choices-Thread")
-                self._chooser_thread.daemon = True
-                self._log.info("Starting CHOICES display thread")
-                self._chooser_thread.start()
-                
-            else:
-                self._log.debug(f'Unhandled subkind {mfd.subkind}')
+        # Process the MFD message based on its subkind
+        if mfd.subkind == gwent.messaging.mfd.ERROR:
+            start_chooser_thread(self._mfd.present_error)
+        elif mfd.subkind == gwent.messaging.mfd.PROMPT:
+            start_chooser_thread(self._mfd.present_prompt)
+        elif mfd.subkind == gwent.messaging.mfd.CHOICES:
+            start_chooser_thread(self._mfd.present_choices)
+        else:
+            self._log.debug(f'Unhandled subkind {mfd.subkind}')

@@ -31,7 +31,7 @@ class _SFX(gwent.game.BaseComponent):
 
     def tempdir(self):
         if self._tempdir is None:
-            self._tempdir = os.path.join(tempfile.gettempdir(), 'gwent-sfx')
+            self._tempdir = os.path.join('tmp', 'gwent-sfx')
             if not os.path.exists(self._tempdir):
                 os.makedirs(self._tempdir)
         return self._tempdir

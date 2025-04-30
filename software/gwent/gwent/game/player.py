@@ -51,7 +51,9 @@ class Player(gwent.game.PubSubComponent):
         self._matrix.display_centered_score(self._score, self._player)
 
     def process_ctrl(self, cp: gwent.messaging.ctrl.Message):
-        self._log.info(f'received {cp.kind}', extra=cp.to_object())
+        # Fix the logging statement to ensure extra is a dictionary
+        extra_dict = cp.to_object()
+        self._log.info(f'received {cp.kind}', extra=extra_dict)
         
         if cp.subkind == gwent.messaging.ctrl.STAGE:
             if cp.stage == gwent.messaging.ctrl.STAGE_MAIN_MENU:
@@ -64,13 +66,15 @@ class Player(gwent.game.PubSubComponent):
             self._log.debug(f'Unhandled subkind: {cp.subkind}')
 
     def process_card_play(self, cp: gwent.messaging.card_play.Message):
-        self._log.info({
+        # Fix the logging statement to ensure it's properly formatted
+        extra_dict = {
             'action': f'received {cp.kind}',
             'subkind': cp.subkind,
             'faction': cp.card.faction,
             'name': cp.card.name,
             'strength': cp.card.strength,
-        })
+        }
+        self._log.info("", extra=extra_dict)
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
             inc = 0
@@ -79,20 +83,23 @@ class Player(gwent.game.PubSubComponent):
                 # Store the leader card in the _leader member
                 self._leader = cp.card
                 inc = random.randint(0, 200) # Increment score for shits n giggles, remove this later.
-                self._log.info(f"Stored leader", extra={"card": cp.card.to_object(), "inc": inc})
+                # Fix the logging statement to ensure extra is a dictionary
+                extra_dict = {"card": cp.card.to_object(), "inc": inc}
+                self._log.info(f"Stored leader", extra=extra_dict)
             else:
                 # Store the card in the _deck member
                 self._deck.append(cp.card)
                 if cp.card.strength:
                     inc += cp.card.strength
-                self._log.info(f"Added card to deck", extra={"card": cp.card.to_object(), "inc": inc})
+                # Fix the logging statement to ensure extra is a dictionary
+                extra_dict = {"card": cp.card.to_object(), "inc": inc}
+                self._log.info(f"Added card to deck", extra=extra_dict)
 
             if inc:                
                 self._score += inc
-                self._log.info(f"Score incremented", extra={
-                    "inc": inc,
-                    "score": self._score
-                })
+                # Fix the logging statement to ensure extra is a dictionary
+                extra_dict = {"inc": inc, "score": self._score}
+                self._log.info(f"Score incremented", extra=extra_dict)
                 # Update the display
                 self._update_display()
         else:

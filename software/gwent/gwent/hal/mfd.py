@@ -54,9 +54,6 @@ def instance():
     
     mfd = _MFD(presenter, chooser)
 
-    error_msg = gwent.messaging.mfd.Message.with_error("Test Message")
-    mfd.present_error(error_msg, lambda delta, choice: None)
-
     return mfd
 
 
@@ -103,10 +100,9 @@ class _MFD(gwent.game.BaseComponent):
             self._presenter.redraw()
             
             if self._presenter.prompt:
-                self._log.info(f"Prompt exists, sleeping for {delay}s before showing prompt")
-                time.sleep(delay)
                 self._log.debug("Displaying prompt")
                 self._presenter.display_prompt()
+                time.sleep(delay)
                 self._log.debug("Redrawing presenter")
                 self._presenter.redraw()
             else:
