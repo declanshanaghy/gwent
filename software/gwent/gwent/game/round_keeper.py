@@ -6,12 +6,12 @@ import gwent.messaging.factory
 import gwent.messaging.sfx
 import gwent.hal.matrix
 
+import paho.mqtt.client as mqtt
 
-class RoundKeeper(gwent.game.ThreadComponent):
+class RoundKeeper(gwent.game.PubSubComponent):
 
-    def __init__(self, player: str, pubsub):
+    def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
-        self._player = player
         self._mux_channel = gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ROUND_KEEPER
         self._channel = gwent.game.make_channel(gwent.game.CH_CTRL)
         self.plr1_score = 0

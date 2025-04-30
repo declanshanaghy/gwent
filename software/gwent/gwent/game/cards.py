@@ -18,7 +18,7 @@ READING_STAGES = {
 }
 
 
-class Reader(gwent.game.ThreadComponent):
+class Reader(gwent.game.PubSubComponent):
     _pause_until = None
     _pause_length = None
 

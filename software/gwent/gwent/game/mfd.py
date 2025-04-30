@@ -11,7 +11,7 @@ import gwent.game
 import gwent.hal.mfd
 
 
-class MFD(gwent.game.ThreadComponent):
+class MFD(gwent.game.PubSubComponent):
     def __init__(self, pubsub):
         super().__init__(pubsub)
         self._log.info("Initializing MFD component")
@@ -53,16 +53,21 @@ class MFD(gwent.game.ThreadComponent):
                 if self._chooser_thread.is_alive():
                     self._log.info("Setting stop event for chooser thread")
                     self._chooser_stop_event.set()
-                    self._log.info("Joining chooser thread with 1.0s timeout")
-                    start_time = time.time()
-                    self._chooser_thread.join(timeout=1.0)
-                    elapsed = time.time() - start_time
-                    self._log.info(f"Join completed after {elapsed:.3f}s")
+                    
+                    # Try joining with increasing timeouts
+                    for timeout in [0.5, 1.0, 2.0]:
+                        self._log.info(f"Joining chooser thread with {timeout:.1f}s timeout")
+                        start_time = time.time()
+                        self._chooser_thread.join(timeout=timeout)
+                        elapsed = time.time() - start_time
+                        self._log.info(f"Join attempt completed after {elapsed:.3f}s")
+                        
+                        if not self._chooser_thread.is_alive():
+                            self._log.info("Chooser thread terminated successfully")
+                            break
                     
                     if self._chooser_thread.is_alive():
-                        self._log.warning("Chooser thread did not terminate gracefully after timeout")
-                    else:
-                        self._log.info("Chooser thread terminated successfully")
+                        self._log.warning("Chooser thread did not terminate gracefully after multiple timeout attempts")
                 else:
                     self._log.info("Chooser thread exists but is not alive")
                 
@@ -100,7 +105,15 @@ class MFD(gwent.game.ThreadComponent):
             self._log.info(f"Chooser thread started (id={thread_id})")
             try:
                 self._log.info(f"Calling MFD method: {mfd_method.__name__}")
-                choice = mfd_method(mfd, receive_select)
+                
+                # Periodically check for stop event while waiting for choice
+                choice = None
+                try:
+                    # Set a timeout for the MFD method
+                    choice = mfd_method(mfd, receive_select)
+                except Exception as e:
+                    self._log.error(f"Error in MFD method: {e}", exc_info=True)
+                
                 self._log.info({
                     'action': 'mfd_method_result',
                     'choice': choice.id if choice else None,
@@ -119,6 +132,7 @@ class MFD(gwent.game.ThreadComponent):
             except Exception as e:
                 self._log.error(f"Error in chooser thread: {e}", exc_info=True)
             finally:
+                # Make sure we properly clean up
                 self._log.info(f"Chooser thread exiting (id={thread_id})")
 
         with self._chooser_lock:

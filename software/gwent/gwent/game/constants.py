@@ -1,5 +1,3 @@
-ROUND_KEEPER = "round-keeper"
-
 from enum import Enum
 
 class PLAYER(Enum):

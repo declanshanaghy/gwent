@@ -237,7 +237,7 @@ class PiGPIORotaryEncoder(AbstractRotaryEncoder):
 class PiGPIOSwitch(AbstractSwitch):
     """A switch class using pigpio that implements the AbstractSwitch interface"""
     
-    def __init__(self, pin, host='localhost', port=8888):
+    def __init__(self, pin, host='localhost', port=8888, debounce_ms=50):
         """
         Initialize the switch.
         
@@ -245,14 +245,17 @@ class PiGPIOSwitch(AbstractSwitch):
             pin: The pin number for the switch (BCM pin numbering)
             host: pigpio daemon host (default: localhost)
             port: pigpio daemon port (default: 8888)
+            debounce_ms: Debounce time in milliseconds (default: 300ms)
         """
         self.pin = pin
         self.host = host
         self.port = port
         self.available = False
+        self.debounce_ms = debounce_ms
+        self.last_change_time = 0
         self._log = get_logger(f"{self.__class__.__module__}.{self.__class__.__name__}")
         
-        self._log.info(f"Initializing PiGPIOSwitch with pin={pin}")
+        self._log.info(f"Initializing PiGPIOSwitch with pin={pin}, debounce={debounce_ms}ms")
         
         try:
             # Connect to pigpio daemon
@@ -284,16 +287,25 @@ class PiGPIOSwitch(AbstractSwitch):
     
     def _pulse(self, gpio, level, tick):
         """
-        Update the switch state.
+        Update the switch state with debouncing.
         
         Args:
             gpio: The GPIO that changed state
             level: The new level
             tick: The timestamp of the change
         """
+        # Implement debouncing
+        current_time = time.time() * 1000  # Convert to milliseconds
+        time_since_last = current_time - self.last_change_time
+        
+        if time_since_last < self.debounce_ms:
+            self._log.debug(f"Ignoring switch change due to debounce: {time_since_last}ms < {self.debounce_ms}ms")
+            return
+            
         old_state = self.state
         self.state = level
-        self._log.info(f"Switch state changed: {old_state} -> {level} (0=pressed, 1=released)")
+        self.last_change_time = current_time
+        self._log.info(f"Switch state changed: {old_state} -> {level} (0=pressed, 1=released), time since last: {time_since_last:.1f}ms")
     
     def get_state(self):
         """Get the current state of the switch (True = pressed, False = released)"""

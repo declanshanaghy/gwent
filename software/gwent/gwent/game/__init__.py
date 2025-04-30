@@ -1,7 +1,9 @@
 import time
 import threading
 from typing import Any, Callable
+from collections import OrderedDict
 
+import paho.mqtt.client as mqtt
 from gwent.utils.logging import get_logger
 
 import gwent.messaging.base
@@ -63,13 +65,11 @@ class BaseComponent(object):
 class ThreadComponent(BaseComponent):
     """Base class for threaded components"""
     
-    def __init__(self, pubsub):
+    def __init__(self):
         super().__init__()
-        self._pubsub = pubsub
         self._thread = None
         self._stop_event = threading.Event()
         self._initialized = threading.Event()
-        self._callbacks = {}
     
     def init(self):
         """Initialize the component"""
@@ -107,15 +107,25 @@ class ThreadComponent(BaseComponent):
         self._log.info("Shutting down component")
         self._stop_event.set()
         
-        # Unsubscribe from all topics
-        for topic in list(self._callbacks.keys()):
-            self.unsubscribe(topic)
-            
         if self._thread and self._thread.is_alive():
             self._thread.join(timeout=2)
             if self._thread.is_alive():
                 self._log.warning("Component thread did not terminate gracefully")
     
+class PubSubComponent(ThreadComponent):
+    def __init__(self, pubsub: mqtt.Client):
+        super().__init__()
+        self._pubsub = pubsub
+        self._callbacks = {}
+        
+    def shutdown(self):
+        """Shutdown the component"""
+        # Unsubscribe from all topics
+        for topic in list(self._callbacks.keys()):
+            self.unsubscribe(topic)                
+
+        super().shutdown()
+        
     def _message_handler(self, topic: str, payload: str, expect_kind: str, callback: Callable):
         """Handle incoming messages"""
         try:
@@ -161,6 +171,7 @@ class ThreadComponent(BaseComponent):
 
     def publish(self, topic, message: gwent.messaging.base.Message):
         """Publish a message to a topic"""
+        # Publish the message
         self._log.info({
             'action': 'publish',
             'topic': topic,
@@ -199,8 +210,3 @@ class ThreadComponent(BaseComponent):
 
         p = gwent.messaging.sfx.Message.with_announcement(p.prompt)
         self.publish(CH_SFX, p)
-
-
-# For backward compatibility
-class PubSubComponent(ThreadComponent):
-    pass

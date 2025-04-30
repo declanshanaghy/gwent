@@ -16,7 +16,7 @@
       "level": "WARNING"
     },
     "gwent.game.main.MQTTClient": {
-      "level": "WARNING"
+      "level": "DEBUG"
     },
     "gwent.game.main": {
       "level": "INFO"
@@ -37,7 +37,7 @@
       "level": "DEBUG"
     },
     "gwent.game.stages.regsiter_decks.RegisterDecks": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.game.player": {
       "level": "DEBUG"
@@ -46,19 +46,19 @@
       "level": "DEBUG"
     },
     "gwent.game.cards.Reader": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.game.mfd.MFD": {
-      "level": "WARNING"
+      "level": "DEBUG"
     },
     "gwent.messaging.ctrl.Message": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.messaging.sfx.Message": {
       "level": "WARNING"
     },
     "gwent.messaging.choice.Message": {
-      "level": "WARNING"
+      "level": "DEBUG"
     },
     "gwent.hal.audio": {
       "level": "WARNING"
@@ -73,7 +73,7 @@
       "level": "WARNING"
     },
     "gwent.hal.matrix": {
-      "level": "DEBUG"
+      "level": "WARNING"
     },
     "gwent.hal.matrix._RealMatrix": {
       "level": "WARNING"

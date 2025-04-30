@@ -1,5 +1,7 @@
 from typing import Callable, List
 
+import paho.mqtt.client as mqtt
+
 import gwent.game.errors
 import gwent.game.stages.all
 import gwent.messaging.base
@@ -15,16 +17,16 @@ import gwent.hal.sfx
 
 from gwent.game.constants import PLAYER
 
-class Controller(gwent.game.ThreadComponent):
+class Controller(gwent.game.PubSubComponent):
     active_stage = None
     register_leaders = None
     register_decks = None
 
-    def __init__(self, pubsub):
+    def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
-        self.main_menu = gwent.game.stages.all.MainMenu(self._pubsub)
-        self.register_leaders = gwent.game.stages.all.RegisterLeaders(self._pubsub)
-        self.register_decks = gwent.game.stages.all.RegisterDecks(self._pubsub)
+        self.main_menu = gwent.game.stages.all.MainMenu(pubsub)
+        self.register_leaders = gwent.game.stages.all.RegisterLeaders(pubsub)
+        self.register_decks = gwent.game.stages.all.RegisterDecks(pubsub)
 
     def init(self):
         super().init()

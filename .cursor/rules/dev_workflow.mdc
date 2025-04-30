@@ -288,14 +288,7 @@ Once a task has been broken down into subtasks using `expand_task` or similar me
     - This preserves file metadata, permissions, and is more efficient.
     - This approach prevents potential data loss or corruption that could occur during content regeneration.
     - Example: Use `mv /path/to/source/file.txt /path/to/destination/file.txt` instead of reading the content and writing it to a new location.
-    - When reading code files use the list_code_definition_names to find the line numbers then use the start_line and end_line parameters when retrieving the content with the file read tool.22
-
-- **Always Delete Branches After Merging PRs**:
-    - When merging a PR, always delete the branch after the merge is complete.
-    - This keeps the repository clean and prevents confusion about which branches are active.
-    - Use `git branch -d <branch-name>` for local branches after merging.
-    - For remote branches, use `git push origin --delete <branch-name>` after the PR is merged.
-    - This practice helps maintain a clean repository and makes it clear which branches are still being worked on.
+    - When reading code files use the list_code_definition_names to find the line numbers then use the start_line and end_line parameters when retrieving the content with the file read tool.
 
 - **PR Description Requirements**:
     - PR descriptions must always be kept up to date with the sum of all Development Metrics, i.e API Costs and Development Time. This is calculted from the development metrics in the commit messages of all commits on the PR branch.

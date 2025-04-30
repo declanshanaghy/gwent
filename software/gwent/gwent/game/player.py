@@ -8,7 +8,7 @@ import gwent.hal.matrix
 from gwent.game.constants import PLAYER
 
 
-class Player(gwent.game.ThreadComponent):
+class Player(gwent.game.PubSubComponent):
 
     def __init__(self, player: PLAYER, pubsub, mux_channel):
         super().__init__(pubsub)
@@ -90,7 +90,9 @@ class Player(gwent.game.ThreadComponent):
             if inc:                
                 self._score += inc
                 self._log.info(f"Score incremented", extra={
-                    "inc": inc, "score": self._score})
+                    "inc": inc,
+                    "score": self._score
+                })
                 # Update the display
                 self._update_display()
         else:

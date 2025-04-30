@@ -238,7 +238,7 @@ class Gwent:
         # Create component adapters
         self.components = []
         self.components.append(gwent.game.controller.Controller(self.pubsub))
-        self.components.append(gwent.game.round_keeper.RoundKeeper(gwent.game.constants.ROUND_KEEPER, self.pubsub))
+        self.components.append(gwent.game.round_keeper.RoundKeeper(self.pubsub))
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
