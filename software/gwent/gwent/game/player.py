@@ -65,32 +65,34 @@ class Player(gwent.game.PubSubComponent):
         else:
             self._log.debug(f'Unhandled subkind: {cp.subkind}')
 
-    def process_card_play(self, card: gwent.messaging.card_play.Message):
+    def process_card_play(self, cp: gwent.messaging.card_play.Message):
         # Fix the logging statement to ensure it's properly formatted
         extra_dict = {
-            'action': f'received {card.kind}',
-            'subkind': card.subkind,
-            'card': card,
+            'action': f'received {cp.kind}',
+            'subkind': cp.subkind,
+            'faction': cp.card.faction,
+            'name': cp.card.name,
+            'strength': cp.card.strength,
         }
         self._log.info("", extra=extra_dict)
 
-        if card.subkind == gwent.messaging.card_play.ADD_TO_DECK:
+        if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
             inc = 0
 
-            if card.card.is_leader:
+            if cp.card.is_leader:
                 # Store the leader card in the _leader member
-                self._leader = card.card
+                self._leader = cp.card
                 inc = random.randint(0, 200) # Increment score for shits n giggles, remove this later.
                 # Fix the logging statement to ensure extra is a dictionary
-                extra_dict = {"card": card.card.to_object(), "inc": inc}
+                extra_dict = {"card": cp.card.to_object(), "inc": inc}
                 self._log.info(f"Stored leader", extra=extra_dict)
             else:
                 # Store the card in the _deck member
-                self._deck.append(card.card)
-                if card.card.strength:
-                    inc += card.card.strength
+                self._deck.append(cp.card)
+                if cp.card.strength:
+                    inc += cp.card.strength
                 # Fix the logging statement to ensure extra is a dictionary
-                extra_dict = {"card": card.card.to_object(), "inc": inc}
+                extra_dict = {"card": cp.card.to_object(), "inc": inc}
                 self._log.info(f"Added card to deck", extra=extra_dict)
 
             if inc:                
@@ -101,4 +103,4 @@ class Player(gwent.game.PubSubComponent):
                 # Update the display
                 self._update_display()
         else:
-            self._log.debug(f'Unhandled subkind: {card.subkind}')
+            self._log.debug(f'Unhandled subkind: {cp.subkind}')
