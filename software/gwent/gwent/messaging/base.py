@@ -46,6 +46,7 @@ class Message(object):
         return True
 
     def validate(self):
+        self._log.info(f"Validating message", {"instance": self._instance})
         jsonschema.validate(instance=self._instance, schema=self.get_schema())
         self.validate_extra()
 

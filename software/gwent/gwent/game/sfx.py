@@ -35,6 +35,6 @@ class SFX(gwent.game.ThreadComponent):
                 self._log.info(f"Playing {music_info}")
                 self._tts.play_music(sfx)
             else:
-                self._log.error(f'Unhandled subkind: {sfx.subkind}')
+                self._log.debug(f'Unhandled subkind: {sfx.subkind}')
         except Exception as e:
             self._log.error(f"Error processing audio: {e}", exc_info=True)

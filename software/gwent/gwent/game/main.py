@@ -67,7 +67,7 @@ class MQTTClient:
         with self._lock:
             for sub_topic, callbacks in self._subscriptions.items():
                 match = mqtt.topic_matches_sub(sub_topic, topic)
-                self._log.info(f"Checking topic: {topic}, {sub_topic}, {match}")
+                self._log.debug(f"Checking topic: {topic}, {sub_topic}, {match}")
                 if match:
                     for callback in callbacks:
                         try:
@@ -238,8 +238,8 @@ class Gwent:
         self.components = []
         self.components.append(gwent.game.controller.Controller(self.pubsub))
         self.components.append(gwent.game.round_keeper.RoundKeeper(gwent.game.controller.ROUND_KEEPER, self.pubsub))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER_TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
+        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub))

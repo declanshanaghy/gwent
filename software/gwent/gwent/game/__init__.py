@@ -122,7 +122,7 @@ class ThreadComponent(BaseComponent):
             message = gwent.messaging.factory.unmarshall(payload, expect_kind=expect_kind)
             callback(message)
         except Exception as e:
-            self._log.error(f"Error processing message: {e}", exc_info=True)
+            self._log.exception(f"Error processing message: {e}", exc_info=True)
 
     def subscribe(self, topic_filter: str, expect_kind: str,
                   callback: Callable[[gwent.messaging.base.Message], Any]):

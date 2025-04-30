@@ -53,7 +53,7 @@ class Reader(gwent.game.ThreadComponent):
                     'read_enabled': self._read_enabled,
                 })
         else:
-            self._log.error(f'Unhandled subkind {ctrl.subkind}')
+            self._log.debug(f'Unhandled subkind {ctrl.subkind}')
 
     def pause_reading(self):
         self._pause_until = time.time() + self.pause_length

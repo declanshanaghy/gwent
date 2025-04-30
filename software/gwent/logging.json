@@ -13,7 +13,10 @@
       "level": "INFO"
     },
     "__main__.MQTTClient": {
-      "level": "DEBUG"
+      "level": "WARNING"
+    },
+    "gwent.game.main.MQTTClient": {
+      "level": "WARNING"
     },
     "gwent.game.main": {
       "level": "INFO"
@@ -73,7 +76,7 @@
       "level": "DEBUG"
     },
     "gwent.hal.matrix._RealMatrix": {
-      "level": "INFO"
+      "level": "WARNING"
     },
     "gwent.hal.display": {
       "level": "WARNING"

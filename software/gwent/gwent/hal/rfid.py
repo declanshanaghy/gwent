@@ -307,7 +307,7 @@ class _RealReader(_BaseReader):
                 break
                 
             if attempt < max_body_attempts:
-                self._log.warning({
+                self._log.debug({
                     'action': 'retrying card body read',
                     'attempt': attempt,
                     'timestamp': time.time(),
@@ -317,7 +317,7 @@ class _RealReader(_BaseReader):
                 reset_start = time.time()
                 if hasattr(self, 'reset') and callable(self.reset):
                     reset_success = self.reset()
-                    self._log.warn({
+                    self._log.debug({
                         'action': 'reset_between_attempts',
                         'success': reset_success,
                         'duration': time.time() - reset_start
@@ -325,7 +325,7 @@ class _RealReader(_BaseReader):
                 # No need for delay between retry attempts - card_manager handles retries
         
         if id is None or body is None:
-            self._log.error({
+            self._log.debug({
                 'action': 'read card body failed after all attempts',
                 'timestamp': time.time(),
                 'original_id': original_id
@@ -432,7 +432,7 @@ class _RealReader(_BaseReader):
             })
             return id, text
         else:
-            self._log.warning({
+            self._log.debug({
                 'action': 'read_sector_failed',
                 'trailer': trailer,
                 'blocks': blocks,
@@ -615,7 +615,7 @@ class _RealReader(_BaseReader):
                     # No need for delay between sector read retries - card_manager handles retries
             
             if id is None:  # The card was removed or read failed
-                self._log.error({
+                self._log.debug({
                     'action': 'read card body failed',
                     'sector': sector,
                     'original_id': original_id

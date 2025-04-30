@@ -44,9 +44,11 @@ install-service: rsync
 	@echo "Installing gwent service on $(DEPLOY_TGT)"
 	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/install-service.sh
 
-update-service: rsync
-	@echo "Update service $(DEPLOY_TGT)"
-	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} bash -c ${DEPLOY_DIR}/scripts/update-service.sh
+update-service: install-service
+
+restart-service:
+	@echo "Restart service $(DEPLOY_TGT)"
+	@ssh -i $(SSH_KEY) ${DEPLOY_USER}@${DEPLOY_TGT} sudo systemctl restart gwent
 
 # Deploy the application to the Raspberry Pi
 deploy: install install-app

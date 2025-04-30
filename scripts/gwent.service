@@ -12,7 +12,7 @@ Type=simple
 User=dshanaghy
 # Ensure the user is part of the gpio group
 SupplementaryGroups=gpio
-WorkingDirectory=/home/dshanaghy
+WorkingDirectory=/home/dshanaghy/gwent
 Environment=PYTHONUNBUFFERED=1
 Environment=RASPBERRY_PI_IP=192.168.1.225
 Environment=RUNNING_ON_PI=true

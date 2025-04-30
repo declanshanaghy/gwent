@@ -15,7 +15,7 @@ import adafruit_is31fl3731
 # Default configuration
 DEFAULT_MUX_ADDRESS = 0x70
 DEFAULT_MATRIX_ADDRESS = 0x74
-DEFAULT_BRIGHTNESS = 50      # Default brightness level (0-255)
+DEFAULT_BRIGHTNESS = 10      # Default brightness level (0-255)
 
 MATRIX_CHANNEL_DEFAULT=7 # Nothing connected to this channel
 MATRIX_CHANNEL_PLAYER_ROUND_KEEPER = 0
@@ -39,6 +39,13 @@ class _FakeMatrix(gwent.game.BaseComponent):
         self._log.info({
             'action': 'display score',
             'score': score
+        })
+        
+    def display_round_scores(self, plr1_score: int, plr2_score: int):
+        self._log.info({
+            'action': 'display round scores',
+            'plr1_score': plr1_score,
+            'plr2_score': plr2_score
         })
 
 
@@ -206,77 +213,87 @@ class _RealMatrix(gwent.game.BaseComponent):
             return
             
         try:
-            # Simple patterns for digits 0-9
+            # Larger patterns for digits 0-9 (4x6 instead of 3x5)
             patterns = {
                 '0': [
-                    [1, 1, 1],
-                    [1, 0, 1],
-                    [1, 0, 1],
-                    [1, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ],
                 '1': [
-                    [0, 1, 0],
-                    [1, 1, 0],
-                    [0, 1, 0],
-                    [0, 1, 0],
-                    [1, 1, 1]
+                    [0, 0, 1, 0],
+                    [0, 1, 1, 0],
+                    [1, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [1, 1, 1, 1]
                 ],
                 '2': [
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [1, 1, 1],
-                    [1, 0, 0],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1]
                 ],
                 '3': [
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [0, 1, 1],
-                    [0, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ],
                 '4': [
-                    [1, 0, 1],
-                    [1, 0, 1],
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [0, 0, 1]
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1]
                 ],
                 '5': [
-                    [1, 1, 1],
-                    [1, 0, 0],
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ],
                 '6': [
-                    [1, 1, 1],
-                    [1, 0, 0],
-                    [1, 1, 1],
-                    [1, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ],
                 '7': [
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [0, 1, 0],
-                    [1, 0, 0],
-                    [1, 0, 0]
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 1, 0],
+                    [0, 1, 0, 0],
+                    [1, 0, 0, 0],
+                    [1, 0, 0, 0]
                 ],
                 '8': [
-                    [1, 1, 1],
-                    [1, 0, 1],
-                    [1, 1, 1],
-                    [1, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ],
                 '9': [
-                    [1, 1, 1],
-                    [1, 0, 1],
-                    [1, 1, 1],
-                    [0, 0, 1],
-                    [1, 1, 1]
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
                 ]
             }
             
@@ -411,3 +428,393 @@ class _RealMatrix(gwent.game.BaseComponent):
             self._log.error(f"Error displaying score animation: {e}")
             # Fall back to just displaying the score
             self.display_score(score)
+            
+    def display_round_scores(self, plr1_score: int, plr2_score: int):
+        """
+        Display round scores for both players using maximum display space.
+        Player 1 score pinned to top left corner, Player 2 score pinned to top right corner.
+        
+        Args:
+            plr1_score: Round score for player 1 (displayed on the left)
+            plr2_score: Round score for player 2 (displayed on the right)
+        """
+        self._log.info({
+            'action': 'display round scores',
+            'plr1_score': plr1_score,
+            'plr2_score': plr2_score
+        })
+        
+        # Always print the scores for debugging purposes
+        print(f'Player 1 Score: {plr1_score}, Player 2 Score: {plr2_score}')
+        
+        if not self._initialized:
+            self._log.warning("Matrix display not initialized, cannot display player scores")
+            return
+            
+        try:
+            # Log display dimensions
+            self._log.info(f"Display dimensions: {self._matrix.width}x{self._matrix.height}")
+            
+            # Convert scores to strings
+            plr1_str = str(plr1_score)
+            plr2_str = str(plr2_score)
+            self._log.info(f"Displaying scores: Player 1: '{plr1_str}', Player 2: '{plr2_str}'")
+            
+            # Clear the display first
+            self.take_control()
+            self.clear()
+            
+            # Draw player 1 score pinned to the top left corner
+            self._log.info("Drawing Player 1 score in top left corner")
+            
+            # Position at top left (0,0)
+            plr1_x = 0
+            plr1_y = 0
+            
+            # Draw player 1 score
+            for char in plr1_str:
+                pattern = self._get_digit_pattern(char)
+                for y, row in enumerate(pattern):
+                    for x, pixel in enumerate(row):
+                        if pixel:
+                            self._matrix.pixel(plr1_x + x, plr1_y + y, DEFAULT_BRIGHTNESS)
+                # We only display the first digit since we're using the full 7x7 space
+                break
+            
+            # Draw player 2 score pinned to the top right corner
+            self._log.info("Drawing Player 2 score in top right corner")
+            
+            # Position at top right (width-7, 0)
+            plr2_x = self._matrix.width - 7  # 7 is the width of our digit pattern
+            plr2_y = 0
+            
+            # Draw player 2 score
+            for char in plr2_str:
+                pattern = self._get_digit_pattern(char)
+                for y, row in enumerate(pattern):
+                    for x, pixel in enumerate(row):
+                        if pixel:
+                            self._matrix.pixel(plr2_x + x, plr2_y + y, DEFAULT_BRIGHTNESS)
+                # We only display the first digit since we're using the full 7x7 space
+                break
+            
+            # Draw 1 dot centered below player 1's score with 1 row separation
+            self._log.info("Drawing single dot below Player 1 score")
+            dot1_y = plr1_y + 7 + 1  # 7 pixels for the digit height + 1 row separation
+            dot1_x = plr1_x + 3  # Center of the 7-pixel wide digit
+            self._matrix.pixel(dot1_x, dot1_y, DEFAULT_BRIGHTNESS)
+            
+            # Draw 2 dots centered below player 2's score with 1 row separation
+            self._log.info("Drawing two dots below Player 2 score")
+            dot2_y = plr2_y + 7 + 1  # 7 pixels for the digit height + 1 row separation
+            dot2_x_center = plr2_x + 3  # Center of the 7-pixel wide digit
+            
+            # First dot (left of center)
+            self._matrix.pixel(dot2_x_center - 1, dot2_y, DEFAULT_BRIGHTNESS)
+            
+            # Second dot (right of center)
+            self._matrix.pixel(dot2_x_center + 1, dot2_y, DEFAULT_BRIGHTNESS)
+                
+        except Exception as e:
+            self._log.error(f"Error displaying round scores: {e}", exc_info=True)
+            # Try to display a simple fallback
+            try:
+                self.clear()
+                # Draw a simple representation of the scores
+                self._matrix.pixel(0, 0, DEFAULT_BRIGHTNESS)  # Top left for player 1
+                self._matrix.pixel(self._matrix.width - 1, 0, DEFAULT_BRIGHTNESS)  # Top right for player 2
+            except Exception as fallback_error:
+                self._log.error(f"Fallback display also failed: {fallback_error}")
+    
+    def display_centered_score(self, score: int, player: str = None):
+        """
+        Display a score centered on the display with dots below it.
+        Uses slimmer 7x4 pixel patterns and can display up to 3 digits.
+        The number of dots displayed depends on the player parameter.
+        
+        Args:
+            score: The score to display
+            player: The player identifier (e.g., "player1", "player2")
+                   Determines how many dots are displayed below the digit
+        """
+        self._log.info({
+            'action': 'display centered score',
+            'score': score
+        })
+        
+        # Always print the score for debugging purposes
+        print(f'Centered Score: {score}')
+        
+        if not self._initialized:
+            self._log.warning("Matrix display not initialized, cannot display centered score")
+            return
+            
+        try:
+            # Convert score to string and limit to 3 digits
+            score_str = str(score)
+            if len(score_str) > 3:
+                score_str = score_str[:3]
+            
+            # Clear the display first
+            self.take_control()
+            self.clear()
+            
+            # Log display dimensions
+            width = self._matrix.width
+            height = self._matrix.height
+            self._log.info(f"Display dimensions: {width}x{height}")
+            
+            # Define slimmer 7x4 patterns for digits
+            slim_patterns = {
+                '0': [
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ],
+                '1': [
+                    [0, 0, 1, 0],
+                    [0, 1, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 0, 1, 0],
+                    [0, 1, 1, 1]
+                ],
+                '2': [
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1]
+                ],
+                '3': [
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [0, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ],
+                '4': [
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1]
+                ],
+                '5': [
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ],
+                '6': [
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 0],
+                    [1, 0, 0, 0],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ],
+                '7': [
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 1, 0],
+                    [0, 1, 0, 0],
+                    [1, 0, 0, 0],
+                    [1, 0, 0, 0]
+                ],
+                '8': [
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ],
+                '9': [
+                    [1, 1, 1, 1],
+                    [1, 0, 0, 1],
+                    [1, 0, 0, 1],
+                    [1, 1, 1, 1],
+                    [0, 0, 0, 1],
+                    [0, 0, 0, 1],
+                    [1, 1, 1, 1]
+                ]
+            }
+            
+            # Calculate dimensions for the entire score display
+            digit_width = 4  # 4 pixels wide
+            digit_height = 7  # 7 pixels high
+            digit_spacing = 1  # 1 pixel spacing between digits
+            
+            # Calculate total width needed for all digits with spacing
+            total_width = len(score_str) * digit_width + (len(score_str) - 1) * digit_spacing
+            
+            # Calculate starting position to center the entire score
+            start_x = (width - total_width) // 2
+            center_y = ((height - digit_height) // 2) - 1
+            
+            self._log.info(f"Centering score '{score_str}' at position: ({start_x}, {center_y})")
+            
+            # Draw each digit of the score
+            x = start_x
+            for digit in score_str:
+                pattern = slim_patterns.get(digit, slim_patterns.get('0'))
+                
+                # Draw the digit
+                for y, row in enumerate(pattern):
+                    for x_rel, pixel in enumerate(row):
+                        if pixel:
+                            self._matrix.pixel(x + x_rel, center_y + y, DEFAULT_BRIGHTNESS)
+                
+                # Move to the next digit position
+                x += digit_width + digit_spacing
+            
+            # Draw dots below the score based on player
+            dot_y = center_y + digit_height + 1  # 1 row separation
+            
+            if str(player) == "PLAYER.ONE":
+                # For player1, display one dot on the left
+                dot_x = (width // 2) - 1
+                self._matrix.pixel(dot_x, dot_y, DEFAULT_BRIGHTNESS)
+            elif str(player) == "PLAYER.TWO":
+                # For player2, display two dots on the right
+                dot_x1 = (width // 2) - 1
+                dot_x2 = (width // 2)
+                self._matrix.pixel(dot_x1, dot_y, DEFAULT_BRIGHTNESS)
+                self._matrix.pixel(dot_x2, dot_y, DEFAULT_BRIGHTNESS)
+            else:
+                self._log.error(f"Invalid player: {player}")
+                
+        except Exception as e:
+            self._log.error(f"Error displaying centered score: {e}", exc_info=True)
+            # Try to display a simple fallback
+            try:
+                self.clear()
+                # Draw a simple representation of the score
+                self._matrix.pixel(self._matrix.width // 2, self._matrix.height // 2, DEFAULT_BRIGHTNESS)
+            except Exception as fallback_error:
+                self._log.error(f"Fallback display also failed: {fallback_error}")
+                
+    def _get_digit_pattern(self, digit):
+        """
+        Get the pattern for a digit.
+        
+        Args:
+            digit: The digit to get the pattern for (0-9)
+            
+        Returns:
+            The pattern for the digit (7x7 pixels with lines max 2 pixels thick)
+        """
+
+        # No spaces between commas and digits in patterns so it's more visually appealing
+        patterns = {
+            '0': [
+                [0,1,1,1,1,1,0],
+                [1,0,0,0,0,0,1],
+                [1,0,0,0,0,0,1],
+                [1,0,0,0,0,0,1],
+                [1,0,0,0,0,0,1],
+                [1,0,0,0,0,0,1],
+                [0,1,1,1,1,1,0]
+            ],
+            '1': [
+                [0,0,0,1,0,0,0],
+                [0,0,1,1,0,0,0],
+                [0,1,0,1,0,0,0],
+                [0,0,0,1,0,0,0],
+                [0,0,0,1,0,0,0],
+                [0,0,0,1,0,0,0],
+                [0,1,1,1,1,1,0]
+            ],
+            '2': [
+                [0,1,1,1,1,1,0],
+                [1,1,0,0,0,1,1],
+                [0,0,0,0,0,1,0],
+                [0,0,1,1,1,0,0],
+                [0,1,0,0,0,0,0],
+                [1,0,0,0,0,0,0],
+                [1,1,1,1,1,1,1]
+            ],
+            '3': [
+                [0,1,1,1,1,1,0],
+                [1,1,0,0,0,1,1],
+                [0,0,0,0,0,1,0],
+                [0,0,1,1,1,1,0],
+                [0,0,0,0,0,1,0],
+                [1,1,0,0,0,1,1],
+                [0,1,1,1,1,1,0]
+            ],
+            '4': [
+                [0,0,0,1,1,0,0],
+                [0,0,1,0,1,0,0],
+                [0,1,0,0,1,0,0],
+                [1,0,0,0,1,0,0],
+                [1,1,1,1,1,1,1],
+                [0,0,0,0,1,0,0],
+                [0,0,0,0,1,0,0]
+            ],
+            '5': [
+                [1,1,1,1,1,1,1],
+                [1,0,0,0,0,0,0],
+                [1,0,0,0,0,0,0],
+                [1,1,1,1,1,1,0],
+                [0,0,0,0,0,1,1],
+                [1,0,0,0,0,1,0],
+                [0,1,1,1,1,0,0]
+            ],
+            '6': [
+                [0,1,1,1,1,1,0],
+                [1,1,0,0,0,0,0],
+                [1,0,0,0,0,0,0],
+                [1,1,1,1,1,1,0],
+                [1,1,0,0,0,1,1],
+                [1,0,0,0,0,0,1],
+                [0,1,1,1,1,1,0]
+            ],
+            '7': [
+                [1,1,1,1,1,1,1],
+                [0,0,0,0,0,1,0],
+                [0,0,0,0,1,0,0],
+                [0,0,0,1,0,0,0],
+                [0,0,1,0,0,0,0],
+                [0,1,0,0,0,0,0],
+                [1,0,0,0,0,0,0]
+            ],
+            '8': [
+                [0,1,1,1,1,1,0],
+                [1,1,0,0,0,1,1],
+                [1,0,0,0,0,0,1],
+                [0,1,1,1,1,1,0],
+                [1,0,0,0,0,0,1],
+                [1,1,0,0,0,1,1],
+                [0,1,1,1,1,1,0]
+            ],
+            '9': [
+                [0,1,1,1,1,1,0],
+                [1,1,0,0,0,1,1],
+                [1,0,0,0,0,0,1],
+                [0,1,1,1,1,1,1],
+                [0,0,0,0,0,1,0],
+                [0,0,0,0,1,0,0],
+                [0,1,1,1,0,0,0]
+            ]
+        }
+        
+        return patterns.get(digit, patterns.get('0'))

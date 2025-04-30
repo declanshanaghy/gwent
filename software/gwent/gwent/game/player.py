@@ -5,33 +5,63 @@ import gwent.messaging.factory
 import gwent.messaging.sfx
 import gwent.hal.matrix
 
+from software.gwent.gwent.game.controller import PLAYER
+
 
 class Player(gwent.game.ThreadComponent):
 
-    def __init__(self, player: str, pubsub, mux_channel):
+    def __init__(self, player: PLAYER, pubsub, mux_channel):
         super().__init__(pubsub)
         self._player = player
+        self._leader = None
+        self._score = 0
+        self._deck = []
+        
         self._mux_channel = mux_channel
-        self._channel = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, self._player)
+        self._channel_cards = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(self._player))
+        self._channel_ctrl = gwent.game.make_channel(gwent.game.CH_CTRL)
 
     def init(self):
         super().init()
         self._matrix = gwent.hal.matrix.instance(channel=self._mux_channel)
         self._matrix.init()
-        self.subscribe(self._channel, gwent.messaging.card_play.KIND, 
+        self.subscribe(self._channel_cards, gwent.messaging.card_play.KIND,
                        self.process_card_play)
+        self.subscribe(self._channel_ctrl, gwent.messaging.ctrl.KIND,
+                       self.process_ctrl)
+        
+        # Display initial score of zero
+        self._update_display()
 
     def shutdown(self):
-        self.unsubscribe(self._channel)
+        self.unsubscribe(self._channel_cards)
+        self.unsubscribe(self._channel_ctrl)
         self._matrix.shutdown()
         super().shutdown()
     
-    def _update_display(self, score=None):
+    def _update_display(self):
         """
-        Update the score display
+        Update the score display with a centered digit and dots
+        The number of dots displayed depends on which player this is
         """
-        self._matrix.display_score(score)
-        # self._matrix.display_score_animation(0, score)
+        self._log.info(f"Updating display with score: {self._score}")
+        
+        # Use the display_centered_score method from the matrix class
+        # Pass the player parameter to determine dot display
+        self._matrix.display_centered_score(self._score, self._player)
+
+    def process_ctrl(self, cp: gwent.messaging.ctrl.Message):
+        self._log.info(f'received {cp.kind}', extra=cp.to_object())
+        
+        if cp.subkind == gwent.messaging.ctrl.STAGE:
+            if cp.stage == gwent.messaging.ctrl.STAGE_MAIN_MENU:
+                # When game starts, display initial score of zero
+                self._score = 0
+                self._update_display()
+            else:
+                self._log.debug(f'Unhandled stage: {cp.stage}')
+        else:
+            self._log.debug(f'Unhandled subkind: {cp.subkind}')
 
     def process_card_play(self, cp: gwent.messaging.card_play.Message):
         self._log.info({
@@ -43,6 +73,25 @@ class Player(gwent.game.ThreadComponent):
         })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
-            self._update_display(random.randint(0, 100))
+            inc = 0
+
+            if cp.card.is_leader:
+                # Store the leader card in the _leader member
+                self._leader = cp.card
+                inc = random.randint(0, 200) # Increment score for shits n giggles, remove this later.
+                self._log.info(f"Stored leader", extra={"card": cp.card.to_object(), "inc": inc})
+            else:
+                # Store the card in the _deck member
+                self._deck.append(cp.card)
+                if cp.card.strength:
+                    inc += cp.card.strength
+                self._log.info(f"Added card to deck", extra={"card": cp.card.to_object(), "inc": inc})
+
+            if inc:                
+                self._score += inc
+                self._log.info(f"Score incremented", extra={
+                    "inc": inc, "score": self._score})
+                # Update the display
+                self._update_display()
         else:
-            self._log.error(f'Unhandled subkind: {cp.subkind}')
+            self._log.debug(f'Unhandled subkind: {cp.subkind}')

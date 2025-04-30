@@ -19,8 +19,8 @@
       "type": "string",
       "description": "The player this card is associated with",
       "enum": [
-        "player1",
-        "player2"
+        "PLAYER.ONE",
+        "PLAYER.TWO"
       ]
     },
     "card": {

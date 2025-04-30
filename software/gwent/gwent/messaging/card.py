@@ -164,21 +164,29 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def full_name(self):
-        return self._instance.get(NAME, f"Blank Card {self.rfid}")
+        if self.is_blank:
+            return self.name
+        else:
+            parts = [self.name]
+            if self.is_leader:
+                parts.append(f", Leader of {self.faction}")
+            return " ".join(parts)
 
     @property
     def name(self):
-        if NAME not in self._instance:
-            return f"Blank Card {self.rfid}"
-        return self._instance[NAME]
+        return self._instance.get(NAME, f"Blank Card {self.rfid}")
+
+    @property
+    def is_blank(self):
+        return True if NAME not in self._instance else False
 
     @property
     def faction(self):
-        return self._instance.get(FACTION, "Unknown")
+        return self._instance.get(FACTION, None)
 
     @property
     def strength(self):
-        return self._instance.get(STRENGTH, 0)
+        return self._instance.get(STRENGTH, None)
 
     @property
     def has_specialty(self):
@@ -194,7 +202,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def is_starter(self):
-        return STARTER in self._instance and self._instance[STARTER] == True
+        return self._instance.get(STARTER, None) == True
 
     @property
     def is_weather(self):
@@ -222,7 +230,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def leader(self):
-        return self._instance[LEADER]
+        return self._instance.get(LEADER, None)
 
     @property
     def has_ranges(self):
@@ -230,11 +238,11 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def is_agile(self):
-        return AGILE in self._instance[ABILITIES]
+        return AGILE in self._instance.get(ABILITIES, [])
 
     @property
     def abilities(self):
-        return self._instance.get(ABILITIES)
+        return self._instance.get(ABILITIES, [] )
 
     @property
     def specialty(self):
@@ -246,7 +254,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def ranges(self):
-        return self._instance.get(RANGES)
+        return self._instance.get(RANGES, [])
 
     @property
     def has_abilities(self):
@@ -258,7 +266,7 @@ class Message(gwent.messaging.base.Message):
 
     @property
     def owner(self):
-        return self._instance[OWNER]
+        return self._instance.get(OWNER, None)
 
     @property
     def bytes(self):

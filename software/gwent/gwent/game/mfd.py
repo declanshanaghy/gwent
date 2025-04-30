@@ -155,4 +155,4 @@ class MFD(gwent.game.ThreadComponent):
                 self._chooser_thread.start()
                 
             else:
-                self._log.error(f'Unhandled subkind {mfd.subkind}')
+                self._log.debug(f'Unhandled subkind {mfd.subkind}')

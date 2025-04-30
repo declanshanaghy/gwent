@@ -15,9 +15,12 @@ import gwent.hal.sfx
 
 
 ROUND_KEEPER = "round-keeper"
-PLAYER_ONE = "player1"
-PLAYER_TWO = "player2"
 
+from enum import Enum
+
+class PLAYER(Enum):
+    ONE = "player1"
+    TWO = "player2"
 
 class Controller(gwent.game.ThreadComponent):
     active_stage = None
@@ -49,12 +52,12 @@ class Controller(gwent.game.ThreadComponent):
         self.start_music()
         super().run()
 
-    def set_active_stage(self, st, completed: Callable, cancel: Callable):
+    def set_active_stage(self, st, completed: Callable, cancel: Callable, *args, **kwargs):
         if self.active_stage is not None:
             self.active_stage.deactivate()
 
         self.active_stage = st
-        self.active_stage.activate(completed, cancel)
+        self.active_stage.activate(completed, cancel, *args, **kwargs)
 
     def start_music(self):
         self._log.info('Starting music')
@@ -72,9 +75,9 @@ class Controller(gwent.game.ThreadComponent):
 
         self.set_active_stage(self.main_menu, complete, cancel)
 
-    def publish_card_play(self, player: str, card: gwent.messaging.card.Message):
-        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player)
-        cp = gwent.messaging.card_play.Message.with_add_to_deck(player, card)
+    def publish_card_play(self, player: PLAYER, card: gwent.messaging.card.Message):
+        ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
+        cp = gwent.messaging.card_play.Message.with_add_to_deck(str(player), card)
         self.publish(ch, cp)
 
     def start_register_leaders(self):
@@ -87,9 +90,7 @@ class Controller(gwent.game.ThreadComponent):
                 'leader1': leader1.full_name,
                 'leader2': leader2.full_name,
             })
-            self.publish_card_play(PLAYER_ONE, leader1)
-            self.publish_card_play(PLAYER_TWO, leader2)
-            self.start_register_decks()
+            self.start_register_decks(leader1, leader2)
 
         def cancel():
             self._log.info('Register leaders canceled')
@@ -97,15 +98,14 @@ class Controller(gwent.game.ThreadComponent):
 
         self.set_active_stage(self.register_leaders, complete, cancel)
 
-    def start_register_decks(self):
+    def start_register_decks(self, leader1: gwent.messaging.card.Message, leader2: gwent.messaging.card.Message):
         self._log.info('Starting register decks stage')
 
-        def complete(deck1: List[gwent.messaging.card.Message],
-                     deck2: List[gwent.messaging.card.Message]):
+        def complete(deck1_name: str, deck2_name: str):
             self._log.info({
                 'action': 'complete register_decks',
-                'deck1': deck1[0].full_name,
-                'deck2': deck2[0].full_name,
+                'deck1': deck1_name,
+                'deck2': deck2_name,
             })
             self.start_main_menu()
 
@@ -113,7 +113,7 @@ class Controller(gwent.game.ThreadComponent):
             self._log.info('Register decks canceled')
             self.start_main_menu()
 
-        self.set_active_stage(self.register_decks, complete, cancel)
+        self.set_active_stage(self.register_decks, complete, cancel, leader1, leader2)
 
     def process_card(self, message: gwent.messaging.card.Message):
         if self.active_stage:
