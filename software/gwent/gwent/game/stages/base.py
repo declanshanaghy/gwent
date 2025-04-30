@@ -11,6 +11,7 @@ class GameStage(gwent.game.PubSubComponent):
     cancel = None
 
     def activate(self, complete: Callable, cancel: Callable):
+        self._log.debug(f"activate ")
         self.complete = complete
         self.cancel = cancel
         self.publish_game_stage(active=True)
@@ -38,8 +39,8 @@ class GameStage(gwent.game.PubSubComponent):
         })
 
     def process_choice(self, choice: gwent.messaging.choice.Message):
-        self._log.debug({
-            'action': 'received choice',
+        self._log.info({
+            'action': 'process_choice',
             'id': choice.id,
             'text': choice.text,
         })
