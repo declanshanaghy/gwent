@@ -7,7 +7,7 @@ import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.card_play
 
-from software.gwent.gwent.game.controller import PLAYER
+from gwent.game.constants import PLAYER
 
 class RegisterDecks(gwent.game.stages.base.GameStage):
     _leader1 = None

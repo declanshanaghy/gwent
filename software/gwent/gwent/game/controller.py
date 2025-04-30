@@ -13,14 +13,7 @@ import gwent.messaging.sfx
 import gwent.game
 import gwent.hal.sfx
 
-
-ROUND_KEEPER = "round-keeper"
-
-from enum import Enum
-
-class PLAYER(Enum):
-    ONE = "player1"
-    TWO = "player2"
+from gwent.game.constants import PLAYER
 
 class Controller(gwent.game.ThreadComponent):
     active_stage = None

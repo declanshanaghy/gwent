@@ -8,7 +8,7 @@ from typing import List
 
 import paho.mqtt.client as mqtt
 
-from gwent.utils.logging import configure_logging, get_logger, DEBUG
+import gwent.game.constants
 import gwent.game.cards
 import gwent.game.controller
 import gwent.game.mfd
@@ -18,6 +18,7 @@ import gwent.game.sfx
 import gwent.hal
 import gwent.hal.matrix
 
+from gwent.utils.logging import configure_logging, get_logger, DEBUG
 
 class MQTTClient:
     """Thread-safe MQTT client wrapper"""
@@ -237,9 +238,9 @@ class Gwent:
         # Create component adapters
         self.components = []
         self.components.append(gwent.game.controller.Controller(self.pubsub))
-        self.components.append(gwent.game.round_keeper.RoundKeeper(gwent.game.controller.ROUND_KEEPER, self.pubsub))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
-        self.components.append(gwent.game.player.Player(gwent.game.controller.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
+        self.components.append(gwent.game.round_keeper.RoundKeeper(gwent.game.constants.ROUND_KEEPER, self.pubsub))
+        self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
+        self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub))

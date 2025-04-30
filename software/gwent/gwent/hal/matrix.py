@@ -514,6 +514,8 @@ class _RealMatrix(gwent.game.BaseComponent):
             
             # Second dot (right of center)
             self._matrix.pixel(dot2_x_center + 1, dot2_y, DEFAULT_BRIGHTNESS)
+
+            self._matrix.fade(fade_in=500, fade_out=500, pause=4.0)
                 
         except Exception as e:
             self._log.error(f"Error displaying round scores: {e}", exc_info=True)

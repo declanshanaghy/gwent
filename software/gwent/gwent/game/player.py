@@ -5,7 +5,7 @@ import gwent.messaging.factory
 import gwent.messaging.sfx
 import gwent.hal.matrix
 
-from software.gwent.gwent.game.controller import PLAYER
+from gwent.game.constants import PLAYER
 
 
 class Player(gwent.game.ThreadComponent):
