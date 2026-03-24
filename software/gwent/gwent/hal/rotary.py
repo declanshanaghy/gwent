@@ -94,7 +94,7 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
         while not self._stop_event.is_set():
             time.sleep(gwent.game.DEFAULT_YIELD_TIME)
             wait_count += 1
-            if wait_count % 100 == 0:  # Log every ~5 seconds (assuming DEFAULT_YIELD_TIME is 0.05s)
+            if wait_count % (gwent.game.DEFAULT_YIELD_TIME * 50000) == 0:
                 self._log.debug(f"Still waiting for selection... ({wait_count} cycles)")
             
         self._log.info("Stop event set, joining monitor thread")
@@ -168,7 +168,7 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
                         return
                 
                 # Log status periodically (every ~5 seconds)
-                if loop_count % 100 == 0:
+                if loop_count % (gwent.game.DEFAULT_YIELD_TIME * 50000) == 0:
                     self._log.debug({
                         'action': 'monitor_status',
                         'loop_count': loop_count,
@@ -195,6 +195,9 @@ class RotaryEncoder(gwent.game.BaseComponent):
     A_PIN = 17  # GPIO17
     B_PIN = 22  # GPIO22
     SW_PIN = 27  # GPIO27
+    
+    # Debounce time in seconds
+    DEBOUNCE_TIME = 0.05  # 50ms debounce
 
     _encoder = None
     _sw = None
@@ -202,6 +205,8 @@ class RotaryEncoder(gwent.game.BaseComponent):
     _delta = 0
     _sw_state = None
     _sw_changed = False
+    _last_sw_change_time = 0
+    _last_sw_raw_state = None
     
     def __init__(self, implementation=RotaryImplementation.PIGPIO, log_verbose=False):
         """
@@ -265,6 +270,8 @@ class RotaryEncoder(gwent.game.BaseComponent):
         self._log.info("reset() called")
         self._counter = 0
         self._delta = 0
+        self._last_sw_change_time = time.time()
+        self._last_sw_raw_state = None
         
         if self._encoder:
             self._log.debug("Resetting encoder counter")
@@ -278,10 +285,12 @@ class RotaryEncoder(gwent.game.BaseComponent):
             self._log.debug("Reading initial switch state")
             try:
                 self._sw_state = self._sw.get_state()
+                self._last_sw_raw_state = self._sw_state
                 self._log.debug(f"Initial switch state: {self._sw_state}")
             except Exception as e:
                 self._log.error(f"Error reading switch state: {e}", exc_info=True)
                 self._sw_state = False  # Default to not pressed
+                self._last_sw_raw_state = False
 
     def loop(self) -> (int, int, bool, bool):
         loop_start = time.time()
@@ -298,17 +307,29 @@ class RotaryEncoder(gwent.game.BaseComponent):
             self._counter += self._delta
             self._log.debug(f'Encoder count is {self._counter} (delta: {self._delta})')
 
-        # Get switch state
+        # Get switch state with debouncing
         try:
-            state = self._sw.get_state() if self._sw else False
+            raw_state = self._sw.get_state() if self._sw else False
         except Exception as e:
             self._log.error(f"Error getting switch state: {e}", exc_info=True)
-            state = self._sw_state  # Keep previous state
-            
-        self._sw_changed = state != self._sw_state
-        if self._sw_changed:
-            self._log.info(f'Switch changed to {state} (was {self._sw_state})')
-            self._sw_state = state
+            raw_state = self._last_sw_raw_state or self._sw_state  # Keep previous state
+        
+        # Store the raw state for comparison in the next iteration
+        self._last_sw_raw_state = raw_state
+        
+        # Apply debouncing - only accept state changes after DEBOUNCE_TIME has elapsed
+        current_time = time.time()
+        self._sw_changed = False
+        
+        if raw_state != self._sw_state:
+            # If this is a new state change or if enough time has passed since the last change
+            if current_time - self._last_sw_change_time >= self.DEBOUNCE_TIME:
+                self._sw_changed = True
+                self._log.info(f'Switch changed to {raw_state} (was {self._sw_state}) after {current_time - self._last_sw_change_time:.3f}s debounce')
+                self._sw_state = raw_state
+                self._last_sw_change_time = current_time
+            else:
+                self._log.debug(f'Ignoring switch change to {raw_state} - within debounce period ({current_time - self._last_sw_change_time:.3f}s < {self.DEBOUNCE_TIME}s)')
 
         # Log changes
         if self._delta != 0 or self._sw_changed:

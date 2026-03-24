@@ -37,11 +37,10 @@ class Reader(gwent.game.PubSubComponent):
         super().shutdown()
 
     def process_ctrl(self, ctrl: gwent.messaging.ctrl.Message):
-        self._log.info({
-            'action': 'received ctrl',
+        self._log.info('received ctrl', extra={
             'kind': ctrl.kind,
             'subkind': ctrl.subkind,
-            'body': ctrl.body,
+            'body': ctrl.to_object(),
         })
 
         if ctrl.subkind == gwent.messaging.ctrl.STAGE:

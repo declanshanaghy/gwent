@@ -53,6 +53,7 @@ class MFD(gwent.game.PubSubComponent):
                 if self._chooser_thread.is_alive():
                     self._log.info("Setting stop event for chooser thread")
                     self._chooser_stop_event.set()
+                    self._mfd
                     
                     # Try joining with increasing timeouts
                     for timeout in [0.5, 1.0, 2.0]:
@@ -60,16 +61,19 @@ class MFD(gwent.game.PubSubComponent):
                         start_time = time.time()
                         self._chooser_thread.join(timeout=timeout)
                         elapsed = time.time() - start_time
-                        self._log.info(f"Join attempt completed after {elapsed:.3f}s")
                         
-                        if not self._chooser_thread.is_alive():
-                            self._log.info("Chooser thread terminated successfully")
+                        if self._chooser_thread.is_alive():
+                            self._log.warning("Chooser thread did not terminate successfully", 
+                                           extra={"elapsed": elapsed})
+                        else:
+                            self._log.debug("Chooser thread terminated successfully", 
+                                           extra={"elapsed": elapsed})
                             break
                     
                     if self._chooser_thread.is_alive():
-                        self._log.warning("Chooser thread did not terminate gracefully after multiple timeout attempts")
+                        self._log.error("Chooser thread did not terminate gracefully after multiple timeout attempts")
                 else:
-                    self._log.info("Chooser thread exists but is not alive")
+                    self._log.warning("Chooser thread exists but is not alive")
                 
                 self._chooser_thread = None
                 self._log.info("Clearing stop event")
@@ -85,9 +89,6 @@ class MFD(gwent.game.PubSubComponent):
             'body': mfd.body,
         })
         
-        self._log.info("Canceling any existing chooser thread")
-        self.cancel_chooser()
-
         def receive_select(delta: int, choice: gwent.messaging.choice.Message):
             self._log.info({
                 'action': 'receive_select',
@@ -100,7 +101,7 @@ class MFD(gwent.game.PubSubComponent):
                 self._log.debug(f"Publishing effect {effect} (iteration {i+1}/{abs(delta)})")
                 self.publish_effect(effect)
 
-        def receive_choice_thread(mfd_method):
+        def receive_choice_callback(mfd_method):
             thread_id = threading.get_ident()
             self._log.info(f"Chooser thread started (id={thread_id})")
             try:
@@ -135,13 +136,16 @@ class MFD(gwent.game.PubSubComponent):
                 # Make sure we properly clean up
                 self._log.info(f"Chooser thread exiting (id={thread_id})")
 
+        self._log.info("Canceling any existing chooser thread")
+        self.cancel_chooser()
+
         with self._chooser_lock:
             self._log.info(f"Processing MFD message with subkind: {mfd.subkind}")
             
             if mfd.subkind == gwent.messaging.mfd.ERROR:
                 self._log.info("Creating ERROR display thread")
                 self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
+                    target=receive_choice_callback,
                     args=(self._mfd.present_error,),
                     name="MFD-Error-Thread")
                 self._chooser_thread.daemon = True
@@ -151,7 +155,7 @@ class MFD(gwent.game.PubSubComponent):
             elif mfd.subkind == gwent.messaging.mfd.PROMPT:
                 self._log.info("Creating PROMPT display thread")
                 self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
+                    target=receive_choice_callback,
                     args=(self._mfd.present_prompt,),
                     name="MFD-Prompt-Thread")
                 self._chooser_thread.daemon = True
@@ -161,7 +165,7 @@ class MFD(gwent.game.PubSubComponent):
             elif mfd.subkind == gwent.messaging.mfd.CHOICES:
                 self._log.info("Creating CHOICES display thread")
                 self._chooser_thread = threading.Thread(
-                    target=receive_choice_thread,
+                    target=receive_choice_callback,
                     args=(self._mfd.present_choices,),
                     name="MFD-Choices-Thread")
                 self._chooser_thread.daemon = True

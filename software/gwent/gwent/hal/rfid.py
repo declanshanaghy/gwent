@@ -58,67 +58,15 @@ class _BaseReader(gwent.game.BaseComponent):
                     'message': 'Card detected but appears to be blank or uninitialized'
                 })
                 
-                # Before creating a blank card, check if this card exists in the database
-                # This is a last resort attempt to identify the card by its ID
-                try:
-                    # Try to find the card in the database using the card_manager's find_card_in_database method
-                    # This is a more reliable approach than using gwent.cards.all.find_by_rfid which doesn't exist
-                    
-                    # Import here to avoid circular imports
-                    import os
-                    import glob
-                    
-                    # Define a function to find a card by RFID
-                    def find_card_by_rfid(rfid_value):
-                        self._log.info(f"Searching for card with RFID: {rfid_value}")
-                        
-                        # Get the cards directory path
-                        cards_dir = os.path.abspath(os.path.join(os.path.dirname(__file__),
-                                                               '..', '..', '..', 'data', 'cards'))
-                        
-                        # Search through all faction directories
-                        for faction_dir in os.listdir(cards_dir):
-                            faction_path = os.path.join(cards_dir, faction_dir)
-                            if os.path.isdir(faction_path):
-                                # Search through all JSON files in the faction directory
-                                for json_file in glob.glob(os.path.join(faction_path, "*.json")):
-                                    try:
-                                        with open(json_file, 'r') as f:
-                                            card_data = json.load(f)
-                                            # Check if this card has the matching RFID
-                                            if card_data.get('rfid') == rfid_value:
-                                                self._log.info(f"Found card in {json_file}")
-                                                return card_data
-                                    except Exception as e:
-                                        self._log.error(f"Error reading {json_file}: {e}")
-                        
-                        self._log.info("Card not found in database by RFID")
-                        return None
-                    
-                    # Try to find the card by RFID
-                    card_data = find_card_by_rfid(id)
-                    
-                    if card_data:
-                        self._log.info({
-                            'action': 'found_card_in_database_by_rfid',
-                            'id': id,
-                            'name': card_data.get('name', 'Unknown'),
-                            'faction': card_data.get('faction', 'Unknown')
-                        })
-                        # Create a card with the data from the database
-                        card = gwent.messaging.card.Message.from_properties(card_data)
-                    else:
-                        # Create a minimal card with just the RFID
-                        card = gwent.messaging.card.Message.from_properties(rfid=id)
-                except Exception as e:
-                    self._log.error({
-                        'action': 'error_checking_database_for_card',
-                        'id': id,
-                        'error': str(e),
-                        'error_traceback': traceback.format_exc()
-                    })
-                    # Create a minimal card with just the RFID
-                    card = gwent.messaging.card.Message.from_properties(rfid=id)
+                # Create a minimal card with just the RFID
+                # The hardware layer should not access the database
+                # Upper layers will handle database lookups based on the RFID
+                card = gwent.messaging.card.Message.from_properties(rfid=id)
+                self._log.info({
+                    'action': 'created_blank_card',
+                    'id': id,
+                    'message': 'Card detected but appears to be blank or uninitialized'
+                })
             else:
                 try:
                     # Ensure to strip all trailing null bytes

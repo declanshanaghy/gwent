@@ -100,7 +100,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rotary.RotaryChooser": {
-      "level": "WARNING"
+      "level": "DEBUG"
     },
     "gwent.hal.rotary_pigpio.PiGPIOSwitch": {
       "level": "WARNING"

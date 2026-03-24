@@ -43,8 +43,9 @@ class Controller(gwent.game.PubSubComponent):
         super().shutdown()
 
     def run(self):
-        self.start_main_menu()
-        self.start_music()
+        # self.start_music()
+        # self.start_main_menu()
+        self.start_register_leaders()
         super().run()
 
     def set_active_stage(self, st, completed: Callable, cancel: Callable, *args, **kwargs):
