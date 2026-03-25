@@ -229,13 +229,30 @@ class Gwent:
         self.shutdown()
 
     def save_state_handler(self, signum, frame):
-        """Handle SIGUSR1 — save game state to disk"""
+        """Handle SIGUSR1 — save game state to disk.
+
+        The filename is read from /tmp/gwent-save-as if it exists,
+        otherwise falls back to GWENT_STATE_OUT env var,
+        otherwise uses state-<timestamp>.
+        """
         import os
         import gwent.game.state as game_state
+
         self._log.info("Received SIGUSR1, saving game state...")
-        name = os.environ.get("GWENT_STATE_OUT", "")
+
+        # Check for a dynamic filename request
+        save_as_file = "/tmp/gwent-save-as"
+        name = ""
+        if os.path.exists(save_as_file):
+            with open(save_as_file) as f:
+                name = f.read().strip()
+            os.remove(save_as_file)
+
+        if not name:
+            name = os.environ.get("GWENT_STATE_OUT", "")
         if not name:
             name = f"state-{int(time.time())}"
+
         filepath = game_state.get_filepath(name)
         controller = self._get_controller()
         if controller:
