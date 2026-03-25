@@ -14,7 +14,8 @@
       "enum": [
         "add_to_deck",
         "deal_to_hand",
-        "update_score"
+        "update_score",
+        "update_gems"
       ]
     },
     "player": {
@@ -33,6 +34,10 @@
     "score": {
       "type": "integer",
       "description": "The calculated score for update_score events"
+    },
+    "gems": {
+      "type": "integer",
+      "description": "The remaining gems for update_gems events"
     }
   }
 }

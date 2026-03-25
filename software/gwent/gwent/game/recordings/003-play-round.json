@@ -3,78 +3,6 @@
   "saved_at": "2026-03-25T22:00:57.726977+00:00",
   "active_stage": "PlayRound",
   "state": {
-    "player1_hand": [
-      {
-        "content_id": "5f997b09c89dcb5ad8b10722f2460c11",
-        "faction": "Nilfgaardian",
-        "kind": "card",
-        "name": "Clear Weather",
-        "rfid": 415250009431,
-        "specialty": "weather",
-        "starter": true
-      },
-      {
-        "abilities": "medic",
-        "content_id": "e7f3061967cbc2a416029177bce62fbe",
-        "faction": "Nilfgaardian",
-        "kind": "card",
-        "name": "Menno Coehoorn",
-        "owner": "Declan Shanaghy",
-        "ranges": [
-          "close"
-        ],
-        "rfid": 687846149400,
-        "strength": 10
-      },
-      {
-        "content_id": "97100c2497a6354399d3f4d30f297d37",
-        "faction": "Nilfgaardian",
-        "kind": "card",
-        "name": "Emiel Regis Rohellec Terzieff: Human",
-        "owner": "Declan Shanaghy",
-        "ranges": [
-          "close"
-        ],
-        "rfid": 2782088507,
-        "strength": 5
-      }
-    ],
-    "player2_hand": [
-      {
-        "ability": "muster",
-        "content_id": "29884a1b8e1c3271de7f50300734d8f9",
-        "faction": "Scoia'tael",
-        "kind": "card",
-        "name": "Gaunter O'Dimm: Darkness 1",
-        "owner": "Declan Shanaghy",
-        "ranges": [
-          "ranged"
-        ],
-        "rfid": 1272335824,
-        "strength": 4
-      },
-      {
-        "content_id": "cf9f2c7d21794f2e8376df604def8664",
-        "faction": "Scoia'tael",
-        "kind": "card",
-        "name": "Mahakaman Defender: 2",
-        "ranges": [
-          "close"
-        ],
-        "rfid": 484103834973,
-        "starter": true,
-        "strength": 5
-      },
-      {
-        "content_id": "a620fff1be0450405a02c9c863bdd5ac",
-        "faction": "Scoia'tael",
-        "kind": "card",
-        "name": "Decoy: 2",
-        "owner": "Declan Shanaghy",
-        "rfid": 140825152881,
-        "specialty": "decoy"
-      }
-    ],
     "board": {
       "players": {
         "PLAYER.ONE": {
@@ -414,7 +342,7 @@
         "PLAYER.ONE": [],
         "PLAYER.TWO": []
       },
-      "current_player": "PLAYER.TWO",
+      "current_player": "PLAYER.ONE",
       "round_number": 1
     }
   }

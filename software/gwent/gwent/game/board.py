@@ -72,6 +72,14 @@ class Board:
                 return card
         return None
 
+    def find_on_board(self, player, rfid):
+        """Find a card on a player's board by RFID. Returns (card, row_name) or (None, None)."""
+        for row_name in ROWS:
+            for card in self.players[player].rows[row_name]:
+                if card.rfid == rfid:
+                    return card, row_name
+        return None, None
+
     def calculate_row_score(self, player, row_name):
         """Calculate the score for a single row with all modifiers.
 

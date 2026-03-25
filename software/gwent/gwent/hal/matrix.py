@@ -40,13 +40,24 @@ class _FakeMatrix(gwent.game.BaseComponent):
             'action': 'display score',
             'score': score
         })
-        
+
     def display_round_scores(self, plr1_score: int, plr2_score: int):
         self._log.info({
             'action': 'display round scores',
             'plr1_score': plr1_score,
             'plr2_score': plr2_score
         })
+
+    def display_gems(self, gems: int):
+        self._log.info({'action': 'display gems', 'gems': gems})
+
+    def display_gem_pair(self, p1_gems: int, p2_gems: int):
+        self._log.info({'action': 'display gem pair', 'p1_gems': p1_gems, 'p2_gems': p2_gems})
+
+    def init(self): pass
+    def shutdown(self): pass
+    def clear(self): pass
+    def display_centered_score(self, score, player=None): pass
 
 
 class _RealMatrix(gwent.game.BaseComponent):
@@ -467,9 +478,9 @@ class _RealMatrix(gwent.game.BaseComponent):
             # Draw player 1 score pinned to the top left corner
             self._log.info("Drawing Player 1 score in top left corner")
             
-            # Position at top left (0,0)
+            # Position at left, vertically centered
             plr1_x = 0
-            plr1_y = 0
+            plr1_y = (self._matrix.height - 7) // 2
             
             # Draw player 1 score
             for char in plr1_str:
@@ -484,9 +495,9 @@ class _RealMatrix(gwent.game.BaseComponent):
             # Draw player 2 score pinned to the top right corner
             self._log.info("Drawing Player 2 score in top right corner")
             
-            # Position at top right (width-7, 0)
+            # Position at right, vertically centered
             plr2_x = self._matrix.width - 7  # 7 is the width of our digit pattern
-            plr2_y = 0
+            plr2_y = (self._matrix.height - 7) // 2
             
             # Draw player 2 score
             for char in plr2_str:
@@ -498,23 +509,6 @@ class _RealMatrix(gwent.game.BaseComponent):
                 # We only display the first digit since we're using the full 7x7 space
                 break
             
-            # Draw 1 dot centered below player 1's score with 1 row separation
-            self._log.info("Drawing single dot below Player 1 score")
-            dot1_y = plr1_y + 7 + 1  # 7 pixels for the digit height + 1 row separation
-            dot1_x = plr1_x + 3  # Center of the 7-pixel wide digit
-            self._matrix.pixel(dot1_x, dot1_y, DEFAULT_BRIGHTNESS)
-            
-            # Draw 2 dots centered below player 2's score with 1 row separation
-            self._log.info("Drawing two dots below Player 2 score")
-            dot2_y = plr2_y + 7 + 1  # 7 pixels for the digit height + 1 row separation
-            dot2_x_center = plr2_x + 3  # Center of the 7-pixel wide digit
-            
-            # First dot (left of center)
-            self._matrix.pixel(dot2_x_center - 1, dot2_y, DEFAULT_BRIGHTNESS)
-            
-            # Second dot (right of center)
-            self._matrix.pixel(dot2_x_center + 1, dot2_y, DEFAULT_BRIGHTNESS)
-
             self._matrix.fade(fade_in=500, fade_out=500, pause=4.0)
                 
         except Exception as e:
@@ -566,103 +560,123 @@ class _RealMatrix(gwent.game.BaseComponent):
             height = self._matrix.height
             self._log.info(f"Display dimensions: {width}x{height}")
             
-            # Define slimmer 7x4 patterns for digits
+            # 9x5 patterns to fill the full display height
             slim_patterns = {
                 '0': [
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]
                 ],
                 '1': [
-                    [0, 0, 1, 0],
-                    [0, 1, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 0, 1, 0],
-                    [0, 1, 1, 1]
+                    [0,0,1,0,0],
+                    [0,1,1,0,0],
+                    [1,0,1,0,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0],
+                    [1,1,1,1,1]
                 ],
                 '2': [
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 0],
-                    [1, 0, 0, 0],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,0,1,0],
+                    [0,0,1,0,0],
+                    [0,1,0,0,0],
+                    [1,0,0,0,0],
+                    [1,0,0,0,0],
+                    [1,1,1,1,1]
                 ],
                 '3': [
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [0, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,1,1,0],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]
                 ],
                 '4': [
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1]
+                    [0,0,0,1,0],
+                    [0,0,1,1,0],
+                    [0,1,0,1,0],
+                    [1,0,0,1,0],
+                    [1,1,1,1,1],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0]
                 ],
                 '5': [
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 0],
-                    [1, 0, 0, 0],
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [1,1,1,1,1],
+                    [1,0,0,0,0],
+                    [1,0,0,0,0],
+                    [1,1,1,1,0],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]
                 ],
                 '6': [
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 0],
-                    [1, 0, 0, 0],
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,0],
+                    [1,0,0,0,0],
+                    [1,0,0,0,0],
+                    [1,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]
                 ],
                 '7': [
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 1, 0],
-                    [0, 1, 0, 0],
-                    [1, 0, 0, 0],
-                    [1, 0, 0, 0]
+                    [1,1,1,1,1],
+                    [0,0,0,0,1],
+                    [0,0,0,1,0],
+                    [0,0,0,1,0],
+                    [0,0,1,0,0],
+                    [0,0,1,0,0],
+                    [0,1,0,0,0],
+                    [0,1,0,0,0],
+                    [0,1,0,0,0]
                 ],
                 '8': [
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,0]
                 ],
                 '9': [
-                    [1, 1, 1, 1],
-                    [1, 0, 0, 1],
-                    [1, 0, 0, 1],
-                    [1, 1, 1, 1],
-                    [0, 0, 0, 1],
-                    [0, 0, 0, 1],
-                    [1, 1, 1, 1]
+                    [0,1,1,1,0],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [1,0,0,0,1],
+                    [0,1,1,1,1],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,0,0,0,1],
+                    [0,1,1,1,0]
                 ]
             }
-            
+
             # Calculate dimensions for the entire score display
-            digit_width = 4  # 4 pixels wide
-            digit_height = 7  # 7 pixels high
+            digit_width = 5  # 5 pixels wide
+            digit_height = 9  # 9 pixels high (full display)
             digit_spacing = 1  # 1 pixel spacing between digits
             
             # Calculate total width needed for all digits with spacing
@@ -670,7 +684,7 @@ class _RealMatrix(gwent.game.BaseComponent):
             
             # Calculate starting position to center the entire score
             start_x = (width - total_width) // 2
-            center_y = ((height - digit_height) // 2) - 1
+            center_y = (height - digit_height) // 2
             
             self._log.info(f"Centering score '{score_str}' at position: ({start_x}, {center_y})")
             
@@ -688,22 +702,6 @@ class _RealMatrix(gwent.game.BaseComponent):
                 # Move to the next digit position
                 x += digit_width + digit_spacing
             
-            # Draw dots below the score based on player
-            dot_y = center_y + digit_height + 1  # 1 row separation
-            
-            if str(player) == "PLAYER.ONE":
-                # For player1, display one dot on the left
-                dot_x = (width // 2) - 1
-                self._matrix.pixel(dot_x, dot_y, DEFAULT_BRIGHTNESS)
-            elif str(player) == "PLAYER.TWO":
-                # For player2, display two dots on the right
-                dot_x1 = (width // 2) - 1
-                dot_x2 = (width // 2)
-                self._matrix.pixel(dot_x1, dot_y, DEFAULT_BRIGHTNESS)
-                self._matrix.pixel(dot_x2, dot_y, DEFAULT_BRIGHTNESS)
-            else:
-                self._log.error(f"Invalid player: {player}")
-                
         except Exception as e:
             self._log.error(f"Error displaying centered score: {e}", exc_info=True)
             # Try to display a simple fallback
@@ -714,6 +712,89 @@ class _RealMatrix(gwent.game.BaseComponent):
             except Exception as fallback_error:
                 self._log.error(f"Fallback display also failed: {fallback_error}")
                 
+    def display_gems(self, gems: int):
+        """Display gem icons on the matrix. Each gem is a 5x5 diamond shape.
+        Up to 2 gems side by side on the 16x9 display."""
+        self._log.info({'action': 'display_gems', 'gems': gems})
+        print(f'Gems: {gems}')
+
+        if not self._initialized:
+            return
+
+        try:
+            self.take_control()
+            self.clear()
+            self._draw_gems(gems, x_offset=0, width=self._matrix.width)
+        except Exception as e:
+            self._log.error(f"Error displaying gems: {e}", exc_info=True)
+
+    def display_gem_pair(self, p1_gems: int, p2_gems: int):
+        """Display gems for both players side by side on a 16x9 display.
+        P1 gems on the left half, P2 gems on the right half.
+        A dot below P1 side, two dots below P2 side."""
+        self._log.info({'action': 'display_gem_pair', 'p1_gems': p1_gems, 'p2_gems': p2_gems})
+        print(f'Gems: P1={p1_gems}, P2={p2_gems}')
+
+        if not self._initialized:
+            return
+
+        try:
+            self.take_control()
+            self.clear()
+
+            mid = self._matrix.width // 2  # 8
+
+            # P1 gems on left half
+            self._draw_gems(p1_gems, x_offset=0, width=mid)
+
+            # P2 gems on right half
+            self._draw_gems(p2_gems, x_offset=mid, width=mid)
+
+        except Exception as e:
+            self._log.error(f"Error displaying gem pair: {e}", exc_info=True)
+
+    def _draw_gems(self, gems, x_offset, width):
+        """Draw gem diamonds within a horizontal region.
+        Two gems are staggered vertically so they don't look like a flat row."""
+        # 5x5 diamond
+        diamond = [
+            [0,0,1,0,0],
+            [0,1,1,1,0],
+            [1,1,1,1,1],
+            [0,1,1,1,0],
+            [0,0,1,0,0],
+        ]
+        gem_w = 5
+        gem_h = 5
+
+        gems = max(0, min(gems, 2))
+        if gems == 0:
+            return
+
+        if gems == 1:
+            # Center gem in region
+            x = x_offset + (width - gem_w) // 2
+            y = (self._matrix.height - gem_h) // 2
+            for dy, row in enumerate(diamond):
+                for dx, val in enumerate(row):
+                    if val:
+                        self._matrix.pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
+        elif gems == 2:
+            # Stack vertically since side-by-side won't fit with 5px wide gems
+            # in a 7-8px wide region. Offset horizontally for visual interest.
+            y_top = 0
+            y_bot = 4
+            x_left = x_offset + (width - gem_w) // 2 - 1
+            x_right = x_offset + (width - gem_w) // 2 + 1
+            # Clamp to bounds
+            x_left = max(x_offset, x_left)
+            x_right = min(x_offset + width - gem_w, x_right)
+            for x, y in [(x_left, y_top), (x_right, y_bot)]:
+                for dy, row in enumerate(diamond):
+                    for dx, val in enumerate(row):
+                        if val:
+                            self._matrix.pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
+
     def _get_digit_pattern(self, digit):
         """
         Get the pattern for a digit.

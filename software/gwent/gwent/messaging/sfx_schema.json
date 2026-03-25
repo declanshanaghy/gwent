@@ -12,6 +12,7 @@
       "description": "Indicates the content of this message",
       "enum": [
         "announcement",
+        "announcement_complete",
         "effect",
         "music"
       ]
@@ -19,6 +20,7 @@
   },
   "oneOf": [
     { "$ref": "#/definitions/Announcement" },
+    { "$ref": "#/definitions/AnnouncementComplete" },
     { "$ref": "#/definitions/Effect" },
     { "$ref": "#/definitions/Music" }
   ],
@@ -29,8 +31,22 @@
         "announcement"
       ],
       "properties": {
+        "subkind": { "const": "announcement" },
         "announcement": {
-          "description": "The message to annouce via TTS",
+          "description": "The message to announce via TTS",
+          "type": "string"
+        }
+      }
+    },
+    "AnnouncementComplete": {
+      "type": "object",
+      "required": [
+        "announcement"
+      ],
+      "properties": {
+        "subkind": { "const": "announcement_complete" },
+        "announcement": {
+          "description": "The announcement that completed",
           "type": "string"
         }
       }

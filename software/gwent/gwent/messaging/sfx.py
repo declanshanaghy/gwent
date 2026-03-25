@@ -4,6 +4,7 @@ import gwent.messaging.base
 KIND = 'sfx'
 
 ANNOUNCEMENT = 'announcement'
+ANNOUNCEMENT_COMPLETE = 'announcement_complete'
 EFFECT = 'effect'
 MUSIC = 'music'
 RANDOM = 'random'
@@ -20,6 +21,11 @@ class Message(gwent.messaging.base.Message):
     def with_announcement(announcement):
         instance = {ANNOUNCEMENT: announcement}
         return Message(instance, subkind=ANNOUNCEMENT)
+
+    @staticmethod
+    def with_announcement_complete(announcement):
+        instance = {ANNOUNCEMENT: announcement}
+        return Message(instance, subkind=ANNOUNCEMENT_COMPLETE)
 
     @staticmethod
     def with_effect(effect):

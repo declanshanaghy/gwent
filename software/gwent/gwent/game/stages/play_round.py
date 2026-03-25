@@ -5,6 +5,7 @@ or pressing OK to pass. When both players have passed, the round ends.
 """
 
 import random
+import threading
 from typing import Callable, List
 
 import gwent.game
@@ -15,6 +16,7 @@ import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.card_play
 import gwent.messaging.mfd
+import gwent.messaging.sfx
 
 from gwent.game.constants import PLAYER
 from gwent.game.board import Board, ROWS
@@ -27,6 +29,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
     AWAITING_CARD = 'card'
     AWAITING_ROW_CHOICE = 'row_choice'
     AWAITING_MEDIC_CHOICE = 'medic_choice'
+    AWAITING_DECOY_CHOICE = 'decoy_choice'
+    AWAITING_ANNOUNCEMENT = 'announcement'
 
     @property
     def stage(self):
@@ -38,6 +42,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         self._awaiting = None
         self._pending_card = None
+        self._deferred_action = None
+
+        # Listen for announcement completion
+        self.subscribe(gwent.game.CH_SFX_COMPLETE,
+                      gwent.messaging.sfx.KIND,
+                      self._on_announcement_complete)
 
         if board is None:
             # First round — extract leaders from decks
@@ -80,6 +90,24 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         self._prompt_turn()
 
+    # --- Announcement gating ---
+
+    def _publish_prompt_then(self, prompt, action, ok=False, cancel=False,
+                             clear_choices=True, ok_text=None):
+        """Publish a prompt and defer an action until the announcement finishes.
+        Defaults to no selectable choices during the announcement."""
+        self._deferred_action = action
+        self._awaiting = self.AWAITING_ANNOUNCEMENT
+        self.publish_prompt(prompt, ok=ok, cancel=cancel,
+                           clear_choices=clear_choices, ok_text=ok_text)
+
+    def _on_announcement_complete(self, msg):
+        """Called when an announcement finishes playing."""
+        if self._awaiting == self.AWAITING_ANNOUNCEMENT and self._deferred_action:
+            action = self._deferred_action
+            self._deferred_action = None
+            action()
+
     # --- Turn management ---
 
     def _player_label(self, player):
@@ -101,18 +129,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._board.current_player = self._board.opponent(cur)
             cur = self._board.current_player
 
-        hand_size = len(self._board.hands[cur])
-        p1_score = self._board.calculate_player_score(PLAYER.ONE)
-        p2_score = self._board.calculate_player_score(PLAYER.TWO)
         label = self._player_label(cur)
+        player_num = "1" if cur == PLAYER.ONE else "2"
 
         self._awaiting = self.AWAITING_CARD
         self.publish_prompt(
-            f"Round {self._board.round_number} — {label}'s turn. "
-            f"Hand: {hand_size} cards. "
-            f"Score: P1={p1_score} P2={p2_score}. "
-            f"Scan card or OK to pass.",
-            ok=True, cancel=False, clear_choices=True)
+            f"{label}'s turn.",
+            ok=True, cancel=False, clear_choices=True,
+            ok_text=f"Plr{player_num} Pass")
 
     def _advance_turn(self):
         """Recalculate scores and advance to the next player's turn."""
@@ -138,13 +162,22 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self.publish_error("Choose a row from the menu first")
             return
         if self._awaiting == self.AWAITING_MEDIC_CHOICE:
-            self.publish_error("Choose a card from the discard pile first")
+            self._process_medic_scan(card)
+            return
+        if self._awaiting == self.AWAITING_DECOY_CHOICE:
+            self._process_decoy_scan(card)
             return
         if self._awaiting != self.AWAITING_CARD:
             return
 
         cur = self._board.current_player
         label = self._player_label(cur)
+
+        # Check if it's the player's leader card
+        leader = self._board.leaders.get(cur)
+        if leader and leader.rfid == card.rfid:
+            self._play_leader(leader)
+            return
 
         # Validate card is in current player's hand
         hand_card = self._board.find_in_hand(cur, card.rfid)
@@ -158,13 +191,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         elif hand_card.has_specialty and hand_card.specialty == "scorch":
             self._play_scorch_specialty(hand_card)
         elif hand_card.has_specialty and hand_card.specialty == "decoy":
-            self.publish_error("Decoy not yet implemented")
+            self._play_decoy(hand_card)
         elif hand_card.has_specialty and hand_card.specialty == "mardroeme":
             self._play_mardroeme(hand_card)
         elif hand_card.has_specialty and hand_card.specialty == "commander":
             self._play_commander_card(hand_card)
-        elif hand_card.is_leader:
-            self._play_leader(hand_card)
         else:
             self._play_unit_card(hand_card)
 
@@ -177,18 +208,20 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._board.weather_rows.clear()
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
-            self.publish_prompt(f"{label} played {card.name} — weather cleared!")
             self._log.info(f"Weather cleared by {card.name}")
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on discard. Weather cleared!",
+                self._advance_turn)
         else:
             for row in card.ranges:
                 if row in ROWS:
                     self._board.weather_rows.add(row)
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
-            self.publish_prompt(f"{label} played {card.name} — weather on {', '.join(card.ranges)}")
             self._log.info(f"Weather applied: {card.name} on {card.ranges}")
-
-        self._advance_turn()
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on discard. Weather on {', '.join(card.ranges)}.",
+                self._advance_turn)
 
     def _play_mardroeme(self, card):
         """Mardroeme clears weather."""
@@ -196,8 +229,61 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.weather_rows.clear()
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
-        self.publish_prompt(f"{self._player_label(cur)} played {card.name} — weather cleared!")
-        self._advance_turn()
+        self._publish_prompt_then(
+            f"{self._player_label(cur)}: place {card.name} on discard. Weather cleared!",
+            self._advance_turn)
+
+    def _play_decoy(self, card):
+        """Start the decoy swap flow. Player scans a card on their board to swap."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+
+        # Check if player has any non-hero cards on the board to swap with
+        has_target = False
+        for row_name in ROWS:
+            for c in self._board.players[cur].rows[row_name]:
+                if not (c.has_specialty and c.specialty == "hero"):
+                    has_target = True
+                    break
+            if has_target:
+                break
+
+        if not has_target:
+            self.publish_error("No non-hero cards on your board to swap with Decoy")
+            return
+
+        self._pending_card = card
+        self._awaiting = self.AWAITING_DECOY_CHOICE
+        self.publish_prompt(
+            f"{label}: Decoy! Scan a card on your board to return to hand.",
+            ok=False, cancel=False, clear_choices=True)
+
+    def _process_decoy_scan(self, card):
+        """Handle a scanned card during decoy swap."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        decoy = self._pending_card
+
+        # Find the scanned card on the player's board
+        target, row_name = self._board.find_on_board(cur, card.rfid)
+        if not target:
+            self.publish_error(f"{card.name} is not on {label}'s board")
+            return
+
+        if target.has_specialty and target.specialty == "hero":
+            self.publish_error("Cannot swap a hero card with Decoy")
+            return
+
+        # Swap: remove target from board, place decoy on that row, return target to hand
+        self._board.players[cur].rows[row_name].remove(target)
+        self._board.place_card(cur, decoy, row_name)
+        self._board.remove_from_hand(cur, decoy)
+        self._board.hands[cur].append(target)
+
+        self._pending_card = None
+        self._publish_prompt_then(
+            f"{label}: place Decoy on {row_name}. {target.name} returned to hand.",
+            self._advance_turn)
 
     def _play_scorch_specialty(self, card):
         """Scorch: destroy highest-strength non-hero cards on the entire board."""
@@ -207,12 +293,16 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
 
+        label = self._player_label(cur)
         if destroyed:
             names = ", ".join(c.name for c in destroyed)
-            self.publish_prompt(f"{self._player_label(cur)} played Scorch! Destroyed: {names}")
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on discard. Destroyed: {names}",
+                self._advance_turn)
         else:
-            self.publish_prompt(f"{self._player_label(cur)} played Scorch — no targets")
-        self._advance_turn()
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on discard. No targets.",
+                self._advance_turn)
 
     def _play_commander_card(self, card):
         """Commander's Horn: double a row's strength."""
@@ -223,10 +313,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._board.commander_horn_rows[cur].add(row)
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
-        self.publish_prompt(
-            f"{self._player_label(cur)} played {card.name} — "
-            f"horn on {', '.join(card.ranges)}")
-        self._advance_turn()
+        self._publish_prompt_then(
+            f"{self._player_label(cur)}: place {card.name} on discard. "
+            f"Horn on {', '.join(card.ranges)}.",
+            self._advance_turn)
 
     def _play_leader(self, card):
         """Play a leader card ability."""
@@ -239,46 +329,35 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         pb.leader_used = True
         leader_data = card.leader if card.leader else {}
+        label = self._player_label(cur)
 
         if leader_data.get("weather_ranges"):
             for row in leader_data["weather_ranges"]:
                 self._board.weather_rows.add(row)
-            self.publish_prompt(
-                f"{self._player_label(cur)} used leader: "
-                f"weather on {leader_data['weather_ranges']}")
+            prompt = f"{label}: leader ability. Weather on {leader_data['weather_ranges']}."
         elif leader_data.get("commander_ranges"):
             for row in leader_data["commander_ranges"]:
                 self._board.commander_horn_rows[cur].add(row)
-            self.publish_prompt(
-                f"{self._player_label(cur)} used leader: "
-                f"horn on {leader_data['commander_ranges']}")
+            prompt = f"{label}: leader ability. Horn on {leader_data['commander_ranges']}."
         elif leader_data.get("draw_opponent_discard"):
             opp = self._board.opponent(cur)
             opp_discard = self._board.players[opp].discard
             if opp_discard:
                 drawn = opp_discard.pop(0)
                 self._board.hands[cur].append(drawn)
-                self.publish_prompt(
-                    f"{self._player_label(cur)} used leader: "
-                    f"drew {drawn.name} from opponent's discard")
+                prompt = f"{label}: leader ability. Drew {drawn.name} from opponent's discard."
             else:
-                self.publish_prompt(
-                    f"{self._player_label(cur)} used leader: "
-                    f"opponent's discard pile is empty")
+                prompt = f"{label}: leader ability. Opponent's discard pile is empty."
         elif leader_data.get("reshuffle_graveyards"):
             opp = self._board.opponent(cur)
             self._board.decks[opp].extend(self._board.players[opp].discard)
             self._board.players[opp].discard = []
             random.shuffle(self._board.decks[opp])
-            self.publish_prompt(
-                f"{self._player_label(cur)} used leader: "
-                f"reshuffled opponent's discard into deck")
+            prompt = f"{label}: leader ability. Reshuffled opponent's discard into deck."
         else:
-            self.publish_prompt(
-                f"{self._player_label(cur)} used leader: {leader_data.get('instructions', 'no effect')}")
+            prompt = f"{label}: leader ability. {leader_data.get('instructions', 'No effect')}."
 
-        self._board.remove_from_hand(cur, card)
-        self._advance_turn()
+        self._publish_prompt_then(prompt, self._advance_turn)
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
@@ -319,14 +398,17 @@ class PlayRound(gwent.game.stages.base.GameStage):
             'spy': is_spy,
         })
 
+        # Build placement instruction
+        target_label = f"opponent's {row_name}" if is_spy else row_name
+        place_msg = f"{label}: place {card.name} on {target_label}"
+
         # Process abilities
         if is_spy:
             drawn = self._board.draw_from_deck(cur, 2)
             drawn_names = ", ".join(c.name for c in drawn)
-            self.publish_prompt(
-                f"{label} played spy {card.name} on opponent's {row_name}. "
-                f"Drew: {drawn_names}")
-            self._advance_turn()
+            self._publish_prompt_then(
+                f"{place_msg}. Spy! Drew: {drawn_names}",
+                self._advance_turn)
             return
 
         if card.has_abilities and "medic" in card.abilities:
@@ -334,22 +416,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
             non_hero = [c for c in discard if not (c.has_specialty and c.specialty == "hero")]
             if non_hero:
                 self._awaiting = self.AWAITING_MEDIC_CHOICE
-                choices = []
-                for i, dc in enumerate(non_hero):
-                    choices.append(
-                        gwent.messaging.choice.Message.from_properties(str(i), dc.name))
-                mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
-                self.publish(gwent.game.CH_MFD_PRESENT, mfd)
-                self.publish_prompt(f"{label} played medic {card.name}. Choose a card to resurrect.")
+                self.publish_prompt(
+                    f"{place_msg}. Medic! Scan a card from discard to resurrect. {len(non_hero)} available.",
+                    ok=False, cancel=False, clear_choices=True)
                 return
             else:
-                self.publish_prompt(f"{label} played {card.name} on {row_name} (no cards to resurrect)")
-                self._advance_turn()
+                self._publish_prompt_then(
+                    f"{place_msg}. No cards to resurrect.",
+                    self._advance_turn)
                 return
 
         if card.has_abilities and "muster" in card.abilities:
             self._process_muster(card, row_name)
-            self._advance_turn()
             return
 
         # Scorch ability (not specialty): destroy strongest in opponent's same row
@@ -358,17 +436,36 @@ class PlayRound(gwent.game.stages.base.GameStage):
             destroyed = self._board.destroy_strongest(opp, row_name)
             if destroyed:
                 names = ", ".join(c.name for c in destroyed)
-                self.publish_prompt(
-                    f"{label} played {card.name} on {row_name}. Scorched: {names}")
+                self._publish_prompt_then(
+                    f"{place_msg}. Scorched: {names}",
+                    self._advance_turn)
             else:
-                self.publish_prompt(f"{label} played {card.name} on {row_name}")
-            self._advance_turn()
+                self._publish_prompt_then(place_msg, self._advance_turn)
             return
 
         # Normal card
-        self.publish_prompt(
-            f"{label} played {card.name} (str:{card.strength}) on {row_name}")
-        self._advance_turn()
+        self._publish_prompt_then(
+            f"{place_msg}, strength {card.strength}.",
+            self._advance_turn)
+
+    def _process_medic_scan(self, card):
+        """Handle a scanned card during medic resurrection."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        discard = self._board.players[cur].discard
+        non_hero = [c for c in discard if not (c.has_specialty and c.specialty == "hero")]
+
+        # Find the scanned card in the discard pile
+        resurrected = next((c for c in non_hero if c.rfid == card.rfid), None)
+        if not resurrected:
+            self.publish_error(f"{card.name} is not in {label}'s discard pile")
+            return
+
+        discard.remove(resurrected)
+        self._board.hands[cur].append(resurrected)
+        self._publish_prompt_then(
+            f"{label}: {resurrected.name} resurrected! Return to hand.",
+            self._advance_turn)
 
     def _process_muster(self, card, row_name):
         """Auto-play all cards with the same name from hand and deck."""
@@ -392,14 +489,17 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._board.decks[cur].remove(dc)
                 mustered.append(dc)
 
+        label = self._player_label(cur)
         if mustered:
             names = ", ".join(c.name for c in mustered)
-            self.publish_prompt(
-                f"{self._player_label(cur)} played {card.name} — "
-                f"mustered: {names}")
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on {row_name}. "
+                f"Muster! Also place: {names}",
+                self._advance_turn)
         else:
-            self.publish_prompt(
-                f"{self._player_label(cur)} played {card.name} on {row_name}")
+            self._publish_prompt_then(
+                f"{label}: place {card.name} on {row_name}.",
+                self._advance_turn)
 
     # --- Choice processing ---
 
@@ -407,15 +507,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
         super().process_choice(choice)
 
         if self._awaiting == self.AWAITING_CARD:
-            if choice.id == 'y' and choice.text == 'ok':
-                # Player passes — set awaiting to None to ignore duplicate OKs
-                self._awaiting = None
+            if choice.id == 'y':
+                # Player passes
                 cur = self._board.current_player
                 self._board.players[cur].passed = True
                 self._log.info(f"{self._player_label(cur)} passed")
-                self.publish_prompt(f"{self._player_label(cur)} passed!")
                 self._board.current_player = self._board.opponent(cur)
-                self._prompt_turn()
+                self._publish_prompt_then(
+                    f"{self._player_label(cur)} passed!",
+                    self._prompt_turn)
 
         elif self._awaiting == self.AWAITING_ROW_CHOICE:
             # Agile card row selection
@@ -429,19 +529,5 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._place_card_on_row(card, row)
 
         elif self._awaiting == self.AWAITING_MEDIC_CHOICE:
-            # Medic card resurrection
-            cur = self._board.current_player
-            discard = self._board.players[cur].discard
-            non_hero = [c for c in discard if not (c.has_specialty and c.specialty == "hero")]
-            idx = int(choice.id) if choice.id.isdigit() else 0
-            idx = min(idx, len(non_hero) - 1)
-            if non_hero:
-                resurrected = non_hero[idx]
-                discard.remove(resurrected)
-                # Place resurrected card on its row
-                row = resurrected.ranges[0] if resurrected.ranges else "close"
-                self._board.place_card(cur, resurrected, row)
-                self.publish_prompt(
-                    f"{self._player_label(cur)} resurrected {resurrected.name} to {row}")
-            self._awaiting = None
-            self._advance_turn()
+            # Medic resurrection is handled by scanning, ignore MFD choices
+            pass

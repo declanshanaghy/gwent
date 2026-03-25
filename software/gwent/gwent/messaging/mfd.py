@@ -6,6 +6,7 @@ import gwent.messaging.choice
 KIND = 'mfd'
 
 OK = 'ok'
+OK_TEXT = 'ok_text'
 CANCEL = 'cancel'
 CLEAR_CHOICES = 'clear_choices'
 CLEAR_PROMPT = 'clear_prompt'
@@ -18,10 +19,12 @@ CHOICES = 'choices'
 class Message(gwent.messaging.base.Message):
     @staticmethod
     def with_prompt(prompt: str, ok: bool = None, cancel: bool = None,
-                    clear_choices: bool = None):
+                    clear_choices: bool = None, ok_text: str = None):
         m = { PROMPT: prompt }
         if ok is not None:
             m[OK] = ok
+        if ok_text is not None:
+            m[OK_TEXT] = ok_text
         if cancel is not None:
             m[CANCEL] = cancel
         if clear_choices is not None:
@@ -68,6 +71,10 @@ class Message(gwent.messaging.base.Message):
     @property
     def ok(self):
         return self._instance[OK]
+
+    @property
+    def ok_text(self):
+        return self._instance.get(OK_TEXT)
 
     @property
     def has_cancel(self):

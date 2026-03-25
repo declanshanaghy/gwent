@@ -1,6 +1,7 @@
 import random
 import gwent.game
 import gwent.messaging.card_play
+import gwent.messaging.ctrl
 import gwent.messaging.factory
 import gwent.messaging.sfx
 import gwent.hal.matrix
@@ -16,7 +17,7 @@ class Player(gwent.game.PubSubComponent):
         self._leader = None
         self._score = 0
         self._deck = []
-        
+
         self._mux_channel = mux_channel
         self._channel_cards = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(self._player))
         self._channel_ctrl = gwent.game.make_channel(gwent.game.CH_CTRL)
@@ -29,8 +30,7 @@ class Player(gwent.game.PubSubComponent):
                        self.process_card_play)
         self.subscribe(self._channel_ctrl, gwent.messaging.ctrl.KIND,
                        self.process_ctrl)
-        
-        # Display initial score of zero
+
         self._update_display()
 
     def shutdown(self):
@@ -38,24 +38,17 @@ class Player(gwent.game.PubSubComponent):
         self.unsubscribe(self._channel_ctrl)
         self._matrix.shutdown()
         super().shutdown()
-    
+
     def _update_display(self):
-        """
-        Update the score display with a centered digit and dots
-        The number of dots displayed depends on which player this is
-        """
+        """Update the score display."""
         self._log.info(f"Updating display with score: {self._score}")
-        
-        # Use the display_centered_score method from the matrix class
-        # Pass the player parameter to determine dot display
         self._matrix.display_centered_score(self._score, self._player)
 
     def process_ctrl(self, cp: gwent.messaging.ctrl.Message):
         self._log.info(f'received {cp.kind}', extra=cp.to_object())
-        
+
         if cp.subkind == gwent.messaging.ctrl.STAGE:
             if cp.stage == gwent.messaging.ctrl.STAGE_MAIN_MENU:
-                # When game starts, display initial score of zero
                 self._score = 0
                 self._update_display()
             else:
@@ -70,6 +63,9 @@ class Player(gwent.game.PubSubComponent):
                 'subkind': cp.subkind,
                 'score': cp._instance.get(gwent.messaging.card_play.SCORE, 0),
             })
+        elif cp.subkind == gwent.messaging.card_play.UPDATE_GEMS:
+            # Gems are displayed by the RoundKeeper, ignore here
+            return
         else:
             self._log.info({
                 'action': f'received {cp.kind}',

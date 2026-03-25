@@ -1,5 +1,6 @@
 import functools
 import os
+import queue
 import tempfile
 import time
 import threading
@@ -16,6 +17,8 @@ import gwent.messaging.sfx
 CHANNEL_EFFECT = 0
 CHANNEL_TTS = 1
 
+ANNOUNCEMENT_DELAY = 0
+
 
 def instance():
     return _SFX()
@@ -28,6 +31,10 @@ class _SFX(gwent.game.BaseComponent):
     def __init__(self):
         super().__init__()
         pygame.mixer.init(frequency=24000, size=-16, channels=2)
+        self._announce_queue = queue.Queue()
+        self._announce_thread = threading.Thread(
+            target=self._announcement_worker, daemon=True)
+        self._announce_thread.start()
 
     def tempdir(self):
         if self._tempdir is None:
@@ -147,7 +154,35 @@ class _SFX(gwent.game.BaseComponent):
             self._log.error(f"Error playing effect: {e}", exc_info=True)
             return 0
 
-    def announce(self, msg: gwent.messaging.base.Message):
+    def announce(self, msg: gwent.messaging.base.Message, on_complete=None):
+        """Queue an announcement for sequential playback."""
+        self._log.info({
+            'action': 'announce_queued',
+            'speech': msg.announcement,
+            'queue_size': self._announce_queue.qsize(),
+        })
+        self._announce_queue.put((msg, on_complete))
+
+    def _announcement_worker(self):
+        """Process announcements sequentially with a delay between them."""
+        while True:
+            msg, on_complete = self._announce_queue.get()
+            try:
+                self._play_announcement(msg)
+                # Wait for the audio to finish plus a delay before the next one
+                ch = pygame.mixer.Channel(CHANNEL_TTS)
+                while ch.get_busy():
+                    time.sleep(0.1)
+                time.sleep(ANNOUNCEMENT_DELAY)
+                # Notify that the announcement has finished
+                if on_complete:
+                    on_complete(msg)
+            except Exception as e:
+                self._log.error(f"Error in announcement worker: {e}", exc_info=True)
+            finally:
+                self._announce_queue.task_done()
+
+    def _play_announcement(self, msg: gwent.messaging.base.Message):
         try:
             self._log.info({
                 'action': 'announce',
@@ -156,7 +191,7 @@ class _SFX(gwent.game.BaseComponent):
             start = time.time()
             fmp3 = self.tts_filename(msg)
             fwav = self.tts_filename(msg, extn='wav')
-            
+
             self._log.debug({
                 'action': 'announce_paths',
                 'fmp3': fmp3,
@@ -198,7 +233,7 @@ class _SFX(gwent.game.BaseComponent):
 
             speech = self.load_sound(fwav)
             self.play_sound(speech, channel=CHANNEL_TTS)
-            
+
             duration = speech.get_length()
             self._log.info({
                 'action': 'announcement_played',

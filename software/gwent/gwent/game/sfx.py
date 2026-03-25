@@ -26,7 +26,7 @@ class SFX(gwent.game.PubSubComponent):
         try:
             if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
                 self._log.info(f"Playing announcement: {sfx.announcement}")
-                self._tts.announce(sfx)
+                self._tts.announce(sfx, on_complete=self._on_announcement_complete)
             elif sfx.subkind == gwent.messaging.sfx.EFFECT:
                 self._log.info(f"Playing effect: {sfx.effect}")
                 self._tts.play_effect(sfx)
@@ -38,3 +38,8 @@ class SFX(gwent.game.PubSubComponent):
                 self._log.debug(f'Unhandled subkind: {sfx.subkind}')
         except Exception as e:
             self._log.error(f"Error processing audio: {e}", exc_info=True)
+
+    def _on_announcement_complete(self, msg):
+        complete = gwent.messaging.sfx.Message.with_announcement_complete(
+            msg.announcement)
+        self.publish(gwent.game.CH_SFX_COMPLETE, complete)

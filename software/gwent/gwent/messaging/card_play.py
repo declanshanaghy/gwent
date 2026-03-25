@@ -11,8 +11,10 @@ CARD = 'card'
 ADD_TO_DECK = 'add_to_deck'
 DEAL_TO_HAND = 'deal_to_hand'
 UPDATE_SCORE = 'update_score'
+UPDATE_GEMS = 'update_gems'
 
 SCORE = 'score'
+GEMS = 'gems'
 
 
 class Message(gwent.messaging.base.Message):
@@ -39,6 +41,14 @@ class Message(gwent.messaging.base.Message):
             SCORE: score,
         }
         return Message(instance, subkind=UPDATE_SCORE)
+
+    @staticmethod
+    def with_update_gems(player: str, gems: int):
+        instance = {
+            PLAYER: player,
+            GEMS: gems,
+        }
+        return Message(instance, subkind=UPDATE_GEMS)
 
     @property
     def kind(self):

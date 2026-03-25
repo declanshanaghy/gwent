@@ -28,6 +28,7 @@ CH_MFD_PRESENT = CH_SEP.join((CH_MFD, 'present'))
 CH_MFD_CHOOSE = CH_SEP.join((CH_MFD, 'choose'))
 
 CH_SFX = CH_SEP.join((MAIN_CHANNEL, 'sfx'))
+CH_SFX_COMPLETE = CH_SEP.join((CH_SFX, 'complete'))
 
 DEFAULT_YIELD_TIME = 0.01
 DEFAULT_ERROR_TIME = 3.0
@@ -201,10 +202,11 @@ class PubSubComponent(ThreadComponent):
         self.publish(CH_SFX, e)
 
     def publish_prompt(self, prompt: str, ok=True,
-                       cancel=True, clear_choices=True):
+                       cancel=True, clear_choices=True, ok_text=None):
         """Publish a prompt message"""
         p = gwent.messaging.mfd.Message.with_prompt(
-            prompt=prompt, ok=ok, cancel=cancel, clear_choices=clear_choices)
+            prompt=prompt, ok=ok, cancel=cancel, clear_choices=clear_choices,
+            ok_text=ok_text)
         self.publish(CH_MFD_PRESENT, p)
 
         p = gwent.messaging.sfx.Message.with_announcement(p.prompt)

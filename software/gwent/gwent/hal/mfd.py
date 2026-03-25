@@ -166,7 +166,7 @@ class _MFD(gwent.game.BaseComponent):
             if mfd.has_ok:
                 if mfd.ok:
                     self._log.debug("Creating OK button")
-                    ok = gwent.messaging.choice.Message.new_ok()
+                    ok = gwent.messaging.choice.Message.new_ok(text=mfd.ok_text)
                 else:
                     self._log.debug("Setting OK button to None")
                     ok = None

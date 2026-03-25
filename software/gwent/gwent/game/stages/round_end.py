@@ -7,9 +7,13 @@ and checks for game over.
 import random
 from typing import Callable
 
+import gwent.game
+import gwent.game
 import gwent.game.stages.base
 import gwent.messaging.ctrl
 import gwent.messaging.choice
+import gwent.messaging.card_play
+import gwent.messaging.sfx
 
 from gwent.game.constants import PLAYER
 from gwent.game.board import Board, ROWS
@@ -25,6 +29,12 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         super().activate(complete, cancel)
         self._board = board
         self._game_over = False
+        self._waiting_for_announcement = False
+
+        self.subscribe(gwent.game.CH_SFX_COMPLETE,
+                      gwent.messaging.sfx.KIND,
+                      self._on_announcement_complete)
+
         self._determine_winner()
 
     def _determine_winner(self):
@@ -65,6 +75,9 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         self._winner = winner
         self._loser = loser
 
+        # Publish gem updates to player displays
+        self._publish_gems()
+
         # Apply faction end-of-round abilities
         self._apply_faction_abilities(winner)
 
@@ -73,19 +86,25 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         p2_gems = self._board.players[PLAYER.TWO].gems
         self._game_over = p1_gems <= 0 or p2_gems <= 0
 
-        gems_info = f"Gems: P1={p1_gems}, P2={p2_gems}"
+        g1 = "gem" if p1_gems == 1 else "gems"
+        g2 = "gem" if p2_gems == 1 else "gems"
+        gems_info = f"Player 1: {p1_gems} {g1} remaining. Player 2: {p2_gems} {g2} remaining."
+
+        self._waiting_for_announcement = True
 
         if self._game_over:
             if p1_gems <= 0 and p2_gems <= 0:
-                self.publish_prompt(f"{result} {gems_info}. Game over — it's a draw! Press OK.")
+                self.publish_prompt(f"{result} {gems_info} Game over, it's a draw!",
+                                   ok=False, cancel=False, clear_choices=True)
             elif p1_gems <= 0:
-                self.publish_prompt(f"{result} {gems_info}. Game over — Player 2 wins the match! Press OK.")
+                self.publish_prompt(f"{result} {gems_info} Game over, Player 2 wins the match!",
+                                   ok=False, cancel=False, clear_choices=True)
             else:
-                self.publish_prompt(f"{result} {gems_info}. Game over — Player 1 wins the match! Press OK.")
+                self.publish_prompt(f"{result} {gems_info} Game over, Player 1 wins the match!",
+                                   ok=False, cancel=False, clear_choices=True)
         else:
-            self.publish_prompt(
-                f"{result} {gems_info}. Press OK for next round.",
-                ok=True, cancel=False, clear_choices=True)
+            self.publish_prompt(f"{result} {gems_info}",
+                               ok=False, cancel=False, clear_choices=True)
 
         self._log.info({
             'action': 'round_result',
@@ -94,6 +113,14 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             'p2_gems': p2_gems,
             'game_over': self._game_over,
         })
+
+    def _publish_gems(self):
+        """Publish gem updates to player displays."""
+        for player in (PLAYER.ONE, PLAYER.TWO):
+            gems = self._board.players[player].gems
+            msg = gwent.messaging.card_play.Message.with_update_gems(str(player), gems)
+            topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
+            self.publish(topic, msg)
 
     def _apply_faction_abilities(self, winner):
         """Apply end-of-round faction abilities."""
@@ -137,22 +164,29 @@ class RoundEnd(gwent.game.stages.base.GameStage):
                         self._board.hands[player].append(card)
                         self._log.info(f"Skellige resurrects {card.name}")
 
+    def _on_announcement_complete(self, msg):
+        """Auto-advance after the round end announcement finishes."""
+        if not self._waiting_for_announcement:
+            return
+        self._waiting_for_announcement = False
+        self._advance()
+
+    def _advance(self):
+        """Progress to the next stage."""
+        if self._game_over:
+            self.complete(self._board, True)
+        else:
+            # Loser goes first next round (or random if draw)
+            if self._loser:
+                self._board.current_player = self._loser
+            else:
+                self._board.current_player = random.choice([PLAYER.ONE, PLAYER.TWO])
+
+            self._board.clear_round()
+            self.complete(self._board, False)
+
     def process_choice(self, choice: gwent.messaging.choice.Message):
         super().process_choice(choice)
-
-        if choice.id == 'y' and choice.text == 'ok':
-            if self._game_over:
-                self.complete(self._board, True)
-            else:
-                # Prepare for next round
-                # Loser goes first next round (or random if draw)
-                if self._loser:
-                    self._board.current_player = self._loser
-                else:
-                    self._board.current_player = random.choice([PLAYER.ONE, PLAYER.TWO])
-
-                self._board.clear_round()
-                self.complete(self._board, False)
 
     def process_card(self, card: gwent.messaging.card.Message):
         super().process_card(card)

@@ -29,10 +29,10 @@ class Message(gwent.messaging.base.Message):
         return Message(instance)
 
     @staticmethod
-    def new_ok():
+    def new_ok(text=None):
         instance = {
             ID: OK_ID,
-            TEXT: OK_TXT
+            TEXT: text or OK_TXT
         }
         return Message(instance)
 

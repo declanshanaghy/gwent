@@ -54,7 +54,7 @@ If a commander horn is active on a row, note it (e.g. "📯" next to the row).
 ### Hands
 One table with 2 columns listing cards in each player's hand with strength.
 
-| Player 1 (N cards) | Player 2 (N cards) |
+| Player 1 - Faction (N cards) | Player 2 - Faction (N cards) |
 |---|---|
 | Card Name (str) | Card Name (str) |
 

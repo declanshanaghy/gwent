@@ -13,10 +13,9 @@ Format:
             "leader2": { ...card dict... },
             "player1_deck": [ ...card dicts... ],
             "player2_deck": [ ...card dicts... ],
-            "player1_hand": [ ...card dicts... ],
-            "player2_hand": [ ...card dicts... ],
-            "player1_score": 0,
-            "player2_score": 0
+            "player1_hand": [ ...card dicts (pre-board stages only)... ],
+            "player2_hand": [ ...card dicts (pre-board stages only)... ],
+            "board": { ...board dict (PlayRound+ stages, includes hands)... }
         }
     }
 
@@ -85,14 +84,7 @@ def save(filepath, controller):
     if rd._player2_deck:
         state["player2_deck"] = _cards_to_dicts(rd._player2_deck)
 
-    # Gather state from deal_cards
-    dc = controller.deal_cards
-    if dc._player1_hand:
-        state["player1_hand"] = _cards_to_dicts(dc._player1_hand)
-    if dc._player2_hand:
-        state["player2_hand"] = _cards_to_dicts(dc._player2_hand)
-
-    # If in PlayRound or later, save the board state
+    # If in PlayRound or later, save the board state (includes hands)
     pr = controller.play_round
     if hasattr(pr, '_board') and pr._board is not None:
         state["board"] = pr._board.to_dict()
@@ -101,6 +93,14 @@ def save(filepath, controller):
     re = controller.round_end
     if hasattr(re, '_board') and re._board is not None:
         state["board"] = re._board.to_dict()
+
+    # Save deal_cards hands only if no board (board has its own hands)
+    if "board" not in state:
+        dc = controller.deal_cards
+        if dc._player1_hand:
+            state["player1_hand"] = _cards_to_dicts(dc._player1_hand)
+        if dc._player2_hand:
+            state["player2_hand"] = _cards_to_dicts(dc._player2_hand)
 
     snapshot = {
         "version": STATE_VERSION,
@@ -141,8 +141,6 @@ def load(filepath, controller):
     leader2 = _dict_to_card(state.get("leader2"))
     player1_deck = _dicts_to_cards(state.get("player1_deck", []))
     player2_deck = _dicts_to_cards(state.get("player2_deck", []))
-    player1_hand = _dicts_to_cards(state.get("player1_hand", []))
-    player2_hand = _dicts_to_cards(state.get("player2_hand", []))
 
     # Reconstruct board if present
     board = None
@@ -174,10 +172,8 @@ def load(filepath, controller):
                 board.decks[PLAYER.ONE], board.hands[PLAYER.ONE],
                 board.decks[PLAYER.TWO], board.hands[PLAYER.TWO],
                 board=board)
-        elif player1_deck and player1_hand and player2_deck and player2_hand:
-            controller.start_play_round(player1_deck, player1_hand, player2_deck, player2_hand)
         else:
-            log.error("Cannot restore PlayRound: missing data")
+            log.error("Cannot restore PlayRound: missing board")
             controller.start_register_leaders()
 
     elif stage_name == "RoundEnd":

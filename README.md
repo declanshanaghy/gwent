@@ -11,7 +11,7 @@ A hand-crafted digital companion for the physical card game Gwent from The Witch
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -61,7 +61,7 @@ The Gwent Companion is a digital device that works alongside physical Gwent card
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -96,8 +96,9 @@ flowchart TD
 - **🖥️ Digital Companion**:
   - 🥧 Raspberry Pi for hardware interfacing and game management
   - 📡 Integrated RFID card reader
-  - 🔢 Round score display
-  - 🏆 Game score display
+  - 💎 Gem display (lives remaining per player)
+  - 🔢 Player 1 score display
+  - 🔢 Player 2 score display
   - 📱 LCD menu system with interactive navigation
   - 🎛️ Rotary dial for menu navigation and selection
   - ⚡ Power management system
@@ -107,7 +108,7 @@ flowchart TD
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -132,19 +133,21 @@ graph TD
     
     subgraph i2c_devices["I2C Devices"]
         mux["🔌 TCA9548A Multiplexer"]:::i2c
-        matrix1["🔢 LED Matrix 1"]:::i2c
-        matrix2["🔢 LED Matrix 2"]:::i2c
+        matrix0["💎 Gem Display<br/>Ch 0: IS31FL3731"]:::i2c
+        matrix1["🔢 P1 Score Display<br/>Ch 1: IS31FL3731"]:::i2c
+        matrix2["🔢 P2 Score Display<br/>Ch 2: IS31FL3731"]:::i2c
     end
-    
+
     subgraph gpio_devices["GPIO Devices"]
         rotary["🎛️ Rotary Encoder"]:::gpio
         button["🔘 Push Button"]:::gpio
     end
-    
+
     rpi --> spi_devices
     rpi --> i2c_devices
     rpi --> gpio_devices
-    
+
+    mux --> matrix0
     mux --> matrix1
     mux --> matrix2
 ```
@@ -166,7 +169,7 @@ graph TD
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -220,7 +223,7 @@ graph TD
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -279,7 +282,7 @@ mindmap
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -327,7 +330,7 @@ This project is currently in active development. The following components have b
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -393,7 +396,7 @@ Gwent is a complex card game where score tracking can be cumbersome. This compan
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -445,7 +448,7 @@ See the [design documentation](design/README.md) for detailed information about 
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
