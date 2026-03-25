@@ -45,7 +45,7 @@ flowchart TD
     DealCards[Deal Cards] --> ScanCardDeal[Scan Card]
     ScanCardDeal --> WhichPlayerDeal{Which Player}
     WhichPlayerDeal -->|plr1| AddPlr1Hand[Add to Plr1 Hand]
-    WhichPlayerDeal -->|plr2| AddPlr2Hand[Add to Plr2 Deck]
+    WhichPlayerDeal -->|plr2| AddPlr2Hand[Add to Plr2 Hand]
     AddPlr1Hand --> FinishedDeal{Finished?}
     AddPlr2Hand --> FinishedDeal
     FinishedDeal -->|no| ScanCardDeal

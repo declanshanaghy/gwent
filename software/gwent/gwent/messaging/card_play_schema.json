@@ -12,7 +12,8 @@
       "description": "Indicates the content of this message",
       "type": "string",
       "enum": [
-        "add_to_deck"
+        "add_to_deck",
+        "deal_to_hand"
       ]
     },
     "player": {

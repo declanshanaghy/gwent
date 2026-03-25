@@ -84,9 +84,18 @@ If `--evaluate` is NOT present, produce an implementation plan:
 
 ### Files to Create/Modify
 1. `software/gwent/gwent/game/stages/<stage_name>.py` — new stage class
-2. `software/gwent/gwent/game/stages/all.py` — add export
-3. `software/gwent/gwent/messaging/ctrl.py` — add STAGE_<NAME> constant
-4. `software/gwent/gwent/game/controller.py` — add start_<stage>() method, wire into flow
+2. `software/gwent/gwent/game/stages/<next_stage_name>.py` — **placeholder** for the next stage in the flow (accepts args from complete, shows "not yet implemented" prompt, OK returns to menu)
+3. `software/gwent/gwent/game/stages/all.py` — add exports for both stages
+4. `software/gwent/gwent/messaging/ctrl.py` — add STAGE_<NAME> constants for both stages
+5. `software/gwent/gwent/messaging/ctrl_schema.json` — add both stage names to the enum
+6. `software/gwent/gwent/game/controller.py` — add start_<stage>() and start_<next_stage>() methods, wire into flow
+
+**IMPORTANT:** Always create a placeholder for the next stage in the diagram flow. This ensures the controller's complete callback has somewhere to go. The placeholder should:
+- Accept the args that the current stage passes via `complete()`
+- Show a prompt like "<StageName> — not yet implemented. Press OK to return to menu."
+- OK → complete (returns to main menu)
+- Cancel → cancel (returns to main menu)
+- Reject card scans with an error
 
 ### Implementation Details
 <detailed description of each method, validation logic, error handling>

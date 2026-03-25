@@ -29,7 +29,8 @@
             "MainMenu",
             "RegisterLeaders",
             "RegisterDecks",
-            "DealCards"
+            "DealCards",
+            "PlayRound"
           ]
         },
         "active": {

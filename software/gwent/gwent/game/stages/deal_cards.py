@@ -18,6 +18,7 @@ class DealCards(gwent.game.stages.base.GameStage):
     _player2_deck = []
     _player1_hand = []
     _player2_hand = []
+    _confirmed = False
 
     @property
     def stage(self):
@@ -31,6 +32,7 @@ class DealCards(gwent.game.stages.base.GameStage):
         self._player2_deck = list(deck2)
         self._player1_hand = []
         self._player2_hand = []
+        self._confirmed = False
         self._deal_hands()
 
     def _deal_hands(self):
@@ -48,16 +50,14 @@ class DealCards(gwent.game.stages.base.GameStage):
             'player2_hand': p2_names,
         })
 
-        # Publish each dealt card to the player's topic
-        for card in self._player1_hand:
-            self._publish_deal_to_player(PLAYER.ONE, card)
-        for card in self._player2_hand:
-            self._publish_deal_to_player(PLAYER.TWO, card)
-
-        self.publish_prompt(
-            f"Cards dealt! Player 1: {len(self._player1_hand)} cards, "
-            f"Player 2: {len(self._player2_hand)} cards. Press OK to continue.",
-            ok=True, cancel=True, clear_choices=True)
+        # Announce the deal summary
+        summary = (
+            f"Cards dealt. "
+            f"Player 1: {len(self._player1_hand)} cards from {len(self._player1_deck)} in deck. "
+            f"Player 2: {len(self._player2_hand)} cards from {len(self._player2_deck)} in deck. "
+            f"Press OK to confirm."
+        )
+        self.publish_prompt(summary, ok=True, cancel=True, clear_choices=True)
 
     def _deal_from_deck(self, deck, player):
         """Randomly select HAND_SIZE cards from the deck."""
@@ -81,14 +81,31 @@ class DealCards(gwent.game.stages.base.GameStage):
         topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
         self.publish(topic, msg)
 
+    def _publish_all_deals(self):
+        """Publish deal_to_hand messages for all dealt cards."""
+        for card in self._player1_hand:
+            self._publish_deal_to_player(PLAYER.ONE, card)
+        for card in self._player2_hand:
+            self._publish_deal_to_player(PLAYER.TWO, card)
+
     def process_choice(self, choice: gwent.messaging.choice.Message):
         super().process_choice(choice)
 
         if choice.id == 'y' and choice.text == 'ok':
-            self._log.info("Deal confirmed, completing stage")
-            self.complete(
-                self._player1_deck, self._player1_hand,
-                self._player2_deck, self._player2_hand)
+            if not self._confirmed:
+                # First OK: confirm the deal, publish cards, announce
+                self._confirmed = True
+                self._log.info("Deal confirmed, publishing cards to players")
+                self._publish_all_deals()
+                self.publish_prompt(
+                    f"Hands confirmed! Starting round.",
+                    ok=True, cancel=False, clear_choices=True)
+            else:
+                # Second OK: proceed to next stage
+                self._log.info("Proceeding to next stage")
+                self.complete(
+                    self._player1_deck, self._player1_hand,
+                    self._player2_deck, self._player2_hand)
         elif choice.id == 'n' and choice.text == 'cancel':
             self._log.info("Deal canceled")
             self.cancel()

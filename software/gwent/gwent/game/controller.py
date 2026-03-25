@@ -22,6 +22,7 @@ class Controller(gwent.game.PubSubComponent):
     register_leaders = None
     register_decks = None
     deal_cards = None
+    play_round = None
 
     def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
@@ -29,6 +30,7 @@ class Controller(gwent.game.PubSubComponent):
         self.register_leaders = gwent.game.stages.all.RegisterLeaders(pubsub)
         self.register_decks = gwent.game.stages.all.RegisterDecks(pubsub)
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
+        self.play_round = gwent.game.stages.all.PlayRound(pubsub)
 
     def init(self):
         super().init()
@@ -127,8 +129,7 @@ class Controller(gwent.game.PubSubComponent):
                 'deck2_size': len(deck2),
                 'hand2_size': len(hand2),
             })
-            # TODO: start_play_round(deck1, hand1, deck2, hand2)
-            self.start_main_menu()
+            self.start_play_round(deck1, hand1, deck2, hand2)
 
         def cancel():
             self._log.info('Deal cards canceled')
@@ -137,6 +138,25 @@ class Controller(gwent.game.PubSubComponent):
                 self.register_decks._leader2)
 
         self.set_active_stage(self.deal_cards, complete, cancel, deck1, deck2)
+
+    def start_play_round(self, deck1, hand1, deck2, hand2):
+        self._log.info({
+            'action': 'start_play_round',
+            'deck1_size': len(deck1),
+            'hand1_size': len(hand1),
+            'deck2_size': len(deck2),
+            'hand2_size': len(hand2),
+        })
+
+        def complete():
+            self._log.info('Play round completed')
+            self.start_main_menu()
+
+        def cancel():
+            self._log.info('Play round canceled')
+            self.start_main_menu()
+
+        self.set_active_stage(self.play_round, complete, cancel, deck1, hand1, deck2, hand2)
 
     def process_card(self, message: gwent.messaging.card.Message):
         if self.active_stage:
