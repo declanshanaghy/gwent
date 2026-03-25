@@ -12,9 +12,12 @@ LOG_DIR="/tmp/logs"
 LOG_FILE="${LOG_DIR}/gwent.log"
 
 mkdir -p "${LOG_DIR}"
+touch "${LOG_FILE}"
 
 export PYTHONUNBUFFERED=1
 export RUNNING_ON_PI=true
+export GWENT_REPLAY=${GWENT_REPLAY:-""}
+export GWENT_TRACE=${GWENT_TRACE:-""}
 
 cleanup() {
     echo ""
@@ -28,6 +31,10 @@ trap cleanup SIGINT SIGTERM
 
 echo "Starting gwent dev server"
 echo "  Logs: ${LOG_FILE}"
+if [ -n "${GWENT_REPLAY}" ]; then
+    echo "  Replay: ${GWENT_REPLAY}"
+fi
+echo "  Trace: /tmp/logs/gwent-trace.jsonl"
 echo "  Press Ctrl+C to stop"
 echo ""
 

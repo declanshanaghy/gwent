@@ -44,8 +44,7 @@ class Controller(gwent.game.PubSubComponent):
 
     def run(self):
         # self.start_music()
-        # self.start_main_menu()
-        self.start_register_leaders()
+        self.start_main_menu()
         super().run()
 
     def set_active_stage(self, st, completed: Callable, cancel: Callable, *args, **kwargs):
@@ -97,19 +96,28 @@ class Controller(gwent.game.PubSubComponent):
     def start_register_decks(self, leader1: gwent.messaging.card.Message, leader2: gwent.messaging.card.Message):
         self._log.info('Starting register decks stage')
 
-        def complete(deck1_name: str, deck2_name: str):
+        def complete(deck1, deck2):
             self._log.info({
                 'action': 'complete register_decks',
-                'deck1': deck1_name,
-                'deck2': deck2_name,
+                'deck1_size': len(deck1),
+                'deck2_size': len(deck2),
             })
-            self.start_main_menu()
+            self.start_deal_cards(deck1, deck2)
 
         def cancel():
             self._log.info('Register decks canceled')
-            self.start_main_menu()
+            self.start_register_leaders()
 
         self.set_active_stage(self.register_decks, complete, cancel, leader1, leader2)
+
+    def start_deal_cards(self, deck1, deck2):
+        # TODO: Implement DealCards stage — for now log and return to main menu
+        self._log.info({
+            'action': 'start_deal_cards (not yet implemented)',
+            'deck1_size': len(deck1),
+            'deck2_size': len(deck2),
+        })
+        self.start_main_menu()
 
     def process_card(self, message: gwent.messaging.card.Message):
         if self.active_stage:

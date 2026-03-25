@@ -131,6 +131,9 @@ class MQTTClient:
     
     def publish(self, topic, payload, qos=1):
         """Publish a message to a topic"""
+        import gwent.game.tracer as tracer
+        tracer.record(topic, payload)
+
         self._log.info({
             'action': 'publish',
             'topic': topic,
@@ -273,7 +276,42 @@ class Gwent:
         self.create_components()
         self.initialize_components()
         self.start_components()
-        
+
+        # Replay recorded traces to jump to a specific game state.
+        # GWENT_REPLAY accepts comma-separated paths to chain multiple recordings.
+        # After replay completes, tracing is enabled to record the next segment.
+        import os
+        import gwent.game.tracer as tracer
+
+        replay_files = os.environ.get("GWENT_REPLAY", "")
+        if replay_files:
+            from gwent.game.replay import replay
+            for filepath in replay_files.split(","):
+                filepath = filepath.strip()
+                if filepath:
+                    self._log.info(f"Replaying trace: {filepath}")
+                    replay(self.pubsub, filepath)
+            self._log.info("All replays complete, recording new trace")
+
+        # Set up trace filename from env var or prompt.
+        # Set GWENT_TRACE=off to disable tracing entirely.
+        trace_name = os.environ.get("GWENT_TRACE", "")
+        if trace_name.lower() in ("off", "none", "false", "0"):
+            self._log.info("Tracing disabled")
+        else:
+            if not trace_name:
+                try:
+                    trace_name = input("Enter trace filename (without .jsonl): ").strip()
+                except EOFError:
+                    trace_name = ""
+            if trace_name:
+                tracer.set_filename(trace_name)
+                tracer.reset()
+                tracer.enable()
+                self._log.info(f"Recording trace to {tracer.get_filepath()}")
+            else:
+                self._log.info("No trace filename given, tracing disabled")
+
         # Wait for shutdown signal
         try:
             while not self._stop_event.is_set():

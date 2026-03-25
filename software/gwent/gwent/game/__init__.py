@@ -171,7 +171,6 @@ class PubSubComponent(ThreadComponent):
 
     def publish(self, topic, message: gwent.messaging.base.Message):
         """Publish a message to a topic"""
-        # Publish the message
         self._log.info({
             'action': 'publish',
             'topic': topic,

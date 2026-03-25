@@ -23,8 +23,11 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
         super().activate(complete, cancel)
         self._leader1 = leader1
         self._leader2 = leader2
-        self._player1_deck = []
-        self._player2_deck = []
+        # Seed each deck with its leader
+        self._player1_deck = [leader1]
+        self._player2_deck = [leader2]
+        self._publish_card_to_player(PLAYER.ONE, leader1)
+        self._publish_card_to_player(PLAYER.TWO, leader2)
         self.publish_start_prompt()
 
     def publish_start_prompt(self):
@@ -59,26 +62,58 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
 
             if plr1_needs > 0:
                 self.publish_prompt(f"Player 1, you need to register {plr1_needs} more cards")
-            elif plr1_needs > 3:
+            elif plr2_needs > 0:
                 self.publish_prompt(f"Player 2, you need to register {plr2_needs} more cards")
             else:
 
                 self.publish_prompt(f"Players, continue registering your deck")
 
+    def _find_card_in_deck(self, deck, card):
+        return any(c.rfid == card.rfid for c in deck)
+
     def process_card(self, card: gwent.messaging.card.Message):
         super().process_card(card)
-        
+
+        # Reject blank cards
+        if card.is_blank:
+            self.publish_error("Blank card — write card data first")
+            return
+
+        # Reject leader cards
+        if card.is_leader:
+            self.publish_error(f"{card.name} is a leader, not a deck card")
+            return
+
+        # Reject if this card is already registered as either leader
+        if ((self._leader1 and self._leader1.rfid == card.rfid) or
+                (self._leader2 and self._leader2.rfid == card.rfid)):
+            self.publish_error(f"{card.name} is already registered as a leader")
+            return
+
+        # Determine which player this card belongs to by faction
         if self._leader1.faction == card.faction:
-            self._player1_deck.append(card)
-            self._publish_card_to_player(PLAYER.ONE, card)
-            self.publish_prompt(f"{PLAYER.ONE.display_name} added card: {card.full_name}")        
+            player = PLAYER.ONE
+            deck = self._player1_deck
+            player_label = "Player 1"
         elif self._leader2.faction == card.faction:
-            self._player2_deck.append(card)
-            self._publish_card_to_player(PLAYER.TWO, card)
-            self.publish_prompt(f"{PLAYER.TWO.display_name} added card: {card.full_name}")        
+            player = PLAYER.TWO
+            deck = self._player2_deck
+            player_label = "Player 2"
         else:
-            self._log.error(f"Card {card.full_name} is not a valid faction in this game")
-            self.publish_error(f"Card {card.full_name} is not a valid faction in this game")
+            self.publish_error(f"{card.faction} is not a valid faction in this game")
+            return
+
+        # Reject duplicates across both decks
+        if self._find_card_in_deck(self._player1_deck, card):
+            self.publish_error(f"{card.name} is already in Player 1's deck")
+            return
+        if self._find_card_in_deck(self._player2_deck, card):
+            self.publish_error(f"{card.name} is already in Player 2's deck")
+            return
+
+        deck.append(card)
+        self._publish_card_to_player(player, card)
+        self.publish_prompt(f"{player_label} added {card.full_name} ({len(deck)} cards)")
     
     def _publish_card_to_player(self, player: PLAYER, card: gwent.messaging.card.Message):
         """
@@ -94,5 +129,5 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
         card_play_msg = gwent.messaging.card_play.Message.with_add_to_deck(str(player), card)
         
         # Publish to the player's topic
-        player_topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, player.topic)
+        player_topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
         self.publish(player_topic, card_play_msg)
