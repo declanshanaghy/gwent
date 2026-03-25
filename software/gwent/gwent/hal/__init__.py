@@ -5,6 +5,10 @@ import threading
 _REAL = None
 _lock = threading.RLock()
 
+# Shared SPI bus lock — RFID (CE0) and OLED (CE1) share the SPI bus
+# and must not access it concurrently from different threads.
+spi_lock = threading.Lock()
+
 def real_mode():
     global _REAL
     with _lock:

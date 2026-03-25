@@ -44,7 +44,21 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
         try:
             self._log.info(f"Attempting to initialize SPI interface with device={device}, port={port}")
             self._log.debug("Creating SPI interface with noop GPIO")
-            self.interface = spi(device=device, port=port)
+            # GPIO25 is shared between the OLED reset and MFRC522 RFID
+            # reset. We manually pulse it here, then pass gpio_RST=None
+            # so luma doesn't call gpio.cleanup() on it (which would
+            # release the pin and let it float LOW, holding the RFID
+            # chip in permanent reset).
+            import RPi.GPIO as GPIO
+            GPIO.setwarnings(False)
+            if GPIO.getmode() is None:
+                GPIO.setmode(GPIO.BCM)
+            GPIO.setup(25, GPIO.OUT)
+            GPIO.output(25, GPIO.LOW)
+            time.sleep(0.01)
+            GPIO.output(25, GPIO.HIGH)
+            time.sleep(0.05)
+            self.interface = spi(device=device, port=port, gpio_RST=None)
             self._log.info(f"SPI interface initialized successfully with device={device}, port={port}")
             
             # Store the successful combination
@@ -166,48 +180,26 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
             return ImageFont.load_default()
 
     def clear(self):
-        self._log.info("clear() called")
         if self.device is None:
-            self._log.warning("clear() called but device is None, returning")
             return
-            
-        # luma.oled implementation
-        try:
-            self._log.info("Calling term.clear()")
-            result = self.term.clear()
-            self._log.info("term.clear() completed")
-            return result
-        except Exception as e:
-            self._log.error(f"Error in clear(): {e}", exc_info=True)
-            raise
+        return self.term.clear()
 
     def println(self, txt):
-        self._log.info(f"println() called with text: '{txt}'")
         if self.device is None:
-            self._log.warning("println() called but device is None, returning")
             return
-            
-        # luma.oled implementation
         try:
-            self._log.info(f"Calling term.println() with text: '{txt}'")
-            result = self.term.println(txt)
-            self._log.info("term.println() completed")
-            return result
+            return self.term.println(txt)
         except Exception as e:
-            self._log.error(f"Error in println(): {e}", exc_info=True)
-            # Try to recover by printing a simplified version
-            try:
-                self._log.info("Attempting to print simplified text")
-                simple_txt = str(txt).encode('ascii', 'replace').decode('ascii')
-                result = self.term.println(simple_txt)
-                self._log.info("Simplified println completed")
-                return result
-            except Exception as e2:
-                self._log.error(f"Failed to print simplified text: {e2}", exc_info=True)
-                raise
+            self._log.error(f"Error in println(): {e}")
+            simple_txt = str(txt).encode('ascii', 'replace').decode('ascii')
+            return self.term.println(simple_txt)
 
     def redraw(self):
-        self._log.info("redraw() called")
+        import gwent.hal
+        with gwent.hal.spi_lock:
+            self._redraw_locked()
+
+    def _redraw_locked(self):
         if self.device is None:
             self._log.warning("redraw() called but device is None, returning")
             return

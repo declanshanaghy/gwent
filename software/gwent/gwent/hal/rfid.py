@@ -160,12 +160,19 @@ class _RealReader(_BaseReader):
         self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 pin_mode=GPIO.BCM'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
+        with gwent.hal.spi_lock:
+            return self._read_card_locked(should_log)
+
+    def _read_card_locked(self, should_log: bool) -> (int, str):
         start_time = time.time()
         self._log.debug({
             'action': 'starting card read',
             'timestamp': start_time
         })
-        
+
+        # Re-assert antenna on — shared SPI bus with OLED
+        self._rfid._mfrc522.AntennaOn()
+
         # First check if a card is physically present by reading its ID
         read_id_start = time.time()
         original_id, _ = self._rfid.read_id(attempts=3)

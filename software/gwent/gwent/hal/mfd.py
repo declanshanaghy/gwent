@@ -208,7 +208,7 @@ class _MFD(gwent.game.BaseComponent):
                 self._log.info("Calling chooser.choose() with choices")
                 selected_idx = self._presenter.selected_idx
                 self._log.debug(f"Selected index: {selected_idx}")
-                return self._chooser.choorulese(
+                return self._chooser.choose(
                     all_choices, selected_idx, _select)
             else:
                 self._log.info("No choices available, returning None")

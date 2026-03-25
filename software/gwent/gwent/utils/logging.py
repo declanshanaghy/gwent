@@ -16,7 +16,7 @@ import logging.handlers
 import json
 import pathlib
 from typing import Dict, Optional, Any, Union
-from pythonjsonlogger import jsonlogger
+
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
@@ -152,42 +152,46 @@ def _start_file_watcher() -> None:
     _observer.start()
 
 
-class GwentJsonFormatter(jsonlogger.JsonFormatter):
+class GwentFormatter(logging.Formatter):
     """
-    Custom JSON formatter for Gwent logs.
-    Adds timestamp, log level, and component name to each log entry.
+    Flat log formatter: timestamp - LEVEL - component - message : k=v k=v
     """
-    
-    def add_fields(self, log_record: Dict[str, Any], record: logging.LogRecord,
-                  message_dict: Dict[str, Any]) -> None:
-        """
-        Add custom fields to the log record.
-        
-        Args:
-            log_record (dict): The log record being built
-            record (LogRecord): The original log record
-            message_dict (dict): The message dictionary
-        """
-        super().add_fields(log_record, record, message_dict)
-        
-        # Add timestamp
-        log_record['timestamp'] = self.formatTime(record)
-        
-        # Add log level
-        log_record['level'] = record.levelname
-        
-        # Add component name
-        log_record['component'] = record.name
-        
-        # Add file and line information
-        # log_record['file'] = record.pathname
-        # log_record['line'] = record.lineno
-        
-        # Add thread information
-        # log_record['thread'] = record.threadName
-        
-        # Add process information
-        # log_record['process'] = record.processName
+
+    def format(self, record: logging.LogRecord) -> str:
+        timestamp = self.formatTime(record)
+        level = record.levelname
+        component = record.name
+
+        # The message may be a dict, a string, or use %-formatting args
+        msg = record.getMessage()
+
+        # If the original msg was a dict, format as k=v pairs
+        raw = record.msg
+        if isinstance(raw, dict):
+            parts = [f"{k}={v}" for k, v in raw.items()]
+            msg = " ".join(parts)
+
+        # Append any 'extra' fields passed via the extra= kwarg
+        extras = ""
+        if hasattr(record, '__dict__'):
+            skip = set(logging.LogRecord('', 0, '', 0, '', (), None).__dict__.keys())
+            extra_pairs = [
+                f"{k}={v}" for k, v in record.__dict__.items()
+                if k not in skip and k not in ('message', 'stack_info')
+            ]
+            if extra_pairs:
+                extras = " ".join(extra_pairs)
+
+        line = f"{timestamp} - {level} - {component} - {msg}"
+        if extras:
+            line += f" : {extras}"
+
+        if record.exc_info and not record.exc_text:
+            record.exc_text = self.formatException(record.exc_info)
+        if record.exc_text:
+            line += f"\n{record.exc_text}"
+
+        return line
 
 
 def _verbose(self, message: str, *args: Any, **kwargs: Any) -> None:
@@ -264,20 +268,20 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = "./
     for handler in root_logger.handlers[:]:
         root_logger.removeHandler(handler)
     
-    # Create a JSON formatter for the handlers
-    json_formatter = GwentJsonFormatter('%(timestamp)s %(level)s %(component)s %(message)s')
-    
+    # Create the formatter
+    formatter = GwentFormatter()
+
     # Add a console handler if log_stdout is True
     if log_stdout:
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(json_formatter)
+        console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
-    
+
     # Ensure the directory exists for the log file
     log_dir = os.path.dirname(log_file)
     if log_dir and not os.path.exists(log_dir):
         os.makedirs(log_dir, exist_ok=True)
-        
+
     # Create a rotating file handler
     # maxBytes=100MB, backupCount=5
     file_handler = logging.handlers.RotatingFileHandler(
@@ -286,7 +290,7 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = "./
         backupCount=5,
         delay=True  # Only create the file when it's first written to
     )
-    file_handler.setFormatter(json_formatter)
+    file_handler.setFormatter(formatter)
     root_logger.addHandler(file_handler)
     
     # Force rotation on startup if the file exists and has content

@@ -82,6 +82,12 @@ class MFD(gwent.game.PubSubComponent):
                 self._log.info("No chooser thread to cancel")
 
     def process_mfd(self, mfd: gwent.messaging.mfd.Message):
+        # Deduplicate by content_id (MQTT QoS 1 can redeliver)
+        if hasattr(mfd, 'content_id') and mfd.content_id == getattr(self, '_last_mfd_id', None):
+            self._log.debug(f"Skipping duplicate MFD message: {mfd.content_id}")
+            return
+        self._last_mfd_id = getattr(mfd, 'content_id', None)
+
         self._log.info({
             'action': 'received mfd',
             'kind': mfd.kind,

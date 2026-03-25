@@ -85,10 +85,10 @@
       "level": "WARNING"
     },
     "MFRC522": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "SimpleMFRC522": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.hal.rfid.RealWriter": {
       "level": "WARNING"
@@ -100,7 +100,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rotary.RotaryChooser": {
-      "level": "DEBUG"
+      "level": "WARNING"
     },
     "gwent.hal.rotary_pigpio.PiGPIOSwitch": {
       "level": "WARNING"
