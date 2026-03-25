@@ -227,12 +227,35 @@ class Gwent:
         sig_name = signal.Signals(signum).name
         self._log.info(f'Received exit signal {sig_name}...')
         self.shutdown()
-    
+
+    def save_state_handler(self, signum, frame):
+        """Handle SIGUSR1 — save game state to disk"""
+        import os
+        import gwent.game.state as game_state
+        self._log.info("Received SIGUSR1, saving game state...")
+        name = os.environ.get("GWENT_STATE_OUT", "")
+        if not name:
+            name = f"state-{int(time.time())}"
+        filepath = game_state.get_filepath(name)
+        controller = self._get_controller()
+        if controller:
+            game_state.save(filepath, controller)
+        else:
+            self._log.error("Cannot save state: controller not found")
+
+    def _get_controller(self):
+        """Find the Controller component."""
+        for component in getattr(self, 'components', []):
+            if isinstance(component, gwent.game.controller.Controller):
+                return component
+        return None
+
     def setup_signal_handlers(self):
         """Setup signal handlers for graceful exit"""
         for sig in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
                    signal.SIGQUIT, signal.SIGTERM):
             signal.signal(sig, self.signal_handler)
+        signal.signal(signal.SIGUSR1, self.save_state_handler)
     
     def create_components(self):
         """Create all application components"""
@@ -277,62 +300,23 @@ class Gwent:
         self.initialize_components()
         self.start_components()
 
-        # Replay recorded traces to jump to a specific game state.
-        #
-        # GWENT_PLAYBACK: path to a JSON file listing traces to replay, e.g.:
-        #   {"name": "happy path", "traces": ["recordings/000-foo.jsonl", "recordings/001-bar.jsonl"]}
-        #   Paths are relative to the playback file's directory.
-        #
-        # GWENT_REPLAY: comma-separated paths to chain multiple recordings (legacy).
-        #
-        # After replay completes, tracing is enabled to record the next segment.
+        # Load saved game state to jump to a specific point.
+        # GWENT_STATE: path to a state JSON file (absolute, or name resolved under recordings/)
+        # GWENT_STATE_OUT: name for saving state on SIGUSR1 (default: state-<timestamp>)
         import os
-        import gwent.game.tracer as tracer
+        import gwent.game.state as game_state
 
-        playback_file = os.environ.get("GWENT_PLAYBACK", "")
-        replay_files = os.environ.get("GWENT_REPLAY", "")
-
-        if playback_file:
-            import json as _json
-            from gwent.game.replay import replay
-            with open(playback_file) as f:
-                playback = _json.load(f)
-            playback_dir = os.path.dirname(os.path.abspath(playback_file))
-            self._log.info(f"Playing back: {playback.get('name', playback_file)}")
-            for trace_path in playback.get("traces", []):
-                # Resolve relative paths against the playback file's directory
-                if not os.path.isabs(trace_path):
-                    trace_path = os.path.join(playback_dir, trace_path)
-                self._log.info(f"Replaying trace: {trace_path}")
-                replay(self.pubsub, trace_path)
-            self._log.info("Playback complete, recording new trace")
-        elif replay_files:
-            from gwent.game.replay import replay
-            for filepath in replay_files.split(","):
-                filepath = filepath.strip()
-                if filepath:
-                    self._log.info(f"Replaying trace: {filepath}")
-                    replay(self.pubsub, filepath)
-            self._log.info("All replays complete, recording new trace")
-
-        # Set up trace filename from env var or prompt.
-        # Set GWENT_TRACE=off to disable tracing entirely.
-        trace_name = os.environ.get("GWENT_TRACE", "")
-        if trace_name.lower() in ("off", "none", "false", "0"):
-            self._log.info("Tracing disabled")
-        else:
-            if not trace_name:
-                try:
-                    trace_name = input("Enter trace filename (without .jsonl): ").strip()
-                except EOFError:
-                    trace_name = ""
-            if trace_name:
-                tracer.set_filename(trace_name)
-                tracer.reset()
-                tracer.enable()
-                self._log.info(f"Recording trace to {tracer.get_filepath()}")
+        state_file = os.environ.get("GWENT_STATE", "")
+        if state_file:
+            # Resolve relative name to recordings dir
+            if not os.path.isabs(state_file):
+                state_file = game_state.get_filepath(state_file)
+            self._log.info(f"Loading game state from {state_file}")
+            controller = self._get_controller()
+            if controller:
+                game_state.load(state_file, controller)
             else:
-                self._log.info("No trace filename given, tracing disabled")
+                self._log.error("Cannot load state: controller not found")
 
         # Wait for shutdown signal
         try:
