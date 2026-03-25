@@ -110,26 +110,37 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
     def _monitor_rotary(self, choices, selected_idx, select):
         thread_id = threading.get_ident()
         self._log.info(f"Monitor thread started (id={thread_id})")
-        
+
         choice = choices[selected_idx]
         self._choice = choice
         self._log.info(f"Initial choice in monitor: id={choice.id}, text={choice.text}")
-        
+
+        # Wait for the button to be fully released before accepting input.
+        # This prevents catching the tail end of the previous button press
+        # that triggered a stage transition.
+        self._log.debug("Waiting for button to be released before accepting input")
+        while not self._stop_event.is_set():
+            _, _, _, sw_state = self.rotary.loop()
+            if sw_state:  # True = released
+                break
+            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
+        self._log.debug("Button released, accepting input")
+
         loop_count = 0
         last_delta_time = time.time()
         last_switch_time = time.time()
-        
+
         while not self._stop_event.is_set():
             loop_count += 1
-            
+
             try:
                 delta, count, sw_changed, sw_state = self.rotary.loop()
-                
+
                 if delta != 0:
                     current_time = time.time()
                     time_since_last = current_time - last_delta_time
                     last_delta_time = current_time
-                    
+
                     idx = count % len(choices)
                     choice = choices[idx]
                     self._choice = choice
@@ -143,7 +154,7 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
                         'choice.id': choice.id,
                         'choice.text': choice.text,
                     })
-                    
+
                     try:
                         self._log.debug("Calling select callback")
                         select(delta, choice)
@@ -155,13 +166,13 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
                     current_time = time.time()
                     time_since_last = current_time - last_switch_time
                     last_switch_time = current_time
-                    
+
                     self._log.info({
                         'action': 'switch_change',
                         'sw_state': sw_state,
                         'time_since_last_switch': f"{time_since_last:.3f}s"
                     })
-                    
+
                     if not sw_state:  # Release click
                         self._log.info("Switch released, setting stop event")
                         self._stop_event.set()
