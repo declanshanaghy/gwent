@@ -160,8 +160,7 @@ class _RealReader(_BaseReader):
         self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 pin_mode=GPIO.BCM'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
-        with gwent.hal.spi_lock:
-            return self._read_card_locked(should_log)
+        return self._read_card_locked(should_log)
 
     def _read_card_locked(self, should_log: bool) -> (int, str):
         start_time = time.time()

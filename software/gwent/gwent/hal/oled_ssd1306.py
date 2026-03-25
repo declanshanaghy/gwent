@@ -195,9 +195,7 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
             return self.term.println(simple_txt)
 
     def redraw(self):
-        import gwent.hal
-        with gwent.hal.spi_lock:
-            self._redraw_locked()
+        self._redraw_locked()
 
     def _redraw_locked(self):
         if self.device is None:

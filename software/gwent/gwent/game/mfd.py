@@ -53,7 +53,9 @@ class MFD(gwent.game.PubSubComponent):
                 if self._chooser_thread.is_alive():
                     self._log.info("Setting stop event for chooser thread")
                     self._chooser_stop_event.set()
-                    self._mfd
+                    # Also cancel the rotary chooser so its loop exits
+                    if hasattr(self._mfd, '_chooser') and hasattr(self._mfd._chooser, 'cancel'):
+                        self._mfd._chooser.cancel()
                     
                     # Try joining with increasing timeouts
                     for timeout in [0.5, 1.0, 2.0]:

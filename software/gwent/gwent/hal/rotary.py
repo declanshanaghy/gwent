@@ -44,6 +44,11 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
         self._select_callback = None
         self._log.info("RotaryChooser initialized successfully")
 
+    def cancel(self):
+        """Cancel the current choose() call so the thread can exit."""
+        self._log.info("RotaryChooser cancel requested")
+        self._stop_event.set()
+
     def choose(self, choices: List[gwent.messaging.choice.Message],
                     selected_idx: int,
                     select: Callable[
