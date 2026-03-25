@@ -1,0 +1,259 @@
+"""Board data model and score calculation for Gwent.
+
+Pure data model — no MQTT, no threading. Tracks the complete board state
+including rows, hands, decks, discard piles, weather effects, and gems.
+"""
+
+import random
+from typing import Optional
+
+import gwent.messaging.card
+from gwent.game.constants import PLAYER
+
+ROWS = ("close", "ranged", "siege")
+
+
+class PlayerBoard:
+    """One player's side of the board."""
+
+    def __init__(self):
+        self.rows = {row: [] for row in ROWS}
+        self.discard = []
+        self.gems = 2
+        self.passed = False
+        self.leader_used = False
+
+
+class Board:
+    """Complete board state for a game. Persists across rounds."""
+
+    def __init__(self, leader1, leader2):
+        self.players = {
+            PLAYER.ONE: PlayerBoard(),
+            PLAYER.TWO: PlayerBoard(),
+        }
+        self.leaders = {PLAYER.ONE: leader1, PLAYER.TWO: leader2}
+        self.factions = {
+            PLAYER.ONE: leader1.faction,
+            PLAYER.TWO: leader2.faction,
+        }
+        self.hands = {PLAYER.ONE: [], PLAYER.TWO: []}
+        self.decks = {PLAYER.ONE: [], PLAYER.TWO: []}
+        self.weather_rows = set()
+        self.commander_horn_rows = {PLAYER.ONE: set(), PLAYER.TWO: set()}
+        self.current_player = PLAYER.ONE
+        self.round_number = 1
+
+    def opponent(self, player):
+        return PLAYER.TWO if player == PLAYER.ONE else PLAYER.ONE
+
+    def place_card(self, player, card, row_name):
+        """Place a card on a player's board row."""
+        self.players[player].rows[row_name].append(card)
+
+    def remove_from_hand(self, player, card):
+        """Remove a card from a player's hand by RFID."""
+        self.hands[player] = [c for c in self.hands[player] if c.rfid != card.rfid]
+
+    def draw_from_deck(self, player, count=1):
+        """Draw cards from a player's deck into their hand. Returns drawn cards."""
+        drawn = []
+        for _ in range(count):
+            if self.decks[player]:
+                card = self.decks[player].pop(0)
+                self.hands[player].append(card)
+                drawn.append(card)
+        return drawn
+
+    def find_in_hand(self, player, rfid):
+        """Find a card in a player's hand by RFID."""
+        for card in self.hands[player]:
+            if card.rfid == rfid:
+                return card
+        return None
+
+    def calculate_row_score(self, player, row_name):
+        """Calculate the score for a single row with all modifiers.
+
+        Order of operations:
+        1. Base strength (weather reduces non-heroes to 1)
+        2. Tight bond multiplier
+        3. Commander horn doubling
+        4. Morale boost (+1 per morale card to others)
+        """
+        cards = self.players[player].rows[row_name]
+        if not cards:
+            return 0
+
+        weather_active = row_name in self.weather_rows
+        horn_active = row_name in self.commander_horn_rows[player]
+
+        # Also check if any card in the row has commander specialty
+        has_commander_card = any(
+            c.has_specialty and c.specialty == "commander" for c in cards
+        )
+
+        # Step 1: Base strengths (weather reduces non-heroes to 1)
+        strengths = {}
+        for card in cards:
+            if not card.strength:
+                strengths[card.rfid] = 0
+                continue
+            if weather_active and not (card.has_specialty and card.specialty == "hero"):
+                strengths[card.rfid] = 1
+            else:
+                strengths[card.rfid] = card.strength
+
+        # Step 2: Tight bond — same-name non-hero cards multiply
+        name_counts = {}
+        for card in cards:
+            if card.has_abilities and "bond" in card.abilities:
+                if not (card.has_specialty and card.specialty == "hero"):
+                    name_counts[card.name] = name_counts.get(card.name, 0) + 1
+
+        for card in cards:
+            if card.has_abilities and "bond" in card.abilities:
+                if not (card.has_specialty and card.specialty == "hero"):
+                    count = name_counts.get(card.name, 1)
+                    if count > 1:
+                        strengths[card.rfid] *= count
+
+        # Step 3: Morale — each morale card adds +1 to every OTHER non-hero card
+        morale_count = sum(
+            1 for c in cards
+            if c.has_abilities and "morale" in c.abilities
+        )
+        if morale_count > 0:
+            for card in cards:
+                if not (card.has_specialty and card.specialty == "hero"):
+                    # Each morale card boosts others (not itself if it has morale)
+                    if card.has_abilities and "morale" in card.abilities:
+                        strengths[card.rfid] += morale_count - 1
+                    else:
+                        strengths[card.rfid] += morale_count
+
+        # Step 4: Commander horn — doubles row total for non-heroes
+        total = sum(strengths.values())
+        if horn_active or has_commander_card:
+            hero_total = sum(
+                strengths[c.rfid] for c in cards
+                if c.has_specialty and c.specialty == "hero"
+            )
+            non_hero_total = total - hero_total
+            total = hero_total + (non_hero_total * 2)
+
+        return total
+
+    def calculate_player_score(self, player):
+        """Sum of all three rows."""
+        return sum(self.calculate_row_score(player, row) for row in ROWS)
+
+    def clear_round(self):
+        """Reset board for a new round. Move all row cards to discard, clear effects."""
+        for player in (PLAYER.ONE, PLAYER.TWO):
+            pb = self.players[player]
+            for row_name in ROWS:
+                pb.discard.extend(pb.rows[row_name])
+                pb.rows[row_name] = []
+            pb.passed = False
+        self.weather_rows.clear()
+        self.commander_horn_rows = {PLAYER.ONE: set(), PLAYER.TWO: set()}
+        self.round_number += 1
+
+    def destroy_strongest(self, player, row_name=None):
+        """Destroy the strongest non-hero card(s) on a player's board.
+
+        If row_name is given, only that row. Otherwise all rows.
+        Returns destroyed cards.
+        """
+        target_rows = [row_name] if row_name else list(ROWS)
+        max_strength = 0
+        candidates = []
+
+        for rn in target_rows:
+            for card in self.players[player].rows[rn]:
+                if card.has_specialty and card.specialty == "hero":
+                    continue
+                s = card.strength or 0
+                if s > max_strength:
+                    max_strength = s
+                    candidates = [(rn, card)]
+                elif s == max_strength and s > 0:
+                    candidates.append((rn, card))
+
+        destroyed = []
+        for rn, card in candidates:
+            self.players[player].rows[rn].remove(card)
+            self.players[player].discard.append(card)
+            destroyed.append(card)
+
+        return destroyed
+
+    def to_dict(self):
+        """Serialize board state to a dict for JSON saving."""
+        def cards_to_list(cards):
+            return [c._instance for c in cards]
+
+        def player_board_to_dict(pb):
+            return {
+                "rows": {rn: cards_to_list(cards) for rn, cards in pb.rows.items()},
+                "discard": cards_to_list(pb.discard),
+                "gems": pb.gems,
+                "passed": pb.passed,
+                "leader_used": pb.leader_used,
+            }
+
+        return {
+            "players": {
+                str(p): player_board_to_dict(pb)
+                for p, pb in self.players.items()
+            },
+            "leaders": {str(p): c._instance for p, c in self.leaders.items()},
+            "factions": {str(p): f for p, f in self.factions.items()},
+            "hands": {str(p): cards_to_list(h) for p, h in self.hands.items()},
+            "decks": {str(p): cards_to_list(d) for p, d in self.decks.items()},
+            "weather_rows": list(self.weather_rows),
+            "commander_horn_rows": {
+                str(p): list(s) for p, s in self.commander_horn_rows.items()
+            },
+            "current_player": str(self.current_player),
+            "round_number": self.round_number,
+        }
+
+    @staticmethod
+    def from_dict(data):
+        """Deserialize board state from a dict."""
+        def dicts_to_cards(lst):
+            return [gwent.messaging.card.Message.from_properties(d) for d in lst]
+
+        def player_from_str(s):
+            return PLAYER.ONE if s == str(PLAYER.ONE) else PLAYER.TWO
+
+        leader1 = gwent.messaging.card.Message.from_properties(data["leaders"][str(PLAYER.ONE)])
+        leader2 = gwent.messaging.card.Message.from_properties(data["leaders"][str(PLAYER.TWO)])
+        board = Board(leader1, leader2)
+
+        for p_str, pb_data in data["players"].items():
+            player = player_from_str(p_str)
+            pb = board.players[player]
+            for rn, cards_data in pb_data["rows"].items():
+                pb.rows[rn] = dicts_to_cards(cards_data)
+            pb.discard = dicts_to_cards(pb_data.get("discard", []))
+            pb.gems = pb_data.get("gems", 2)
+            pb.passed = pb_data.get("passed", False)
+            pb.leader_used = pb_data.get("leader_used", False)
+
+        for p_str, hand_data in data.get("hands", {}).items():
+            board.hands[player_from_str(p_str)] = dicts_to_cards(hand_data)
+        for p_str, deck_data in data.get("decks", {}).items():
+            board.decks[player_from_str(p_str)] = dicts_to_cards(deck_data)
+
+        board.weather_rows = set(data.get("weather_rows", []))
+        for p_str, rows in data.get("commander_horn_rows", {}).items():
+            board.commander_horn_rows[player_from_str(p_str)] = set(rows)
+
+        cp = data.get("current_player", str(PLAYER.ONE))
+        board.current_player = player_from_str(cp)
+        board.round_number = data.get("round_number", 1)
+
+        return board

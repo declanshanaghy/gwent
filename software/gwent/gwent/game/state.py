@@ -30,6 +30,7 @@ import time
 from datetime import datetime, timezone
 
 import gwent.messaging.card
+from gwent.game.constants import PLAYER
 from gwent.utils.logging import get_logger
 
 log = get_logger("gwent.game.state")
@@ -91,11 +92,15 @@ def save(filepath, controller):
     if dc._player2_hand:
         state["player2_hand"] = _cards_to_dicts(dc._player2_hand)
 
-    # Player scores (from the Player components, accessed via controller)
-    # These are set during process_card_play, not directly on the controller.
-    # For now, store 0 — scores will be populated when Player exposes them.
-    state["player1_score"] = 0
-    state["player2_score"] = 0
+    # If in PlayRound or later, save the board state
+    pr = controller.play_round
+    if hasattr(pr, '_board') and pr._board is not None:
+        state["board"] = pr._board.to_dict()
+
+    # Also check round_end for board state
+    re = controller.round_end
+    if hasattr(re, '_board') and re._board is not None:
+        state["board"] = re._board.to_dict()
 
     snapshot = {
         "version": STATE_VERSION,
@@ -139,6 +144,12 @@ def load(filepath, controller):
     player1_hand = _dicts_to_cards(state.get("player1_hand", []))
     player2_hand = _dicts_to_cards(state.get("player2_hand", []))
 
+    # Reconstruct board if present
+    board = None
+    if "board" in state:
+        from gwent.game.board import Board
+        board = Board.from_dict(state["board"])
+
     # Jump to the saved stage with the appropriate data
     if stage_name == "RegisterLeaders":
         controller.start_register_leaders()
@@ -158,11 +169,29 @@ def load(filepath, controller):
             controller.start_register_leaders()
 
     elif stage_name == "PlayRound":
-        if player1_deck and player1_hand and player2_deck and player2_hand:
+        if board:
+            controller.start_play_round(
+                board.decks[PLAYER.ONE], board.hands[PLAYER.ONE],
+                board.decks[PLAYER.TWO], board.hands[PLAYER.TWO],
+                board=board)
+        elif player1_deck and player1_hand and player2_deck and player2_hand:
             controller.start_play_round(player1_deck, player1_hand, player2_deck, player2_hand)
         else:
-            log.error("Cannot restore PlayRound: missing deck/hand data")
+            log.error("Cannot restore PlayRound: missing data")
             controller.start_register_leaders()
+
+    elif stage_name == "RoundEnd":
+        if board:
+            controller.start_round_end(board)
+        else:
+            log.error("Cannot restore RoundEnd: missing board")
+            controller.start_register_leaders()
+
+    elif stage_name == "DisplayWinner":
+        if board:
+            controller.start_display_winner(board)
+        else:
+            controller.start_main_menu()
 
     else:
         log.info(f"Starting from main menu (stage={stage_name})")

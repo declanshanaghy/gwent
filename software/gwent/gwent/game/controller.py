@@ -17,12 +17,9 @@ import gwent.hal.sfx
 
 from gwent.game.constants import PLAYER
 
+
 class Controller(gwent.game.PubSubComponent):
     active_stage = None
-    register_leaders = None
-    register_decks = None
-    deal_cards = None
-    play_round = None
 
     def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
@@ -31,6 +28,8 @@ class Controller(gwent.game.PubSubComponent):
         self.register_decks = gwent.game.stages.all.RegisterDecks(pubsub)
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
         self.play_round = gwent.game.stages.all.PlayRound(pubsub)
+        self.round_end = gwent.game.stages.all.RoundEnd(pubsub)
+        self.display_winner = gwent.game.stages.all.DisplayWinner(pubsub)
 
     def init(self):
         super().init()
@@ -54,7 +53,6 @@ class Controller(gwent.game.PubSubComponent):
     def set_active_stage(self, st, completed: Callable, cancel: Callable, *args, **kwargs):
         if self.active_stage is not None:
             self.active_stage.deactivate()
-
         self.active_stage = st
         self.active_stage.activate(completed, cancel, *args, **kwargs)
 
@@ -82,8 +80,7 @@ class Controller(gwent.game.PubSubComponent):
     def start_register_leaders(self):
         self._log.info('Starting register leaders stage')
 
-        def complete(leader1: gwent.messaging.card.Message,
-                     leader2: gwent.messaging.card.Message):
+        def complete(leader1, leader2):
             self._log.info({
                 'action': 'completed register_leaders',
                 'leader1': leader1.full_name,
@@ -97,7 +94,7 @@ class Controller(gwent.game.PubSubComponent):
 
         self.set_active_stage(self.register_leaders, complete, cancel)
 
-    def start_register_decks(self, leader1: gwent.messaging.card.Message, leader2: gwent.messaging.card.Message):
+    def start_register_decks(self, leader1, leader2):
         self._log.info('Starting register decks stage')
 
         def complete(deck1, deck2):
@@ -139,24 +136,66 @@ class Controller(gwent.game.PubSubComponent):
 
         self.set_active_stage(self.deal_cards, complete, cancel, deck1, deck2)
 
-    def start_play_round(self, deck1, hand1, deck2, hand2):
+    def start_play_round(self, deck1, hand1, deck2, hand2, board=None):
         self._log.info({
             'action': 'start_play_round',
             'deck1_size': len(deck1),
             'hand1_size': len(hand1),
             'deck2_size': len(deck2),
             'hand2_size': len(hand2),
+            'existing_board': board is not None,
         })
 
-        def complete():
-            self._log.info('Play round completed')
-            self.start_main_menu()
+        def complete(board):
+            self._log.info({
+                'action': 'complete play_round',
+                'round': board.round_number,
+            })
+            self.start_round_end(board)
 
         def cancel():
             self._log.info('Play round canceled')
             self.start_main_menu()
 
-        self.set_active_stage(self.play_round, complete, cancel, deck1, hand1, deck2, hand2)
+        self.set_active_stage(self.play_round, complete, cancel,
+                              deck1, hand1, deck2, hand2, board=board)
+
+    def start_round_end(self, board):
+        self._log.info({
+            'action': 'start_round_end',
+            'round': board.round_number,
+            'p1_gems': board.players[PLAYER.ONE].gems,
+            'p2_gems': board.players[PLAYER.TWO].gems,
+        })
+
+        def complete(board, game_over):
+            if game_over:
+                self._log.info('Game over!')
+                self.start_display_winner(board)
+            else:
+                self._log.info(f'Starting round {board.round_number}')
+                self.start_play_round(
+                    board.decks[PLAYER.ONE], board.hands[PLAYER.ONE],
+                    board.decks[PLAYER.TWO], board.hands[PLAYER.TWO],
+                    board=board)
+
+        def cancel():
+            self._log.info('Round end canceled')
+            self.start_main_menu()
+
+        self.set_active_stage(self.round_end, complete, cancel, board)
+
+    def start_display_winner(self, board):
+        self._log.info('Displaying match winner')
+
+        def complete():
+            self._log.info('Winner displayed, returning to menu')
+            self.start_main_menu()
+
+        def cancel():
+            self.start_main_menu()
+
+        self.set_active_stage(self.display_winner, complete, cancel, board)
 
     def process_card(self, message: gwent.messaging.card.Message):
         if self.active_stage:

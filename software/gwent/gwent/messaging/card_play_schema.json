@@ -1,7 +1,7 @@
 {
-  "id": "https://gwent.shanaghy.com/sfx.schema.json",
+  "id": "https://gwent.shanaghy.com/card_play.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
-  "description": "Sound effects message",
+  "description": "Card play message",
   "type": "object",
   "required": [
     "subkind",
@@ -13,12 +13,13 @@
       "type": "string",
       "enum": [
         "add_to_deck",
-        "deal_to_hand"
+        "deal_to_hand",
+        "update_score"
       ]
     },
     "player": {
       "type": "string",
-      "description": "The player this card is associated with",
+      "description": "The player this event is associated with",
       "enum": [
         "PLAYER.ONE",
         "PLAYER.TWO"
@@ -28,6 +29,10 @@
       "type": "object",
       "description": "The card associated with this event (See card_schema.json)",
       "additionalProperties": true
+    },
+    "score": {
+      "type": "integer",
+      "description": "The calculated score for update_score events"
     }
   }
 }

@@ -73,27 +73,18 @@ class Player(gwent.game.PubSubComponent):
         })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
-            inc = 0
-
             if cp.card.is_leader:
-                # Store the leader card in the _leader member
                 self._leader = cp.card
-                inc = random.randint(0, 200) # Increment score for shits n giggles, remove this later.
-                self._log.info(f"Stored leader", extra={"card": cp.card.to_object(), "inc": inc})
+                self._log.info(f"Stored leader", extra={"card": cp.card.to_object()})
             else:
-                # Store the card in the _deck member
                 self._deck.append(cp.card)
-                if cp.card.strength:
-                    inc += cp.card.strength
-                self._log.info(f"Added card to deck", extra={"card": cp.card.to_object(), "inc": inc})
+                self._log.info(f"Added card to deck", extra={"card": cp.card.to_object()})
 
-            if inc:                
-                self._score += inc
-                self._log.info(f"Score incremented", extra={
-                    "inc": inc,
-                    "score": self._score
-                })
-                # Update the display
-                self._update_display()
+        elif cp.subkind == gwent.messaging.card_play.UPDATE_SCORE:
+            score = cp._instance.get(gwent.messaging.card_play.SCORE, 0)
+            self._score = score
+            self._log.info(f"Score updated to {score}")
+            self._update_display()
+
         else:
             self._log.debug(f'Unhandled subkind: {cp.subkind}')

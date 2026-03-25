@@ -30,7 +30,9 @@
             "RegisterLeaders",
             "RegisterDecks",
             "DealCards",
-            "PlayRound"
+            "PlayRound",
+            "RoundEnd",
+            "DisplayWinner"
           ]
         },
         "active": {
