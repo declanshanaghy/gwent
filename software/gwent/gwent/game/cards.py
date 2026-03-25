@@ -25,11 +25,21 @@ class Reader(gwent.game.PubSubComponent):
     def init(self):
         super().init()
         self._read_enabled = False
-        self._rfid = gwent.hal.rfid.instance()
-        
+        self._rfid = None
+        self._last_rfid = None
+
         self.subscribe(gwent.game.CH_CTRL,
                       gwent.messaging.ctrl.KIND,
                       self.process_ctrl)
+
+    def start(self):
+        # Initialize RFID hardware AFTER all other components (especially OLED)
+        # are set up, because the OLED SPI init can reset the MFRC522 via
+        # the shared GPIO25 RST line.
+        self._log.info("Initializing RFID hardware")
+        self._rfid = gwent.hal.rfid.instance()
+        self._log.info("RFID hardware initialized")
+        super().start()
 
     def shutdown(self):
         self._read_enabled = False
@@ -98,9 +108,27 @@ class Reader(gwent.game.PubSubComponent):
                 card = self._rfid.read_card()
 
                 if card is not None:
+                    # Skip if same card is still on the reader
+                    if card.rfid == self._last_rfid:
+                        time.sleep(0.5)
+                        continue
+                    self._last_rfid = card.rfid
+
+                    # Skip incomplete reads (blank means body read failed)
+                    if card.is_blank:
+                        self._log.warning({
+                            'action': 'incomplete_card_read',
+                            'rfid': card.rfid,
+                        })
+                        self.pause_reading()
+                        continue
+
                     self.publish_effect(
                         gwent.messaging.sfx.EFFECT_CARD_READ)
                     self.publish(gwent.game.CH_CARDS_RAW_READ, card)
                     self.pause_reading()
+                else:
+                    # Card removed, clear last seen
+                    self._last_rfid = None
 
             time.sleep(gwent.game.DEFAULT_YIELD_TIME)

@@ -48,6 +48,14 @@ class RegisterLeaders(gwent.game.stages.base.GameStage):
             self.publish_error(f'{card.name} is not a leader')
             return
 
+        # Reject if the same card is already registered as the other player's leader
+        if self._current_player == PLAYER.TWO and self._leader1 and self._leader1.rfid == card.rfid:
+            self.publish_error(f'{card.name} is already Player 1\'s leader')
+            return
+        if self._current_player == PLAYER.ONE and self._leader2 and self._leader2.rfid == card.rfid:
+            self.publish_error(f'{card.name} is already Player 2\'s leader')
+            return
+
         # Publish card_play message to the current player's topic
         self._publish_card_to_player(self._current_player, card)
 
