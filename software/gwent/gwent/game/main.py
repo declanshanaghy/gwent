@@ -278,13 +278,35 @@ class Gwent:
         self.start_components()
 
         # Replay recorded traces to jump to a specific game state.
-        # GWENT_REPLAY accepts comma-separated paths to chain multiple recordings.
+        #
+        # GWENT_PLAYBACK: path to a JSON file listing traces to replay, e.g.:
+        #   {"name": "happy path", "traces": ["recordings/000-foo.jsonl", "recordings/001-bar.jsonl"]}
+        #   Paths are relative to the playback file's directory.
+        #
+        # GWENT_REPLAY: comma-separated paths to chain multiple recordings (legacy).
+        #
         # After replay completes, tracing is enabled to record the next segment.
         import os
         import gwent.game.tracer as tracer
 
+        playback_file = os.environ.get("GWENT_PLAYBACK", "")
         replay_files = os.environ.get("GWENT_REPLAY", "")
-        if replay_files:
+
+        if playback_file:
+            import json as _json
+            from gwent.game.replay import replay
+            with open(playback_file) as f:
+                playback = _json.load(f)
+            playback_dir = os.path.dirname(os.path.abspath(playback_file))
+            self._log.info(f"Playing back: {playback.get('name', playback_file)}")
+            for trace_path in playback.get("traces", []):
+                # Resolve relative paths against the playback file's directory
+                if not os.path.isabs(trace_path):
+                    trace_path = os.path.join(playback_dir, trace_path)
+                self._log.info(f"Replaying trace: {trace_path}")
+                replay(self.pubsub, trace_path)
+            self._log.info("Playback complete, recording new trace")
+        elif replay_files:
             from gwent.game.replay import replay
             for filepath in replay_files.split(","):
                 filepath = filepath.strip()

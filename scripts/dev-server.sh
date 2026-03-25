@@ -16,6 +16,7 @@ touch "${LOG_FILE}"
 
 export PYTHONUNBUFFERED=1
 export RUNNING_ON_PI=true
+export GWENT_PLAYBACK=${GWENT_PLAYBACK:-""}
 export GWENT_REPLAY=${GWENT_REPLAY:-""}
 export GWENT_TRACE=${GWENT_TRACE:-""}
 

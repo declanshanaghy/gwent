@@ -11,6 +11,7 @@ ACTIVE = 'active'
 STAGE_MAIN_MENU = 'MainMenu'
 STAGE_REGISTER_LEADERS = 'RegisterLeaders'
 STAGE_REGISTER_DECKS = 'RegisterDecks'
+STAGE_DEAL_CARDS = 'DealCards'
 
 
 class Message(gwent.messaging.base.Message):

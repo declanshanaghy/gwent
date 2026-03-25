@@ -46,7 +46,7 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
         })
             
         # Determine if either player needs to register more cards
-        required_cards = 3
+        required_cards = 6
         plr1_needs = required_cards - len(self._player1_deck)
         plr2_needs = required_cards - len(self._player2_deck)
         complete = plr1_needs <= 0 and plr2_needs <= 0

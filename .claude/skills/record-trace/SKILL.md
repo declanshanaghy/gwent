@@ -8,6 +8,9 @@ Record a new MQTT trace of a gwent game session.
 
 The argument is the trace filename (without .jsonl extension). If no argument is given, ask the user for one.
 
+**IMPORTANT:** Traces are recorded to the absolute path:
+`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/gwent/gwent/game/recordings/<filename>.jsonl`
+
 ## Steps
 
 1. Kill any running gwent processes:

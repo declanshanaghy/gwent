@@ -1,0 +1,8 @@
+{
+  "name": "Happy path - skip to deal cards",
+  "description": "Registers leaders (Francesca + Emhyr) and decks, landing at deal cards stage",
+  "traces": [
+    "../recordings/000-register-leaders-happy.jsonl",
+    "../recordings/001-register-decks-happy.jsonl"
+  ]
+}

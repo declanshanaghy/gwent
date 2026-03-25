@@ -28,7 +28,8 @@
           "enum": [
             "MainMenu",
             "RegisterLeaders",
-            "RegisterDecks"
+            "RegisterDecks",
+            "DealCards"
           ]
         },
         "active": {
