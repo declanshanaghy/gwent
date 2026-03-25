@@ -50,6 +50,12 @@ class DealCards(gwent.game.stages.base.GameStage):
             'player2_hand': p2_names,
         })
 
+        # Log individual cards in each hand
+        for card in self._player1_hand:
+            self._log.info(f"Player 1 hand: {card.name} (strength={card.strength}, faction={card.faction})")
+        for card in self._player2_hand:
+            self._log.info(f"Player 2 hand: {card.name} (strength={card.strength}, faction={card.faction})")
+
         # Announce the deal summary
         summary = (
             f"Cards dealt. "
