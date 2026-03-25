@@ -64,13 +64,20 @@ class Player(gwent.game.PubSubComponent):
             self._log.debug(f'Unhandled subkind: {cp.subkind}')
 
     def process_card_play(self, cp: gwent.messaging.card_play.Message):
-        self._log.info({
-            'action': f'received {cp.kind}',
-            'subkind': cp.subkind,
-            'faction': cp.card.faction,
-            'name': cp.card.name,
-            'strength': cp.card.strength,
-        })
+        if cp.subkind == gwent.messaging.card_play.UPDATE_SCORE:
+            self._log.info({
+                'action': f'received {cp.kind}',
+                'subkind': cp.subkind,
+                'score': cp._instance.get(gwent.messaging.card_play.SCORE, 0),
+            })
+        else:
+            self._log.info({
+                'action': f'received {cp.kind}',
+                'subkind': cp.subkind,
+                'faction': cp.card.faction,
+                'name': cp.card.name,
+                'strength': cp.card.strength,
+            })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
             if cp.card.is_leader:

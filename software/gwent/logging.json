@@ -46,7 +46,7 @@
       "level": "DEBUG"
     },
     "gwent.game.cards.Reader": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.game.mfd.MFD": {
       "level": "DEBUG"
@@ -85,10 +85,10 @@
       "level": "WARNING"
     },
     "MFRC522": {
-      "level": "INFO"
+      "level": "WARNING"
     },
     "SimpleMFRC522": {
-      "level": "INFO"
+      "level": "WARNING"
     },
     "gwent.hal.rfid.RealWriter": {
       "level": "WARNING"

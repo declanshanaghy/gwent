@@ -324,6 +324,7 @@ class Gwent:
         import gwent.game.state as game_state
 
         state_file = os.environ.get("GWENT_STATE", "")
+        self._log.info(f"GWENT_STATE env var: '{state_file}'")
         if state_file:
             # Resolve relative name to recordings dir
             if not os.path.isabs(state_file):
@@ -347,7 +348,7 @@ class Gwent:
 
 def run():
     """Run the Gwent application"""
-    configure_logging(level=DEBUG, log_stdout=True)
+    configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
     try:
         Gwent().run()
     except Exception as ex:

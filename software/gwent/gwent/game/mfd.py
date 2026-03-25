@@ -62,7 +62,7 @@ class MFD(gwent.game.PubSubComponent):
                         self._chooser_thread.join(timeout=timeout)
                         elapsed = time.time() - start_time
                         
-                        if self._chooser_thread.is_alive():
+                        if self._chooser_thread and self._chooser_thread.is_alive():
                             self._log.warning("Chooser thread did not terminate successfully", 
                                            extra={"elapsed": elapsed})
                         else:

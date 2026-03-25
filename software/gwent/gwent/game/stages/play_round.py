@@ -62,6 +62,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
         else:
             self._board = board
 
+        # Log cards in each player's hand
+        for card in self._board.hands[PLAYER.ONE]:
+            self._log.info(f"Player 1 hand: {card.name} (strength={card.strength}, faction={card.faction})")
+        for card in self._board.hands[PLAYER.TWO]:
+            self._log.info(f"Player 2 hand: {card.name} (strength={card.strength}, faction={card.faction})")
+
         self._log.info({
             'action': 'play_round_activated',
             'round': self._board.round_number,
@@ -402,7 +408,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         if self._awaiting == self.AWAITING_CARD:
             if choice.id == 'y' and choice.text == 'ok':
-                # Player passes
+                # Player passes — set awaiting to None to ignore duplicate OKs
+                self._awaiting = None
                 cur = self._board.current_player
                 self._board.players[cur].passed = True
                 self._log.info(f"{self._player_label(cur)} passed")
