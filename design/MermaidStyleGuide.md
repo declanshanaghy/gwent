@@ -11,13 +11,14 @@ Include this initialization directive at the beginning of all mermaid diagrams:
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
     'tertiaryColor': '#EFEBE9',
     'fontFamily': 'Courier New',
-    'fontSize': '16px'
+    'fontSize': '16px',
+    'edgeLabelBackground': '#EFEBE9'
   }
 }}%%
 ```
@@ -32,9 +33,9 @@ classDef software fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,fon
 classDef data fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
 classDef process fill:#EFEBE9,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
 classDef ui fill:#F5F5F5,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
-classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px,font-family:'Courier New'
-classDef endNode fill:#f8cecc,stroke:#b85450,stroke-width:2px,font-family:'Courier New'
-classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px,font-family:'Courier New'
+classDef start fill:#d5e8d4,stroke:#82b366,stroke-width:2px,color:#333,font-family:'Courier New'
+classDef endNode fill:#f8cecc,stroke:#b85450,stroke-width:2px,color:#333,font-family:'Courier New'
+classDef decision fill:#fff2cc,stroke:#d6b656,stroke-width:1px,color:#333,font-family:'Courier New'
 ```
 
 ## 🎨 Color Palette
@@ -65,13 +66,14 @@ For flowcharts, use the following structure:
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
     'tertiaryColor': '#EFEBE9',
     'fontFamily': 'Courier New',
-    'fontSize': '16px'
+    'fontSize': '16px',
+    'edgeLabelBackground': '#EFEBE9'
   }
 }}%%
 
@@ -102,7 +104,7 @@ For sequence diagrams, use the following structure:
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
@@ -131,7 +133,7 @@ For gantt charts, use the following structure:
   'theme': 'base',
   'themeVariables': {
     'primaryColor': '#6d1a36',
-    'primaryTextColor': '#fff',
+    'primaryTextColor': '#333',
     'primaryBorderColor': '#7C4DFF',
     'lineColor': '#7C4DFF',
     'secondaryColor': '#D7CCC8',
