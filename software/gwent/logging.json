@@ -82,7 +82,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rfid": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "MFRC522": {
       "level": "WARNING"
@@ -91,7 +91,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rfid.RealWriter": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.hal.rotary": {
       "level": "WARNING"

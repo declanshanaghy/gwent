@@ -178,11 +178,11 @@ class _RealReader(_BaseReader):
         read_id_duration = time.time() - read_id_start
         
         if original_id is None:
-            self._log.debug({
-                'action': 'no card detected',
-                'timestamp': time.time(),
-                'read_id_duration': read_id_duration
-            })
+            if should_log:
+                self._log.info({
+                    'action': 'no card detected',
+                    'read_id_duration': f'{read_id_duration:.3f}'
+                })
             return None, None
             
         self._log.info({
@@ -674,6 +674,11 @@ class _FakeWriter(_BaseWriter, _FakeReader):
 
 
 class RealWriter(_BaseWriter, _RealReader):
+    def __init__(self):
+        super().__init__()
+        self._log.info({'action': 'startup_reset'})
+        self.reset()
+
     def reset(self):
         """Reset the RFID reader to ensure it's in a clean state"""
         self._log.info({

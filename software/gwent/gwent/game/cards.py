@@ -130,6 +130,8 @@ class Reader(gwent.game.PubSubComponent):
                     self.pause_reading()
                 else:
                     # Card removed, clear last seen
+                    if self._last_rfid is not None:
+                        self._log.info({'action': 'card_removed'})
                     self._last_rfid = None
 
             time.sleep(gwent.game.DEFAULT_YIELD_TIME)
