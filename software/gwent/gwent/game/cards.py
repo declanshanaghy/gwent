@@ -15,6 +15,7 @@ T_PAUSE_CARD_READ_LONG = 3
 READING_STAGES = {
     gwent.messaging.ctrl.STAGE_REGISTER_LEADERS: T_PAUSE_CARD_READ_SHORT,
     gwent.messaging.ctrl.STAGE_REGISTER_DECKS: T_PAUSE_CARD_READ_SHORT,
+    gwent.messaging.ctrl.STAGE_BUILD_DECK: T_PAUSE_CARD_READ_SHORT,
     gwent.messaging.ctrl.STAGE_PLAY_ROUND: T_PAUSE_CARD_READ_SHORT,
 }
 
@@ -38,7 +39,14 @@ class Reader(gwent.game.PubSubComponent):
         # are set up, because the OLED SPI init can reset the MFRC522 via
         # the shared GPIO25 RST line.
         self._log.info("Initializing RFID hardware")
+        # Allow GPIO25 to settle after OLED reset before RFID init
+        time.sleep(0.2)
         self._rfid = gwent.hal.rfid.instance()
+        # Double-reset: the first reset during __init__ may not fully recover
+        # from the OLED's GPIO25 pulse. A second reset with a delay helps.
+        time.sleep(0.3)
+        self._log.info("Performing post-init RFID reset")
+        self._rfid.reset()
         self._log.info("RFID hardware initialized")
         super().start()
 

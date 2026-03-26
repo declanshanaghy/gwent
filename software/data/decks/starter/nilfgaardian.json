@@ -1,0 +1,345 @@
+{
+  "version": 1,
+  "owner": "starter",
+  "faction": "Nilfgaardian",
+  "created_at": "2026-03-26T02:21:10.034474+00:00",
+  "cards": [
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Impenetrable Fog: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Cahir Mawr Dyffryn aep Ceallach",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Siege Engineer",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Renauld aep Matsen",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Cynthia",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Impera Brigade Guard",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick a torrential rain card from your deck and play it instantly",
+        "weather_ranges": [
+          "siege"
+        ]
+      },
+      "name": "Emhyr var Emreis - His Imperial Majesty",
+      "specialty": "leader",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Nausicaa Cavalry Rider: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Vanhemar",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Torrential Rain",
+      "ranges": [
+        "siege"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Siege Technician",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 0
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Nausicaa Cavalry Rider: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Impera Brigade Guard: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Vreemde",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "leader": {
+        "draw_opponent_discard": true,
+        "instructions": "Draw a card from your opponents discard pile"
+      },
+      "name": "Emhyr var Emreis - The Relentless",
+      "owner": "Declan Shanaghy",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 413287665097
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Biting Frost: 1",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "spy"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Shilard Fitz-Oesterlen",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 7
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Assire var Anahid",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Rotten Mangonel",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "abilities": [
+        "spy"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Vattier de Rideaux",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Impera Brigade Guard: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Rainfarn",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Biting Frost: 2",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Impenetrable Fog: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Clear Weather: 1",
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Young Emissary: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Etolian Auxillary Archers",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Zerrikanian Fire Scorpion",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Tibor Eggebracht",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "hero",
+      "starter": true,
+      "strength": 10
+    },
+    {
+      "abilities": [
+        "spy"
+      ],
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "name": "Stefan Skellen",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 9
+    }
+  ]
+}

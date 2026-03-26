@@ -189,6 +189,10 @@ def load(filepath, controller):
         else:
             controller.start_main_menu()
 
+    elif stage_name == "BuildDeck":
+        log.info("BuildDeck is not resumable, starting from main menu")
+        controller.start_main_menu()
+
     else:
         log.info(f"Starting from main menu (stage={stage_name})")
         controller.start_main_menu()

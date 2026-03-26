@@ -129,8 +129,30 @@ class _RealReader(_BaseReader):
         self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 pin_mode=GPIO.BCM'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
-        with gwent.hal.spi_lock:
-            return self._read_card_locked(should_log)
+        self._log.debug({'action': 'spi_lock_rfid_waiting'})
+        lock_wait_start = time.time()
+        acquired = gwent.hal.spi_lock.acquire(timeout=2.0)
+        lock_wait = time.time() - lock_wait_start
+        if not acquired:
+            self._log.warning({
+                'action': 'spi_lock_rfid_timeout',
+                'waited': f'{lock_wait:.3f}s',
+            })
+            return None, None
+        self._log.debug({
+            'action': 'spi_lock_rfid_acquired',
+            'waited': f'{lock_wait:.3f}s',
+        })
+        try:
+            result = self._read_card_locked(should_log)
+            return result
+        finally:
+            held = time.time() - lock_wait_start - lock_wait
+            self._log.debug({
+                'action': 'spi_lock_rfid_released',
+                'held': f'{held:.3f}s',
+            })
+            gwent.hal.spi_lock.release()
 
     def _read_card_locked(self, should_log: bool) -> (int, str):
         start_time = time.time()

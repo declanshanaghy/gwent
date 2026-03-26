@@ -91,7 +91,7 @@
       "level": "WARNING"
     },
     "gwent.hal.rfid.RealWriter": {
-      "level": "INFO"
+      "level": "DEBUG"
     },
     "gwent.hal.rotary": {
       "level": "INFO"
@@ -118,7 +118,7 @@
       "level": "WARNING"
     },
     "gwent.hal.oled_ssd1306.SSD1306Presenter": {
-      "level": "WARNING"
+      "level": "DEBUG"
     },
     "SSD1306Presenter": {
       "level": "WARNING"

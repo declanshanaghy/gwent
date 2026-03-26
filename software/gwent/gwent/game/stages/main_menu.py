@@ -9,6 +9,7 @@ import gwent.messaging.mfd
 
 class MainMenu(gwent.game.stages.base.GameStage):
     CHOICE_START_GAME_ID = '1'
+    CHOICE_BUILD_DECK_ID = '2'
 
     @property
     def stage(self):
@@ -24,6 +25,8 @@ class MainMenu(gwent.game.stages.base.GameStage):
         choices = [
             gwent.messaging.choice.Message.from_properties(
                 self.CHOICE_START_GAME_ID, 'Start Game'),
+            gwent.messaging.choice.Message.from_properties(
+                self.CHOICE_BUILD_DECK_ID, 'Build Deck'),
         ]
         mfd = gwent.messaging.mfd.Message.with_choices(
             choices, clear_prompt=True)
@@ -32,7 +35,9 @@ class MainMenu(gwent.game.stages.base.GameStage):
     def process_choice(self, choice: gwent.messaging.choice.Message):
         super().process_choice(choice)
         if choice.id == self.CHOICE_START_GAME_ID:
-            self.complete()
+            self.complete('start_game')
+        elif choice.id == self.CHOICE_BUILD_DECK_ID:
+            self.complete('build_deck')
         else:
             self._log.error({
                 'action': 'dummy_choice',

@@ -1,0 +1,345 @@
+{
+  "version": 1,
+  "owner": "starter",
+  "faction": "Monsters",
+  "created_at": "2026-03-26T02:21:10.037515+00:00",
+  "cards": [
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Impenetrable Fog: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Arachas: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Ghoul: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Plague Maiden",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Wyvern",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Arachas: Behemoth",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "agile",
+        "morale"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Kayran",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "specialty": "hero",
+      "starter": true,
+      "strength": 8
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Crone: Brewess",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Torrential Rain",
+      "ranges": [
+        "siege"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Frightener",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Werewolf",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick any weather card from your deck and play it instantly",
+        "weather_ranges": [
+          "close",
+          "ranged",
+          "siege"
+        ]
+      },
+      "name": "Eredin - King of the Wild Hunt",
+      "specialty": "leader",
+      "starter": true
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Imlerith",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "hero",
+      "starter": true,
+      "strength": 10
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Forktail",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Biting Frost: 1",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Arachas: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Griffin",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Biting Frost: 2",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Impenetrable Fog: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Cockatrice",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Grave Hag",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Clear Weather: 1",
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Ghoul: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Vampire: Garkhain",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Fire Elemental",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abililties": [
+        "muster"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Nekker: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Celaeno Harpy",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Endrega",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Gargoyle",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Monsters",
+      "kind": "card",
+      "name": "Ice Giant",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 5
+    }
+  ]
+}

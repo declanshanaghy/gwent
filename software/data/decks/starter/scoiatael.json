@@ -1,0 +1,369 @@
+{
+  "version": 1,
+  "owner": "starter",
+  "faction": "Scoia'tael",
+  "created_at": "2026-03-26T02:21:10.040709+00:00",
+  "cards": [
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Impenetrable Fog",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Riordan",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Vrihedd Brigade Recruit",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dol Blathanna Scout: 2",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Vrihedd Brigade Veteran: 2",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Vrihedd Brigade Veteran: 1",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick a biting frost card from your deck and play it instantly",
+        "weather_ranges": [
+          "close"
+        ]
+      },
+      "name": "Francesca Findabair - Pureblood Elf",
+      "specialty": "leader",
+      "starter": true
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Toruviel",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Elven Skirmisher: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Havekar Smuggler",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Havekar Healer",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 0
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dol Blathanna Archer: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Mahakaman Defender: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Torrential Rain",
+      "ranges": [
+        "siege"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dwarven Skirmisher: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Biting Frost",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dwarven Skirmisher: 3",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Ida Emean aep Sivney",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Filavandrel aen Fidhail",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Mahakaman Defender: 3",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Ciaran aep Easnilie",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dennis Cranmer",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Iorveth",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "hero",
+      "starter": true,
+      "strength": 10
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Biting Frost",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Impenetrable Fog",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Mahakaman Defender: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Clear Weather",
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dwarven Skirmisher: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 3
+    },
+    {
+      "abilities": [
+        "agile"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Dol Blathanna Scout: 1",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "name": "Elven Skirmisher: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "leader": {
+        "commander_ranges": [
+          "ranged"
+        ],
+        "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+      },
+      "name": "Francesca Findabair - The Beautiful",
+      "owner": "Declan Shanaghy",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 553478147534
+    }
+  ]
+}

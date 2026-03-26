@@ -1,0 +1,320 @@
+{
+  "version": 1,
+  "owner": "starter",
+  "faction": "Northern Realms",
+  "created_at": "2026-03-26T02:21:10.031703+00:00",
+  "cards": [
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Impenetrable Fog",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Kiera Metz",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Siegfried of Denesle",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+        "weather_ranges": [
+          "ranged"
+        ]
+      },
+      "name": "Foltest - King of Temeria",
+      "specialty": "leader",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Ballista: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "morale"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Kaedweni Siege Expert: 3",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Torrential Rain",
+      "ranges": [
+        "siege"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Yarpen Zigrin",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "morale"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Kaedweni Siege Expert: 2",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Siege Tower: 1",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Dethmold",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Dun Banner Medic",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Biting Frost",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Poor Fucking Infantry: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Redanian Foot Soldier: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Ves",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Biting Frost",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Impenetrable Fog",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Sabrina Glevissig",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Trebuchet: 1",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Clear Weather",
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Trebuchet: 2",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Redanian Foot Soldier: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Ballista: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6,
+      "content_id": "5e70ff9a0aea7141e51e2673a40dd4e8"
+    },
+    {
+      "abilities": [
+        "morale"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Kaedweni Siege Expert: 1",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "S\u00edle de Tansarville",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Poor Fucking Infantry: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 1
+    },
+    {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Sheldon Skaggs",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "spy"
+      ],
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Prince Stennis",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 5
+    }
+  ]
+}

@@ -183,23 +183,73 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
     def clear(self):
         if self.device is None:
             return
+        self._log.debug({'action': 'spi_lock_oled_clear_waiting'})
+        t0 = time.time()
         with gwent.hal.spi_lock:
-            return self.term.clear()
+            wait = time.time() - t0
+            self._log.debug({'action': 'spi_lock_oled_clear_acquired', 'waited': f'{wait:.3f}s'})
+            result = self.term.clear()
+            held = time.time() - t0 - wait
+            self._log.debug({'action': 'spi_lock_oled_clear_done', 'held': f'{held:.3f}s'})
+            return result
 
     def println(self, txt):
         if self.device is None:
             return
+        self._log.debug({'action': 'spi_lock_oled_println_waiting', 'txt': str(txt)[:40]})
+        t0 = time.time()
         with gwent.hal.spi_lock:
+            wait = time.time() - t0
+            self._log.debug({'action': 'spi_lock_oled_println_acquired', 'waited': f'{wait:.3f}s'})
             try:
-                return self.term.println(txt)
+                result = self.term.println(txt)
+                held = time.time() - t0 - wait
+                self._log.debug({'action': 'spi_lock_oled_println_done', 'held': f'{held:.3f}s'})
+                return result
             except Exception as e:
                 self._log.error(f"Error in println(): {e}")
                 simple_txt = str(txt).encode('ascii', 'replace').decode('ascii')
                 return self.term.println(simple_txt)
 
     def redraw(self):
+        self._log.debug({'action': 'spi_lock_oled_redraw_waiting'})
+        t0 = time.time()
         with gwent.hal.spi_lock:
+            wait = time.time() - t0
+            self._log.debug({'action': 'spi_lock_oled_redraw_acquired', 'waited': f'{wait:.3f}s'})
             self._redraw_locked()
+            held = time.time() - t0 - wait
+            self._log.debug({'action': 'spi_lock_oled_redraw_done', 'held': f'{held:.3f}s'})
+
+    def _chars_per_line(self):
+        """Calculate characters per line based on display width and font."""
+        if self.font is None or self.device is None:
+            return 21  # fallback for 128px / ~6px per char
+        try:
+            # Measure width of a single character
+            bbox = self.font.getbbox("M")
+            char_w = bbox[2] - bbox[0]
+            return max(1, self.device.width // char_w)
+        except Exception:
+            return 21
+
+    def _word_wrap(self, text, width):
+        """Wrap text on whitespace boundaries to fit within width chars."""
+        lines = []
+        for paragraph in text.split('\n'):
+            words = paragraph.split()
+            if not words:
+                lines.append('')
+                continue
+            current = words[0]
+            for word in words[1:]:
+                if len(current) + 1 + len(word) <= width:
+                    current += ' ' + word
+                else:
+                    lines.append(current)
+                    current = word
+            lines.append(current)
+        return lines
 
     def _redraw_locked(self):
         if self.device is None:
@@ -209,10 +259,21 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
             self.term.clear()
 
             if self._display_error:
-                self.term.println(self._error)
+                cols = self._chars_per_line()
+                for line in self._word_wrap(self._error, cols):
+                    self.term.println(line)
             else:
+                has_choices = (self._choices or
+                               self._ok is not None or
+                               self._cancel is not None)
+                cols = self._chars_per_line()
+
                 if self._prompt:
-                    self.term.println(self._prompt)
+                    for line in self._word_wrap(self._prompt, cols):
+                        self.term.println(line)
+
+                if self._prompt and has_choices:
+                    self.term.println('-' * cols)
 
                 for cid, choice in self._choices.items():
                     sel = self.selector_symbol(choice)

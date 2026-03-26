@@ -29,6 +29,7 @@
             "MainMenu",
             "RegisterLeaders",
             "RegisterDecks",
+            "BuildDeck",
             "DealCards",
             "PlayRound",
             "RoundEnd",

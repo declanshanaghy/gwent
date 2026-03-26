@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "owner": "starter",
+  "faction": "Skellige",
+  "created_at": "2026-03-26T02:21:10.027945+00:00",
+  "cards": [
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Impenetrable Fog: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan Brokvar Archer: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Birna Bran",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "War Longship: 1",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan an Craite Warrior: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan an Craite Warrior: 2",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan Heymaey Skals",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "berserker"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Young Berserker",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 2,
+      "transforms_to": "Transformed Young Vildkaarl"
+    },
+    {
+      "abilities": [
+        "morale"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Transformed Vildkaarl",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 14
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Udalyrk",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "berserker"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Berserker",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4,
+      "transforms_to": "Transformed Vildkaarl"
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Mardroeme: 1",
+      "specialty": "mardroeme",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Torrential Rain: 1",
+      "ranges": [
+        "siege"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Svanrige",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "War Longship: 2",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Hjalmar",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "hero",
+      "starter": true,
+      "strength": 10
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Holger Blackhand",
+      "ranges": [
+        "siege"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "leader": {
+        "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+        "reshuffle_graveyards": true
+      },
+      "name": "Crach an Craite",
+      "specialty": "leader",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Madman Lugos",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Biting Frost: 1",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Light Longship: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Light Longship: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Biting Frost: 2",
+      "ranges": [
+        "close"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Impenetrable Fog: 2",
+      "ranges": [
+        "ranged"
+      ],
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clear Weather: 1",
+      "specialty": "weather",
+      "starter": true
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan an Craite Warrior: 3",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan Drummond Shield Maiden: 1",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan Tordarroch Armorsmith",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Transformed Young Vildkaarl: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 8
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Blueboy Lugos",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Clan Brokvar Archer: 1",
+      "ranges": [
+        "ranged"
+      ],
+      "starter": true,
+      "strength": 6
+    },
+    {
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Donar an Hindar",
+      "ranges": [
+        "close"
+      ],
+      "starter": true,
+      "strength": 4
+    }
+  ]
+}

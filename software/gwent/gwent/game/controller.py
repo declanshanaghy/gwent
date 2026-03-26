@@ -1,8 +1,10 @@
+import random
 from typing import Callable, List
 
 import paho.mqtt.client as mqtt
 
 import gwent.game.errors
+import gwent.game.decks
 import gwent.game.stages.all
 import gwent.messaging.base
 import gwent.messaging.card
@@ -29,6 +31,7 @@ class Controller(gwent.game.PubSubComponent):
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
         self.play_round = gwent.game.stages.all.PlayRound(pubsub)
         self.round_end = gwent.game.stages.all.RoundEnd(pubsub)
+        self.build_deck = gwent.game.stages.all.BuildDeck(pubsub)
         self.display_winner = gwent.game.stages.all.DisplayWinner(pubsub)
 
     def init(self):
@@ -47,6 +50,7 @@ class Controller(gwent.game.PubSubComponent):
 
     def run(self):
         # self.start_music()
+        gwent.game.decks.ensure_starter_decks()
         self.start_main_menu()
         super().run()
 
@@ -63,14 +67,106 @@ class Controller(gwent.game.PubSubComponent):
     def start_main_menu(self):
         self._log.info('Starting main menu stage')
 
-        def complete():
-            self._log.info('main menu completed')
-            self.start_register_leaders()
+        def complete(choice):
+            self._log.info(f'main menu completed with choice: {choice}')
+            if choice == 'build_deck':
+                self.start_build_deck()
+            else:
+                self.start_game_from_decks()
 
         def cancel():
             self._log.error("main menu can't be canceled")
 
         self.set_active_stage(self.main_menu, complete, cancel)
+
+    def start_game_from_decks(self):
+        self._log.info('Starting game from saved decks')
+
+        result = gwent.game.decks.pick_two_random_decks()
+        if result is None:
+            self._log.error('Not enough saved decks with different factions')
+            self.publish_error(
+                "Need 2+ saved decks with different factions. "
+                "Use Build Deck first.")
+            self.start_main_menu()
+            return
+
+        deck1_data, deck2_data = result
+        self._log.info({
+            'action': 'decks_selected',
+            'deck1_faction': deck1_data['faction'],
+            'deck1_owner': deck1_data['owner'],
+            'deck1_cards': len(deck1_data['cards']),
+            'deck2_faction': deck2_data['faction'],
+            'deck2_owner': deck2_data['owner'],
+            'deck2_cards': len(deck2_data['cards']),
+        })
+
+        hand1 = self._deal_hand_from_saved_deck(deck1_data, PLAYER.ONE)
+        hand2 = self._deal_hand_from_saved_deck(deck2_data, PLAYER.TWO)
+
+        if hand1 is None or hand2 is None:
+            self.publish_error("A saved deck doesn't have enough cards.")
+            self.start_main_menu()
+            return
+
+        # Remaining cards in each deck (not dealt to hand)
+        deck1_remaining = [c for c in deck1_data['cards'] if c not in hand1]
+        deck2_remaining = [c for c in deck2_data['cards'] if c not in hand2]
+
+        self.start_play_round(deck1_remaining, hand1, deck2_remaining, hand2)
+
+    def _deal_hand_from_saved_deck(self, deck_data, player):
+        """Pick 1 random leader + 5 random non-leaders from a saved deck."""
+        cards = deck_data['cards']
+        leaders = [c for c in cards if c.is_leader]
+        non_leaders = [c for c in cards if not c.is_leader]
+
+        if len(non_leaders) < 5:
+            self._log.error({
+                'action': 'deck_too_small',
+                'player': str(player),
+                'faction': deck_data['faction'],
+                'non_leaders': len(non_leaders),
+            })
+            return None
+
+        hand = random.sample(non_leaders, 5)
+
+        if leaders:
+            hand.append(random.choice(leaders))
+
+        self._log.info({
+            'action': 'hand_dealt_from_saved_deck',
+            'player': str(player),
+            'faction': deck_data['faction'],
+            'hand_size': len(hand),
+            'hand': [c.name for c in hand],
+        })
+        return hand
+
+    def start_build_deck(self):
+        self._log.info('Starting build deck stage')
+
+        def complete(owner, faction, deck):
+            filepath = gwent.game.decks.save_deck(owner, faction, deck)
+            self._log.info({
+                'action': 'deck_saved',
+                'owner': owner,
+                'faction': faction,
+                'cards': len(deck),
+                'filepath': filepath,
+            })
+            self.publish_prompt(
+                f"Deck saved! {owner}'s {faction} ({len(deck)} cards)",
+                ok=True, cancel=False, clear_choices=True)
+            self.start_main_menu()
+
+        def cancel():
+            self._log.info('Build deck canceled')
+            self.start_main_menu()
+
+        self.set_active_stage(self.build_deck, complete, cancel)
 
     def publish_card_play(self, player: PLAYER, card: gwent.messaging.card.Message):
         ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
