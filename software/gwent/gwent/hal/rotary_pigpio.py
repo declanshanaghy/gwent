@@ -1,14 +1,13 @@
 import threading
 import time
 import pigpio
-from gwent.hal.rotary_base import AbstractRotaryEncoder, AbstractSwitch
 from gwent.utils.logging import get_logger
 
 
-class PiGPIORotaryEncoder(AbstractRotaryEncoder):
+class PiGPIORotaryEncoder:
     """
     A class to decode mechanical rotary encoder pulses using pigpio.
-    Implements the AbstractRotaryEncoder interface.
+    Uses the pigpio library for robust GPIO access.
     
     This implementation uses the pigpio library which can work alongside other GPIO services,
     making it more robust than the RPi.GPIO implementation.
@@ -234,8 +233,8 @@ class PiGPIORotaryEncoder(AbstractRotaryEncoder):
             pass
 
 
-class PiGPIOSwitch(AbstractSwitch):
-    """A switch class using pigpio that implements the AbstractSwitch interface"""
+class PiGPIOSwitch:
+    """A switch class using pigpio."""
     
     def __init__(self, pin, host='localhost', port=8888, debounce_ms=50):
         """

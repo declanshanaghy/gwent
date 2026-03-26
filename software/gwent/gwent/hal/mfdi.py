@@ -121,10 +121,9 @@ class Presenter(gwent.game.BaseComponent):
         return self._selected is not None and self._selected.id == choice.id
 
     def selector_symbol(self, choice: gwent.messaging.choice.Message) -> str:
-        sel = "-"
         if self.is_selected(choice):
-            sel = ">"
-        return sel
+            return ">"
+        return " "
 
 
 class Chooser(gwent.game.BaseComponent):

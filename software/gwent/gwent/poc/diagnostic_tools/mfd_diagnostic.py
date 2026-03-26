@@ -158,16 +158,9 @@ def test_mfd_instance():
     logger.info("=== Testing MFD Instance Creation ===")
     
     try:
-        # Force real mode for testing
-        original_mode = gwent.hal.real_mode
-        gwent.hal.real_mode = lambda: True
-        
         mfd_instance = gwent.hal.mfd.instance()
         logger.info(f"Successfully created MFD instance: {mfd_instance}")
-        
-        # Restore original mode function
-        gwent.hal.real_mode = original_mode
-        
+
         return mfd_instance
     except Exception as e:
         logger.error(f"Failed to create MFD instance: {e}")
@@ -179,10 +172,6 @@ def test_mfd_display():
     logger.info("=== Testing MFD Display Functionality ===")
     
     try:
-        # Force real mode for testing
-        original_mode = gwent.hal.real_mode
-        gwent.hal.real_mode = lambda: True
-        
         mfd_instance = gwent.hal.mfd.instance()
         
         # Test error display
@@ -320,9 +309,6 @@ def test_mfd_display():
             except Exception as e:
                 logger.error(f"Error getting user input: {e}")
                 break
-        
-        # Restore original mode function
-        gwent.hal.real_mode = original_mode
         
         return success
     except Exception as e:

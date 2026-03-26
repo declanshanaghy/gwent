@@ -179,7 +179,7 @@ class PubSubComponent(ThreadComponent):
             'content_id': message.content_id,
             'body': message.body,
         })
-        self._pubsub.publish(topic, message.body, qos=0)
+        self._pubsub.publish(topic, message.body, qos=1)
 
     def publish_effect(self, effect: str):
         """Publish a sound effect"""

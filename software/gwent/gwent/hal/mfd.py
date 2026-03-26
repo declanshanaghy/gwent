@@ -6,7 +6,6 @@ import gwent.game
 import gwent.hal
 import gwent.hal.mfdi
 import gwent.hal.rotary
-import gwent.hal.console
 import gwent.hal.oled_ssd1306
 import gwent.messaging.base
 
@@ -16,41 +15,8 @@ import gwent.messaging.choice
 
 def instance():
     logger = get_logger('gwent.hal.mfd')
-    logger.info("Creating MFD instance")
-    
-    if gwent.hal.real_mode():
-        logger.info("Running in real hardware mode")
-        try:
-            # Use device=1, port=0 as confirmed by the oled_test
-            logger.info("Initializing SSD1306Presenter with device=1, port=0")
-            presenter = gwent.hal.oled_ssd1306.SSD1306Presenter(device=1, port=0)
-            logger.info("SSD1306Presenter initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize SSD1306Presenter: {e}", exc_info=True)
-            raise
-            
-        try:
-            logger.info("Initializing RotaryChooser")
-            chooser = gwent.hal.rotary.RotaryChooser()
-            logger.info("RotaryChooser initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize RotaryChooser: {e}", exc_info=True)
-            raise
-    else:
-        logger.info("Running in simulation mode")
-        try:
-            logger.info("Initializing ConsolePresenter")
-            presenter = gwent.hal.console.ConsolePresenter()
-            logger.info("ConsolePresenter initialized successfully")
-            
-            logger.info("Initializing ConsoleChooser")
-            chooser = gwent.hal.console.ConsoleChooser()
-            logger.info("ConsoleChooser initialized successfully")
-        except Exception as e:
-            logger.error(f"Failed to initialize console components: {e}", exc_info=True)
-            raise
-
-    logger.info("Creating _MFD instance with presenter and chooser")
+    presenter = gwent.hal.oled_ssd1306.SSD1306Presenter(device=1, port=0)
+    chooser = gwent.hal.rotary.RotaryChooser()
     
     mfd = _MFD(presenter, chooser)
 

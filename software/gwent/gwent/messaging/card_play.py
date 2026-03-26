@@ -15,6 +15,7 @@ UPDATE_GEMS = 'update_gems'
 
 SCORE = 'score'
 GEMS = 'gems'
+ACTIVE_TURN = 'active_turn'
 
 
 class Message(gwent.messaging.base.Message):
@@ -35,10 +36,11 @@ class Message(gwent.messaging.base.Message):
         return Message(instance, subkind=DEAL_TO_HAND)
 
     @staticmethod
-    def with_update_score(player: str, score: int):
+    def with_update_score(player: str, score: int, active_turn: bool = False):
         instance = {
             PLAYER: player,
             SCORE: score,
+            ACTIVE_TURN: active_turn,
         }
         return Message(instance, subkind=UPDATE_SCORE)
 

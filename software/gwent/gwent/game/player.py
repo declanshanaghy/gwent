@@ -16,6 +16,7 @@ class Player(gwent.game.PubSubComponent):
         self._player = player
         self._leader = None
         self._score = 0
+        self._active_turn = False
         self._deck = []
 
         self._mux_channel = mux_channel
@@ -41,8 +42,8 @@ class Player(gwent.game.PubSubComponent):
 
     def _update_display(self):
         """Update the score display."""
-        self._log.info(f"Updating display with score: {self._score}")
-        self._matrix.display_centered_score(self._score, self._player)
+        self._log.info(f"Updating display with score: {self._score}, active: {self._active_turn}")
+        self._matrix.display_centered_score(self._score, self._player, active=self._active_turn)
 
     def process_ctrl(self, cp: gwent.messaging.ctrl.Message):
         self._log.info(f'received {cp.kind}', extra=cp.to_object())
@@ -85,8 +86,10 @@ class Player(gwent.game.PubSubComponent):
 
         elif cp.subkind == gwent.messaging.card_play.UPDATE_SCORE:
             score = cp._instance.get(gwent.messaging.card_play.SCORE, 0)
+            active = cp._instance.get(gwent.messaging.card_play.ACTIVE_TURN, False)
             self._score = score
-            self._log.info(f"Score updated to {score}")
+            self._active_turn = active
+            self._log.info(f"Score updated to {score}, active={active}")
             self._update_display()
 
         else:

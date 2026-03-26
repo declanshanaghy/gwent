@@ -2,6 +2,7 @@ import time
 from gwent.utils.logging import get_logger
 from pathlib import Path
 
+import gwent.hal
 import gwent.hal.mfdi
 
 from PIL import ImageFont
@@ -40,7 +41,7 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
 
     def _init_luma(self, device, port):
         """Initialize using luma.oled driver with SSD1306"""
-        
+
         try:
             self._log.info(f"Attempting to initialize SPI interface with device={device}, port={port}")
             self._log.debug("Creating SPI interface with noop GPIO")
@@ -182,123 +183,50 @@ class SSD1306Presenter(gwent.hal.mfdi.Presenter):
     def clear(self):
         if self.device is None:
             return
-        return self.term.clear()
+        with gwent.hal.spi_lock:
+            return self.term.clear()
 
     def println(self, txt):
         if self.device is None:
             return
-        try:
-            return self.term.println(txt)
-        except Exception as e:
-            self._log.error(f"Error in println(): {e}")
-            simple_txt = str(txt).encode('ascii', 'replace').decode('ascii')
-            return self.term.println(simple_txt)
+        with gwent.hal.spi_lock:
+            try:
+                return self.term.println(txt)
+            except Exception as e:
+                self._log.error(f"Error in println(): {e}")
+                simple_txt = str(txt).encode('ascii', 'replace').decode('ascii')
+                return self.term.println(simple_txt)
 
     def redraw(self):
-        self._redraw_locked()
+        with gwent.hal.spi_lock:
+            self._redraw_locked()
 
     def _redraw_locked(self):
         if self.device is None:
-            self._log.warning("redraw() called but device is None, returning")
             return
-            
-        # Implement a more robust redraw with retry mechanism
-        max_retries = 3
-        for attempt in range(max_retries):
-            try:
-                # luma.oled implementation
-                if self._display_error:
-                    self._log.info(f"Displaying error: '{self._error}'")
-                    self.clear()
-                    self.println(self._error)
-                else:
-                    self._log.info("Clearing display for normal content")
-                    self.clear()
 
-                    if self._prompt:
-                        self._log.info(f"Displaying prompt: '{self._prompt}'")
-                        self.println(self._prompt)
-                    else:
-                        self._log.debug("No prompt to display")
+        try:
+            self.term.clear()
 
-                    choices_count = len(self._choices)
-                    self._log.info(f"Displaying {choices_count} choices")
-                    
-                    if choices_count > 0:
-                        for i, (cid, choice) in enumerate(self._choices.items()):
-                            sel = self.selector_symbol(choice)
-                            choice_text = f'{sel} ({choice.id}):\t{choice.text}'
-                            self._log.debug(f"Choice {i}: {choice_text}")
-                            self.println(choice_text)
-                    else:
-                        self._log.debug("No choices to display")
+            if self._display_error:
+                self.term.println(self._error)
+            else:
+                if self._prompt:
+                    self.term.println(self._prompt)
 
-                    if self._ok is not None:
-                        self._log.info("Displaying OK button")
-                        sel = self.selector_symbol(self._ok)
-                        ok_text = f'{sel} ({self._ok.id}):\t{self._ok.text}'
-                        self._log.debug(f"OK button: {ok_text}")
-                        self.println(ok_text)
-                        
-                    if self._cancel is not None:
-                        self._log.info("Displaying Cancel button")
-                        sel = self.selector_symbol(self._cancel)
-                        cancel_text = f'{sel} ({self._cancel.id}):\t{self._cancel.text}'
-                        self._log.debug(f"Cancel button: {cancel_text}")
-                        self.println(cancel_text)
-                    
-                # Make sure to actually update the display
-                self._log.info("Calling term.flush() to update the display")
-                self.term.flush()
-                self._log.info("term.flush() completed")
-                
-                # Enhanced display refresh sequence
-                try:
-                    self._log.info("Performing enhanced display refresh sequence")
-                    
-                    # Force a display refresh with multiple techniques
-                    # 1. Toggle display on/off
-                    self._log.debug("Toggling display off/on")
-                    self.device.hide()
-                    time.sleep(0.05)  # Short delay to ensure command is processed
-                    self.device.show()
-                    
-                    # 2. Set display to maximum contrast
-                    self._log.debug("Setting display contrast to maximum (255)")
-                    self.device.contrast(255)
-                    
-                    # 3. Force a display update by sending a command
-                    self._log.debug("Sending display update command")
-                    self.device.command(0xA4)  # Display all points normal
-                    
-                    # 4. Small delay to ensure display updates
-                    time.sleep(0.05)
-                    
-                    self._log.info("Enhanced display refresh completed")
-                    
-                    # If we got here, the redraw was successful
-                    break
-                    
-                except Exception as e:
-                    self._log.error(f"Error during display refresh: {e}", exc_info=True)
-                    if attempt < max_retries - 1:
-                        self._log.warning(f"Retrying display refresh (attempt {attempt+1}/{max_retries})")
-                    else:
-                        self._log.warning("Continuing despite refresh failure")
-                    
-            except Exception as e:
-                self._log.error(f"Error in redraw() attempt {attempt+1}/{max_retries}: {e}", exc_info=True)
-                
-                if attempt < max_retries - 1:
-                    self._log.info(f"Retrying redraw (attempt {attempt+2}/{max_retries})")
-                    time.sleep(0.1 * (attempt + 1))  # Increasing delay between retries
-                else:
-                    # Last attempt failed, try recovery
-                    try:
-                        self._log.info("Attempting recovery by displaying simple error message")
-                        self.clear()
-                        self.println("Display Error")
-                        self.println(str(e)[:20])  # Truncate to avoid overflow
-                        self.term.flush()
-                    except Exception as e2:
-                        self._log.error(f"Recovery failed: {e2}", exc_info=True)
+                for cid, choice in self._choices.items():
+                    sel = self.selector_symbol(choice)
+                    self.term.println(f'{sel} {choice.text}')
+
+                if self._ok is not None:
+                    sel = self.selector_symbol(self._ok)
+                    self.term.println(f'{sel} {self._ok.text}')
+
+                if self._cancel is not None:
+                    sel = self.selector_symbol(self._cancel)
+                    self.term.println(f'{sel} {self._cancel.text}')
+
+            self.term.flush()
+
+        except Exception as e:
+            self._log.error(f"Error in redraw(): {e}", exc_info=True)

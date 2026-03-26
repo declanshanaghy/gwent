@@ -5,7 +5,6 @@ or pressing OK to pass. When both players have passed, the round ends.
 """
 
 import random
-import threading
 from typing import Callable, List
 
 import gwent.game
@@ -16,7 +15,6 @@ import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.card_play
 import gwent.messaging.mfd
-import gwent.messaging.sfx
 
 from gwent.game.constants import PLAYER
 from gwent.game.board import Board, ROWS
@@ -30,7 +28,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
     AWAITING_ROW_CHOICE = 'row_choice'
     AWAITING_MEDIC_CHOICE = 'medic_choice'
     AWAITING_DECOY_CHOICE = 'decoy_choice'
-    AWAITING_ANNOUNCEMENT = 'announcement'
+    AWAITING_LEADER_DISCARD = 'leader_discard'
 
     @property
     def stage(self):
@@ -40,14 +38,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
                  deck1, hand1, deck2, hand2, board=None):
         super().activate(complete, cancel)
 
-        self._awaiting = None
         self._pending_card = None
-        self._deferred_action = None
-
-        # Listen for announcement completion
-        self.subscribe(gwent.game.CH_SFX_COMPLETE,
-                      gwent.messaging.sfx.KIND,
-                      self._on_announcement_complete)
 
         if board is None:
             # First round — extract leaders from decks
@@ -66,11 +57,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
             scoaitel_p2 = self._board.factions[PLAYER.TWO] == "Scoia'tael"
             if scoaitel_p1 or scoaitel_p2:
                 self._board.current_player = random.choice([PLAYER.ONE, PLAYER.TWO])
-                self._log.info(f"Scoai'tel coin toss: {self._board.current_player} goes first")
+                first_reason = f"Scoia'tael coin toss: {self._player_label(self._board.current_player)} goes first."
             else:
                 self._board.current_player = PLAYER.ONE
+                first_reason = "Player 1 goes first."
         else:
             self._board = board
+            cur = self._board.current_player
+            label = self._player_label(cur)
+            if self._board.round_number == 1:
+                first_reason = f"{label} goes first."
+            else:
+                first_reason = f"Round {self._board.round_number}. {label} goes first as round loser."
 
         # Log cards in each player's hand
         for card in self._board.hands[PLAYER.ONE]:
@@ -88,25 +86,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             'p2_gems': self._board.players[PLAYER.TWO].gems,
         })
 
-        self._prompt_turn()
-
-    # --- Announcement gating ---
-
-    def _publish_prompt_then(self, prompt, action, ok=False, cancel=False,
-                             clear_choices=True, ok_text=None):
-        """Publish a prompt and defer an action until the announcement finishes.
-        Defaults to no selectable choices during the announcement."""
-        self._deferred_action = action
-        self._awaiting = self.AWAITING_ANNOUNCEMENT
-        self.publish_prompt(prompt, ok=ok, cancel=cancel,
-                           clear_choices=clear_choices, ok_text=ok_text)
-
-    def _on_announcement_complete(self, msg):
-        """Called when an announcement finishes playing."""
-        if self._awaiting == self.AWAITING_ANNOUNCEMENT and self._deferred_action:
-            action = self._deferred_action
-            self._deferred_action = None
-            action()
+        self._publish_prompt_then(first_reason, self._prompt_turn)
 
     # --- Turn management ---
 
@@ -129,6 +109,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._board.current_player = self._board.opponent(cur)
             cur = self._board.current_player
 
+        self._publish_scores()
+
         label = self._player_label(cur)
         player_num = "1" if cur == PLAYER.ONE else "2"
 
@@ -139,17 +121,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
             ok_text=f"Plr{player_num} Pass")
 
     def _advance_turn(self):
-        """Recalculate scores and advance to the next player's turn."""
-        self._publish_scores()
+        """Advance to the next player's turn."""
         cur = self._board.current_player
         self._board.current_player = self._board.opponent(cur)
         self._prompt_turn()
 
     def _publish_scores(self):
         """Publish updated scores to Player components."""
+        cur = self._board.current_player
         for player in (PLAYER.ONE, PLAYER.TWO):
             score = self._board.calculate_player_score(player)
-            msg = gwent.messaging.card_play.Message.with_update_score(str(player), score)
+            active = (player == cur)
+            msg = gwent.messaging.card_play.Message.with_update_score(str(player), score, active_turn=active)
             topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
             self.publish(topic, msg)
 
@@ -166,6 +149,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
             return
         if self._awaiting == self.AWAITING_DECOY_CHOICE:
             self._process_decoy_scan(card)
+            return
+        if self._awaiting == self.AWAITING_LEADER_DISCARD:
+            self._process_leader_discard_scan(card)
             return
         if self._awaiting != self.AWAITING_CARD:
             return
@@ -343,9 +329,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
             opp = self._board.opponent(cur)
             opp_discard = self._board.players[opp].discard
             if opp_discard:
-                drawn = opp_discard.pop(0)
-                self._board.hands[cur].append(drawn)
-                prompt = f"{label}: leader ability. Drew {drawn.name} from opponent's discard."
+                self._awaiting = self.AWAITING_LEADER_DISCARD
+                self.publish_prompt(
+                    f"{label}: leader ability. Scan a card from opponent's discard to take. "
+                    f"{len(opp_discard)} available.",
+                    ok=False, cancel=False, clear_choices=True)
+                return
             else:
                 prompt = f"{label}: leader ability. Opponent's discard pile is empty."
         elif leader_data.get("reshuffle_graveyards"):
@@ -446,6 +435,24 @@ class PlayRound(gwent.game.stages.base.GameStage):
         # Normal card
         self._publish_prompt_then(
             f"{place_msg}, strength {card.strength}.",
+            self._advance_turn)
+
+    def _process_leader_discard_scan(self, card):
+        """Handle a scanned card during leader draw-from-opponent-discard."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        opp = self._board.opponent(cur)
+        opp_discard = self._board.players[opp].discard
+
+        drawn = next((c for c in opp_discard if c.rfid == card.rfid), None)
+        if not drawn:
+            self.publish_error(f"{card.name} is not in opponent's discard pile")
+            return
+
+        opp_discard.remove(drawn)
+        self._board.hands[cur].append(drawn)
+        self._publish_prompt_then(
+            f"{label}: took {drawn.name} from opponent's discard. Return to hand.",
             self._advance_turn)
 
     def _process_medic_scan(self, card):

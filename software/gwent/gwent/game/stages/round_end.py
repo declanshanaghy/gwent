@@ -13,7 +13,6 @@ import gwent.game.stages.base
 import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.card_play
-import gwent.messaging.sfx
 
 from gwent.game.constants import PLAYER
 from gwent.game.board import Board, ROWS
@@ -29,12 +28,6 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         super().activate(complete, cancel)
         self._board = board
         self._game_over = False
-        self._waiting_for_announcement = False
-
-        self.subscribe(gwent.game.CH_SFX_COMPLETE,
-                      gwent.messaging.sfx.KIND,
-                      self._on_announcement_complete)
-
         self._determine_winner()
 
     def _determine_winner(self):
@@ -90,21 +83,17 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         g2 = "gem" if p2_gems == 1 else "gems"
         gems_info = f"Player 1: {p1_gems} {g1} remaining. Player 2: {p2_gems} {g2} remaining."
 
-        self._waiting_for_announcement = True
-
         if self._game_over:
             if p1_gems <= 0 and p2_gems <= 0:
-                self.publish_prompt(f"{result} {gems_info} Game over, it's a draw!",
-                                   ok=False, cancel=False, clear_choices=True)
+                prompt = f"{result} {gems_info} Game over, it's a draw!"
             elif p1_gems <= 0:
-                self.publish_prompt(f"{result} {gems_info} Game over, Player 2 wins the match!",
-                                   ok=False, cancel=False, clear_choices=True)
+                prompt = f"{result} {gems_info} Game over, Player 2 wins the match!"
             else:
-                self.publish_prompt(f"{result} {gems_info} Game over, Player 1 wins the match!",
-                                   ok=False, cancel=False, clear_choices=True)
+                prompt = f"{result} {gems_info} Game over, Player 1 wins the match!"
         else:
-            self.publish_prompt(f"{result} {gems_info}",
-                               ok=False, cancel=False, clear_choices=True)
+            prompt = f"{result} {gems_info}"
+
+        self._publish_prompt_then(prompt, self._advance)
 
         self._log.info({
             'action': 'round_result',
@@ -163,13 +152,6 @@ class RoundEnd(gwent.game.stages.base.GameStage):
                         pb.discard.remove(card)
                         self._board.hands[player].append(card)
                         self._log.info(f"Skellige resurrects {card.name}")
-
-    def _on_announcement_complete(self, msg):
-        """Auto-advance after the round end announcement finishes."""
-        if not self._waiting_for_announcement:
-            return
-        self._waiting_for_announcement = False
-        self._advance()
 
     def _advance(self):
         """Progress to the next stage."""

@@ -38,6 +38,10 @@
     "gems": {
       "type": "integer",
       "description": "The remaining gems for update_gems events"
+    },
+    "active_turn": {
+      "type": "boolean",
+      "description": "Whether it is this player's turn"
     }
   }
 }

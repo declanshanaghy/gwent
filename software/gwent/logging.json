@@ -94,16 +94,22 @@
       "level": "INFO"
     },
     "gwent.hal.rotary": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.hal.rotary.RotaryEncoder": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.hal.rotary.RotaryChooser": {
-      "level": "WARNING"
+      "level": "INFO"
     },
     "gwent.hal.rotary_pigpio.PiGPIOSwitch": {
-      "level": "WARNING"
+      "level": "INFO"
+    },
+    "gwent.hal.rotary_chooser.RotaryChooser": {
+      "level": "INFO"
+    },
+    "gwent.hal.rotary_rpigpio": {
+      "level": "INFO"
     },
     "gwent.hal.mfd": {
       "level": "WARNING"

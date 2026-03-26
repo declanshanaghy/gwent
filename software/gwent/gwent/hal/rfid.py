@@ -1,8 +1,6 @@
-import hashlib
 import os.path
 import json
 import random
-import tempfile
 import time
 import threading
 import traceback
@@ -30,11 +28,7 @@ MAX_ATTEMPTS = 2
 
 
 def instance():
-    # Use logging levels from logging.json
-    if gwent.hal.real_mode():
-        return RealWriter()
-    else:
-        return _FakeWriter()
+    return RealWriter()
 
 
 class RFIDError(Exception):
@@ -116,31 +110,6 @@ class _BaseReader(gwent.game.BaseComponent):
         raise NotImplementedError('subclass must implement read_card_impl')
 
 
-class _FakeReader(_BaseReader):
-    flag_read_file = os.path.join(tempfile.gettempdir(), 'rfid.read')
-
-    def __init__(self):
-        super().__init__()
-        self._log.debug({'flag_read_file': self.flag_read_file})
-
-    def read_card_impl(self, should_log: bool) -> (int, str):
-        exists = os.path.exists(self.flag_read_file)
-        if should_log:
-            self._log.debug({
-                'action': 'read_card_impl',
-                'flag_read_file': self.flag_read_file,
-                'exists': exists,
-            })
-        if exists:
-            with open(self.flag_read_file) as f:
-                details = f.read()
-                id = hashlib.md5(details.encode()).hexdigest()
-            os.unlink(self.flag_read_file)
-            return id, details
-        else:
-            return None, None
-
-
 class _RealReader(_BaseReader):
     _rfid = None
 
@@ -160,7 +129,8 @@ class _RealReader(_BaseReader):
         self._log.debug({'rfid_init': 'mfrc522.SimpleMFRC522 pin_mode=GPIO.BCM'})
 
     def read_card_impl(self, should_log: bool) -> (int, str):
-        return self._read_card_locked(should_log)
+        with gwent.hal.spi_lock:
+            return self._read_card_locked(should_log)
 
     def _read_card_locked(self, should_log: bool) -> (int, str):
         start_time = time.time()
@@ -174,7 +144,7 @@ class _RealReader(_BaseReader):
 
         # First check if a card is physically present by reading its ID
         read_id_start = time.time()
-        original_id, _ = self._rfid.read_id(attempts=3)
+        original_id, _ = self._rfid.read_id(attempts=10)
         read_id_duration = time.time() - read_id_start
         
         if original_id is None:
@@ -657,22 +627,6 @@ class _BaseWriter(_BaseReader):
         raise NotImplementedError('subclass must implement write_card_impl')
 
 
-class _FakeWriter(_BaseWriter, _FakeReader):
-    flag_write_file = os.path.join(tempfile.gettempdir(), 'rfid.write')
-
-    def __init__(self):
-        super().__init__()
-        self._log.debug({'flag_write_file': self.flag_write_file})
-
-    def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
-        exists = os.path.exists(self.flag_write_file)
-        if exists:
-            os.unlink(self.flag_write_file)
-            return random.randint(10000000, 999999999)
-        else:
-            return None
-
-
 class RealWriter(_BaseWriter, _RealReader):
     def __init__(self):
         super().__init__()
@@ -685,36 +639,30 @@ class RealWriter(_BaseWriter, _RealReader):
             'action': 'resetting_rfid_reader',
             'timestamp': time.time()
         })
-        
-        try:
-            # Try to re-initialize the RFID reader
-            self._setup_rfid()
-            
-            # No need for delay after reset - card_manager handles retries
-            
-            # Try to read the ID to ensure the reader is working
-            id, _ = self._rfid.read_id(attempts=1)
-            if id is not None:
-                self._log.debug({
-                    'action': 'rfid_reader_reset_complete_with_card_present',
-                    'id': id,
-                    'timestamp': time.time()
+
+        with gwent.hal.spi_lock:
+            try:
+                self._setup_rfid()
+
+                id, _ = self._rfid.read_id(attempts=1)
+                if id is not None:
+                    self._log.debug({
+                        'action': 'rfid_reader_reset_complete_with_card_present',
+                        'id': id,
+                    })
+                else:
+                    self._log.debug({
+                        'action': 'rfid_reader_reset_complete_no_card_detected',
+                    })
+
+                return True
+            except Exception as e:
+                self._log.error({
+                    'action': 'rfid_reader_reset_failed',
+                    'error': str(e),
+                    'error_traceback': traceback.format_exc(),
                 })
-            else:
-                self._log.debug({
-                    'action': 'rfid_reader_reset_complete_no_card_detected',
-                    'timestamp': time.time()
-                })
-            
-            return True
-        except Exception as e:
-            self._log.error({
-                'action': 'rfid_reader_reset_failed',
-                'error': str(e),
-                'error_traceback': traceback.format_exc(),
-                'timestamp': time.time()
-            })
-            return False
+                return False
     
     def write_card_impl(self, card: gwent.messaging.card.Message) -> int:
         id1, _ = self._write_card_header(card)

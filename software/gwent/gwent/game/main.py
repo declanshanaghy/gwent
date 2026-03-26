@@ -103,7 +103,7 @@ class MQTTClient:
             if topic not in self._subscriptions:
                 self._subscriptions[topic] = []
                 self._client.subscribe(topic)
-            
+
             self._subscriptions[topic].append(callback)
             
         self._log.info({

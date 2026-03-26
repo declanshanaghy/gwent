@@ -23,41 +23,7 @@ MATRIX_CHANNEL_PLAYER_ONE = 1
 MATRIX_CHANNEL_PLAYER_TWO = 2
 
 def instance(channel):
-    """
-    Get an instance of the matrix display.
-    Returns a _RealMatrix if in real mode and hardware is available,
-    otherwise returns a _FakeMatrix.
-    """
-    if gwent.hal.real_mode():
-        return _RealMatrix(channel=channel)
-    else:
-        return _FakeMatrix()
-
-
-class _FakeMatrix(gwent.game.BaseComponent):
-    def display_score(self, score: int):
-        self._log.info({
-            'action': 'display score',
-            'score': score
-        })
-
-    def display_round_scores(self, plr1_score: int, plr2_score: int):
-        self._log.info({
-            'action': 'display round scores',
-            'plr1_score': plr1_score,
-            'plr2_score': plr2_score
-        })
-
-    def display_gems(self, gems: int):
-        self._log.info({'action': 'display gems', 'gems': gems})
-
-    def display_gem_pair(self, p1_gems: int, p2_gems: int):
-        self._log.info({'action': 'display gem pair', 'p1_gems': p1_gems, 'p2_gems': p2_gems})
-
-    def init(self): pass
-    def shutdown(self): pass
-    def clear(self): pass
-    def display_centered_score(self, score, player=None): pass
+    return _RealMatrix(channel=channel)
 
 
 class _RealMatrix(gwent.game.BaseComponent):
@@ -522,11 +488,10 @@ class _RealMatrix(gwent.game.BaseComponent):
             except Exception as fallback_error:
                 self._log.error(f"Fallback display also failed: {fallback_error}")
     
-    def display_centered_score(self, score: int, player: str = None):
+    def display_centered_score(self, score: int, player: str = None, active: bool = False):
         """
-        Display a score centered on the display with dots below it.
-        Uses slimmer 7x4 pixel patterns and can display up to 3 digits.
-        The number of dots displayed depends on the player parameter.
+        Display a score centered on the display using 9x5 pixel patterns.
+        If active is True, draws a small star in the top-left corner.
         
         Args:
             score: The score to display
@@ -682,26 +647,42 @@ class _RealMatrix(gwent.game.BaseComponent):
             # Calculate total width needed for all digits with spacing
             total_width = len(score_str) * digit_width + (len(score_str) - 1) * digit_spacing
             
-            # Calculate starting position to center the entire score
-            start_x = (width - total_width) // 2
             center_y = (height - digit_height) // 2
-            
-            self._log.info(f"Centering score '{score_str}' at position: ({start_x}, {center_y})")
-            
+
+            # P1: left-align score, star on right
+            # P2: right-align score, star on left
+            is_p1 = str(player) == "PLAYER.ONE"
+            if is_p1:
+                start_x = 0
+            else:
+                start_x = width - total_width
+
+            self._log.info(f"Score '{score_str}' at x={start_x}, player={player}, active={active}")
+
             # Draw each digit of the score
             x = start_x
             for digit in score_str:
                 pattern = slim_patterns.get(digit, slim_patterns.get('0'))
-                
-                # Draw the digit
                 for y, row in enumerate(pattern):
                     for x_rel, pixel in enumerate(row):
                         if pixel:
                             self._matrix.pixel(x + x_rel, center_y + y, DEFAULT_BRIGHTNESS)
-                
-                # Move to the next digit position
                 x += digit_width + digit_spacing
-            
+
+            # Draw active turn star
+            if active:
+                if is_p1:
+                    # Star on right side
+                    sx = width - 3
+                else:
+                    # Star on left side
+                    sx = 0
+                self._matrix.pixel(sx + 1, 0, DEFAULT_BRIGHTNESS)
+                self._matrix.pixel(sx,     1, DEFAULT_BRIGHTNESS)
+                self._matrix.pixel(sx + 1, 1, DEFAULT_BRIGHTNESS)
+                self._matrix.pixel(sx + 2, 1, DEFAULT_BRIGHTNESS)
+                self._matrix.pixel(sx + 1, 2, DEFAULT_BRIGHTNESS)
+
         except Exception as e:
             self._log.error(f"Error displaying centered score: {e}", exc_info=True)
             # Try to display a simple fallback
