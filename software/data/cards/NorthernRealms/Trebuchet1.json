@@ -6,5 +6,6 @@
         "siege"
     ],
     "starter": true,
-    "strength": 6
+    "strength": 6,
+    "rfid": 416022809877
 }

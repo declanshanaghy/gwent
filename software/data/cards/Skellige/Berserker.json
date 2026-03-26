@@ -10,5 +10,6 @@
     ],
     "starter": true,
     "strength": 4,
-    "transforms_to": "Transformed Vildkaarl"
+    "transforms_to": "Transformed Vildkaarl",
+    "rfid": 690934336982
 }

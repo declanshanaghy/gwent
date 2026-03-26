@@ -18,8 +18,17 @@ class CardWriterUtil(gwent.game.BaseComponent):
     def __init__(self):
         super().__init__()
 
-    def write_card(self, card: gwent.messaging.card.Message):
-        """Write a card using the RFID writer. Raises KeyboardInterrupt on Ctrl+C."""
+    def write_card(self, card: gwent.messaging.card.Message, timeout=None):
+        """Write a card using the RFID writer.
+
+        Args:
+            card: The card message to write.
+            timeout: Max seconds to wait for a tag. None = wait forever.
+
+        Returns:
+            The RFID id on success, None on timeout.
+        Raises KeyboardInterrupt on Ctrl+C.
+        """
         self._log.info({
             'action': 'Hold a tag near the writer to receive the data',
             'name': card.name,
@@ -29,9 +38,13 @@ class CardWriterUtil(gwent.game.BaseComponent):
         writer = gwent.hal.rfid.instance()
 
         id = None
+        start = time.time()
         while id is None:
             id = writer.write_card(card)
             if id is None:
+                if timeout is not None and (time.time() - start) > timeout:
+                    self._log.warning("Write timed out after %ds", timeout)
+                    return None
                 time.sleep(0.1)
 
         self._log.info({

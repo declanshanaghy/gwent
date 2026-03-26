@@ -3,5 +3,6 @@
     "kind": "card",
     "name": "Mardroeme: 1",
     "specialty": "mardroeme",
-    "starter": true
+    "starter": true,
+    "rfid": 965258268144
 }

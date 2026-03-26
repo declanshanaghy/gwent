@@ -9,5 +9,6 @@
         "ranged"
     ],
     "starter": true,
-    "strength": 0
+    "strength": 0,
+    "rfid": 1032534445315
 }

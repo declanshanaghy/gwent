@@ -3,5 +3,6 @@
     "kind": "card",
     "name": "Clear Weather: 1",
     "specialty": "weather",
-    "starter": true
+    "starter": true,
+    "rfid": 347420839195
 }

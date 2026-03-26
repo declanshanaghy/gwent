@@ -1,0 +1,14 @@
+{
+    "faction": "Northern Realms",
+    "kind": "card",
+    "name": "Blue Stripes Commando",
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "strength": 4,
+    "starter": true,
+    "rfid": 274958929373
+}

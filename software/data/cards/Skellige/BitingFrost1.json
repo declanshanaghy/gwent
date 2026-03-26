@@ -6,5 +6,6 @@
         "close"
     ],
     "specialty": "weather",
-    "starter": true
+    "starter": true,
+    "rfid": 622214860262
 }

@@ -3,8 +3,9 @@
     "kind": "card",
     "name": "Fire Elemental",
     "ranges": [
-        "ranged"
+        "siege"
     ],
     "starter": true,
-    "strength": 6
+    "strength": 6,
+    "rfid": 3151711533
 }

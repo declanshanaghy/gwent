@@ -7,5 +7,6 @@
     ],
     "specialty": "hero",
     "starter": true,
-    "strength": 10
+    "strength": 10,
+    "rfid": 485060201733
 }

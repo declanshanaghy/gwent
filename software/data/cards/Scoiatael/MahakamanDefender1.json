@@ -6,5 +6,6 @@
         "close"
     ],
     "starter": true,
-    "strength": 5
+    "strength": 5,
+    "rfid": 964200713476
 }

@@ -6,5 +6,6 @@
         "ranged"
     ],
     "specialty": "weather",
-    "starter": true
+    "starter": true,
+    "rfid": 412499594691
 }

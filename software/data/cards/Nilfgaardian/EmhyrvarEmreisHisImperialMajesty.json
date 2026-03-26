@@ -9,5 +9,6 @@
     },
     "name": "Emhyr var Emreis - His Imperial Majesty",
     "specialty": "leader",
-    "starter": true
+    "starter": true,
+    "rfid": 137554120118
 }
