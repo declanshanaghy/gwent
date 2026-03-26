@@ -53,10 +53,13 @@ If a commander horn is active on a row, note it (e.g. "📯" next to the row).
 
 ### Hands
 One table with 2 columns listing cards in each player's hand with strength.
+Show the leader as the first entry with a 👑 prefix and "(leader)" suffix. Then list hand cards.
+After each card, show ownership: if the card has an "owner" field, show the owner's initials (e.g. "DS" for "Declan Shanaghy"). If the card has "starter": true and no owner, show "⭐" for starter.
 
 | Player 1 - Faction (N cards) | Player 2 - Faction (N cards) |
 |---|---|
-| Card Name (str) | Card Name (str) |
+| 👑 Leader Name (leader) ⭐ | 👑 Leader Name (leader) DS |
+| Card Name (str) ⭐ | Card Name (str) DS |
 
 ### Weather & Effects
 Only show this section if there are active weather effects or commander horns.

@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "owner": "Declan Shanaghy",
+  "faction": "Northern Realms",
+  "created_at": "2026-03-26T03:24:12.178238+00:00",
+  "cards": [
+    {
+      "abilities": [
+        "spy"
+      ],
+      "content_id": "c6c783312ea52bd638d4f2d0de8f2b3a",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Sigismund Dijkstra",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 986860965,
+      "strength": 4
+    },
+    {
+      "content_id": "54c0efb07d02c659284be4888afc896a",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Triss Merigold",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 828539751860,
+      "specialty": "hero",
+      "strength": 7
+    },
+    {
+      "abilities": [
+        "scorch"
+      ],
+      "content_id": "193de68a4d9725a4c0df29b70ddbacc7",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Villentretenmerth",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 209829580150,
+      "strength": 7
+    },
+    {
+      "content_id": "2e5d10a15696057c87434be9730b81f0",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Commander's Horn: 1",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close",
+        "ranged",
+        "siege"
+      ],
+      "rfid": 620696986138,
+      "specialty": "commander"
+    },
+    {
+      "content_id": "a79340eb77496e0d6a44323d7ddbcb98",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Scorch",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close",
+        "ranged",
+        "siege"
+      ],
+      "rfid": 552051232148,
+      "specialty": "scorch"
+    },
+    {
+      "abilities": [
+        "bond"
+      ],
+      "content_id": "c4ecdafbc8d4e3caa4657c69efb782db",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Catapult",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "ranged"
+      ],
+      "rfid": 278582611200,
+      "strength": 8
+    },
+    {
+      "content_id": "184a50fac38bbfa23c852f7d6f2c38de",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Philippa Eilhart",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "ranged"
+      ],
+      "rfid": 208604843325,
+      "specialty": "hero",
+      "strength": 10
+    },
+    {
+      "abilities": [
+        "medic"
+      ],
+      "content_id": "1be95367ef5caa1220c353f943b6d9ca",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Yennefer of Vengerberg",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "ranged"
+      ],
+      "rfid": 691167907280,
+      "specialty": "hero",
+      "strength": 7
+    },
+    {
+      "content_id": "0f8a49dd72dbf712856fda12d0f5daa5",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Zoltan Chivay",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 620730540568,
+      "strength": 5
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "content_id": "a1c8cec83afe48736f3b54c7b7acc940",
+      "faction": "Northern Realms",
+      "kind": "card",
+      "name": "Gaunter O'Dimm: Darkness 1",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "ranged"
+      ],
+      "rfid": 826006457614,
+      "strength": 4
+    }
+  ]
+}

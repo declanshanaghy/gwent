@@ -1,0 +1,161 @@
+{
+  "version": 1,
+  "owner": "DeclanShanaghy",
+  "faction": "Skellige",
+  "created_at": "2026-03-26T03:25:46.728422+00:00",
+  "cards": [
+    {
+      "abilities": [
+        "agile",
+        "morale"
+      ],
+      "content_id": "8e3a4bafc3c9c0c1978a2efa9dc2d07d",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Olaf",
+      "owner": "DeclanShanaghy",
+      "ranges": [
+        "close",
+        "ranged"
+      ],
+      "rfid": 206272941480,
+      "strength": 12
+    },
+    {
+      "abilities": [
+        "commander"
+      ],
+      "content_id": "e6fc27546168add4c298e5e248d140d7",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Dandelion",
+      "owner": "DeclanShanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 415434427718,
+      "strength": 2
+    },
+    {
+      "abilities": [
+        "commander"
+      ],
+      "content_id": "439a37f3bd67575c47894b9aa8b4ac63",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Draig Bon-Dhu",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "siege"
+      ],
+      "rfid": 1033390149117,
+      "strength": 2
+    },
+    {
+      "content_id": "47237d06d921633ffc38194f339fcebe",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Decoy: 1",
+      "owner": "Declan Shanaghy",
+      "rfid": 1033859976656,
+      "specialty": "decoy"
+    },
+    {
+      "abilities": [
+        "muster"
+      ],
+      "content_id": "8b9bb83ce8d0487ba0d6e885ba07153e",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Gaunter O'Dimm: Darkness 1",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "ranged"
+      ],
+      "rfid": 347537624364,
+      "strength": 4
+    },
+    {
+      "abilities": [
+        "spy"
+      ],
+      "content_id": "3ff3f4ac98b934a928da3bda1aff789f",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Avallac'h",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 481285852652,
+      "strength": 0
+    },
+    {
+      "content_id": "0f6b05eec662049711d5d9e248ddb607",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Scorch: 2",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close",
+        "ranged",
+        "siege"
+      ],
+      "rfid": 826225216783,
+      "specialty": "scorch"
+    },
+    {
+      "content_id": "892cbbc35e5236f8bda9b0af7f4e5a68",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Zoltan Chivay",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 482158005668,
+      "strength": 5
+    },
+    {
+      "content_id": "3b61cca9eb2971c4dea10c57165c8395",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Triss Merigold",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close"
+      ],
+      "rfid": 553007992276,
+      "specialty": "hero",
+      "strength": 7
+    },
+    {
+      "content_id": "02d45afacb548644073482871fa3541a",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Commander's Horn",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close",
+        "ranged",
+        "siege"
+      ],
+      "rfid": 1031041404264,
+      "specialty": "commander"
+    },
+    {
+      "content_id": "b3e10ad1168b2f28b0fa655004eb040c",
+      "faction": "Skellige",
+      "kind": "card",
+      "name": "Scorch: 1",
+      "owner": "Declan Shanaghy",
+      "ranges": [
+        "close",
+        "ranged",
+        "siege"
+      ],
+      "rfid": 550625692967,
+      "specialty": "scorch"
+    }
+  ]
+}

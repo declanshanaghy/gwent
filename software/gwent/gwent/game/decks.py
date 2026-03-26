@@ -25,10 +25,13 @@ DECK_VERSION = 1
 
 
 def slugify(name):
-    """Convert a name to a filesystem-safe slug (lowercase, underscores)."""
-    s = name.lower().replace(" ", "_")
-    s = re.sub(r'[^a-z0-9_]', '', s)
-    return s
+    """Convert a name to a filesystem-safe slug (lowercase, no spaces/special chars).
+
+    Strips all non-alphanumeric characters so that 'Declan Shanaghy' and
+    'DeclanShanaghy' both produce 'declanshanaghy'.
+    """
+    s = re.sub(r'[^a-zA-Z0-9]', '', name)
+    return s.lower()
 
 
 def _cards_to_dicts(cards):
@@ -142,6 +145,20 @@ def pick_two_random_decks():
     path2 = random.choice(by_faction[f2])
 
     return load_deck(path1), load_deck(path2)
+
+
+def load_starter_cards(faction):
+    """Load all starter cards for a given faction.
+
+    Returns:
+        List of card Messages, or empty list if no starter deck found.
+    """
+    path = os.path.join(DECKS_DIR, STARTER_OWNER, slugify(faction) + ".json")
+    if not os.path.exists(path):
+        log.warning(f"No starter deck for {faction}: {path}")
+        return []
+    deck = load_deck(path)
+    return deck['cards']
 
 
 def ensure_starter_decks():

@@ -1,4 +1,3 @@
-import random
 from typing import Callable, List
 
 import paho.mqtt.client as mqtt
@@ -36,6 +35,16 @@ class Controller(gwent.game.PubSubComponent):
 
     def init(self):
         super().init()
+        # Initialize all stages so they subscribe to sfx/complete
+        self.main_menu.init()
+        self.register_leaders.init()
+        self.register_decks.init()
+        self.deal_cards.init()
+        self.play_round.init()
+        self.round_end.init()
+        self.build_deck.init()
+        self.display_winner.init()
+
         self.subscribe(gwent.game.CH_CARDS_RAW_READ,
                        gwent.messaging.card.KIND,
                        self.process_card)
@@ -102,48 +111,8 @@ class Controller(gwent.game.PubSubComponent):
             'deck2_cards': len(deck2_data['cards']),
         })
 
-        hand1 = self._deal_hand_from_saved_deck(deck1_data, PLAYER.ONE)
-        hand2 = self._deal_hand_from_saved_deck(deck2_data, PLAYER.TWO)
-
-        if hand1 is None or hand2 is None:
-            self.publish_error("A saved deck doesn't have enough cards.")
-            self.start_main_menu()
-            return
-
-        # Remaining cards in each deck (not dealt to hand)
-        deck1_remaining = [c for c in deck1_data['cards'] if c not in hand1]
-        deck2_remaining = [c for c in deck2_data['cards'] if c not in hand2]
-
-        self.start_play_round(deck1_remaining, hand1, deck2_remaining, hand2)
-
-    def _deal_hand_from_saved_deck(self, deck_data, player):
-        """Pick 1 random leader + 5 random non-leaders from a saved deck."""
-        cards = deck_data['cards']
-        leaders = [c for c in cards if c.is_leader]
-        non_leaders = [c for c in cards if not c.is_leader]
-
-        if len(non_leaders) < 5:
-            self._log.error({
-                'action': 'deck_too_small',
-                'player': str(player),
-                'faction': deck_data['faction'],
-                'non_leaders': len(non_leaders),
-            })
-            return None
-
-        hand = random.sample(non_leaders, 5)
-
-        if leaders:
-            hand.append(random.choice(leaders))
-
-        self._log.info({
-            'action': 'hand_dealt_from_saved_deck',
-            'player': str(player),
-            'faction': deck_data['faction'],
-            'hand_size': len(hand),
-            'hand': [c.name for c in hand],
-        })
-        return hand
+        # DealCards will supplement missing leaders/cards from starters
+        self.start_deal_cards(deck1_data['cards'], deck2_data['cards'])
 
     def start_build_deck(self):
         self._log.info('Starting build deck stage')

@@ -1,6 +1,8 @@
+import os
 from typing import Callable
 
 import gwent.game
+import gwent.game.decks
 import gwent.game.stages.base
 import gwent.messaging.card
 import gwent.messaging.ctrl
@@ -22,6 +24,7 @@ class BuildDeck(gwent.game.stages.base.GameStage):
     def activate(self, complete: Callable, cancel: Callable):
         super().activate(complete, cancel)
         self._owner = None
+        self._owner_normalized = None
         self._faction = None
         self._deck = []
         self._publish_prompt_then(
@@ -30,17 +33,50 @@ class BuildDeck(gwent.game.stages.base.GameStage):
 
     def _show_save_cancel(self):
         """Show the save/cancel prompt with current deck counts."""
-        non_leaders = self._non_leader_count()
-        leaders = self._leader_count()
-        self.publish_prompt(
-            f"Scan cards ({non_leaders} cards, {leaders} leaders)",
-            ok=True, cancel=True, clear_choices=True, ok_text='Save')
+        if not self._deck:
+            self.publish_prompt(
+                "Scan your first card",
+                ok=False, cancel=True, clear_choices=True)
+            return
+        if self._deck:
+            non_leaders = self._non_leader_count()
+            leaders = self._leader_count()
+            self.publish_prompt(
+                f"Scan cards ({non_leaders} cards, {leaders} leaders)",
+                ok=True, cancel=True, clear_choices=True, ok_text='Save')
 
     def _leader_count(self):
         return sum(1 for c in self._deck if c.is_leader)
 
     def _non_leader_count(self):
         return sum(1 for c in self._deck if not c.is_leader)
+
+    @staticmethod
+    def _normalize_owner(owner):
+        """Normalize owner for comparison — lowercase, no spaces."""
+        return owner.lower().replace(" ", "") if owner else ""
+
+    def _load_existing_deck(self):
+        """Load an existing deck from disk for this owner/faction if it exists."""
+        slug_owner = gwent.game.decks.slugify(self._owner)
+        slug_faction = gwent.game.decks.slugify(self._faction)
+        path = os.path.join(
+            gwent.game.decks.DECKS_DIR, slug_owner, slug_faction + ".json")
+
+        if not os.path.exists(path):
+            return
+
+        try:
+            deck_data = gwent.game.decks.load_deck(path)
+            self._deck = deck_data['cards']
+            self._log.info({
+                'action': 'loaded_existing_deck',
+                'path': path,
+                'cards': len(self._deck),
+            })
+        except Exception as e:
+            self._log.warning(f"Failed to load existing deck {path}: {e}")
+            self._deck = []
 
     def _find_card_in_deck(self, card):
         return any(c.rfid == card.rfid for c in self._deck)
@@ -87,21 +123,31 @@ class BuildDeck(gwent.game.stages.base.GameStage):
             self.publish_error(f"{card.name} has no owner, cannot add to deck")
             return
 
-        # First card sets owner and faction, announce the owner
+        # First card sets owner and faction, load existing deck if any
         if self._owner is None:
             self._owner = card.owner
+            self._owner_normalized = self._normalize_owner(card.owner)
             self._faction = card.faction
+            self._load_existing_deck()
             self._log.info({
                 'action': 'deck_identity_set',
                 'owner': self._owner,
                 'faction': self._faction,
+                'existing_cards': len(self._deck),
             })
-            self.publish_prompt(
-                f"Building {self._owner}'s {self._faction} deck",
-                ok=False, cancel=False, clear_choices=True)
+            existing = len(self._deck)
+            if existing > 0:
+                self.publish_prompt(
+                    f"Loaded {self._owner}'s {self._faction} deck, "
+                    f"{existing} existing cards",
+                    ok=False, cancel=False, clear_choices=True)
+            else:
+                self.publish_prompt(
+                    f"Building {self._owner}'s {self._faction} deck",
+                    ok=False, cancel=False, clear_choices=True)
         else:
-            # Validate owner matches
-            if card.owner != self._owner:
+            # Validate owner matches (normalized — ignore spaces/case)
+            if self._normalize_owner(card.owner) != self._owner_normalized:
                 self.publish_error(
                     f"{card.name} belongs to {card.owner}, not {self._owner}")
                 return
