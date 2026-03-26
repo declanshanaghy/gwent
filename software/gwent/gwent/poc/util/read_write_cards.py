@@ -1,8 +1,6 @@
 import json
-import signal
 import sys
 import time
-import threading
 
 from gwent.utils.logging import get_logger, configure_logging, DEBUG
 
@@ -19,20 +17,9 @@ import gwent.hal.sfx
 class CardWriterUtil(gwent.game.BaseComponent):
     def __init__(self):
         super().__init__()
-        self._stop_event = threading.Event()
-        
-    def setup_signal_handlers(self):
-        """Setup signal handlers for graceful exit"""
-        def signal_handler(sig, frame):
-            self._log.info(f'Received exit signal {signal.Signals(sig).name}...')
-            self._stop_event.set()
-            
-        for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
-                  signal.SIGQUIT, signal.SIGTERM):
-            signal.signal(s, signal_handler)
 
     def write_card(self, card: gwent.messaging.card.Message):
-        """Write a card using the RFID writer"""
+        """Write a card using the RFID writer. Raises KeyboardInterrupt on Ctrl+C."""
         self._log.info({
             'action': 'Hold a tag near the writer to receive the data',
             'name': card.name,
@@ -42,60 +29,43 @@ class CardWriterUtil(gwent.game.BaseComponent):
         writer = gwent.hal.rfid.instance()
 
         id = None
-        while id is None and not self._stop_event.is_set():
+        while id is None:
             id = writer.write_card(card)
             if id is None:
-                # Small delay to prevent CPU hogging
                 time.sleep(0.1)
 
-        if id is not None:
-            self._log.info({
-                'action': 'card written successfully',
-                'id': id,
-            })
-            
+        self._log.info({
+            'action': 'card written successfully',
+            'id': id,
+        })
         return id
 
     def run(self, card: gwent.messaging.card.Message):
         """Run the card writer utility"""
-        self.setup_signal_handlers()
-
         self._log.info({
             'action': 'run',
             'full_name': card.full_name,
             'faction': card.faction,
         })
-        
+
         return self.write_card(card)
 
 
 class CardReaderUtil(gwent.game.BaseComponent):
     def __init__(self):
         super().__init__()
-        self._stop_event = threading.Event()
-        
-    def setup_signal_handlers(self):
-        """Setup signal handlers for graceful exit"""
-        def signal_handler(sig, frame):
-            self._log.info(f'Received exit signal {signal.Signals(sig).name}...')
-            self._stop_event.set()
-            
-        for s in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
-                  signal.SIGQUIT, signal.SIGTERM):
-            signal.signal(s, signal_handler)
 
     def read_card(self) -> gwent.messaging.card.Message:
-        """Read a card using the RFID reader"""
+        """Read a card using the RFID reader. Raises KeyboardInterrupt on Ctrl+C."""
         reader = gwent.hal.rfid.instance()
-        
+
         print("\nPlease place a card on the reader...")
         self._log.info("Please place a card on the reader...")
-        
+
         card = None
-        while card is None and not self._stop_event.is_set():
+        while card is None:
             card = reader.read_card()
             if card is None:
-                # Small delay to prevent CPU hogging
                 time.sleep(0.1)
         
         if card is not None:
@@ -133,8 +103,6 @@ class CardReaderUtil(gwent.game.BaseComponent):
 
     def run(self):
         """Run the card reader utility"""
-        self.setup_signal_handlers()
-        
         return self.read_card()
 
 
@@ -176,19 +144,22 @@ def read_card():
 
 if __name__ == '__main__':
     # Set up logging
-    configure_logging(level=DEBUG)
+    configure_logging(level=DEBUG, log_file="/tmp/logs/read_write_cards.log")
 
     log = get_logger(f'read-write-cards')
     log.info(f'Received args {sys.argv}...')
 
-    if len(sys.argv) > 1 and sys.argv[1] == 'write':
-        card = None
-        file_path = None
-        if len(sys.argv) == 3:
-            file_path = sys.argv[2]  # Get the file path
-            card = gwent.cards.util.read_card(file_path)
+    try:
+        if len(sys.argv) > 1 and sys.argv[1] == 'write':
+            card = None
+            file_path = None
+            if len(sys.argv) == 3:
+                file_path = sys.argv[2]  # Get the file path
+                card = gwent.cards.util.read_card(file_path)
+            else:
+                card = gwent.cards.util.random_card()
+            write_card(card, file_path)
         else:
-            card = gwent.cards.util.random_card()
-        write_card(card, file_path)
-    else:
-        read_card()
+            read_card()
+    except KeyboardInterrupt:
+        print("\nAborted.")

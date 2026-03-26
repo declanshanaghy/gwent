@@ -85,46 +85,33 @@ setuptools.setup(
     entry_points={
         'console_scripts': [
             'gwent=gwent.game.main:run',
-            'read_card=gwent.game.card_tools:read_card',
-            'write_card=gwent.game.card_tools:write_card',
-            
-            # POC script entry points
-            'read-card-util=gwent.poc.util.read_write_cards:read_card',
-            'write-card-util=gwent.poc.util.read_write_cards:write_card',
+            'read_card=gwent.poc.util.read_write_cards:read_card',
+            'write_card=gwent.poc.util.read_write_cards:write_card',
+            'write_next=gwent.utils.write_next:main',
+
+            # Card utilities
             'validate-cards=gwent.cards.util:validate_cards_main',
             'write-cards-to-disk=gwent.cards.util:write_all_to_disk_main',
             'read-card-file=gwent.cards.util:read_card_main',
             'get-random-card=gwent.cards.util:random_card_main',
-            'rotary-rpigpio-test=gwent.poc.input_tests.rotary_rpigpio:run',
-            'rotary-gpiozero-test=gwent.poc.input_tests.rotary_gpiozero:run',
-            'rotary-diagnostic=gwent.poc.input_tests.rotary_diagnostic:run',
-            'rotary-pin-test=gwent.poc.input_tests.rotary_pin_test:run',
-            'rotary-debounce-test=gwent.poc.input_tests.rotary_debounce_test:run',
-            'rotary-diagnostics=gwent.poc.input_tests.run_rotary_diagnostics:main',
-            'rotary-robust=gwent.poc.input_tests.rotary_robust:run',
-            'rotary-lgpio=gwent.poc.input_tests.rotary_lgpio:run',
+
+            # Hardware test scripts
             'rotary-pigpio=gwent.poc.input_tests.rotary_pigpio:run',
-            'rotary-test=gwent.poc.input_tests.test_rotary_implementations:run',
             'gpio-check=gwent.poc.diagnostic_tools.gpio_permissions_check:run',
             'gpio-service-manager=gwent.poc.diagnostic_tools.gpio_service_manager:run',
-            'gpio-service-start=gwent.poc.diagnostic_tools.gpio_service_manager:run',
-            'gpio-service-stop=gwent.poc.diagnostic_tools.gpio_service_manager:run',
             'rfid-test=gwent.poc.rfid_tests.rfid:run',
+
+            # Display test scripts
             'oled-ssd1306-test=gwent.poc.display_tests.oled_test:run',
             'oled-ssd1305-pillow-test=gwent.poc.display_tests.ssd1305_pillow_demo:main',
             'oled-ssd1305-luma-test=gwent.poc.display_tests.ssd1305_luma_demo:main',
-            # Fix entry points with hyphens in module names
             'matrix-test=gwent.poc.display_tests:run_matrix_test',
             'matrix-marquee=gwent.poc.display_tests:run_matrix_marquee',
-            'oled-test=gwent.poc.display_tests.oled_test:run',
-            'oled-direct-test=gwent.poc.display_tests:run_matrix_test',
-            'display-diagnostic=gwent.poc.display_tests:run_matrix_test',
+
+            # Diagnostic scripts
             'mfd-diagnostic=gwent.poc.diagnostic_tools.mfd_diagnostic:main',
             'audio-diagnostic=gwent.poc.diagnostic_tools.audio_diagnostic:main',
             'download-skellige-cards=gwent.poc.util.card_downloader_witcher_fandom_com:main',
-            
-            # Test scripts
-            'test-player-scores=gwent.tests.test_player_scores:main',
         ],
     }
 )

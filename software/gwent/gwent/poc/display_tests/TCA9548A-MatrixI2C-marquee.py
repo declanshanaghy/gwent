@@ -193,7 +193,7 @@ def run(text=DEFAULT_TEXT, channel=0, brightness=50, speed=0.1, log_to_stdout=Tr
         configure_stdout_logging(level=logging.INFO)
     else:
         # Configure logging to file (default behavior)
-        configure_logging(level=logging.INFO)
+        configure_logging(level=logging.INFO, log_file="/tmp/logs/matrix_marquee.log")
     
     logger.info("Starting TCA9548A Matrix I2C marquee display...")
     logger.info(f"Text: '{text}'")

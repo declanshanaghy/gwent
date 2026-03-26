@@ -13,7 +13,7 @@ import os
 from gwent.utils.logging import get_logger, configure_logging, INFO
 
 # Configure logging with console output
-configure_logging(level=INFO)
+configure_logging(level=INFO, log_file="/tmp/logs/oled_test.log")
 
 # Get logger for this component
 logger = get_logger("display_test")

@@ -252,7 +252,7 @@ def get_log_level_from_env(component_name: str) -> int:
 
 
 
-def configure_logging(level: Optional[int] = None, log_file: Optional[str] = "./tmp/gwent.log.ndjson", log_stdout: bool = False) -> None:
+def configure_logging(level: Optional[int] = None, log_file: str = None, log_stdout: bool = False) -> None:
     """
     Configure the root logger with JSON formatting.
     
@@ -277,26 +277,23 @@ def configure_logging(level: Optional[int] = None, log_file: Optional[str] = "./
         console_handler.setFormatter(formatter)
         root_logger.addHandler(console_handler)
 
-    # Ensure the directory exists for the log file
-    log_dir = os.path.dirname(log_file)
-    if log_dir and not os.path.exists(log_dir):
-        os.makedirs(log_dir, exist_ok=True)
+    # File handler — only if log_file is provided
+    if log_file:
+        log_dir = os.path.dirname(log_file)
+        if log_dir and not os.path.exists(log_dir):
+            os.makedirs(log_dir, exist_ok=True)
 
-    # Create a rotating file handler
-    # maxBytes=100MB, backupCount=5
-    file_handler = logging.handlers.RotatingFileHandler(
-        log_file,
-        maxBytes=100 * 1024 * 1024,  # 100MB
-        backupCount=5,
-        delay=True  # Only create the file when it's first written to
-    )
-    file_handler.setFormatter(formatter)
-    root_logger.addHandler(file_handler)
-    
-    # Force rotation on startup if the file exists and has content
-    if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
-        root_logger.info("Rotating log file on startup")
-        file_handler.doRollover()
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file,
+            maxBytes=100 * 1024 * 1024,  # 100MB
+            backupCount=5,
+        )
+        file_handler.setFormatter(formatter)
+        root_logger.addHandler(file_handler)
+
+        if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
+            root_logger.info("Rotating log file on startup")
+            file_handler.doRollover()
     
     # Set the log level
     if level is None:

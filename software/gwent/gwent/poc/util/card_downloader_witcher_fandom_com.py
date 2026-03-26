@@ -712,7 +712,7 @@ class CardDownloader:
 def main() -> int:
     """Command-line entry point for the card downloader utility"""
     # Set up logging
-    configure_logging(level=DEBUG)
+    configure_logging(level=DEBUG, log_file="/tmp/logs/card_downloader.log")
     
     # Parse command-line arguments
     output_path = 'tmp/card-differences.md'

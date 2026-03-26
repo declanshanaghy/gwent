@@ -1372,7 +1372,7 @@ def main() -> int:
     
     # Set up logging using the gwent logging system
     # This will use the logging.json configuration file
-    configure_logging(log_file='tmp/card-manager.log.ndjson')
+    configure_logging(log_file='/tmp/logs/card_manager.log')
     
     # Get a logger for this module
     logger = get_logger("gwent.poc.util.card_manager.main")

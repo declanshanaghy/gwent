@@ -9,7 +9,7 @@ def mfrc522_read_all_sectors():
     # pydevd_pycharm.settrace('192.168.1.143', port=31337,
     #                         stdoutToServer=True, stderrToServer=True)
 
-    configure_logging(level=DEBUG)
+    configure_logging(level=DEBUG, log_file="/tmp/logs/mfrc522.log")
     log = get_logger(__name__)
     mfrc522 = gwent.hal.rfid.Reader()
 
@@ -35,7 +35,7 @@ def mfrc522_write_all_sectors():
     # pydevd_pycharm.settrace('192.168.1.143', port=31337,
     #                         stdoutToServer=True, stderrToServer=True)
 
-    configure_logging(level=DEBUG)
+    configure_logging(level=DEBUG, log_file="/tmp/logs/mfrc522.log")
     log = get_logger(__name__)
     mfrc522 = gwent.hal.rfid.Writer()
 

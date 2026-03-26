@@ -141,7 +141,7 @@ def validate_cards() -> gwent.messaging.card.Message:
 
 def validate_cards_main():
     """Command-line entry point for validating cards"""
-    configure_logging(level=INFO)
+    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     print("Validating cards...")
     biggest_card = validate_cards()
     print(f"Total cards validated. Biggest card: {biggest_card.name} ({biggest_card.bytes} bytes)")
@@ -150,7 +150,7 @@ def validate_cards_main():
 
 def write_all_to_disk_main():
     """Command-line entry point for writing all cards to disk"""
-    configure_logging(level=INFO)
+    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     print("Writing all cards to disk...")
     write_all_to_disk()
     print("All cards written to disk successfully")
@@ -160,7 +160,7 @@ def write_all_to_disk_main():
 def read_card_main():
     """Command-line entry point for reading a card file"""
     import sys
-    configure_logging(level=INFO)
+    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     
     if len(sys.argv) < 2:
         print("Error: Please provide a card file path")
@@ -181,7 +181,7 @@ def read_card_main():
 
 def random_card_main():
     """Command-line entry point for getting a random card"""
-    configure_logging(level=INFO)
+    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     card = random_card()
     print(f"Random Card: {card.name}")
     print(f"Faction: {card.faction}")
