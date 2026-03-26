@@ -29,7 +29,6 @@ import readchar
 # Import gwent modules
 import gwent.game
 import gwent.messaging.base
-import gwent.cards.all
 import gwent.messaging.card
 from gwent.messaging.card import NAME, FACTION, RFID, BlankCardMessage  # Import constants
 import gwent.cards.util

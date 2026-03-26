@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Foltest: Son of Medell",
+    "leader": {
+        "instructions": "destroy your enemy's strongest ranged combat unit(s) if the combined strength of all his or her ranged combat units is 10 or more"
+    },
+    "specialty": "leader"
+}

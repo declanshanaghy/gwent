@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Foltest: the Siegemaster",
+    "leader": {
+        "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)"
+    },
+    "specialty": "leader"
+}

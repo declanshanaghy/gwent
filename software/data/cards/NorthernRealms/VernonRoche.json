@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Vernon Roche",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero"
+}

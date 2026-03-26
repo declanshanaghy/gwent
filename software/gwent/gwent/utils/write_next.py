@@ -6,7 +6,7 @@ Iterates through all card JSON files by faction, finds cards without an
 before moving to the next. 5 second delay between cards to swap.
 
 Non-starter cards require an owner — presents a selectable list.
-Esc to skip a card.
+Any keypress to skip a card.
 """
 
 import glob
@@ -236,6 +236,19 @@ def prompt_owner(name, owners):
 
 
 def main():
+    import argparse
+    parser = argparse.ArgumentParser(description="Write unchipped Gwent cards to RFID tags")
+    parser.add_argument("-q", "--quiet", action="store_true",
+                        help="Quiet mode — only show card name and TTS announcements")
+    parser.add_argument("-u", "--unowned", action="store_true",
+                        help="Only iterate unowned and starter cards, skip owned")
+    parser.add_argument("--no-write", action="store_true",
+                        help="List cards without writing — dry run")
+    args = parser.parse_args()
+    quiet = args.quiet
+    unowned = args.unowned
+    no_write = args.no_write
+
     configure_logging(level=DEBUG, log_file="/tmp/logs/write_next.log")
     log = get_logger("write_next")
 
@@ -254,16 +267,20 @@ def main():
         return
 
     total = len(unchipped)
-    print(f"\n{total} unchipped cards found:\n")
+    if not quiet:
+        print(f"\n{total} unchipped cards found:\n")
 
-    # Show summary by faction
-    from collections import Counter
-    faction_counts = Counter(faction for faction, _, _ in unchipped)
-    for faction in FACTIONS:
-        count = faction_counts.get(faction, 0)
-        if count > 0:
-            print(f"  {faction}: {count} cards")
-    print()
+        # Show summary by faction
+        from collections import Counter
+        faction_counts = Counter(faction for faction, _, _ in unchipped)
+        for faction in FACTIONS:
+            count = faction_counts.get(faction, 0)
+            if count > 0:
+                print(f"  {faction}: {count} cards")
+        print()
+    else:
+        from collections import Counter
+        faction_counts = Counter(faction for faction, _, _ in unchipped)
 
     # Signal handling for clean shutdown
     shutting_down = False
@@ -289,92 +306,82 @@ def main():
             if shutting_down:
                 break
 
+            # --unowned: skip owned cards (keep starters and unowned)
+            if unowned and data.get("owner") and not data.get("starter"):
+                skipped += 1
+                continue
+
             if faction != current_faction:
                 current_faction = faction
-                fc = FACTION_COLORS.get(faction, "")
-                fe = E_FACTION.get(faction, "")
-                print(f"\n{'='*60}")
-                print(f"  {fe} {fc}{BOLD}{faction}{RESET} ({faction_counts[faction]} cards)")
-                print(f"{'='*60}")
+                if not quiet:
+                    fc = FACTION_COLORS.get(faction, "")
+                    fe = E_FACTION.get(faction, "")
+                    print(f"\n{'='*60}")
+                    print(f"  {fe} {fc}{BOLD}{faction}{RESET} ({faction_counts[faction]} cards)")
+                    print(f"{'='*60}")
 
             card_faction = data.get("faction", "—")
             fc = FACTION_COLORS.get(card_faction, "")
-            fe = E_FACTION.get(card_faction, "")
             name = data.get("name", os.path.basename(filepath))
             is_starter = data.get("starter", False)
 
             print(f"\n  [{i}/{total}] {fc}{BOLD}{name}{RESET}")
-            print(f"  {'─' * 40}")
 
-            # Helper: emoji + right-aligned label + value
-            # Each emoji renders ~2 terminal columns; spaces are 1 column.
-            # Target: emoji block + label should fill 16 visual columns.
-            LABEL_COL = 16
-            def _emoji_width(s):
-                """Estimate visual width: each non-space char is 2 cols (emoji), space is 1."""
-                w = 0
-                for ch in s:
-                    w += 1 if ch == ' ' else 2
-                return w
+            if not quiet:
+                fe = E_FACTION.get(card_faction, "")
+                print(f"  {'─' * 40}")
 
-            def _row(emoji, label, value):
-                ew = _emoji_width(emoji)
-                pad = max(LABEL_COL - ew - 1, 0)  # -1 for space after emoji
-                print(f"  {emoji} {label:>{pad}s}   {value}")
+                LABEL_COL = 16
+                def _emoji_width(s):
+                    w = 0
+                    for ch in s:
+                        w += 1 if ch == ' ' else 2
+                    return w
 
-            _row(fe, "Faction:", f"{fc}{card_faction}{RESET}")
-            if data.get("strength") is not None:
-                _row(E_STRENGTH, "Strength:", str(data["strength"]))
-            if data.get("specialty"):
-                se = E_SPECIALTY.get(data["specialty"], "❓")
-                _row(se, "Specialty:", data["specialty"])
-            if data.get("abilities"):
-                emojis = " ".join(E_ABILITY.get(a, "❓") for a in data["abilities"])
-                _row(emojis, "Abilities:", ", ".join(data["abilities"]))
-            if data.get("ability"):
-                ae = E_ABILITY.get(data["ability"], "❓")
-                _row(ae, "Ability:", data["ability"])
-            if data.get("ranges"):
-                emojis = " ".join(E_ROW.get(r, "❓") for r in data["ranges"])
-                _row(emojis, "Ranges:", ", ".join(data["ranges"]))
-            if data.get("leader"):
-                leader = data["leader"]
-                if leader.get("instructions"):
-                    _row(E_LEADER, "Leader:", leader["instructions"])
-                if leader.get("commander_ranges"):
-                    _row("📯", "Cmd Rows:", ", ".join(leader["commander_ranges"]))
-                if leader.get("weather_ranges"):
-                    _row("🌧️", "Wth Rows:", ", ".join(leader["weather_ranges"]))
-            if is_starter:
-                _row(E_STARTER, "Owner:", "(starter)")
-            elif data.get("owner"):
-                _row(E_OWNER, "Owner:", data["owner"])
-            else:
-                _row(E_OWNER, "Owner:", "(unowned)")
-            _row(E_FILE, "File:", os.path.basename(filepath))
+                def _row(emoji, label, value):
+                    ew = _emoji_width(emoji)
+                    pad = max(LABEL_COL - ew - 1, 0)
+                    print(f"  {emoji} {label:>{pad}s}   {value}")
 
-            # Non-starter unowned cards — must assign an owner or skip
-            if not is_starter and not data.get("owner"):
-                owner = prompt_owner(name, owners)
-                if owner is None:
-                    print(f"  {RED}⏭ Skipping {name}.{RESET}")
-                    log.info("Skipped %s (no owner selected)", name)
-                    skipped += 1
-                    continue
-                if owner:
-                    data["owner"] = owner
-                    with open(filepath, "w") as f:
-                        json.dump(data, f, indent=4)
-                    print(f"  {GREEN}Owner set to: {owner}{RESET}")
-                    log.info("Set owner=%s for %s", owner, name)
-                    if owner not in owners:
-                        owners.append(owner)
-                        owners.sort()
+                _row(fe, "Faction:", f"{fc}{card_faction}{RESET}")
+                if data.get("strength") is not None:
+                    _row(E_STRENGTH, "Strength:", str(data["strength"]))
+                if data.get("specialty"):
+                    se = E_SPECIALTY.get(data["specialty"], "❓")
+                    _row(se, "Specialty:", data["specialty"])
+                if data.get("abilities"):
+                    emojis = " ".join(E_ABILITY.get(a, "❓") for a in data["abilities"])
+                    _row(emojis, "Abilities:", ", ".join(data["abilities"]))
+                if data.get("ability"):
+                    ae = E_ABILITY.get(data["ability"], "❓")
+                    _row(ae, "Ability:", data["ability"])
+                if data.get("ranges"):
+                    emojis = " ".join(E_ROW.get(r, "❓") for r in data["ranges"])
+                    _row(emojis, "Ranges:", ", ".join(data["ranges"]))
+                if data.get("leader"):
+                    leader = data["leader"]
+                    if leader.get("instructions"):
+                        _row(E_LEADER, "Leader:", leader["instructions"])
+                    if leader.get("commander_ranges"):
+                        _row("📯", "Cmd Rows:", ", ".join(leader["commander_ranges"]))
+                    if leader.get("weather_ranges"):
+                        _row("🌧️", "Wth Rows:", ", ".join(leader["weather_ranges"]))
+                if is_starter:
+                    _row(E_STARTER, "Owner:", "(starter)")
+                elif data.get("owner"):
+                    _row(E_OWNER, "Owner:", data["owner"])
+                else:
+                    _row(E_OWNER, "Owner:", "(unowned)")
+                _row(E_FILE, "File:", os.path.basename(filepath))
+
+            if no_write:
+                continue
 
             # Announce the card via TTS
             _speak(_describe_card(data))
 
-            print(f"\n  Place card on writer, writing automatically...")
+            if not quiet:
+                print(f"\n  Place card on writer, writing automatically...")
 
             log.info("Writing [%d/%d] %s from %s", i, total, name, os.path.basename(filepath))
 
@@ -403,34 +410,35 @@ def main():
                 # Check for Esc key (non-blocking stdin read)
                 try:
                     if select.select([sys.stdin], [], [], 0)[0]:
-                        ch = sys.stdin.read(1)
-                        if ch == "\x1b":  # Esc
-                            skip_pressed = True
-                            break
+                        sys.stdin.read(1)
+                        skip_pressed = True
+                        break
                 except Exception:
                     pass
 
             if skip_pressed:
-                print(f"\n  {RED}⏭ Skipping {name} (Esc pressed).{RESET}")
-                log.info("Skipped %s (Esc pressed during write)", name)
+                if not quiet:
+                    print(f"\n  {RED}⏭ Skipping {name} (key pressed).{RESET}")
+                log.info("Skipped %s (key pressed during write)", name)
                 skipped += 1
                 continue
 
             rfid = write_result[0]
             error = write_result[1]
 
-            if error:
+            if error and not quiet:
                 print(f"\n  {RED}✗ Error writing {name}: {error}{RESET}")
                 log.error("Error writing %s: %s", name, error)
 
             if rfid is not None:
                 _play_card_fx()
-                print(f"\n  {GREEN}✓ {name} written successfully! RFID: {rfid}{RESET}\a")
+                if not quiet:
+                    print(f"\n  {GREEN}✓ {name} written successfully! RFID: {rfid}{RESET}\a")
                 _speak("Write successful, next card is")
                 log.info("✓ %s written. RFID: %s", name, rfid)
                 written += 1
             else:
-                if not error:
+                if not quiet and not error:
                     print(f"\n  {RED}✗ FAILED to write {name}. Skipping.{RESET}")
                 log.warning("✗ FAILED %s. Skipping.", name)
                 skipped += 1
@@ -438,9 +446,10 @@ def main():
         print("\nAborted by user.")
         log.info("Aborted by user.")
 
-    print(f"\n{'='*60}")
-    print(f"  Done! Written: {written}, Skipped: {skipped}, Total: {total}")
-    print(f"{'='*60}\n")
+    if not quiet:
+        print(f"\n{'='*60}")
+        print(f"  Done! Written: {written}, Skipped: {skipped}, Total: {total}")
+        print(f"{'='*60}\n")
     log.info("Done! Written: %d, Skipped: %d, Total: %d", written, skipped, total)
 
 

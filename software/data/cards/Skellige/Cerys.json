@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Cerys",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero"
+}

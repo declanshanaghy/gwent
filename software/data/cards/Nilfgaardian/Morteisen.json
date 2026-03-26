@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Morteisen",
+    "strength": 3,
+    "ranges": [
+        "close"
+    ]
+}

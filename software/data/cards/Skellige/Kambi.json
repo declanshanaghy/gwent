@@ -1,0 +1,14 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Kambi",
+    "strength": 12,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "morale",
+        "agile"
+    ]
+}

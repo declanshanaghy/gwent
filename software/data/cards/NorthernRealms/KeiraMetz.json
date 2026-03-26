@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Keira Metz",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "starter": true
+}

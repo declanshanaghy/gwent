@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Olgierd von Everec",
+    "strength": 6,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Etolian Auxiliary Archers",
+    "strength": 1,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ]
+}

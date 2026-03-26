@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Francesca Findabair: Hope of the aen Seidhe",
+    "leader": {
+        "instructions": "hope of the aen seidhe: move agile units to whichever valid row maximizes their strength (don't move units already in optimal row)"
+    },
+    "specialty": "leader"
+}

@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Udalryk",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "starter": true
+}

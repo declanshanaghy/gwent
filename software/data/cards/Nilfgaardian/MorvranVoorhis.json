@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Morvran Voorhis",
+    "strength": 10,
+    "ranges": [
+        "siege"
+    ],
+    "specialty": "hero"
+}

@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Emhyr var Emreis: The White Flame",
+    "leader": {
+        "instructions": "the white flame: cancel your opponent's leader abilities"
+    },
+    "specialty": "leader"
+}

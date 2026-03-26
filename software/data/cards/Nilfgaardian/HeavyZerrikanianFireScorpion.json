@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Heavy Zerrikanian Fire Scorpion",
+    "strength": 10,
+    "ranges": [
+        "siege"
+    ]
+}

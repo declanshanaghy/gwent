@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Eredin: Commander of the Red Riders",
+    "leader": {
+        "instructions": "double the strength of all your close combat units (unless a commander's horn is also present on that row)"
+    },
+    "specialty": "leader"
+}

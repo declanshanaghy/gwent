@@ -91,9 +91,9 @@ setuptools.setup(
 
             # Card utilities
             'validate-cards=gwent.cards.util:validate_cards_main',
-            'write-cards-to-disk=gwent.cards.util:write_all_to_disk_main',
             'read-card-file=gwent.cards.util:read_card_main',
             'get-random-card=gwent.cards.util:random_card_main',
+            'import-cards=gwent.utils.import_cards:main',
 
             # Hardware test scripts
             'rotary-pigpio=gwent.poc.input_tests.rotary_pigpio:run',

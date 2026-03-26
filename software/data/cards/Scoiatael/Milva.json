@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Milva",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "morale"
+    ]
+}

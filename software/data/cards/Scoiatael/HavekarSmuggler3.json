@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Havekar Smuggler: 3",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ]
+}

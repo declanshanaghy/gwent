@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Isengrim Faoiltiarna",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "abilities": [
+        "morale"
+    ]
+}

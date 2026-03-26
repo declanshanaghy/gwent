@@ -1,0 +1,8 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Cow",
+    "ranges": [
+        "ranged"
+    ]
+}

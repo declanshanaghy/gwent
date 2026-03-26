@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Crone: Whispess",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Skellige Storm",
+    "ranges": [
+        "ranged",
+        "siege"
+    ],
+    "specialty": "weather"
+}

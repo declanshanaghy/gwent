@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Blue Stripes Commando: 2",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "starter": true
+}

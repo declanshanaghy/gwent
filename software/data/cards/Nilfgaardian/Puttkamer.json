@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Puttkamer",
+    "strength": 3,
+    "ranges": [
+        "ranged"
+    ]
+}

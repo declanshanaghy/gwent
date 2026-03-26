@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Saesenthessis",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ]
+}

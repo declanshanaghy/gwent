@@ -1,146 +1,99 @@
-import json
-import os.path
-import shutil
+"""Card utility functions — works from JSON files in data/cards/."""
 
+import json
+import os
 import random
 
-import gwent.cards.all
 import gwent.messaging.card
-import gwent.cards.scoiatael
-import gwent.cards.skellige
-import gwent.cards.monsters
-import gwent.cards.nilfgaardian
-import gwent.cards.northern_realms
 
-from gwent.utils.logging import get_logger, configure_logging
+from gwent.utils.logging import get_logger, configure_logging, INFO
 
-log = get_logger('card.util')
+log = get_logger("card.util")
 
-
-def random_card_details() -> dict:
-    factions = [f for f in gwent.cards.all.CARDS_BY_FACTION.keys()]
-    faction = random.choice(factions)
-    names = [c for c in gwent.cards.all.CARDS_BY_FACTION[faction].keys()]
-    name = random.choice(names)
-    # faction = gwent.card.NORTHERN_REALMS
-    # name = 'Trebuchet: 1'
-
-    details = gwent.cards.all.CARDS_BY_FACTION[faction][name]
-    details[gwent.messaging.card.NAME] = name
-    details[gwent.messaging.card.FACTION] = faction
-    return details
-
-
-def random_card() -> gwent.messaging.card.Message:
-    return gwent.messaging.card.Message.from_properties(
-        random_card_details())
-
-
-def fs_safe(s: str) -> str:
-    return "".join([c for c in s if c.isalpha() or c.isdigit()]).rstrip()
+CARDS_DIR = os.path.abspath(os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "data", "cards"
+))
 
 
 def read_card(f: str) -> gwent.messaging.card.Message:
+    """Load a card from a JSON file."""
     with open(f) as fb:
         details = json.load(fb)
         return gwent.messaging.card.Message.from_properties(details)
 
 
-def write_all_to_disk():
-    log = get_logger(os.path.basename(__file__))
-    dir = os.path.abspath(os.path.join(__file__, '..', '../messaging', '..',
-                                       '..', '..', 'data', 'cards'))
-    if os.path.exists(dir):
-        shutil.rmtree(dir)
+def load_all_cards():
+    """Load all card JSON files. Returns list of (filepath, card_data) tuples."""
+    cards = []
+    for faction_dir in sorted(os.listdir(CARDS_DIR)):
+        dirpath = os.path.join(CARDS_DIR, faction_dir)
+        if not os.path.isdir(dirpath) or faction_dir in ("tmp",):
+            continue
+        for fname in sorted(os.listdir(dirpath)):
+            if not fname.endswith(".json"):
+                continue
+            filepath = os.path.join(dirpath, fname)
+            with open(filepath) as f:
+                data = json.load(f)
+            cards.append((filepath, data))
+    return cards
 
-    for faction, cards in gwent.cards.all.CARDS_BY_FACTION.items():
-        facdir = os.path.join(dir, fs_safe(faction))
-        if not os.path.exists(facdir):
-            log.info(f'creating {facdir}')
-            os.makedirs(facdir)
 
-        for name, details in cards.items():
-            card = gwent.messaging.card.Message.from_properties(
-                details, name=name, faction=faction)
-            file = f'{fs_safe(card.full_name)}.json'
-            fpath = os.path.join(facdir, file)
-            with open(fpath, 'w') as f:
-                log.info(f'writing {file} to {facdir}')
-                f.write(card.body_pretty)
+def random_card() -> gwent.messaging.card.Message:
+    """Return a random card from the JSON database."""
+    cards = load_all_cards()
+    if not cards:
+        raise RuntimeError("No card files found")
+    filepath, data = random.choice(cards)
+    return gwent.messaging.card.Message.from_properties(data)
 
 
 def validate_cards() -> gwent.messaging.card.Message:
+    """Validate all card JSON files. Returns the biggest card."""
+    cards = load_all_cards()
     biggest_card = None
-    total_cards = 0
-    cards_by_faction = gwent.cards.all.CARDS_BY_FACTION
-    cards_by_faction_by_owner = {}
+    total = 0
     starters_by_faction = {}
+    cards_by_owner = {}
 
-    for faction, cards in cards_by_faction.items():
-        if not faction in cards_by_faction_by_owner:
-            cards_by_faction_by_owner[faction] = {}
-        if not faction in starters_by_faction:
-            starters_by_faction[faction] = {}
+    for filepath, data in cards:
+        total += 1
+        card = gwent.messaging.card.Message.from_properties(data)
+        faction = data.get("faction", "Unknown")
 
-        total_cards += len(cards.keys())
-        for name, details in cards.items():
-            card = gwent.messaging.card.Message.from_properties(
-                rfid=None, details=details, name=name, faction=faction)
+        if data.get("starter"):
+            starters_by_faction.setdefault(faction, []).append(card.name)
 
-            if card.is_starter:
-                starters_by_faction[faction][card.name] = card
+        owner = data.get("owner", "")
+        if owner:
+            cards_by_owner.setdefault(owner, {}).setdefault(faction, []).append(card.name)
 
-            if card.has_owner:
-                if not card.owner in cards_by_faction_by_owner[
-                    faction]:
-                    cards_by_faction_by_owner[faction][card.owner] = {}
-                cards_by_faction_by_owner[faction][card.owner][
-                    card.name] = card
+        if biggest_card is None or card.bytes > biggest_card.bytes:
+            biggest_card = card
 
-            if biggest_card is None or card.bytes > biggest_card.bytes:
-                biggest_card = card
+    for faction, starters in sorted(starters_by_faction.items()):
+        log.info({"action": "starters", "faction": faction, "count": len(starters)})
 
-    for faction, cards in starters_by_faction.items():
-        log.info({
-            'action': 'starters',
-            'faction': faction,
-            'count': len(cards),
-        })
-
-    totals_by_owner = {}
-    for faction, cards_by_owner in cards_by_faction_by_owner.items():
-        for owner, cards in cards_by_owner.items():
-            if not owner in totals_by_owner:
-                totals_by_owner[owner] = 0
-            totals_by_owner[owner] += len(cards)
-            log.info({
-                'owner': owner,
-                'faction': faction,
-                'count': len(cards),
-            })
-
-    for owner, total in totals_by_owner.items():
-        log.info({
-            'owner': owner,
-            'total': total,
-        })
+    for owner, factions in sorted(cards_by_owner.items()):
+        total_owned = sum(len(c) for c in factions.values())
+        log.info({"owner": owner, "total": total_owned})
+        for faction, names in sorted(factions.items()):
+            log.info({"owner": owner, "faction": faction, "count": len(names)})
 
     log.info({
-        'action': 'biggest_card',
-        'total_cards': total_cards,
-        'name': biggest_card.name,
-        'bytes': biggest_card.bytes,
-        'blocks': biggest_card.blocks,
-        'body_sectors': biggest_card.body_sectors
+        "action": "validate_complete",
+        "total_cards": total,
+        "biggest_card": biggest_card.name if biggest_card else None,
+        "biggest_bytes": biggest_card.bytes if biggest_card else 0,
     })
 
     return biggest_card
 
 
-# Main entry point functions for command-line tools
+# CLI entry points
 
 def validate_cards_main():
-    """Command-line entry point for validating cards"""
+    """Command-line entry point for validating cards."""
     configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     print("Validating cards...")
     biggest_card = validate_cards()
@@ -148,28 +101,17 @@ def validate_cards_main():
     return 0
 
 
-def write_all_to_disk_main():
-    """Command-line entry point for writing all cards to disk"""
-    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
-    print("Writing all cards to disk...")
-    write_all_to_disk()
-    print("All cards written to disk successfully")
-    return 0
-
-
 def read_card_main():
-    """Command-line entry point for reading a card file"""
+    """Command-line entry point for reading a card file."""
     import sys
     configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
-    
+
     if len(sys.argv) < 2:
-        print("Error: Please provide a card file path")
         print("Usage: read-card-file <path_to_card_file>")
         return 1
-        
-    file_path = sys.argv[1]
+
     try:
-        card = read_card(file_path)
+        card = read_card(sys.argv[1])
         print(f"Card: {card.name}")
         print(f"Faction: {card.faction}")
         print(f"Details: {card.body_pretty}")
@@ -180,36 +122,10 @@ def read_card_main():
 
 
 def random_card_main():
-    """Command-line entry point for getting a random card"""
+    """Command-line entry point for getting a random card."""
     configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
     card = random_card()
     print(f"Random Card: {card.name}")
     print(f"Faction: {card.faction}")
     print(f"Details: {card.body_pretty}")
     return 0
-
-
-if __name__ == '__main__':
-    import sys
-    
-    # Default to write_all_to_disk if no arguments provided
-    if len(sys.argv) == 1:
-        sys.exit(write_all_to_disk_main())
-    
-    # Otherwise, use the first argument to determine which function to run
-    command = sys.argv[1]
-    
-    if command == 'validate':
-        sys.exit(validate_cards_main())
-    elif command == 'write':
-        sys.exit(write_all_to_disk_main())
-    elif command == 'read' and len(sys.argv) > 2:
-        # Shift arguments so the file path becomes the first argument for read_card_main
-        sys.argv = [sys.argv[0]] + sys.argv[2:]
-        sys.exit(read_card_main())
-    elif command == 'random':
-        sys.exit(random_card_main())
-    else:
-        print(f"Unknown command: {command}")
-        print("Usage: python -m gwent.cards.util [validate|write|read <file>|random]")
-        sys.exit(1)

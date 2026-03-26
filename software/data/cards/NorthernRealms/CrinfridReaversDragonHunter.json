@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Crinfrid Reavers Dragon Hunter",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "bond"
+    ]
+}

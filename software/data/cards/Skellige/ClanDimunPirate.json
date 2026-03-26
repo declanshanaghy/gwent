@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Clan Dimun Pirate",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "scorch"
+    ]
+}

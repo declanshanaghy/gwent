@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Eithn\u00e9",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero"
+}

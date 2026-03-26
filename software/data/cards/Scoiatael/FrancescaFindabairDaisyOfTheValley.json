@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Francesca Findabair: Daisy of the Valley",
+    "leader": {
+        "instructions": "daisy of the valley: draw an extra card at the beginning of the battle"
+    },
+    "specialty": "leader"
+}

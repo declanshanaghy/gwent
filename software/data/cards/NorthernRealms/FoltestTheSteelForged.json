@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Foltest: The Steel-Forged",
+    "leader": {
+        "instructions": "destroy your enemy's strongest siege unit(s) if the combined strength of all his or her siege units is 10 or more"
+    },
+    "specialty": "leader"
+}

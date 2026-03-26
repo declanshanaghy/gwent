@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Arachas: 3",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "John Natalis",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero"
+}

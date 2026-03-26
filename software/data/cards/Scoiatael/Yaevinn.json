@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Yaevinn",
+    "strength": 10,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Ciaran aep Easnillien",
+    "strength": 3,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

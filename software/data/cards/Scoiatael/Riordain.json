@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Riordain",
+    "strength": 1,
+    "ranges": [
+        "ranged"
+    ]
+}

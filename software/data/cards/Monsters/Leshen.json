@@ -1,0 +1,11 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Leshen",
+    "strength": 10,
+    "owner": "Dylan Shanaghy",
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero"
+}

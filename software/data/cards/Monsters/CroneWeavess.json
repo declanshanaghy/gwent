@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Crone: Weavess",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "owner": "Dylan Shanaghy",
+    "abilities": [
+        "muster"
+    ]
+}

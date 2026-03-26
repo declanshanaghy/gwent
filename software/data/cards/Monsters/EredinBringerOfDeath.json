@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Eredin: Bringer of Death",
+    "leader": {
+        "instructions": "restore a card from your discard pile to your hand"
+    },
+    "specialty": "leader"
+}

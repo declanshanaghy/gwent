@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Vampire: Katakan",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "owner": "Dylan Shanaghy",
+    "abilities": [
+        "muster"
+    ]
+}

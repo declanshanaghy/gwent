@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Vampire: Ekimmara",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ]
+}

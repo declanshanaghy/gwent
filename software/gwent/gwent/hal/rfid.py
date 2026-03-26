@@ -14,7 +14,7 @@ import gwent.hal
 import gwent.game
 import gwent.messaging.base
 import gwent.messaging.card
-import gwent.cards.util
+
 
 BLOCK_SIZE = 16
 SECTOR_SIZE = 4

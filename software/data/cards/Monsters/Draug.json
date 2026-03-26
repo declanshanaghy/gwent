@@ -1,0 +1,11 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Draug",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "owner": "Dylan Shanaghy",
+    "specialty": "hero"
+}

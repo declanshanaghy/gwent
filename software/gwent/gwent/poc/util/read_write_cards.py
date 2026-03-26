@@ -6,10 +6,8 @@ from gwent.utils.logging import get_logger, configure_logging, DEBUG
 
 import gwent.game
 import gwent.messaging.base
-import gwent.cards.all
 import gwent.messaging.card
 import gwent.cards.util
-import gwent.cards.scoiatael
 import gwent.hal.rfid
 import gwent.hal.sfx
 

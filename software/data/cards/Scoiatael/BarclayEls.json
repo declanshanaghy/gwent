@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Barclay Els",
+    "strength": 6,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

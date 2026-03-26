@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Filavandrel a\u00e9n Fidh\u00e1il",
+    "strength": 2,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

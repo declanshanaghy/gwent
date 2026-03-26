@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Letho of Gulet",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero"
+}

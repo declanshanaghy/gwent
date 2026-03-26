@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Black Infantry Archer",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ]
+}

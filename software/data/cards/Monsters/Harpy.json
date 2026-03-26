@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Harpy",
+    "strength": 2,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ]
+}

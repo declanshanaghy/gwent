@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Vesemir",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ]
+}

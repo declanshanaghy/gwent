@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Nilfgaardian",
+    "name": "Sweers",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ]
+}

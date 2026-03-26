@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Schirr\u00fa",
+    "strength": 8,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "scorch"
+    ]
+}

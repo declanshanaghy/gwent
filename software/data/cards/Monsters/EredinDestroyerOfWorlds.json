@@ -1,0 +1,9 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Eredin: Destroyer of Worlds",
+    "leader": {
+        "instructions": "discard 2 card and draw 1 card of your choice from your deck"
+    },
+    "specialty": "leader"
+}

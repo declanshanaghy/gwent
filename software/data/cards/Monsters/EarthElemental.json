@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Earth Elemental",
+    "strength": 6,
+    "owner": "Dylan Shanaghy",
+    "ranges": [
+        "siege"
+    ]
+}

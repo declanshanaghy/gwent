@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Thaler",
+    "strength": 1,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "spy"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Ermion",
+    "strength": 8,
+    "ranges": [
+        "ranged"
+    ],
+    "specialty": "hero"
+}

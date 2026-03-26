@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Gaunter O'Dimm: Darkness: 3",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Toad",
+    "strength": 7,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "scorch"
+    ]
+}

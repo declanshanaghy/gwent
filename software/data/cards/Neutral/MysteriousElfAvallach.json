@@ -1,0 +1,13 @@
+{
+    "kind": "card",
+    "faction": "Neutral",
+    "name": "Mysterious Elf (Avallach)",
+    "strength": 0,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "abilities": [
+        "spy"
+    ]
+}
