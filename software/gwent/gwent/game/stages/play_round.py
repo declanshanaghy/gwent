@@ -39,6 +39,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         super().activate(complete, cancel)
 
         self._pending_card = None
+        self._last_action_summary = None
 
         if board is None:
             # First round — extract leaders from decks
@@ -46,11 +47,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
             leader2 = next((c for c in deck2 if c.is_leader), None)
             self._board = Board(leader1, leader2)
 
-            # Populate hands/decks (exclude leaders from hand)
+            # Populate hands/decks (exclude leaders from both)
             self._board.hands[PLAYER.ONE] = [c for c in hand1 if not c.is_leader]
             self._board.hands[PLAYER.TWO] = [c for c in hand2 if not c.is_leader]
-            self._board.decks[PLAYER.ONE] = [c for c in deck1 if c not in hand1]
-            self._board.decks[PLAYER.TWO] = [c for c in deck2 if c not in hand2]
+            self._board.decks[PLAYER.ONE] = [c for c in deck1 if c not in hand1 and not c.is_leader]
+            self._board.decks[PLAYER.TWO] = [c for c in deck2 if c not in hand2 and not c.is_leader]
 
             # Scoai'tel faction check — coin toss for first player
             scoaitel_p1 = self._board.factions[PLAYER.ONE] == "Scoia'tael"
@@ -66,7 +67,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             cur = self._board.current_player
             label = self._player_label(cur)
             if self._board.round_number == 1:
-                first_reason = f"{label} goes first."
+                first_reason = None  # Restored game, skip redundant announcement
             else:
                 first_reason = f"Round {self._board.round_number}. {label} goes first as round loser."
 
@@ -86,12 +87,20 @@ class PlayRound(gwent.game.stages.base.GameStage):
             'p2_gems': self._board.players[PLAYER.TWO].gems,
         })
 
-        self._publish_prompt_then(first_reason, self._prompt_turn)
+        if first_reason:
+            self._publish_prompt_then(first_reason, self._prompt_turn)
+        else:
+            self._prompt_turn()
 
     # --- Turn management ---
 
     def _player_label(self, player):
         return "Player 1" if player == PLAYER.ONE else "Player 2"
+
+    def _announce_and_advance(self, prompt):
+        """Announce a card play, save as last action summary, then advance turn."""
+        self._last_action_summary = prompt
+        self._publish_prompt_then(prompt, self._advance_turn)
 
     def _prompt_turn(self):
         """Prompt the current player to play a card or pass."""
@@ -117,8 +126,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._awaiting = self.AWAITING_CARD
         self.publish_prompt(
             f"{label}'s turn.",
-            ok=True, cancel=False, clear_choices=True,
-            ok_text=f"Plr{player_num} Pass")
+            ok=False, cancel=False, clear_choices=True)
+
+        choices = []
+        if self._last_action_summary:
+            choices.append(
+                gwent.messaging.choice.Message.from_properties('h', 'Repeat'))
+        choices.append(
+            gwent.messaging.choice.Message.from_properties(
+                'p', f'Player {player_num} Pass'))
+        mfd = gwent.messaging.mfd.Message.with_choices(
+            choices, clear_prompt=False)
+        self.publish(gwent.game.CH_MFD_PRESENT, mfd)
 
     def _advance_turn(self):
         """Advance to the next player's turn."""
@@ -185,29 +204,102 @@ class PlayRound(gwent.game.stages.base.GameStage):
         else:
             self._play_unit_card(hand_card)
 
+    _FROST_COMMENTARY = [
+        "A bitter frost descends! {affected} cards frozen, {damage} strength lost!",
+        "Ice grips the battlefield! {affected} warriors shiver, losing {damage} strength!",
+        "The cold bites deep! {affected} units reduced, {damage} strength sapped!",
+    ]
+    _FOG_COMMENTARY = [
+        "An impenetrable fog rolls in! {affected} archers blinded, {damage} strength lost!",
+        "Visibility drops to nothing! {affected} ranged units lose {damage} strength!",
+        "The mist swallows the field! {affected} cards lose their aim, {damage} strength gone!",
+    ]
+    _RAIN_COMMENTARY = [
+        "Torrential rain pounds the siege! {affected} engines flooded, {damage} strength lost!",
+        "The downpour is relentless! {affected} siege units lose {damage} strength!",
+        "Rain hammers the war machines! {affected} cards drenched, {damage} strength washed away!",
+    ]
+    _CLEAR_COMMENTARY = [
+        "The skies clear! Soldiers rally, regaining {recovered} strength!",
+        "Sunshine breaks through! {recovered} strength restored across the field!",
+        "The storm passes! Forces recover {recovered} total strength!",
+    ]
+    _WEATHER_COMMENTARY = {
+        "close": _FROST_COMMENTARY,
+        "ranged": _FOG_COMMENTARY,
+        "siege": _RAIN_COMMENTARY,
+    }
+    _NO_IMPACT = [
+        "The weather shifts, but no one is affected.",
+        "The elements rage, but the battlefield is empty.",
+        "Nature's fury finds no targets.",
+    ]
+
     def _play_weather(self, card):
         """Apply a weather effect."""
         cur = self._board.current_player
         label = self._player_label(cur)
 
         if card.name == "Clear Weather" or (card.has_specialty and card.specialty == "mardroeme"):
+            # Calculate recovery before clearing
+            score_before = sum(
+                self._board.calculate_player_score(p)
+                for p in (PLAYER.ONE, PLAYER.TWO))
             self._board.weather_rows.clear()
+            score_after = sum(
+                self._board.calculate_player_score(p)
+                for p in (PLAYER.ONE, PLAYER.TWO))
+            recovered = score_after - score_before
+
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
-            self._log.info(f"Weather cleared by {card.name}")
-            self._publish_prompt_then(
-                f"{label}: place {card.name} on discard. Weather cleared!",
-                self._advance_turn)
+
+            if recovered > 0:
+                commentary = random.choice(self._CLEAR_COMMENTARY).format(
+                    recovered=recovered)
+            else:
+                commentary = "The skies clear, but nothing changes."
+
+            self._announce_and_advance(
+                f"{label}: {card.name}. {commentary}")
         else:
+            # Calculate damage before applying
+            score_before = sum(
+                self._board.calculate_player_score(p)
+                for p in (PLAYER.ONE, PLAYER.TWO))
+
             for row in card.ranges:
                 if row in ROWS:
                     self._board.weather_rows.add(row)
+
+            score_after = sum(
+                self._board.calculate_player_score(p)
+                for p in (PLAYER.ONE, PLAYER.TWO))
+            damage = score_before - score_after
+
+            # Count affected non-hero cards in the targeted rows
+            affected = 0
+            for row in card.ranges:
+                if row in ROWS:
+                    for p in (PLAYER.ONE, PLAYER.TWO):
+                        for c in self._board.players[p].rows[row]:
+                            if not (c.has_specialty and c.specialty == "hero"):
+                                affected += 1
+
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
-            self._log.info(f"Weather applied: {card.name} on {card.ranges}")
-            self._publish_prompt_then(
-                f"{label}: place {card.name} on discard. Weather on {', '.join(card.ranges)}.",
-                self._advance_turn)
+
+            if damage > 0 and affected > 0:
+                row_key = card.ranges[0] if card.ranges else "close"
+                templates = self._WEATHER_COMMENTARY.get(
+                    row_key, self._FROST_COMMENTARY)
+                commentary = random.choice(templates).format(
+                    affected=affected, damage=damage)
+            else:
+                commentary = random.choice(self._NO_IMPACT)
+
+            self._announce_and_advance(
+                f"{label}: {card.name}. {commentary}")
 
     def _play_mardroeme(self, card):
         """Mardroeme clears weather."""
@@ -215,9 +307,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.weather_rows.clear()
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
-        self._publish_prompt_then(
-            f"{self._player_label(cur)}: place {card.name} on discard. Weather cleared!",
-            self._advance_turn)
+        self._announce_and_advance(
+            f"{self._player_label(cur)}: place {card.name} on discard. Weather cleared!")
 
     def _play_decoy(self, card):
         """Start the decoy swap flow. Player scans a card on their board to swap."""
@@ -267,28 +358,47 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.hands[cur].append(target)
 
         self._pending_card = None
-        self._publish_prompt_then(
-            f"{label}: place Decoy on {row_name}. {target.name} returned to hand.",
-            self._advance_turn)
+        self._announce_and_advance(
+            f"{label}: place Decoy on {row_name}. {target.name} returned to hand.")
 
     def _play_scorch_specialty(self, card):
-        """Scorch: destroy highest-strength non-hero cards on the entire board."""
+        """Scorch: destroy highest-strength non-hero cards across BOTH players' boards."""
         cur = self._board.current_player
         opp = self._board.opponent(cur)
-        destroyed = self._board.destroy_strongest(opp)
+
+        # Find the highest strength across all non-hero cards on both boards
+        max_strength = 0
+        candidates = []  # (player, row_name, card)
+        for player in (PLAYER.ONE, PLAYER.TWO):
+            for rn in ROWS:
+                for c in self._board.players[player].rows[rn]:
+                    if c.has_specialty and c.specialty == "hero":
+                        continue
+                    s = c.strength or 0
+                    if s > max_strength:
+                        max_strength = s
+                        candidates = [(player, rn, c)]
+                    elif s == max_strength and s > 0:
+                        candidates.append((player, rn, c))
+
+        # Destroy all candidates
+        destroyed = []
+        for player, rn, c in candidates:
+            self._board.players[player].rows[rn].remove(c)
+            self._board.players[player].discard.append(c)
+            destroyed.append(c)
+
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
 
         label = self._player_label(cur)
         if destroyed:
             names = ", ".join(c.name for c in destroyed)
-            self._publish_prompt_then(
-                f"{label}: place {card.name} on discard. Destroyed: {names}",
-                self._advance_turn)
+            self._announce_and_advance(
+                f"{label}: place {card.name} on discard. Scorched: {names}")
         else:
-            self._publish_prompt_then(
-                f"{label}: place {card.name} on discard. No targets.",
-                self._advance_turn)
+            self._announce_and_advance(
+                f"{label}: place {card.name} on discard. No targets.")
 
     def _play_commander_card(self, card):
         """Commander's Horn: double a row's strength."""
@@ -299,10 +409,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._board.commander_horn_rows[cur].add(row)
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
-        self._publish_prompt_then(
+        self._announce_and_advance(
             f"{self._player_label(cur)}: place {card.name} on discard. "
-            f"Horn on {', '.join(card.ranges)}.",
-            self._advance_turn)
+            f"Horn on {', '.join(card.ranges)}.")
 
     def _play_leader(self, card):
         """Play a leader card ability."""
@@ -338,15 +447,17 @@ class PlayRound(gwent.game.stages.base.GameStage):
             else:
                 prompt = f"{label}: leader ability. Opponent's discard pile is empty."
         elif leader_data.get("reshuffle_graveyards"):
-            opp = self._board.opponent(cur)
-            self._board.decks[opp].extend(self._board.players[opp].discard)
-            self._board.players[opp].discard = []
-            random.shuffle(self._board.decks[opp])
-            prompt = f"{label}: leader ability. Reshuffled opponent's discard into deck."
+            for player in (PLAYER.ONE, PLAYER.TWO):
+                discard = self._board.players[player].discard
+                if discard:
+                    self._board.decks[player].extend(discard)
+                    self._board.players[player].discard = []
+                    random.shuffle(self._board.decks[player])
+            prompt = f"{label}: leader ability. All graveyards reshuffled into decks."
         else:
             prompt = f"{label}: leader ability. {leader_data.get('instructions', 'No effect')}."
 
-        self._publish_prompt_then(prompt, self._advance_turn)
+        self._announce_and_advance(prompt)
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
@@ -395,9 +506,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if is_spy:
             drawn = self._board.draw_from_deck(cur, 2)
             drawn_names = ", ".join(c.name for c in drawn)
-            self._publish_prompt_then(
-                f"{place_msg}. Spy! Drew: {drawn_names}",
-                self._advance_turn)
+            self._announce_and_advance(
+                f"{place_msg}. Spy! Drew: {drawn_names}")
             return
 
         if card.has_abilities and "medic" in card.abilities:
@@ -410,9 +520,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
                     ok=False, cancel=False, clear_choices=True)
                 return
             else:
-                self._publish_prompt_then(
-                    f"{place_msg}. No cards to resurrect.",
-                    self._advance_turn)
+                self._announce_and_advance(
+                    f"{place_msg}. No cards to resurrect.")
                 return
 
         if card.has_abilities and "muster" in card.abilities:
@@ -425,17 +534,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
             destroyed = self._board.destroy_strongest(opp, row_name)
             if destroyed:
                 names = ", ".join(c.name for c in destroyed)
-                self._publish_prompt_then(
-                    f"{place_msg}. Scorched: {names}",
-                    self._advance_turn)
+                self._announce_and_advance(
+                    f"{place_msg}. Scorched: {names}")
             else:
-                self._publish_prompt_then(place_msg, self._advance_turn)
+                self._announce_and_advance(place_msg)
             return
 
         # Normal card
-        self._publish_prompt_then(
-            f"{place_msg}, strength {card.strength}.",
-            self._advance_turn)
+        self._announce_and_advance(
+            f"{place_msg}, strength {card.strength}.")
 
     def _process_leader_discard_scan(self, card):
         """Handle a scanned card during leader draw-from-opponent-discard."""
@@ -451,9 +558,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         opp_discard.remove(drawn)
         self._board.hands[cur].append(drawn)
-        self._publish_prompt_then(
-            f"{label}: took {drawn.name} from opponent's discard. Return to hand.",
-            self._advance_turn)
+        self._announce_and_advance(
+            f"{label}: took {drawn.name} from opponent's discard. Return to hand.")
 
     def _process_medic_scan(self, card):
         """Handle a scanned card during medic resurrection."""
@@ -470,9 +576,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         discard.remove(resurrected)
         self._board.hands[cur].append(resurrected)
-        self._publish_prompt_then(
-            f"{label}: {resurrected.name} resurrected! Return to hand.",
-            self._advance_turn)
+        self._announce_and_advance(
+            f"{label}: {resurrected.name} resurrected! Return to hand.")
 
     def _process_muster(self, card, row_name):
         """Auto-play all cards with the same name from hand and deck."""
@@ -499,14 +604,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
         label = self._player_label(cur)
         if mustered:
             names = ", ".join(c.name for c in mustered)
-            self._publish_prompt_then(
+            self._announce_and_advance(
                 f"{label}: place {card.name} on {row_name}. "
-                f"Muster! Also place: {names}",
-                self._advance_turn)
+                f"Muster! Also place: {names}")
         else:
-            self._publish_prompt_then(
-                f"{label}: place {card.name} on {row_name}.",
-                self._advance_turn)
+            self._announce_and_advance(
+                f"{label}: place {card.name} on {row_name}.")
 
     # --- Choice processing ---
 
@@ -514,14 +617,20 @@ class PlayRound(gwent.game.stages.base.GameStage):
         super().process_choice(choice)
 
         if self._awaiting == self.AWAITING_CARD:
-            if choice.id == 'y':
+            if choice.id == 'p':
                 # Player passes
                 cur = self._board.current_player
                 self._board.players[cur].passed = True
                 self._log.info(f"{self._player_label(cur)} passed")
                 self._board.current_player = self._board.opponent(cur)
+                self._last_action_summary = f"{self._player_label(cur)} passed their turn."
                 self._publish_prompt_then(
                     f"{self._player_label(cur)} passed!",
+                    self._prompt_turn)
+            elif choice.id == 'h' and self._last_action_summary:
+                # Help — announce last action summary
+                self._publish_prompt_then(
+                    self._last_action_summary,
                     self._prompt_turn)
 
         elif self._awaiting == self.AWAITING_ROW_CHOICE:

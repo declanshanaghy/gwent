@@ -11,5 +11,6 @@
     },
     "name": "Eredin - King of the Wild Hunt",
     "specialty": "leader",
-    "starter": true
+    "starter": true,
+    "rfid": 209511075183
 }

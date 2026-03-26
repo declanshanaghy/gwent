@@ -29,6 +29,10 @@ class GameStage(gwent.game.PubSubComponent):
         self.publish_game_stage(active=True)
 
     def deactivate(self):
+        self._awaiting = None
+        self._deferred_action = None
+        self.complete = None
+        self.cancel = None
         self.publish_game_stage(active=False)
 
     def publish_game_stage(self, active: bool):

@@ -500,6 +500,7 @@ graph TD
 - [Complete Documentation Table of Contents](toc.md): Comprehensive guide to all project documentation
 - [Design Documentation](design/README.md): Artisanal design documentation including architecture decisions, tasks, and specifications
 - [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system
+- [Gwent Rules Reference](design/GwentRules.md): Canonical game rules as implemented in this companion
 - [Technical Design Documents](design/):
   - 📊 Architecture Diagrams:
     - [GwentPubSub.md](design/GwentPubSub.md): Interactive diagram of the publish-subscribe architecture

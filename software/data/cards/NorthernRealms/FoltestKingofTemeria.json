@@ -9,5 +9,6 @@
     },
     "name": "Foltest - King of Temeria",
     "specialty": "leader",
-    "starter": true
+    "starter": true,
+    "rfid": 894239591804
 }

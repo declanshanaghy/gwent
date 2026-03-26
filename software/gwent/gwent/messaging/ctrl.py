@@ -14,7 +14,7 @@ STAGE_REGISTER_DECKS = 'RegisterDecks'
 STAGE_DEAL_CARDS = 'DealCards'
 STAGE_PLAY_ROUND = 'PlayRound'
 STAGE_ROUND_END = 'RoundEnd'
-STAGE_DISPLAY_WINNER = 'DisplayWinner'
+STAGE_GAME_OVER = 'GameOver'
 STAGE_BUILD_DECK = 'BuildDeck'
 
 

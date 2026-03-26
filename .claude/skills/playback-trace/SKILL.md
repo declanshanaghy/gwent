@@ -23,16 +23,19 @@ If no argument is given, list available state files and ask the user to pick.
 
 2. Resolve the filename to the absolute path under the recordings directory. Add `.json` if not present.
 
-3. Kill any running gwent processes:
+3. Stop gwent via dev-server (handles PID tracking and cleanup):
    ```bash
-   kill -9 $(pgrep -f 'bin/gwent') 2>/dev/null; sleep 2
+   bash scripts/dev-server.sh gwent stop
    ```
 
-4. Start gwent with `GWENT_STATE` set to the absolute path:
+4. Start gwent via dev-server with `GWENT_STATE` set to the absolute path:
    ```bash
-   source ~/gwent-venv/bin/activate && RUNNING_ON_PI=true PYTHONUNBUFFERED=1 GWENT_STATE=<absolute-path> gwent >> /tmp/logs/gwent.log 2>&1 &
+   GWENT_STATE=<absolute-path> bash scripts/dev-server.sh gwent start
    ```
 
-5. Wait a few seconds, confirm the process is running, and check logs for "Loading game state" and "now at stage" messages.
+5. Wait a few seconds, then check logs for "Loading game state" and "now at stage" messages:
+   ```bash
+   sleep 3 && grep -a -E "Loading game state|now at stage" /tmp/logs/gwent.log | tail -3
+   ```
 
-6. Tell the user which stage the game is at based on the state file contents.
+6. Tell the user which stage the game is at based on the log output.

@@ -81,17 +81,9 @@ class RoundEnd(gwent.game.stages.base.GameStage):
 
         g1 = "gem" if p1_gems == 1 else "gems"
         g2 = "gem" if p2_gems == 1 else "gems"
-        gems_info = f"Player 1: {p1_gems} {g1} remaining. Player 2: {p2_gems} {g2} remaining."
+        gems_info = f"Player 1 has {p1_gems} {g1} left. Player 2 has {p2_gems} {g2} left."
 
-        if self._game_over:
-            if p1_gems <= 0 and p2_gems <= 0:
-                prompt = f"{result} {gems_info} Game over, it's a draw!"
-            elif p1_gems <= 0:
-                prompt = f"{result} {gems_info} Game over, Player 2 wins the match!"
-            else:
-                prompt = f"{result} {gems_info} Game over, Player 1 wins the match!"
-        else:
-            prompt = f"{result} {gems_info}"
+        prompt = f"{result} {gems_info}"
 
         self._publish_prompt_then(prompt, self._advance)
 

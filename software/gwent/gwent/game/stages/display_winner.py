@@ -27,22 +27,18 @@ class DisplayWinner(gwent.game.stages.base.GameStage):
 
         p1_gems = board.players[PLAYER.ONE].gems
         p2_gems = board.players[PLAYER.TWO].gems
-        p1_score = board.calculate_player_score(PLAYER.ONE)
-        p2_score = board.calculate_player_score(PLAYER.TWO)
 
-        if p1_gems > 0 and p2_gems <= 0:
-            msg = f"Player 1 wins the match! Final score: {p1_score} to {p2_score}."
-        elif p2_gems > 0 and p1_gems <= 0:
-            msg = f"Player 2 wins the match! Final score: {p2_score} to {p1_score}."
+        if p1_gems > p2_gems:
+            msg = f"Player 1 wins the match! Player 1 has {p1_gems} gems, Player 2 has {p2_gems}."
+        elif p2_gems > p1_gems:
+            msg = f"Player 2 wins the match! Player 2 has {p2_gems} gems, Player 1 has {p1_gems}."
         else:
-            msg = f"The match is a draw! Final score: {p1_score} to {p2_score}."
+            msg = f"The match is a draw! Both players have {p1_gems} gems."
 
         self._log.info({
             'action': 'display_winner',
             'p1_gems': p1_gems,
             'p2_gems': p2_gems,
-            'p1_score': p1_score,
-            'p2_score': p2_score,
             'message': msg,
         })
 

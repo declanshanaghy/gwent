@@ -57,16 +57,23 @@ def _dict_to_card(d):
     return gwent.messaging.card.Message.from_properties(d)
 
 
-def save(filepath, controller):
-    """Save the current game state to a JSON file.
+def snapshot_dict(controller):
+    """Build the snapshot dict from current game state.
+
+    Used by both save() and the HTTP /state endpoint.
 
     Args:
-        filepath: Absolute path to write the state file.
         controller: The game Controller instance.
+
+    Returns:
+        dict: The complete snapshot ready for JSON serialization.
     """
     stage_name = None
     if controller.active_stage:
         stage_name = controller.active_stage.stage
+
+    # Stages where board data is meaningful
+    _BOARD_STAGES = {"PlayRound", "RoundEnd", "GameOver", "DisplayWinner"}
 
     state = {}
 
@@ -84,15 +91,17 @@ def save(filepath, controller):
     if rd._player2_deck:
         state["player2_deck"] = _cards_to_dicts(rd._player2_deck)
 
-    # If in PlayRound or later, save the board state (includes hands)
-    pr = controller.play_round
-    if hasattr(pr, '_board') and pr._board is not None:
-        state["board"] = pr._board.to_dict()
+    # Only include board data during active game stages
+    if stage_name in _BOARD_STAGES:
+        # If in PlayRound or later, save the board state (includes hands)
+        pr = controller.play_round
+        if hasattr(pr, '_board') and pr._board is not None:
+            state["board"] = pr._board.to_dict()
 
-    # Also check round_end for board state
-    re = controller.round_end
-    if hasattr(re, '_board') and re._board is not None:
-        state["board"] = re._board.to_dict()
+        # Also check round_end for board state
+        re = controller.round_end
+        if hasattr(re, '_board') and re._board is not None:
+            state["board"] = re._board.to_dict()
 
     # Save deal_cards hands only if no board (board has its own hands)
     if "board" not in state:
@@ -102,18 +111,28 @@ def save(filepath, controller):
         if dc._player2_hand:
             state["player2_hand"] = _cards_to_dicts(dc._player2_hand)
 
-    snapshot = {
+    return {
         "version": STATE_VERSION,
         "saved_at": datetime.now(timezone.utc).isoformat(),
         "active_stage": stage_name,
         "state": state,
     }
 
+
+def save(filepath, controller):
+    """Save the current game state to a JSON file.
+
+    Args:
+        filepath: Absolute path to write the state file.
+        controller: The game Controller instance.
+    """
+    snapshot = snapshot_dict(controller)
+
     os.makedirs(os.path.dirname(filepath), exist_ok=True)
     with open(filepath, "w") as f:
         json.dump(snapshot, f, indent=2)
 
-    log.info(f"Game state saved to {filepath} (stage={stage_name})")
+    log.info(f"Game state saved to {filepath} (stage={snapshot['active_stage']})")
     return filepath
 
 
@@ -183,9 +202,9 @@ def load(filepath, controller):
             log.error("Cannot restore RoundEnd: missing board")
             controller.start_register_leaders()
 
-    elif stage_name == "DisplayWinner":
+    elif stage_name in ("GameOver", "DisplayWinner"):
         if board:
-            controller.start_display_winner(board)
+            controller.start_game_over(board)
         else:
             controller.start_main_menu()
 

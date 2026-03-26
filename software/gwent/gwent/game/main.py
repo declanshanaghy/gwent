@@ -1,3 +1,4 @@
+import os
 import signal
 import sys
 import threading
@@ -218,6 +219,8 @@ class Gwent:
     def shutdown(self):
         """Shutdown the application"""
         self._log.info('Shutting down application')
+        if hasattr(self, '_http_server') and self._http_server:
+            self._http_server.shutdown()
         self.shutdown_components()
         self.close_pubsub()
         self._stop_event.set()
@@ -317,6 +320,10 @@ class Gwent:
         self.initialize_components()
         self.start_components()
 
+        # Start HTTP API server for state access
+        from gwent.game.http_api import start_http_server
+        self._http_server = start_http_server(self._get_controller)
+
         # Load saved game state to jump to a specific point.
         # GWENT_STATE: path to a state JSON file (absolute, or name resolved under recordings/)
         # GWENT_STATE_OUT: name for saving state on SIGUSR1 (default: state-<timestamp>)
@@ -339,16 +346,50 @@ class Gwent:
         # Wait for shutdown signal
         try:
             while not self._stop_event.is_set():
-                time.sleep(0.1)
+                time.sleep(0.5)
         except KeyboardInterrupt:
             self._log.info('Keyboard interrupt received')
         finally:
             self.shutdown()
 
 
+PID_FILE = "/tmp/pids/gwent.pid"
+
+
+def _check_pid_file():
+    """Refuse to start if another gwent instance is running."""
+    if os.path.exists(PID_FILE):
+        try:
+            with open(PID_FILE) as f:
+                old_pid = int(f.read().strip())
+            # Check if the process is actually running
+            os.kill(old_pid, 0)
+            print(f"gwent is already running (pid {old_pid}). "
+                  f"Remove {PID_FILE} if this is stale.")
+            sys.exit(1)
+        except (ProcessLookupError, ValueError):
+            # Stale PID file — process is gone, clean up
+            os.remove(PID_FILE)
+
+
+def _write_pid_file():
+    os.makedirs(os.path.dirname(PID_FILE), exist_ok=True)
+    with open(PID_FILE, "w") as f:
+        f.write(str(os.getpid()))
+
+
+def _remove_pid_file():
+    try:
+        os.remove(PID_FILE)
+    except FileNotFoundError:
+        pass
+
+
 def run():
     """Run the Gwent application"""
     configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
+    _check_pid_file()
+    _write_pid_file()
     try:
         Gwent().run()
     except Exception as ex:
@@ -358,6 +399,8 @@ def run():
         logger.error(f"Exception type: {exception_type}") # <class 'RuntimeError'>
         logger.error(f"Exception value: {exception_value}") # This is an error
         print(trace_string)
+    finally:
+        _remove_pid_file()
 
 
 if __name__ == '__main__':

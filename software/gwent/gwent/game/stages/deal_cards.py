@@ -142,7 +142,7 @@ class DealCards(gwent.game.stages.base.GameStage):
         self._publish_prompt_then(summary, self._auto_complete)
 
     def _deal_from_deck(self, deck, player):
-        """Randomly select HAND_SIZE cards from the deck."""
+        """Randomly select HAND_SIZE cards from the deck, prioritizing owned."""
         # Exclude the leader from the deal pool — leader is played separately
         non_leader = [c for c in deck if not c.is_leader]
         hand_size = min(self.HAND_SIZE, len(non_leader))
@@ -152,8 +152,22 @@ class DealCards(gwent.game.stages.base.GameStage):
                 f"{player}: only {len(non_leader)} non-leader cards in deck, "
                 f"dealing {hand_size} instead of {self.HAND_SIZE}")
 
-        hand = random.sample(non_leader, hand_size)
-        self._log.info(f"Dealt {len(hand)} cards to {player}")
+        # Prioritize owned cards over starter cards
+        owned = [c for c in non_leader if c.has_owner]
+        starters = [c for c in non_leader if not c.has_owner]
+
+        hand = []
+        if len(owned) >= hand_size:
+            hand = random.sample(owned, hand_size)
+        else:
+            hand = list(owned)
+            remaining = hand_size - len(hand)
+            hand += random.sample(starters, min(remaining, len(starters)))
+
+        random.shuffle(hand)
+        self._log.info(f"Dealt {len(hand)} cards to {player} "
+                       f"({sum(1 for c in hand if c.has_owner)} owned, "
+                       f"{sum(1 for c in hand if not c.has_owner)} starter)")
         return hand
 
     def _auto_complete(self):

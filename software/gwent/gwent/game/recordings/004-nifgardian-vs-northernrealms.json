@@ -1,0 +1,353 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-26T03:35:15.674209+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Nilfgaardian",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick a torrential rain card from your deck and play it instantly",
+            "weather_ranges": [
+              "siege"
+            ]
+          },
+          "name": "Emhyr var Emreis - His Imperial Majesty",
+          "specialty": "leader",
+          "starter": true
+        },
+        "PLAYER.TWO": {
+          "faction": "Northern Realms",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+            "weather_ranges": [
+              "ranged"
+            ]
+          },
+          "name": "Foltest - King of Temeria",
+          "specialty": "leader",
+          "starter": true
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Nilfgaardian",
+        "PLAYER.TWO": "Northern Realms"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "content_id": "99215fe5d244cbaa906b115261cfe353",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Fringilla Vigo",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "rfid": 2312391952,
+            "strength": 6
+          },
+          {
+            "content_id": "b12b71e7cf67839d4998169c5659473c",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Commander's Horn: 1",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 621643189683,
+            "specialty": "commander"
+          },
+          {
+            "abilities": "medic",
+            "content_id": "e7f3061967cbc2a416029177bce62fbe",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Menno Coehoorn",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 687846149400,
+            "strength": 10
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "content_id": "a697d861b92fe7b1158ecb0c0e94e5ad",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 620267982189,
+            "strength": 2
+          },
+          {
+            "content_id": "2a124c9f90b3cd33adfc748dd6252f63",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy",
+            "rfid": 2245217563,
+            "specialty": "decoy",
+            "strength": 0
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "content_id": "54c0efb07d02c659284be4888afc896a",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 828539751860,
+            "specialty": "hero",
+            "strength": 7
+          },
+          {
+            "content_id": "a79340eb77496e0d6a44323d7ddbcb98",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Scorch",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 552051232148,
+            "specialty": "scorch"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "a1c8cec83afe48736f3b54c7b7acc940",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Gaunter O'Dimm: Darkness 1",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "rfid": 826006457614,
+            "strength": 4
+          },
+          {
+            "content_id": "184a50fac38bbfa23c852f7d6f2c38de",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Philippa Eilhart",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "rfid": 208604843325,
+            "specialty": "hero",
+            "strength": 10
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "content_id": "c4ecdafbc8d4e3caa4657c69efb782db",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Catapult",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "rfid": 278582611200,
+            "strength": 8
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "content_id": "f8ce4420a105273f2ebb624cf626711e",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Emiel Regis Rohellec Terzieff: Vampire",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 344299163104,
+            "strength": 5
+          },
+          {
+            "content_id": "0c68733cea3faf70ef924bf807813ff8",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Morvan Voorhis",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "siege"
+            ],
+            "rfid": 275059527124,
+            "specialty": "hero",
+            "strength": 10
+          },
+          {
+            "content_id": "97100c2497a6354399d3f4d30f297d37",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Emiel Regis Rohellec Terzieff: Human",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 2782088507,
+            "strength": 5
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "leader": {
+              "instructions": "Pick a torrential rain card from your deck and play it instantly",
+              "weather_ranges": [
+                "siege"
+              ]
+            },
+            "name": "Emhyr var Emreis - His Imperial Majesty",
+            "specialty": "leader",
+            "starter": true
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "spy"
+            ],
+            "content_id": "c6c783312ea52bd638d4f2d0de8f2b3a",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Sigismund Dijkstra",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 986860965,
+            "strength": 4
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "content_id": "193de68a4d9725a4c0df29b70ddbacc7",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 209829580150,
+            "strength": 7
+          },
+          {
+            "content_id": "2e5d10a15696057c87434be9730b81f0",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Commander's Horn: 1",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 620696986138,
+            "specialty": "commander"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "content_id": "1be95367ef5caa1220c353f943b6d9ca",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Yennefer of Vengerberg",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "rfid": 691167907280,
+            "specialty": "hero",
+            "strength": 7
+          },
+          {
+            "content_id": "0f8a49dd72dbf712856fda12d0f5daa5",
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Zoltan Chivay",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 620730540568,
+            "strength": 5
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "leader": {
+              "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+              "weather_ranges": [
+                "ranged"
+              ]
+            },
+            "name": "Foltest - King of Temeria",
+            "specialty": "leader",
+            "starter": true
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1
+    }
+  }
+}

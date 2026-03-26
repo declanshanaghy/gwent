@@ -33,7 +33,7 @@
             "DealCards",
             "PlayRound",
             "RoundEnd",
-            "DisplayWinner"
+            "GameOver"
           ]
         },
         "active": {

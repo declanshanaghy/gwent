@@ -31,7 +31,7 @@ class Controller(gwent.game.PubSubComponent):
         self.play_round = gwent.game.stages.all.PlayRound(pubsub)
         self.round_end = gwent.game.stages.all.RoundEnd(pubsub)
         self.build_deck = gwent.game.stages.all.BuildDeck(pubsub)
-        self.display_winner = gwent.game.stages.all.DisplayWinner(pubsub)
+        self.game_over = gwent.game.stages.all.GameOver(pubsub)
 
     def init(self):
         super().init()
@@ -43,7 +43,7 @@ class Controller(gwent.game.PubSubComponent):
         self.play_round.init()
         self.round_end.init()
         self.build_deck.init()
-        self.display_winner.init()
+        self.game_over.init()
 
         self.subscribe(gwent.game.CH_CARDS_RAW_READ,
                        gwent.messaging.card.KIND,
@@ -59,7 +59,6 @@ class Controller(gwent.game.PubSubComponent):
 
     def run(self):
         # self.start_music()
-        gwent.game.decks.ensure_starter_decks()
         self.start_main_menu()
         super().run()
 
@@ -236,7 +235,7 @@ class Controller(gwent.game.PubSubComponent):
         def complete(board, game_over):
             if game_over:
                 self._log.info('Game over!')
-                self.start_display_winner(board)
+                self.start_game_over(board)
             else:
                 self._log.info(f'Starting round {board.round_number}')
                 self.start_play_round(
@@ -250,7 +249,7 @@ class Controller(gwent.game.PubSubComponent):
 
         self.set_active_stage(self.round_end, complete, cancel, board)
 
-    def start_display_winner(self, board):
+    def start_game_over(self, board):
         self._log.info('Displaying match winner')
 
         def complete():
@@ -260,7 +259,7 @@ class Controller(gwent.game.PubSubComponent):
         def cancel():
             self.start_main_menu()
 
-        self.set_active_stage(self.display_winner, complete, cancel, board)
+        self.set_active_stage(self.game_over, complete, cancel, board)
 
     def process_card(self, message: gwent.messaging.card.Message):
         if self.active_stage:

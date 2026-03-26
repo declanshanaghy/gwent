@@ -80,11 +80,19 @@ start_gwent() {
     fi
     touch "${GWENT_LOG}"
     echo "--- start at $(date -Iseconds) ---" >> "${GWENT_LOG}"
+    # gwent manages its own PID file at /tmp/pids/gwent.pid
     nohup "${VENV_DIR}/bin/gwent" >> "${GWENT_LOG}" 2>&1 &
-    local pid=$!
-    disown "${pid}" 2>/dev/null
-    echo "${pid}" > "${GWENT_PID_FILE}"
-    echo "gwent started (pid ${pid})"
+    disown $! 2>/dev/null
+    # Wait for gwent to write its PID file
+    for i in 1 2 3 4 5; do
+        [ -f "${GWENT_PID_FILE}" ] && break
+        sleep 1
+    done
+    if [ -f "${GWENT_PID_FILE}" ]; then
+        echo "gwent started (pid $(read_pid "${GWENT_PID_FILE}"))"
+    else
+        echo "gwent failed to start (no PID file after 5s)"
+    fi
 }
 
 # start_glory_gate runs react-scripts as a FOREGROUND process.

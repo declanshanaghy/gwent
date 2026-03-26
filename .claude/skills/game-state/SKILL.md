@@ -27,42 +27,97 @@ Dump the current game state by sending SIGUSR1 to the gwent process, then displa
    rm -f /tmp/gwent-game-state.json
    ```
 
-5. Display the game state using these tables:
+5. Display the game state using markdown tables with emoji theming.
 
-### Status
-Show a single-line summary: **Round X | Score: P1=X P2=X | Turn: Player N | Stage: StageName**
+## Rendering Rules
 
-### Lives (Gems)
-| Player 1 | Player 2 |
+### Use standard markdown tables ONLY
+Use `| col1 | col2 |` style markdown tables. NEVER use box-drawing characters (`┌─┬─┐`, `│`, etc.) or code blocks for tables — they misalign with emoji.
+Do NOT use ANSI escape codes — they render as raw text in markdown.
+
+## Emoji Reference
+
+### Faction Emojis
+- **Northern Realms** 🦁⚜️
+- **Nilfgaardian** 🌑☀️
+- **Scoia'tael** 🌿🏹
+- **Monsters** 👹🔥
+- **Skellige** ⚓🪓
+
+### Card Type Emojis
+Prefix EVERY card with its type emoji:
+- ⚔️ Close combat unit
+- 🏹 Ranged combat unit
+- 🏰 Siege unit
+- 🌨️ Biting Frost (weather)
+- 🌫️ Impenetrable Fog (weather)
+- 🌧️ Torrential Rain (weather)
+- ☀️ Clear Weather
+- 🔥 Scorch
+- 🎭 Decoy
+- 📯 Commander's Horn
+- 🛡️ Hero (add alongside range emoji, e.g. ⚔️🛡️)
+- 🩺 Medic ability
+- 👥 Muster ability
+- 🤝 Tight Bond ability
+- 🕵️ Spy ability
+- 💪 Morale boost ability
+- 🐻 Berserker/Mardroeme
+
+### Row Emojis
+- ⚔️ Close row
+- 🏹 Ranged row
+- 🏰 Siege row
+
+## Sections to Display
+
+### ⚔️ Status
+Single bold line: **⚔️ Round X | 📊 P1=X P2=X | 🎯 Turn: Player N | 📍 Stage**
+
+### 💎 Lives
+Markdown table. Use 💎 per life, 💀 per lost gem. Faction emoji in header.
+
+| Player 1 🌿🏹 | Player 2 ⚓🪓 |
 |---|---|
-| gems value | gems value |
+| 💎💎 | 💎💀 |
 
-Use a gem emoji per life remaining (e.g. 2 gems = "💎💎").
+### ⚔️ Board
+Markdown table with 2 columns. Three rows for close/ranged/siege.
+Each row shows cards with type emoji and strength, row total with ⚡.
+Weather on row: append 🌨️❄️ / 🌫️👁️ / 🌧️💧 to row header.
+Commander horn on row: append 📯🔊.
 
-### Board
-One table with 2 columns. Show cards played in each row (close/ranged/siege). Include card strength in parentheses. Show row totals.
-
-| Player 1 (Faction) | Player 2 (Faction) |
+| 🌿🏹 P1 (Scoia'tael) | ⚓🪓 P2 (Skellige) |
 |---|---|
-| **Close:** card1 (str), card2 (str) | **Close:** card1 (str) |
-| **Ranged:** — | **Ranged:** card1 (str) |
-| **Siege:** — | **Siege:** — |
+| **⚔️ Close:** ⚔️🛡️ Ciri (15) ⚡15 | **⚔️ Close:** ⚔️ Ghoul (4) ⚡4 |
+| **🏹 Ranged:** — ⚡0 | **🏹 Ranged:** 🏹 Archer (6) ⚡6 |
+| **🏰 Siege:** — ⚡0 | **🏰 Siege:** — ⚡0 |
+| **TOTAL: 15** | **TOTAL: 10** |
 
-If weather is active on a row, note it (e.g. "🌧 Frost" next to close row).
-If a commander horn is active on a row, note it (e.g. "📯" next to the row).
+### 🃏 Hands
+Markdown table. Leader first with 👑. Cards with type + ability emojis.
+Ownership suffix: owner initials or ⭐ for starter.
 
-### Hands
-One table with 2 columns listing cards in each player's hand with strength.
-Show the leader as the first entry with a 👑 prefix and "(leader)" suffix. Then list hand cards.
-After each card, show ownership: if the card has an "owner" field, show the owner's initials (e.g. "DS" for "Declan Shanaghy"). If the card has "starter": true and no owner, show "⭐" for starter.
-
-| Player 1 - Faction (N cards) | Player 2 - Faction (N cards) |
+| 🌿🏹 P1 - Scoia'tael (N cards) | ⚓🪓 P2 - Skellige (N cards) |
 |---|---|
-| 👑 Leader Name (leader) ⭐ | 👑 Leader Name (leader) DS |
-| Card Name (str) ⭐ | Card Name (str) DS |
+| 👑 Leader Name ⭐ | 👑 Leader Name DS |
+| 🔥 Scorch DS | 🎭 Decoy: 1 DS |
 
-### Weather & Effects
-Only show this section if there are active weather effects or commander horns.
+### 🗑️ Discard Piles
+Markdown table. Only show if discards exist. Card type emojis.
 
-### Passed
-Note if either player has passed this round.
+### 📦 Deck Remaining
+Markdown table. Card count in header. List cards with type emojis.
+Do NOT show leaders here (they are in board.leaders, shown in Hands).
+
+### 🌦️ Weather & Effects
+Only show if active. Bullet list with weather emojis.
+
+### ✋ Passed
+🏳️ prefix for passed players. "Neither player has passed." if none.
+
+## Important Notes
+- Leaders are stored in `board.leaders`, NOT in `board.decks` or `board.hands`. Show them as the first entry in the Hands section with 👑.
+- Cards with `specialty: "hero"` are immune to weather — don't mark them as affected.
+- Agile cards (multiple ranges) show combined range emojis: ⚔️🏹
+- NEVER use box-drawing characters or code blocks for tables. Only use markdown `| |` tables.
