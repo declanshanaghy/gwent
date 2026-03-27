@@ -76,6 +76,20 @@ else
   echo "If WiringPi is required, please install it manually."
 fi
 
+echo "Installing just command runner..."
+if ! command -v just > /dev/null; then
+  sudo apt-get install -y just || {
+    echo "just not in apt, installing via cargo..."
+    if command -v cargo > /dev/null; then
+      cargo install just
+    else
+      echo "Warning: Could not install just. Install manually: https://github.com/casey/just"
+    fi
+  }
+else
+  echo "just is already installed."
+fi
+
 echo "Installing Python and development packages..."
 sudo apt-get install -y \
   python3-dev python3-pip python3-venv python3-pil python3-wheel
