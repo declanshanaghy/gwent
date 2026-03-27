@@ -178,6 +178,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if self._awaiting == self.AWAITING_SPY_DRAW:
             self._process_spy_draw_scan(card)
             return
+        if self._awaiting == 'leader_weather_choice':
+            self._process_leader_weather_scan(card)
+            return
         if self._awaiting != self.AWAITING_CARD:
             return
 
@@ -488,7 +491,31 @@ class PlayRound(gwent.game.stages.base.GameStage):
             mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
             self.publish(gwent.game.CH_MFD_PRESENT, mfd)
             self.publish_prompt(
-                f"{label}: leader ability. Choose a weather card from your deck.")
+                f"{label}: leader ability. Scan a weather card from your deck.")
+
+    def _process_leader_weather_scan(self, card):
+        """Handle scanning a weather card during leader weather pick."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+
+        if not card.is_weather:
+            self.publish_error(f"{card.name} is not a weather card")
+            return
+
+        # Find this card in the pending weather cards list
+        cards = getattr(self, '_pending_weather_cards', [])
+        match = next((c for c in cards if c.rfid == card.rfid), None)
+        if not match:
+            # Also check by name in case RFID doesn't match (starter cards)
+            match = next((c for c in cards if c.name == card.name), None)
+        if not match:
+            self.publish_error(f"{card.name} is not available in your deck")
+            return
+
+        self._board.decks[cur].remove(match)
+        self._awaiting = None
+        self._pending_weather_cards = None
+        self._play_weather(match)
 
     def _leader_commander_horn(self, leader_data):
         """Leader ability: apply commander's horn to specified rows."""

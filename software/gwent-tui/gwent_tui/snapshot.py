@@ -24,8 +24,8 @@ gwent_state_url = "http://localhost:8080/state"
 MAX_QUEUE_SIZE = 3
 
 # Long-poll settings
-POLL_TIMEOUT = 5        # server-side wait (seconds) — short to catch missed notifications
-CLIENT_TIMEOUT = 10     # client-side urllib timeout (slightly longer than POLL_TIMEOUT)
+POLL_TIMEOUT = 300      # server-side wait (seconds) — 5 minutes
+CLIENT_TIMEOUT = 305    # client-side urllib timeout (slightly longer than POLL_TIMEOUT)
 RETRY_DELAY = 2         # seconds between retries on error
 
 

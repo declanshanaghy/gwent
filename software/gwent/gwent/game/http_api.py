@@ -23,8 +23,8 @@ from gwent.utils.logging import get_logger
 log = get_logger("gwent.game.http_api")
 
 DEFAULT_PORT = 8080
-MAX_POLL_TIMEOUT = 60
-DEFAULT_POLL_TIMEOUT = 30
+MAX_POLL_TIMEOUT = 300
+DEFAULT_POLL_TIMEOUT = 300
 
 
 class _Handler(BaseHTTPRequestHandler):

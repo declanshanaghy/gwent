@@ -194,7 +194,7 @@ class GameState:
             active = data.get("active", True)
             if active and stage:
                 self.stage = stage
-                self.event_log.append(f"Stage: {stage}")
+                self.event_log.append(f"\U0001f3ad Stage: {stage}")
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""
@@ -202,10 +202,10 @@ class GameState:
             subkind = data.get("subkind", "")
             if subkind == "prompt":
                 self.last_prompt = data.get("prompt", "")
-                self.event_log.append(f"Prompt: {self.last_prompt}")
+                self.event_log.append(f"\U0001f4df {self.last_prompt}")
             elif subkind == "error":
                 self.last_error = data.get("error", "")
-                self.event_log.append(f"Error: {self.last_error}")
+                self.event_log.append(f"\u274c {self.last_error}")
             elif subkind == "choices":
                 self.last_choices = data.get("choices", [])
 
@@ -216,7 +216,7 @@ class GameState:
             if subkind == "announcement":
                 self.last_announcement = data.get("announcement", "")
                 self.event_log.append(
-                    f"Announce: {self.last_announcement}"
+                    f"\U0001f4e2 {self.last_announcement}"
                 )
 
     def on_raw_read(self, data):
@@ -224,4 +224,4 @@ class GameState:
         with self.lock:
             self.last_card_read = data
             name = data.get("name", "???")
-            self.event_log.append(f"Card read: {name}")
+            self.event_log.append(f"\U0001f4f1 {name}")

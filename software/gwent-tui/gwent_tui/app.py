@@ -56,8 +56,7 @@ class GwentTUI(App):
         Binding("ctrl+c", "quit", "Quit", priority=True),
         Binding("question_mark", "help", "Help"),
         Binding("ctrl+s", "save", "Save State"),
-        Binding("up", "poll_up", "Poll +5s", show=False),
-        Binding("down", "poll_down", "Poll -5s", show=False),
+        Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
     def __init__(self, gwent_url: str, mqtt_host: str = "localhost",
@@ -147,8 +146,12 @@ class GwentTUI(App):
     async def _refresh_all(self):
         """Refresh all visible widgets and switch stage if needed."""
         await self._switch_stage(self.state.stage)
-        for widget in self.query("Static"):
-            widget.refresh()
+        # Refresh all Static widgets (including those nested inside VerticalScroll)
+        try:
+            for widget in self.query("Static"):
+                widget.refresh()
+        except Exception:
+            pass
 
     # --- Actions ---
 
@@ -177,10 +180,11 @@ class GwentTUI(App):
                 table.add_column("Action", style="white")
                 for key, action in [
                     ("?", "Help"),
-                    ("\u2191/\u2193", "Poll timeout"),
+                    ("Tab", "Cycle focus between panes"),
+                    ("\u2191/\u2193", "Scroll within focused pane"),
+                    ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
-                    ("Tab", "Navigate dialog"),
                     ("Esc", "Close dialog/help"),
                 ]:
                     table.add_row(key, action)
@@ -194,13 +198,18 @@ class GwentTUI(App):
     def action_save(self):
         self.push_screen(SaveScreen(self._gwent_url, self.state))
 
-    async def action_poll_up(self):
-        snapshot_mod.POLL_TIMEOUT = min(60, snapshot_mod.POLL_TIMEOUT + 5)
-        log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
-        await self._refresh_all()
+    _POLL_PRESETS = [5, 30, 60, 300]
 
-    async def action_poll_down(self):
-        snapshot_mod.POLL_TIMEOUT = max(0, snapshot_mod.POLL_TIMEOUT - 5)
+    async def action_cycle_poll(self):
+        """Cycle through poll timeout presets."""
+        current = snapshot_mod.POLL_TIMEOUT
+        # Find next preset
+        for preset in self._POLL_PRESETS:
+            if preset > current:
+                snapshot_mod.POLL_TIMEOUT = preset
+                break
+        else:
+            snapshot_mod.POLL_TIMEOUT = self._POLL_PRESETS[0]
         log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
         await self._refresh_all()
 

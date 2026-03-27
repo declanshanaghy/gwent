@@ -1,16 +1,20 @@
-"""Discard widget: P1/P2 discard piles."""
+"""Discard widget: P1/P2 discard piles. Scrollable."""
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich import box
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
 
 
-class DiscardWidget(Static):
+class _DiscardContent(Static):
+    DEFAULT_CSS = """
+    _DiscardContent { width: 1fr; min-height: 100%; }
+    """
 
     def render(self):
         state = self.app.state
@@ -43,3 +47,19 @@ class DiscardWidget(Static):
             table.add_row(p1, p2)
 
         return Panel(table, title=f"\U0001f5d1\ufe0f Discard ({len(p1_disc)} | {len(p2_disc)})")
+
+
+class DiscardWidget(VerticalScroll, can_focus=True):
+
+    DEFAULT_CSS = """
+    DiscardWidget {
+        height: 1fr;
+        min-height: 5;
+    }
+    DiscardWidget:focus {
+        border: tall $accent;
+    }
+    """
+
+    def compose(self):
+        yield _DiscardContent()

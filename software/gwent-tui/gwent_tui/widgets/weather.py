@@ -1,6 +1,7 @@
-"""Weather widget: active weather effects + passed status."""
+"""Weather widget: active weather effects + passed/leader status."""
 
 from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
 from textual.widgets import Static
 
@@ -12,32 +13,38 @@ class WeatherWidget(Static):
 
     def render(self):
         state = self.app.state
-        parts = []
 
+        # Weather (center)
         if state.weather_rows:
             weather_items = []
             for row in sorted(state.weather_rows):
                 emoji = WEATHER_EMOJI.get(row, "")
                 name = WEATHER_NAME.get(row, row)
-                weather_items.append(f"{emoji} {name} ({row})")
-            parts.append("\U0001f326\ufe0f Weather: " + ", ".join(weather_items))
+                weather_items.append(f"{emoji} {name}")
+            weather = "\U0001f326\ufe0f " + ", ".join(weather_items)
         else:
-            parts.append("\U0001f326\ufe0f No active weather")
+            weather = "\U0001f326\ufe0f Clear skies"
 
+        # Passed status
         p1_passed = state.passed.get(P1, False)
         p2_passed = state.passed.get(P2, False)
-        if p1_passed and p2_passed:
-            parts.append(f"{FLAG} Both players passed")
-        elif p1_passed:
-            parts.append(f"{FLAG} P1 passed")
-        elif p2_passed:
-            parts.append(f"{FLAG} P2 passed")
-        else:
-            parts.append("\u270b Neither player has passed")
+        p1_pass = f"{FLAG} [bold yellow]Passed[/bold yellow]" if p1_passed else "\u270b"
+        p2_pass = f"[bold dodger_blue2]Passed[/bold dodger_blue2] {FLAG}" if p2_passed else "\u270b"
 
-        # Leader power status
-        p1_ldr = "P1 \U0001f451" + ("[dim]spent[/dim]" if state.leader_used.get(P1) else "[green]\u26a1[/green]")
-        p2_ldr = "P2 \U0001f451" + ("[dim]spent[/dim]" if state.leader_used.get(P2) else "[green]\u26a1[/green]")
-        parts.append(f"{p1_ldr}  {p2_ldr}")
+        # Leader status
+        p1_ldr = "\U0001f451" + ("[dim]spent[/dim]" if state.leader_used.get(P1) else "[green]\u26a1[/green]")
+        p2_ldr = ("[dim]spent[/dim]" if state.leader_used.get(P2) else "[green]\u26a1[/green]") + "\U0001f451"
 
-        return Panel(Text.from_markup("\n".join(parts)), style="dim")
+        # Build table: P1 left | weather center | P2 right
+        table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
+        table.add_column(ratio=1, justify="left")
+        table.add_column(ratio=2, justify="center")
+        table.add_column(ratio=1, justify="right")
+
+        table.add_row(
+            Text.from_markup(f"[bold yellow]P1[/bold yellow] {p1_pass} {p1_ldr}"),
+            Text.from_markup(weather),
+            Text.from_markup(f"{p2_ldr} {p2_pass} [bold dodger_blue2]P2[/bold dodger_blue2]"),
+        )
+
+        return Panel(table, style="dim")

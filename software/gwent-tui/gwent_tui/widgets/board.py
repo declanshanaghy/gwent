@@ -1,9 +1,10 @@
-"""Board widget: score title, 3 combat rows x 2 players."""
+"""Board widget: score title, 3 combat rows x 2 players. Scrollable."""
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich import box
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import (
@@ -18,7 +19,10 @@ ROW_COLOR = {
 }
 
 
-class BoardWidget(Static):
+class _BoardContent(Static):
+    DEFAULT_CSS = """
+    _BoardContent { width: 1fr; min-height: 100%; }
+    """
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
                     row_score=0, weather_active=False):
@@ -77,3 +81,18 @@ class BoardWidget(Static):
             table.add_row(p1_text, p2_text)
 
         return Panel(table)
+
+
+class BoardWidget(VerticalScroll, can_focus=True):
+
+    DEFAULT_CSS = """
+    BoardWidget {
+        height: 2fr;
+    }
+    BoardWidget:focus {
+        border: tall $accent;
+    }
+    """
+
+    def compose(self):
+        yield _BoardContent()

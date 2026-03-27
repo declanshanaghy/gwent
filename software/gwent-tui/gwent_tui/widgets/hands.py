@@ -1,15 +1,19 @@
-"""Hands widget: P1/P2 hands + leaders."""
+"""Hands widget: P1/P2 hands + leaders. Scrollable."""
 
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display, leader_display
 from gwent_tui.game_state import P1, P2
 
 
-class HandsWidget(Static):
+class _HandsContent(Static):
+    DEFAULT_CSS = """
+    _HandsContent { width: 1fr; min-height: 100%; }
+    """
 
     def render(self):
         state = self.app.state
@@ -41,3 +45,18 @@ class HandsWidget(Static):
             table.add_row(p1, p2)
 
         return Panel(table, title=f"\U0001f0cf Hands ({p1_count} | {p2_count})")
+
+
+class HandsWidget(VerticalScroll, can_focus=True):
+
+    DEFAULT_CSS = """
+    HandsWidget {
+        height: 1fr;
+    }
+    HandsWidget:focus {
+        border: tall $accent;
+    }
+    """
+
+    def compose(self):
+        yield _HandsContent()

@@ -1,15 +1,20 @@
-"""Decks widget: P1/P2 remaining deck cards."""
+"""Decks widget: P1/P2 remaining deck cards. Scrollable."""
 
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
 
 
-class DecksWidget(Static):
+class _DecksContent(Static):
+    """Inner content for decks — rendered by Textual."""
+    DEFAULT_CSS = """
+    _DecksContent { width: 1fr; min-height: 100%; }
+    """
 
     def render(self):
         state = self.app.state
@@ -36,3 +41,22 @@ class DecksWidget(Static):
             table.add_row(p1, p2)
 
         return Panel(table, title=f"\U0001f4e6 Deck ({p1_count} | {p2_count})")
+
+
+class DecksWidget(VerticalScroll, can_focus=True):
+
+    DEFAULT_CSS = """
+    DecksWidget {
+        height: 1fr;
+    }
+    DecksWidget:focus {
+        border: tall $accent;
+    }
+    """
+
+    def compose(self):
+        yield _DecksContent()
+
+    def refresh_content(self):
+        for w in self.query("_DecksContent"):
+            w.refresh()
