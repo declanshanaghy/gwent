@@ -24,11 +24,16 @@
         "Monsters",
         "Nilfgaardian",
         "Scoia'tael",
-        "Skellige"
+        "Skellige",
+        "Neutral"
       ]
     },
     "owner": {
       "description": "The player that owns this card",
+      "type": "string"
+    },
+    "owner_nickname": {
+      "description": "Short nickname for the owner, displayed in the TUI",
       "type": "string"
     },
     "image": {

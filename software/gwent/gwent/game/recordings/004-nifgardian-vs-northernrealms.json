@@ -67,7 +67,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Fringilla Vigo",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -79,7 +79,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Commander's Horn: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -94,7 +94,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Menno Coehoorn",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -109,7 +109,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Dandelion",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -121,7 +121,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Decoy: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 2245217563,
             "specialty": "decoy",
             "strength": 0
@@ -133,7 +133,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Triss Merigold",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -146,7 +146,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Scorch",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -163,7 +163,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Gaunter O'Dimm: Darkness 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -175,7 +175,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Philippa Eilhart",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -191,7 +191,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Catapult",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -207,7 +207,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Emiel Regis Rohellec Terzieff: Vampire",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -219,7 +219,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Morvan Voorhis",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "siege"
             ],
@@ -232,7 +232,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Emiel Regis Rohellec Terzieff: Human",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -262,7 +262,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Sigismund Dijkstra",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -277,7 +277,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Villentretenmerth",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -289,7 +289,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Commander's Horn: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -306,7 +306,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Yennefer of Vengerberg",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -319,7 +319,7 @@
             "faction": "Northern Realms",
             "kind": "card",
             "name": "Zoltan Chivay",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],

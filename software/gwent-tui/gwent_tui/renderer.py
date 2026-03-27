@@ -12,14 +12,48 @@ from gwent_tui.emoji import (
     leader_display, ROW_EMOJI, WEATHER_EMOJI, ZAP, FLAG,
     WEATHER_NAME,
 )
+
+# Row colors for board display
+ROW_COLOR = {
+    "close":  "orange1",
+    "ranged": "orchid",
+    "siege":  "turquoise2",
+}
+
+# 3-line tall ASCII art digits for score display
+_ASCII_DIGITS = {
+    "0": [" ██ ", "█  █", "█  █", "█  █", " ██ "],
+    "1": [" █  ", "██  ", " █  ", " █  ", "███ "],
+    "2": [" ██ ", "█  █", "  █ ", " █  ", "████"],
+    "3": ["███ ", "   █", " ██ ", "   █", "███ "],
+    "4": ["█  █", "█  █", "████", "   █", "   █"],
+    "5": ["████", "█   ", "███ ", "   █", "███ "],
+    "6": [" ██ ", "█   ", "███ ", "█  █", " ██ "],
+    "7": ["████", "   █", "  █ ", " █  ", " █  "],
+    "8": [" ██ ", "█  █", " ██ ", "█  █", " ██ "],
+    "9": [" ██ ", "█  █", " ███", "   █", " ██ "],
+}
+
+
+def _big_score_lines(n):
+    """Render a number as 5-line ASCII art. Returns list of 5 strings."""
+    digits = [_ASCII_DIGITS[c] for c in str(n)]
+    lines = []
+    for row in range(5):
+        lines.append(" ".join(d[row] for d in digits))
+    return lines
 from rich.align import Align
 
 from gwent_tui.game_state import P1, P2, GameState
 
 
 class Renderer:
-    def render(self, state, save_dialog=None):
+    def render(self, state, save_dialog=None, show_help=False, poller=None):
         """Build complete Layout from current GameState."""
+        self._poller = poller
+        if show_help:
+            return self._render_help()
+
         with state.lock:
             in_game = state.stage in GameState._GAME_STAGES
 
@@ -27,6 +61,56 @@ class Renderer:
                 return self._render_lobby(state, save_dialog)
 
             return self._render_game(state, save_dialog)
+
+    def _render_help(self):
+        """Render the help screen showing all keyboard shortcuts."""
+        table = Table(
+            box=box.ROUNDED,
+            expand=False,
+            show_header=True,
+            padding=(0, 2),
+            title="\U0001f3ae Gwent TUI — Keyboard Shortcuts",
+            title_style="bold bright_cyan",
+        )
+        table.add_column("Key", style="bold yellow", justify="right")
+        table.add_column("Action", style="white")
+
+        shortcuts = [
+            ("?", "Show this help screen"),
+            ("\u2191", "Increase poll rate (-1s)"),
+            ("\u2193", "Decrease poll rate (+1s)"),
+            ("Ctrl+S", "Open save state dialog"),
+            ("Ctrl+C", "Quit gwent-tui"),
+            ("", ""),
+            ("[bold dim]Save Dialog[/bold dim]", ""),
+            ("Tab", "Cycle focus: Input \u2192 OK \u2192 Cancel"),
+            ("Enter", "Save file / activate focused button"),
+            ("Esc", "Close dialog"),
+            ("Backspace", "Delete last character"),
+            ("", ""),
+            ("[bold dim]During Card Write[/bold dim]", ""),
+            ("Any key", "Skip current card"),
+        ]
+
+        for key, action in shortcuts:
+            table.add_row(key, action)
+
+        help_text = Text.from_markup(
+            "\n[dim]Press any key to dismiss[/dim]"
+        )
+        help_text.justify = "center"
+
+        layout = Layout()
+        layout.split_column(
+            Layout(name="body"),
+        )
+        layout["body"].update(
+            Align.center(
+                Group(table, help_text),
+                vertical="middle",
+            )
+        )
+        return layout
 
     def _render_lobby(self, state, save_dialog=None):
         """Simple screen for non-game stages (MainMenu, BuildDeck, etc.)."""
@@ -39,9 +123,12 @@ class Renderer:
 
         mqtt_color = "green" if state.connected else "red"
         http_color = "green" if state.http_ok else "red"
+        poll_rate = ""
+        if self._poller:
+            poll_rate = f" [dim]{self._poller.interval:.0f}s[/dim]"
         header = Text.from_markup(
             f" Gwent Companion "
-            f"[{mqtt_color}]MQTT[/{mqtt_color}] [{http_color}]HTTP[/{http_color}]"
+            f"[{mqtt_color}]MQTT[/{mqtt_color}] [{http_color}]HTTP[/{http_color}]{poll_rate}"
         )
         header.justify = "center"
         layout["header"].update(Panel(header, style="bold"))
@@ -114,8 +201,8 @@ class Renderer:
         p1e = faction_emoji(p1f)
         p2e = faction_emoji(p2f)
 
-        p1_label = f"{p1e[0]} P1 ({p1f}) {p1e[1]}" if p1f else "P1"
-        p2_label = f"{p2e[0]} P2 ({p2f}) {p2e[1]}" if p2f else "P2"
+        p1_label = f"{p1e[0]} [bold yellow]P1 ({p1f})[/bold yellow] {p1e[1]}" if p1f else "[bold yellow]P1[/bold yellow]"
+        p2_label = f"{p2e[0]} [bold blue]P2 ({p2f})[/bold blue] {p2e[1]}" if p2f else "[bold blue]P2[/bold blue]"
 
         center = Text.from_markup(
             f" {p1_label} {p1_gems}    "
@@ -127,14 +214,17 @@ class Renderer:
 
         mqtt_color = "green" if state.connected else "red"
         http_color = "green" if state.http_ok else "red"
+        poll_rate = ""
+        if self._poller:
+            poll_rate = f" [dim]{self._poller.interval:.0f}s[/dim]"
         status = Text.from_markup(
-            f"[{mqtt_color}]MQTT[/{mqtt_color}] [{http_color}]HTTP[/{http_color}] "
+            f"[{mqtt_color}]MQTT[/{mqtt_color}] [{http_color}]HTTP[/{http_color}]{poll_rate} "
         )
         status.justify = "right"
 
         table = Table(box=None, expand=True, show_header=False, padding=0)
         table.add_column(ratio=1)
-        table.add_column(width=10, justify="right")
+        table.add_column(width=14, justify="right")
         table.add_row(center, status)
 
         return Panel(table, style="bold")
@@ -142,13 +232,14 @@ class Renderer:
     def _render_board(self, state):
         p1s = state.scores[P1]
         p2s = state.scores[P2]
-        p1_style = "bold green" if p1s > p2s else "bold red" if p1s < p2s else "bold yellow"
-        p2_style = "bold green" if p2s > p1s else "bold red" if p2s < p1s else "bold yellow"
+        p1_style = "bold yellow"
+        p2_style = "bold blue"
         title = Text.from_markup(
             f"\u2694\ufe0f [{p1_style}]{p1s}[/{p1_style}]"
             f" [dim]vs[/dim] "
             f"[{p2_style}]{p2s}[/{p2_style}]"
         )
+
         table = Table(
             title=title,
             box=box.SIMPLE_HEAVY,
@@ -186,8 +277,9 @@ class Renderer:
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
                     row_score=0, weather_active=False):
         """Format a single board row."""
+        rc = ROW_COLOR.get(row_name, "white")
         horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
-        header = f"[bold]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag} {ZAP}{row_score}[/bold]"
+        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag} {ZAP}{row_score}[/bold {rc}]"
 
         if not cards:
             return header

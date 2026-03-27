@@ -38,7 +38,7 @@
             "instructions": "Draw a card from your opponents discard pile"
           },
           "name": "Emhyr var Emreis - The Relentless",
-          "owner": "Declan Shanaghy",
+          "owner": "Declan Shanaghy (dek)",
           "rfid": 413287665097,
           "specialty": "leader",
           "starter": true
@@ -54,7 +54,7 @@
             "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
           },
           "name": "Francesca Findabair - The Beautiful",
-          "owner": "Declan Shanaghy",
+          "owner": "Declan Shanaghy (dek)",
           "rfid": 553478147534,
           "specialty": "leader",
           "starter": true
@@ -81,7 +81,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Menno Coehoorn",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -93,7 +93,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Emiel Regis Rohellec Terzieff: Human",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -108,7 +108,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Gaunter O'Dimm: Darkness 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -132,7 +132,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Decoy: 2",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 140825152881,
             "specialty": "decoy"
           }
@@ -149,7 +149,7 @@
               "instructions": "Draw a card from your opponents discard pile"
             },
             "name": "Emhyr var Emreis - The Relentless",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 413287665097,
             "specialty": "leader",
             "starter": true
@@ -162,7 +162,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Dandelion",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -174,7 +174,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Commander's Horn: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -188,7 +188,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Emiel Regis Rohellec Terzieff: Vampire",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -200,7 +200,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Fringilla Vigo",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "ranged"
             ],
@@ -227,7 +227,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Morvan Voorhis",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "siege"
             ],
@@ -252,7 +252,7 @@
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Decoy: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 2245217563,
             "specialty": "decoy",
             "strength": 0
@@ -270,7 +270,7 @@
               "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
             },
             "name": "Francesca Findabair - The Beautiful",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 553478147534,
             "specialty": "leader",
             "starter": true
@@ -280,7 +280,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Decoy: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 619110092078,
             "specialty": "decoy"
           },
@@ -301,7 +301,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Scorch",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -315,7 +315,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Cirilla Fiona Elen Riannon",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -328,7 +328,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Biting Frost",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],

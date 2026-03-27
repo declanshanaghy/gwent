@@ -33,6 +33,7 @@ export PYTHONUNBUFFERED=1
 export RUNNING_ON_PI=true
 export GWENT_STATE=${GWENT_STATE:-""}
 export GWENT_STATE_OUT=${GWENT_STATE_OUT:-""}
+GWENT_OWNER=""
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -81,7 +82,9 @@ start_gwent() {
     touch "${GWENT_LOG}"
     echo "--- start at $(date -Iseconds) ---" >> "${GWENT_LOG}"
     # gwent manages its own PID file at /tmp/pids/gwent.pid
-    nohup "${VENV_DIR}/bin/gwent" >> "${GWENT_LOG}" 2>&1 &
+    local owner_arg=""
+    [ -n "${GWENT_OWNER}" ] && owner_arg="--owner ${GWENT_OWNER}"
+    nohup "${VENV_DIR}/bin/gwent" ${owner_arg} >> "${GWENT_LOG}" 2>&1 &
     disown $! 2>/dev/null
     # Wait for gwent to write its PID file
     for i in 1 2 3 4 5; do
@@ -210,6 +213,15 @@ print_summary() {
 
 SERVICE="${1:-}"
 ACTION="${2:-}"
+shift 2 2>/dev/null || true
+
+# Parse optional flags
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -o|--owner) GWENT_OWNER="$2"; shift 2 ;;
+        *) shift ;;
+    esac
+done
 
 if [ -z "${SERVICE}" ] || [ -z "${ACTION}" ]; then
     usage

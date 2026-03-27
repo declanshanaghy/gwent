@@ -30,7 +30,6 @@ class Controller(gwent.game.PubSubComponent):
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
         self.play_round = gwent.game.stages.all.PlayRound(pubsub)
         self.round_end = gwent.game.stages.all.RoundEnd(pubsub)
-        self.build_deck = gwent.game.stages.all.BuildDeck(pubsub)
         self.game_over = gwent.game.stages.all.GameOver(pubsub)
 
     def init(self):
@@ -42,7 +41,6 @@ class Controller(gwent.game.PubSubComponent):
         self.deal_cards.init()
         self.play_round.init()
         self.round_end.init()
-        self.build_deck.init()
         self.game_over.init()
 
         self.subscribe(gwent.game.CH_CARDS_RAW_READ,
@@ -77,10 +75,7 @@ class Controller(gwent.game.PubSubComponent):
 
         def complete(choice):
             self._log.info(f'main menu completed with choice: {choice}')
-            if choice == 'build_deck':
-                self.start_build_deck()
-            else:
-                self.start_game_from_decks()
+            self.start_game_from_decks()
 
         def cancel():
             self._log.error("main menu can't be canceled")
@@ -90,12 +85,13 @@ class Controller(gwent.game.PubSubComponent):
     def start_game_from_decks(self):
         self._log.info('Starting game from saved decks')
 
-        result = gwent.game.decks.pick_two_random_decks()
+        result = gwent.game.decks.pick_two_random_decks(
+            owner_filter=getattr(self, '_owner_filter', None))
         if result is None:
             self._log.error('Not enough saved decks with different factions')
             self.publish_error(
-                "Need 2+ saved decks with different factions. "
-                "Use Build Deck first.")
+                "Need 2+ factions with cards. "
+                "Use write_next to chip cards first.")
             self.start_main_menu()
             return
 
@@ -112,29 +108,6 @@ class Controller(gwent.game.PubSubComponent):
 
         # DealCards will supplement missing leaders/cards from starters
         self.start_deal_cards(deck1_data['cards'], deck2_data['cards'])
-
-    def start_build_deck(self):
-        self._log.info('Starting build deck stage')
-
-        def complete(owner, faction, deck):
-            filepath = gwent.game.decks.save_deck(owner, faction, deck)
-            self._log.info({
-                'action': 'deck_saved',
-                'owner': owner,
-                'faction': faction,
-                'cards': len(deck),
-                'filepath': filepath,
-            })
-            self.publish_prompt(
-                f"Deck saved! {owner}'s {faction} ({len(deck)} cards)",
-                ok=True, cancel=False, clear_choices=True)
-            self.start_main_menu()
-
-        def cancel():
-            self._log.info('Build deck canceled')
-            self.start_main_menu()
-
-        self.set_active_stage(self.build_deck, complete, cancel)
 
     def publish_card_play(self, player: PLAYER, card: gwent.messaging.card.Message):
         ch = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))

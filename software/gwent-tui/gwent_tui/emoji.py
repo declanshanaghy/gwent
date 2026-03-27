@@ -60,6 +60,33 @@ def faction_emoji(faction):
     return FACTION_EMOJI.get(faction, ("", ""))
 
 
+# Rich markup colors for owner nicknames — deterministic by hash
+_OWNER_COLORS = [
+    "cyan", "magenta", "yellow", "green", "blue",
+    "bright_red", "bright_cyan", "bright_magenta", "bright_yellow",
+    "bright_green", "bright_blue", "dark_orange", "orchid",
+    "turquoise2", "spring_green1", "deep_pink1", "gold1",
+]
+
+
+def _owner_color(name):
+    """Pick a consistent color for an owner based on name hash."""
+    h = sum(ord(c) for c in name)
+    return _OWNER_COLORS[h % len(_OWNER_COLORS)]
+
+
+def owner_short(card):
+    """Get short owner display: [nickname] in color, or [INITIALS]."""
+    nickname = card.get("owner_nickname", "")
+    if not nickname:
+        owner = card.get("owner", "")
+        if not owner:
+            return ""
+        nickname = "".join(w[0].upper() for w in owner.split() if w)
+    color = _owner_color(nickname)
+    return f"[{color}]\\[{nickname}][/{color}]"
+
+
 def gems_display(gems, max_gems=2):
     """Render gems as gem/skull emoji string."""
     alive = min(gems, max_gems)
@@ -128,6 +155,23 @@ def card_prefix(card):
     return "".join(parts) if parts else "\u2753"  # question mark fallback
 
 
+# Rich markup colors for faction-colored card names
+FACTION_COLOR = {
+    "Monsters":        "red",
+    "Nilfgaardian":    "yellow",
+    "Northern Realms": "blue",
+    "Scoia'tael":      "green",
+    "Scoiatael":       "green",
+    "Skellige":        "cyan",
+    "Neutral":         "white",
+}
+
+
+def _faction_color(card):
+    """Get Rich color for a card's faction."""
+    return FACTION_COLOR.get(card.get("faction", ""), "white")
+
+
 def _truncate_name(name, max_len=20):
     """Truncate a name to max_len, cutting from the middle."""
     if len(name) <= max_len:
@@ -147,15 +191,15 @@ def card_display(card, max_name=20):
     owner = card.get("owner", "")
     starter = card.get("starter", False)
 
-    parts = [prefix, " ", name]
+    fc = _faction_color(card)
+    parts = [prefix, f" [{fc}]", name, f"[/{fc}]"]
     if strength is not None:
         parts.append(f" ({strength})")
 
     if starter:
         parts.append(f" {STAR}")
     elif owner:
-        initials = "".join(w[0].upper() for w in owner.split() if w)
-        parts.append(f" {initials}")
+        parts.append(f" {owner_short(card)}")
 
     return "".join(parts)
 
@@ -173,13 +217,14 @@ def card_display_short(card, max_name=22, weather_active=False):
 
     short = _truncate_name(name, max_name)
 
+    fc = _faction_color(card)
     weathered = weather_active and not is_hero and strength and strength > 1
 
     if weathered:
         parts = [prefix, " [strike dim]", short, "[/strike dim]"]
         parts.append(f" [strike dim]({strength})[/strike dim] [bold cyan](1)[/bold cyan]")
     else:
-        parts = [prefix, " ", short]
+        parts = [prefix, f" [{fc}]", short, f"[/{fc}]"]
         if strength is not None:
             parts.append(f" ({strength})")
 
@@ -194,12 +239,12 @@ def leader_display(card):
     starter = card.get("starter", False)
     owner = card.get("owner", "")
 
+    fc = _faction_color(card)
     name = _truncate_name(name, 20)
-    parts = [CROWN, " ", name]
+    parts = [CROWN, f" [{fc}]", name, f"[/{fc}]"]
     if starter:
         parts.append(f" {STAR}")
     elif owner:
-        initials = "".join(w[0].upper() for w in owner.split() if w)
-        parts.append(f" {initials}")
+        parts.append(f" {owner_short(card)}")
 
     return "".join(parts)

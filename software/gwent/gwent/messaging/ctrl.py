@@ -15,7 +15,6 @@ STAGE_DEAL_CARDS = 'DealCards'
 STAGE_PLAY_ROUND = 'PlayRound'
 STAGE_ROUND_END = 'RoundEnd'
 STAGE_GAME_OVER = 'GameOver'
-STAGE_BUILD_DECK = 'BuildDeck'
 
 
 class Message(gwent.messaging.base.Message):

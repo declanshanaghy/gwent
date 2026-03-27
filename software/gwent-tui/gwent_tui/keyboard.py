@@ -20,6 +20,8 @@ KEY_ESCAPE = "\x1b"
 KEY_TAB = "\t"
 KEY_BACKSPACE = "\x7f"
 KEY_BACKSPACE2 = "\x08"
+KEY_ARROW_UP = "UP"
+KEY_ARROW_DOWN = "DOWN"
 
 
 class KeyboardReader:
@@ -61,6 +63,20 @@ class KeyboardReader:
                 ch = sys.stdin.read(1)
                 if not ch:
                     break
+                # Decode escape sequences for arrow keys
+                if ch == "\x1b":
+                    ch2 = sys.stdin.read(1)
+                    if ch2 == "[":
+                        ch3 = sys.stdin.read(1)
+                        if ch3 == "A":
+                            self._callback(KEY_ARROW_UP)
+                            continue
+                        elif ch3 == "B":
+                            self._callback(KEY_ARROW_DOWN)
+                            continue
+                    # Not an arrow — pass Esc through
+                    self._callback(ch)
+                    continue
                 self._callback(ch)
         except Exception as e:
             log.error("Keyboard reader error: %s", e)

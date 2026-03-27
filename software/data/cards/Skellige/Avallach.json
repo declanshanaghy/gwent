@@ -5,10 +5,11 @@
     "faction": "Skellige",
     "kind": "card",
     "name": "Avallac'h",
-    "owner": "Declan Shanaghy",
+    "owner": "Dylan Shanaghy",
     "ranges": [
         "close"
     ],
     "strength": 0,
-    "rfid": 481285852652
+    "rfid": 481285852652,
+    "owner_nickname": "dylan"
 }

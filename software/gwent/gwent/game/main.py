@@ -280,10 +280,14 @@ class Gwent:
     def create_components(self):
         """Create all application components"""
         self._log.info('Creating components')
-        
+
         # Create component adapters
         self.components = []
-        self.components.append(gwent.game.controller.Controller(self.pubsub))
+        controller = gwent.game.controller.Controller(self.pubsub)
+        controller._owner_filter = getattr(self, '_owner_filter', None)
+        if controller._owner_filter:
+            self._log.info(f"Owner filter: {controller._owner_filter}")
+        self.components.append(controller)
         self.components.append(gwent.game.round_keeper.RoundKeeper(self.pubsub))
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
@@ -387,11 +391,19 @@ def _remove_pid_file():
 
 def run():
     """Run the Gwent application"""
+    import argparse
+    parser = argparse.ArgumentParser(description="Gwent Companion Server")
+    parser.add_argument("-o", "--owner", default=None,
+                        help="Only use decks owned by this player (name or nickname)")
+    args, _unknown = parser.parse_known_args()
+
     configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
     _check_pid_file()
     _write_pid_file()
     try:
-        Gwent().run()
+        gwent_app = Gwent()
+        gwent_app._owner_filter = args.owner
+        gwent_app.run()
     except Exception as ex:
         logger = get_logger(__name__)
         exception_type, exception_value, trace = sys.exc_info()

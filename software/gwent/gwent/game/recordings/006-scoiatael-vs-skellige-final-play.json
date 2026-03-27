@@ -13,7 +13,7 @@
                 "faction": "Scoia'tael",
                 "kind": "card",
                 "name": "Cirilla Fiona Elen Riannon",
-                "owner": "Declan Shanaghy",
+                "owner": "Declan Shanaghy (dek)",
                 "ranges": [
                   "close"
                 ],
@@ -32,7 +32,7 @@
               "faction": "Scoia'tael",
               "kind": "card",
               "name": "Gaunter O'Dimm: Darkness 1",
-              "owner": "Declan Shanaghy",
+              "owner": "Declan Shanaghy (dek)",
               "ranges": [
                 "ranged"
               ],
@@ -56,7 +56,7 @@
                 "faction": "Skellige",
                 "kind": "card",
                 "name": "Gaunter O'Dimm: Darkness 1",
-                "owner": "Declan Shanaghy",
+                "owner": "Declan Shanaghy (dek)",
                 "ranges": [
                   "ranged"
                 ],
@@ -75,7 +75,7 @@
               "faction": "Skellige",
               "kind": "card",
               "name": "Draig Bon-Dhu",
-              "owner": "Declan Shanaghy",
+              "owner": "Declan Shanaghy (dek)",
               "ranges": [
                 "siege"
               ],
@@ -100,7 +100,7 @@
             "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
           },
           "name": "Francesca Findabair - The Beautiful",
-          "owner": "Declan Shanaghy",
+          "owner": "Declan Shanaghy (dek)",
           "rfid": 553478147534,
           "specialty": "leader",
           "starter": true
@@ -129,7 +129,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Scorch",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -143,7 +143,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Decoy: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 619110092078,
             "specialty": "decoy"
           },
@@ -152,7 +152,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Biting Frost",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -166,7 +166,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Decoy: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 1033859976656,
             "specialty": "decoy"
           },
@@ -175,7 +175,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Scorch: 1",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -189,7 +189,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Zoltan Chivay",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -211,7 +211,7 @@
               "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
             },
             "name": "Francesca Findabair - The Beautiful",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 553478147534,
             "specialty": "leader",
             "starter": true
@@ -221,7 +221,7 @@
             "faction": "Scoia'tael",
             "kind": "card",
             "name": "Decoy: 2",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "rfid": 140825152881,
             "specialty": "decoy"
           }
@@ -267,7 +267,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Avallac'h",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -279,7 +279,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Scorch: 2",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
@@ -293,7 +293,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Triss Merigold",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close"
             ],
@@ -306,7 +306,7 @@
             "faction": "Skellige",
             "kind": "card",
             "name": "Commander's Horn",
-            "owner": "Declan Shanaghy",
+            "owner": "Declan Shanaghy (dek)",
             "ranges": [
               "close",
               "ranged",
