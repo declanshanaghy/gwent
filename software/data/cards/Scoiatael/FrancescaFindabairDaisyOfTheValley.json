@@ -3,7 +3,9 @@
     "faction": "Scoia'tael",
     "name": "Francesca Findabair: Daisy of the Valley",
     "leader": {
-        "instructions": "daisy of the valley: draw an extra card at the beginning of the battle"
+        "instructions": "daisy of the valley: draw an extra card at the beginning of the battle",
+        "extra_draw": 1
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 347336887591
 }

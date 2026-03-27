@@ -114,13 +114,13 @@ class Message(gwent.messaging.base.Message):
 
             max_leader_props = 2
             n_leader_props = len(self.leader.keys())
-            if n_leader_props != max_leader_props:
-                # Leader should have instructions and 1 other property
+            if n_leader_props < max_leader_props:
+                # Leader should have instructions and at least 1 ability key
                 raise jsonschema.ValidationError(
                     message=f"{self.name} of {self.faction} should have "
-                            f"exactly {max_leader_props} leader properties, "
-                            f"but they have {n_leader_props}: "
-                            f"{self.leader.keys()}",
+                            f"at least {max_leader_props} leader properties, "
+                            f"but has {n_leader_props}: "
+                            f"{list(self.leader.keys())}",
                     path=(SPECIALTY, LEADER))
 
     def _validate_strength(self):

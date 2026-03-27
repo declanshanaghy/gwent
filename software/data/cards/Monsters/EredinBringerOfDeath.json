@@ -3,7 +3,9 @@
     "faction": "Monsters",
     "name": "Eredin: Bringer of Death",
     "leader": {
-        "instructions": "restore a card from your discard pile to your hand"
+        "instructions": "restore a card from your discard pile to your hand",
+        "draw_own_discard": true
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 897327517074
 }

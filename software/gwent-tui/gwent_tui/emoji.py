@@ -49,6 +49,7 @@ GEM = "\U0001f48e"                 # gem
 SKULL = "\U0001f480"               # skull
 CROWN = "\U0001f451"               # crown
 STAR = "\u2b50"                    # star (starter)
+CUBE = "\U0001f4e6"               # package (remainder/unowned)
 ZAP = "\u26a1"                     # high voltage (row total)
 FLAG = "\U0001f3f3\ufe0f"          # white flag (passed)
 
@@ -200,6 +201,8 @@ def card_display(card, max_name=20):
         parts.append(f" {STAR}")
     elif owner:
         parts.append(f" {owner_short(card)}")
+    else:
+        parts.append(f" {CUBE}")
 
     return "".join(parts)
 
@@ -250,5 +253,7 @@ def leader_display(card, used=False, max_name=20):
             parts.append(f" {STAR}")
         elif owner:
             parts.append(f" {owner_short(card)}")
+        else:
+            parts.append(f" {CUBE}")
 
     return "".join(parts)

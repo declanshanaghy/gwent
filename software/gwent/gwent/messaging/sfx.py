@@ -8,6 +8,7 @@ ANNOUNCEMENT_COMPLETE = 'announcement_complete'
 EFFECT = 'effect'
 MUSIC = 'music'
 RANDOM = 'random'
+FACTION = 'faction'
 
 EFFECT_CARD_READ = 'card_read'
 EFFECT_MFD_SELECT = 'mfd_select'
@@ -18,8 +19,10 @@ MUSIC1 = 'music1'
 
 class Message(gwent.messaging.base.Message):
     @staticmethod
-    def with_announcement(announcement):
+    def with_announcement(announcement, faction=None):
         instance = {ANNOUNCEMENT: announcement}
+        if faction:
+            instance[FACTION] = faction
         return Message(instance, subkind=ANNOUNCEMENT)
 
     @staticmethod
@@ -56,6 +59,10 @@ class Message(gwent.messaging.base.Message):
     @property
     def music(self):
         return self._instance[MUSIC]
+
+    @property
+    def faction(self):
+        return self._instance.get(FACTION)
 
     @property
     def is_random(self):

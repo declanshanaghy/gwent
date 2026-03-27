@@ -7,11 +7,11 @@ import threading
 
 import pydub
 import pygame.mixer
-import gtts
 
 import gwent.game
 import gwent.messaging.base
 import gwent.messaging.sfx
+from gwent.hal.tts import get_provider, DEFAULT_PROVIDER
 
 
 CHANNEL_EFFECT = 0
@@ -20,17 +20,18 @@ CHANNEL_TTS = 1
 ANNOUNCEMENT_DELAY = 0
 
 
-def instance():
-    return _SFX()
+def instance(tts_provider: str = DEFAULT_PROVIDER):
+    return _SFX(tts_provider=tts_provider)
 
 
 class _SFX(gwent.game.BaseComponent):
     _tempdir = None
     _sound_cache = {}
 
-    def __init__(self):
+    def __init__(self, tts_provider: str = DEFAULT_PROVIDER):
         super().__init__()
-        pygame.mixer.init(frequency=24000, size=-16, channels=2)
+        self._tts_provider = get_provider(tts_provider)
+        pygame.mixer.init(frequency=44100, size=-16, channels=2)
         self._announce_queue = queue.Queue()
         self._announce_thread = threading.Thread(
             target=self._announcement_worker, daemon=True)
@@ -203,13 +204,15 @@ class _SFX(gwent.game.BaseComponent):
 
             # Cache TTS if needed
             if not os.path.exists(fmp3):
+                faction = getattr(msg, 'faction', None)
                 self._log.debug({
                     'action': 'tts_generate',
                     'speech': msg.announcement,
                     'tts_name_file': fmp3,
+                    'faction': faction,
+                    'provider': type(self._tts_provider).__name__,
                 })
-                tts_name = gtts.gTTS(msg.announcement, lang='en')
-                tts_name.save(fmp3)
+                self._tts_provider.synthesize(msg.announcement, faction, fmp3)
                 self._log.debug({
                     'action': 'tts_saved',
                     'file': fmp3,

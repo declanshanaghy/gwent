@@ -87,10 +87,17 @@ class GameOver(gwent.game.stages.base.GameStage):
             topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
             self.publish(topic, gem_msg)
 
+        if p1_gems > p2_gems:
+            winner_faction = board.factions.get(PLAYER.ONE)
+        elif p2_gems > p1_gems:
+            winner_faction = board.factions.get(PLAYER.TWO)
+        else:
+            winner_faction = None
+
         self.publish_prompt(
             f"Game Over! {msg}",
             ok=True, cancel=False, clear_choices=True,
-            ok_text="Main Menu")
+            ok_text="Main Menu", faction=winner_faction)
 
     def process_choice(self, choice: gwent.messaging.choice.Message):
         super().process_choice(choice)

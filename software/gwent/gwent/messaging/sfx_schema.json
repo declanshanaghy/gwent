@@ -35,6 +35,10 @@
         "announcement": {
           "description": "The message to announce via TTS",
           "type": "string"
+        },
+        "faction": {
+          "description": "Optional faction name to select TTS voice accent",
+          "type": "string"
         }
       }
     },

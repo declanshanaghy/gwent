@@ -3,7 +3,11 @@
     "faction": "Northern Realms",
     "name": "Foltest: Lord Commander of the North",
     "leader": {
-        "instructions": "clear any weather effects (resulting from biting frost, torrential rain or impenetrable fog cards) in play"
+        "instructions": "clear any weather effects (resulting from biting frost, torrential rain or impenetrable fog cards) in play",
+        "clear_weather": true
     },
-    "specialty": "leader"
+    "owner": "Dylan Shanaghy",
+    "owner_nickname": "dylan",
+    "specialty": "leader",
+    "rfid": 896253382124
 }

@@ -46,12 +46,13 @@ class GameStage(gwent.game.PubSubComponent):
                                  f'stage')
 
     def _publish_prompt_then(self, prompt, action, ok=False, cancel=False,
-                             clear_choices=True, ok_text=None):
+                             clear_choices=True, ok_text=None, faction=None):
         """Publish a prompt and defer an action until the announcement finishes."""
         self._deferred_action = action
         self._awaiting = 'announcement'
         self.publish_prompt(prompt, ok=ok, cancel=cancel,
-                           clear_choices=clear_choices, ok_text=ok_text)
+                           clear_choices=clear_choices, ok_text=ok_text,
+                           faction=faction)
 
     def _on_announcement_complete(self, msg):
         """Called when an announcement finishes playing."""

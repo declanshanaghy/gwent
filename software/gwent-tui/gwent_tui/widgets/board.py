@@ -1,4 +1,4 @@
-"""Board widget: score title, 3 combat rows x 2 players. Scrollable."""
+"""Board widget: 3 combat rows x 2 players, plus top-level scoreboard."""
 
 from rich.panel import Panel
 from rich.table import Table
@@ -8,7 +8,7 @@ from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import (
-    card_display_short, ROW_EMOJI, WEATHER_EMOJI, ZAP,
+    card_display_short, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
 )
 from gwent_tui.game_state import P1, P2
 
@@ -19,9 +19,63 @@ ROW_COLOR = {
 }
 
 
-class _BoardContent(Static):
+class ScoreboardWidget(Static):
+    """Top-level scoreboard: P1 status | scores | P2 status."""
+
+    def render(self):
+        state = self.app.state
+        p1s = state.scores[P1]
+        p2s = state.scores[P2]
+
+        # Weather
+        if state.weather_rows:
+            weather_items = []
+            for row in sorted(state.weather_rows):
+                emoji = WEATHER_EMOJI.get(row, "")
+                name = WEATHER_NAME.get(row, row)
+                weather_items.append(f"{emoji}{name}")
+            weather = " ".join(weather_items)
+        else:
+            weather = ""
+
+        # Passed status
+        p1_passed = state.passed.get(P1, False)
+        p2_passed = state.passed.get(P2, False)
+        p1_pass = f"{FLAG}" if p1_passed else ""
+        p2_pass = f"{FLAG}" if p2_passed else ""
+
+        # Leader status
+        p1_ldr = "\U0001f451" + ("[dim]x[/dim]" if state.leader_used.get(P1) else "[green]\u26a1[/green]")
+        p2_ldr = ("[dim]x[/dim]" if state.leader_used.get(P2) else "[green]\u26a1[/green]") + "\U0001f451"
+
+        # Build: P1 info | score | weather | score | P2 info
+        left = f"[bold yellow]P1[/bold yellow] {p1_ldr} {p1_pass}"
+        center = (
+            f"\U0001f5e1\ufe0f [bold yellow]{p1s}[/bold yellow]"
+            f"  \u2694\ufe0f  "
+            f"[bold dodger_blue2]{p2s}[/bold dodger_blue2] \U0001f6e1\ufe0f"
+        )
+        if weather:
+            center += f"  {weather}"
+        right = f"{p2_pass} {p2_ldr} [bold dodger_blue2]P2[/bold dodger_blue2]"
+
+        table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
+        table.add_column(ratio=1, justify="left")
+        table.add_column(ratio=2, justify="center")
+        table.add_column(ratio=1, justify="right")
+        table.add_row(
+            Text.from_markup(left),
+            Text.from_markup(center),
+            Text.from_markup(right),
+        )
+
+        return Panel(table, title="\U0001f3c6 Scoreboard")
+
+
+class _BoardRows(Static):
+    """The 3 combat rows (close, ranged, siege) for both players."""
     DEFAULT_CSS = """
-    _BoardContent { width: 1fr; min-height: 100%; }
+    _BoardRows { width: 1fr; min-height: 100%; }
     """
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
@@ -40,16 +94,8 @@ class _BoardContent(Static):
 
     def render(self):
         state = self.app.state
-        p1s = state.scores[P1]
-        p2s = state.scores[P2]
-        title = Text.from_markup(
-            f"\u2694\ufe0f [bold yellow]{p1s}[/bold yellow]"
-            f" [dim]vs[/dim] "
-            f"[bold dodger_blue2]{p2s}[/bold dodger_blue2]"
-        )
 
         table = Table(
-            title=title,
             box=box.SIMPLE_HEAVY,
             expand=True,
             padding=(0, 1),
@@ -80,14 +126,14 @@ class _BoardContent(Static):
 
             table.add_row(p1_text, p2_text)
 
-        return Panel(table)
+        return Panel(table, title="\u2694\ufe0f Board")
 
 
 class BoardWidget(VerticalScroll, can_focus=True):
 
     DEFAULT_CSS = """
     BoardWidget {
-        height: 2fr;
+        height: 1fr;
     }
     BoardWidget:focus {
         border: tall $accent;
@@ -95,4 +141,4 @@ class BoardWidget(VerticalScroll, can_focus=True):
     """
 
     def compose(self):
-        yield _BoardContent()
+        yield _BoardRows()

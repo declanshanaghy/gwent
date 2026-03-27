@@ -2,12 +2,17 @@ import gwent.game
 import gwent.messaging.factory
 import gwent.messaging.sfx
 import gwent.hal.sfx
+from gwent.hal.tts import DEFAULT_PROVIDER
 
 
 class SFX(gwent.game.PubSubComponent):
+    def __init__(self, pubsub, tts_provider: str = DEFAULT_PROVIDER):
+        super().__init__(pubsub)
+        self._tts_provider_name = tts_provider
+
     def init(self):
         super().init()
-        self._tts = gwent.hal.sfx.instance()
+        self._tts = gwent.hal.sfx.instance(tts_provider=self._tts_provider_name)
         self.subscribe(gwent.game.CH_SFX,
                       gwent.messaging.sfx.KIND,
                       self.process_sfx)

@@ -3,7 +3,12 @@
     "faction": "Monsters",
     "name": "Eredin: Destroyer of Worlds",
     "leader": {
-        "instructions": "discard 2 card and draw 1 card of your choice from your deck"
+        "instructions": "discard 2 card and draw 1 card of your choice from your deck",
+        "discard_and_draw": {
+            "discard": 2,
+            "draw": 1
+        }
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 481219071443
 }

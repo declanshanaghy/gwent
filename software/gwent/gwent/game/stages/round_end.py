@@ -18,6 +18,45 @@ from gwent.game.constants import PLAYER
 from gwent.game.board import Board, ROWS
 
 
+LOCATIONS = [
+    "Vizima", "Oxenfurt", "Novigrad", "Kaer Morhen", "the Skellige Isles",
+    "Cintra", "Vengerberg", "Toussaint", "Loc Muinne", "Vergen",
+    "Flotsam", "Brenna", "Sodden Hill", "Thanedd Isle", "White Orchard",
+    "Crow's Perch", "Velen", "Beauclair", "Kerack", "Ard Skellig",
+]
+
+_WIN_TEMPLATES = [
+    "The tavern at {location} erupts! {winner} crushes {loser}, {w_score} to {l_score}!",
+    "Word spreads from {location}: {winner} bested {loser} by {margin} points!",
+    "{winner} sweeps round {round} like a Skellige storm! {w_score} over {loser}'s {l_score}.",
+    "The bards of {location} will sing of {winner}'s {w_score}-point triumph over {loser}!",
+    "Not even the mages of Aretuza could save {loser}. {winner} wins {w_score} to {l_score} at {location}!",
+    "{loser}'s forces crumble at the gates of {location}. {winner} stands victorious, {w_score} to {l_score}.",
+    "From the walls of {location}, {winner} claims round {round}! {margin} points to spare.",
+    "Dandelion scribbles furiously: {winner} humiliates {loser} at {location}, {w_score} to {l_score}!",
+    "The Continent trembles! {winner} dominates round {round} at {location}. {w_score} to {l_score}.",
+    "{winner} outplays {loser} at {location} with the cunning of a Nilfgaardian spy. {w_score} to {l_score}!",
+    "A decisive blow at {location}! {winner} takes the round {w_score} to {l_score}.",
+    "{loser} retreats from {location} in shame. {winner} wins by {margin}!",
+    "The merchants of {location} bet heavily on {winner}. {w_score} to {l_score} proves them right!",
+    "{winner} raises a tankard at {location}! Round {round} won, {w_score} to {l_score}.",
+    "The Witchers of Kaer Morhen nod approvingly. {winner} bests {loser} by {margin} at {location}.",
+    "Like Geralt slaying a griffin, {winner} dismantles {loser} at {location}! {w_score} to {l_score}.",
+    "Round {round} at {location} belongs to {winner}! {loser} falls {margin} short.",
+    "Triss would be proud. {winner} outmaneuvers {loser} at {location}, {w_score} to {l_score}.",
+    "The dwarves of Mahakam raise their axes for {winner}! {w_score} to {l_score} at {location}.",
+    "{winner} conquers {location}! {loser} left with nothing but {l_score} points and bruised pride.",
+]
+
+_DRAW_TEMPLATES = [
+    "The battle at {location} ends in stalemate! {p1} and {p2} tie at {score}.",
+    "Neither army yields at {location}. Both sides score {score}. Both lose a gem!",
+    "Dandelion can't pick a winner at {location}. {p1} and {p2} tied at {score}!",
+    "The fog over {location} clears to reveal a draw. {score} to {score}. A gem from each!",
+    "Even Gaunter O'Dimm couldn't decide this one at {location}. Both score {score}!",
+]
+
+
 class RoundEnd(gwent.game.stages.base.GameStage):
 
     @property
@@ -54,16 +93,34 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             else:
                 winner, loser = None, None
 
-        # Remove gems
+        # Remove gems and build commentary
+        location = random.choice(LOCATIONS)
+        rnd = self._board.round_number
+
         if loser:
             self._board.players[loser].gems -= 1
-            result = f"Player {'1' if winner == PLAYER.ONE else '2'} wins round {self._board.round_number}!"
+            w_label = "Player 1" if winner == PLAYER.ONE else "Player 2"
+            l_label = "Player 1" if loser == PLAYER.ONE else "Player 2"
+            w_score = max(p1_score, p2_score)
+            l_score = min(p1_score, p2_score)
+            margin = w_score - l_score
+            w_faction = self._board.factions.get(winner, "")
+            l_faction = self._board.factions.get(loser, "")
+            commentary = random.choice(_WIN_TEMPLATES).format(
+                winner=w_label, loser=l_label,
+                w_score=w_score, l_score=l_score,
+                w_faction=w_faction, l_faction=l_faction,
+                margin=margin, round=rnd, location=location,
+            )
         elif winner is None:
             self._board.players[PLAYER.ONE].gems -= 1
             self._board.players[PLAYER.TWO].gems -= 1
-            result = f"Round {self._board.round_number} is a draw! Both lose a gem."
+            commentary = random.choice(_DRAW_TEMPLATES).format(
+                p1="Player 1", p2="Player 2",
+                score=p1_score, round=rnd, location=location,
+            )
         else:
-            result = ""
+            commentary = ""
 
         self._winner = winner
         self._loser = loser
@@ -81,11 +138,13 @@ class RoundEnd(gwent.game.stages.base.GameStage):
 
         g1 = "gem" if p1_gems == 1 else "gems"
         g2 = "gem" if p2_gems == 1 else "gems"
-        gems_info = f"Player 1 has {p1_gems} {g1} left. Player 2 has {p2_gems} {g2} left."
+        gems_info = f"Player 1: {p1_gems} {g1}. Player 2: {p2_gems} {g2}."
 
-        prompt = f"{result} {gems_info}"
+        prompt = f"{commentary} {gems_info}"
 
-        self._publish_prompt_then(prompt, self._advance)
+        winner_faction = self._board.factions.get(winner) if winner else None
+        self._publish_prompt_then(prompt, self._advance,
+                                  faction=winner_faction)
 
         self._log.info({
             'action': 'round_result',

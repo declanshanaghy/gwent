@@ -3,7 +3,9 @@
     "faction": "Monsters",
     "name": "Eredin Br\u00e9acc Glas: the Treacherous",
     "leader": {
-        "instructions": "doubles the strength of all spy cards (affects both players)"
+        "instructions": "doubles the strength of all spy cards (affects both players)",
+        "spy_doubling": true
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 552136297891
 }

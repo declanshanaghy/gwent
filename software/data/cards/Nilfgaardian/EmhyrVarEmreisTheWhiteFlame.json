@@ -3,7 +3,9 @@
     "faction": "Nilfgaardian",
     "name": "Emhyr var Emreis: The White Flame",
     "leader": {
-        "instructions": "the white flame: cancel your opponent's leader abilities"
+        "instructions": "the white flame: cancel your opponent's leader abilities",
+        "cancel_leader": true
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 551482051919
 }

@@ -3,7 +3,9 @@
     "faction": "Nilfgaardian",
     "name": "Emhyr var Emreis: Invader of the North",
     "leader": {
-        "instructions": "invader of the north: abilities that restore a unit to the battlefield restore a randomly-chosen unit. affects both players"
+        "instructions": "invader of the north: abilities that restore a unit to the battlefield restore a randomly-chosen unit. affects both players",
+        "medic_random": true
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 208186265051
 }

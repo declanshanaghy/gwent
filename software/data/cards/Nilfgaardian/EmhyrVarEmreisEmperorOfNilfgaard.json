@@ -3,7 +3,9 @@
     "faction": "Nilfgaardian",
     "name": "Emhyr var Emreis: Emperor of Nilfgaard",
     "leader": {
-        "instructions": "emperor of nilfgaard: look at 3 random cards from your opponent's hand"
+        "instructions": "emperor of nilfgaard: look at 3 random cards from your opponent's hand",
+        "view_opponent_hand": 3
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 414479306057
 }

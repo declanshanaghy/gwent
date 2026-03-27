@@ -3,7 +3,12 @@
     "faction": "Scoia'tael",
     "name": "Francesca Findabair: Queen of Dol Blathanna",
     "leader": {
-        "instructions": "queen of dol blathanna: destroy your enemy's strongest close combat unit(s) if the combined strength of all his or her close combat units is 10 or more"
+        "instructions": "queen of dol blathanna: destroy your enemy's strongest close combat unit(s) if the combined strength of all his or her close combat units is 10 or more",
+        "conditional_scorch": {
+            "row": "close",
+            "threshold": 10
+        }
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 1031880920344
 }

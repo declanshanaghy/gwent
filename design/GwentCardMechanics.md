@@ -46,6 +46,7 @@ A card's `specialty` field determines what kind of card it is and how it's playe
 
 ### Mardroeme (`specialty: "mardroeme"`)
 - Clears all active weather effects (same as Clear Weather)
+- **Triggers Berserker transformation**: any Berserker units on the board (either player) transform into their stronger bear forms (see Berserker ability below)
 - Goes to discard after playing
 
 ### Leader (`specialty: "leader"`)
@@ -131,8 +132,14 @@ A card's `abilities` array lists passive effects that trigger when the card is o
 
 ## Unimplemented Mechanics
 
-### Berserker
-- Cards exist: Berserker, Young Berserker (Skellige)
-- `transforms_to` field defined in card JSON schema
-- Expected behavior: transforms into a stronger card under certain conditions
-- **Not yet implemented in game logic**
+### Berserker (`abilities: ["berserker"]`)
+- Skellige-exclusive ability on cards: Berserker (str 4, close), Young Berserker (str 2, ranged)
+- **Trigger**: when a Mardroeme card is played, all Berserker units on the board transform
+- **Transformation**: the card is replaced by its `transforms_to` target:
+  - Berserker → Transformed Vildkaarl (str 8, close)
+  - Young Berserker → Transformed Young Vildkaarl (str 8, ranged)
+- The transformed card keeps the same board position (row) and owner
+- Transformed cards are regular units — they can be scorched, affected by weather, etc.
+- Transformation is permanent for the round (no way to revert)
+- Tracked via `transforms_to` field in card JSON
+- **Not yet implemented in game logic** — see issue #27

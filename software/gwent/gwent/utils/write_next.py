@@ -242,11 +242,14 @@ def main():
                         help="Quiet mode — only show card name and TTS announcements")
     parser.add_argument("-u", "--unowned", action="store_true",
                         help="Only iterate unowned and starter cards, skip owned")
+    parser.add_argument("-l", "--leaders", action="store_true",
+                        help="Only iterate leader cards")
     parser.add_argument("--no-write", action="store_true",
                         help="List cards without writing — dry run")
     args = parser.parse_args()
     quiet = args.quiet
     unowned = args.unowned
+    leaders_only = args.leaders
     no_write = args.no_write
 
     configure_logging(level=DEBUG, log_file="/tmp/logs/write_next.log")
@@ -306,6 +309,11 @@ def main():
             if shutting_down:
                 break
 
+            # --leaders: only leader cards
+            if leaders_only and data.get("specialty") != "leader":
+                skipped += 1
+                continue
+
             # --unowned: skip owned cards (keep starters and unowned)
             if unowned and data.get("owner") and not data.get("starter"):
                 skipped += 1
@@ -362,10 +370,18 @@ def main():
                     leader = data["leader"]
                     if leader.get("instructions"):
                         _row(E_LEADER, "Leader:", leader["instructions"])
-                    if leader.get("commander_ranges"):
-                        _row("📯", "Cmd Rows:", ", ".join(leader["commander_ranges"]))
-                    if leader.get("weather_ranges"):
-                        _row("🌧️", "Wth Rows:", ", ".join(leader["weather_ranges"]))
+                    # Show all ability keys (everything except instructions)
+                    ability_keys = {k: v for k, v in leader.items() if k != "instructions"}
+                    for k, v in ability_keys.items():
+                        if isinstance(v, list):
+                            display = ", ".join(str(x) for x in v)
+                        elif isinstance(v, dict):
+                            display = ", ".join(f"{dk}={dv}" for dk, dv in v.items())
+                        elif isinstance(v, bool):
+                            display = "yes" if v else "no"
+                        else:
+                            display = str(v)
+                        _row("⚙️", f"{k}:", display)
                 if is_starter:
                     _row(E_STARTER, "Owner:", "(starter)")
                 elif data.get("owner"):

@@ -3,7 +3,11 @@
     "faction": "Northern Realms",
     "name": "Foltest: the Siegemaster",
     "leader": {
-        "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)"
+        "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)",
+        "commander_ranges": [
+            "siege"
+        ]
     },
-    "specialty": "leader"
+    "specialty": "leader",
+    "rfid": 413623274942
 }

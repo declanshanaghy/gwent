@@ -294,7 +294,7 @@ class Gwent:
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
-        self.components.append(gwent.game.sfx.SFX(self.pubsub))
+        self.components.append(gwent.game.sfx.SFX(self.pubsub, tts_provider=getattr(self, '_tts_provider', 'gtts')))
         
     def initialize_components(self):
         """Initialize all components"""
@@ -396,6 +396,9 @@ def run():
     parser = argparse.ArgumentParser(description="Gwent Companion Server")
     parser.add_argument("-o", "--owner", default=None,
                         help="Only use decks owned by this player (name or nickname)")
+    parser.add_argument("-t", "--tts", default="elevenlabs",
+                        choices=["gtts", "elevenlabs", "openai"],
+                        help="TTS provider: elevenlabs (default), gtts, or openai")
     args, _unknown = parser.parse_known_args()
 
     configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
@@ -404,6 +407,7 @@ def run():
     try:
         gwent_app = Gwent()
         gwent_app._owner_filter = args.owner
+        gwent_app._tts_provider = args.tts
         gwent_app.run()
     except Exception as ex:
         logger = get_logger(__name__)
