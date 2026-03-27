@@ -39,7 +39,7 @@ DEAL_ANNOUNCEMENTS = [
 
 
 class DealCards(gwent.game.stages.base.GameStage):
-    HAND_SIZE = 5
+    HAND_SIZE = 8
 
     _player1_deck = []
     _player2_deck = []
@@ -68,27 +68,27 @@ class DealCards(gwent.game.stages.base.GameStage):
         self._deal_hands()
 
     def _supplement_deck(self, deck, player):
-        """Fill in missing leaders and cards from starter cards.
+        """Build a mixed deck from owned + starter cards.
 
-        Owned cards are already in the deck and take priority.
-        Starter cards are only added to fill gaps.
+        Ensures:
+        - At least one leader (owned preferred, starter fallback)
+        - ~50/50 mix of owned and starter non-leader cards
+        - No duplicate card names
         """
         if not deck:
             return
 
         faction = deck[0].faction
-        leaders = [c for c in deck if c.is_leader]
-        non_leaders = [c for c in deck if not c.is_leader]
-
         starters = gwent.game.decks.load_starter_cards(faction)
         if not starters:
             return
 
-        # Existing card names to avoid duplicates
         existing_names = {c.name for c in deck}
+        owned_leaders = [c for c in deck if c.is_leader]
+        owned_non_leaders = [c for c in deck if not c.is_leader]
 
-        # Add a leader if missing
-        if not leaders:
+        # Ensure at least one leader
+        if not owned_leaders:
             starter_leaders = [c for c in starters
                                if c.is_leader and c.name not in existing_names]
             if starter_leaders:
@@ -97,17 +97,22 @@ class DealCards(gwent.game.stages.base.GameStage):
                 existing_names.add(leader.name)
                 self._log.info(f"{player}: added starter leader {leader.name}")
 
-        # Add non-leader cards if below HAND_SIZE
-        needed = self.HAND_SIZE - len(non_leaders)
-        if needed > 0:
-            starter_non_leaders = [c for c in starters
-                                   if not c.is_leader
-                                   and c.name not in existing_names]
-            random.shuffle(starter_non_leaders)
-            for card in starter_non_leaders[:needed]:
-                deck.append(card)
-                existing_names.add(card.name)
-                self._log.info(f"{player}: added starter card {card.name}")
+        # Add starter non-leaders to reach ~50/50 mix
+        starter_non_leaders = [c for c in starters
+                               if not c.is_leader
+                               and c.name not in existing_names]
+        random.shuffle(starter_non_leaders)
+
+        # Target: same number of starters as owned non-leaders
+        target_starters = max(len(owned_non_leaders), self.HAND_SIZE)
+        to_add = starter_non_leaders[:target_starters]
+
+        for card in to_add:
+            deck.append(card)
+            existing_names.add(card.name)
+
+        self._log.info(f"{player}: deck has {len(owned_non_leaders)} owned + "
+                       f"{len(to_add)} starter cards")
 
     def _deal_hands(self):
         """Randomly deal cards from each deck into each player's hand."""
@@ -142,7 +147,7 @@ class DealCards(gwent.game.stages.base.GameStage):
         self._publish_prompt_then(summary, self._auto_complete)
 
     def _deal_from_deck(self, deck, player):
-        """Randomly select HAND_SIZE cards from the deck, prioritizing owned."""
+        """Randomly select HAND_SIZE cards from the deck with ~50/50 owned/starter mix."""
         # Exclude the leader from the deal pool — leader is played separately
         non_leader = [c for c in deck if not c.is_leader]
         hand_size = min(self.HAND_SIZE, len(non_leader))
@@ -152,22 +157,25 @@ class DealCards(gwent.game.stages.base.GameStage):
                 f"{player}: only {len(non_leader)} non-leader cards in deck, "
                 f"dealing {hand_size} instead of {self.HAND_SIZE}")
 
-        # Prioritize owned cards over starter cards
         owned = [c for c in non_leader if c.has_owner]
         starters = [c for c in non_leader if not c.has_owner]
+        random.shuffle(owned)
+        random.shuffle(starters)
 
-        hand = []
-        if len(owned) >= hand_size:
-            hand = random.sample(owned, hand_size)
-        else:
-            hand = list(owned)
-            remaining = hand_size - len(hand)
-            hand += random.sample(starters, min(remaining, len(starters)))
+        # Deal ~50/50: half owned, half starter (round up owned)
+        owned_count = min(len(owned), (hand_size + 1) // 2)
+        starter_count = min(len(starters), hand_size - owned_count)
+        # If one pool is short, take more from the other
+        if owned_count + starter_count < hand_size:
+            owned_count = min(len(owned), hand_size - starter_count)
+        if owned_count + starter_count < hand_size:
+            starter_count = min(len(starters), hand_size - owned_count)
 
+        hand = owned[:owned_count] + starters[:starter_count]
         random.shuffle(hand)
+
         self._log.info(f"Dealt {len(hand)} cards to {player} "
-                       f"({sum(1 for c in hand if c.has_owner)} owned, "
-                       f"{sum(1 for c in hand if not c.has_owner)} starter)")
+                       f"({owned_count} owned, {starter_count} starter)")
         return hand
 
     def _auto_complete(self):

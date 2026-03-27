@@ -1,0 +1,62 @@
+"""Header widget: factions, gems, round, turn, MQTT/HTTP status."""
+
+from rich.panel import Panel
+from rich.table import Table
+from rich.text import Text
+from textual.widgets import Static
+
+from gwent_tui.emoji import faction_emoji
+from gwent_tui.game_state import P1, P2
+import gwent_tui.snapshot as snapshot_mod
+
+_STATUS_COLOR = {
+    "polling": "green", "processing": "yellow",
+    "error": "red", "off": "grey50",
+}
+
+
+class HeaderWidget(Static):
+
+    def _gems(self, gems, max_gems=2):
+        alive = min(gems, max_gems)
+        dead = max_gems - alive
+        return "\U0001f48e" * alive + "\U0001f480" * dead
+
+    def render(self):
+        state = self.app.state
+        turn = "P1" if state.current_player == P1 else "P2"
+
+        p1_gems = self._gems(state.gems[P1])
+        p2_gems = self._gems(state.gems[P2])
+
+        p1f = state.factions.get(P1, "")
+        p2f = state.factions.get(P2, "")
+        p1e = faction_emoji(p1f)
+        p2e = faction_emoji(p2f)
+
+        p1_label = f"{p1e[0]} [bold yellow]P1 ({p1f})[/bold yellow] {p1e[1]}" if p1f else "[bold yellow]P1[/bold yellow]"
+        p2_label = f"{p2e[0]} [bold blue]P2 ({p2f})[/bold blue] {p2e[1]}" if p2f else "[bold blue]P2[/bold blue]"
+
+        center = Text.from_markup(
+            f" {p1_label} {p1_gems}    "
+            f"\u2694\ufe0f Round {state.round_number} "
+            f"\U0001f3af {turn}"
+            f"    {p2_gems} {p2_label} "
+        )
+        center.justify = "center"
+
+        mc = _STATUS_COLOR.get(state.mqtt_status, "grey50")
+        hc = _STATUS_COLOR.get(state.http_status, "grey50")
+        pt = snapshot_mod.POLL_TIMEOUT
+        poll_label = f"[dim]{pt}s[/dim]" if pt > 0 else "[dim]off[/dim]"
+        status = Text.from_markup(
+            f"[{mc}]MQTT[/{mc}] [{hc}]HTTP[/{hc}] {poll_label} "
+        )
+        status.justify = "right"
+
+        table = Table(box=None, expand=True, show_header=False, padding=0)
+        table.add_column(ratio=1)
+        table.add_column(width=16, justify="right")
+        table.add_row(center, status)
+
+        return Panel(table, style="bold")

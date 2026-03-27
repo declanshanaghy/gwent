@@ -180,6 +180,11 @@ class PubSubComponent(ThreadComponent):
             'body': message.body,
         })
         self._pubsub.publish(topic, message.body, qos=1)
+        # Signal long-poll waiters that state has changed
+        cond = getattr(self._pubsub, 'state_condition', None)
+        if cond:
+            with cond:
+                cond.notify_all()
 
     def publish_effect(self, effect: str):
         """Publish a sound effect"""

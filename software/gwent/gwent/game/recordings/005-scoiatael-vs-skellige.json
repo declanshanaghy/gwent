@@ -331,7 +331,21 @@
         "PLAYER.TWO": []
       },
       "current_player": "PLAYER.TWO",
-      "round_number": 1
+      "round_number": 1,
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
     }
   }
 }

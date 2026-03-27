@@ -1,9 +1,10 @@
-"""Load game state from the gwent HTTP API.
+"""Load game state from the gwent HTTP API via long-polling.
 
-SnapshotPoller runs in a background thread, fetching state at a regular
-interval and pushing snapshots onto a queue. The UI thread drains the
-queue to update GameState. If the queue fills up (UI not consuming fast
-enough), the poller backs off.
+SnapshotPoller runs in a background thread, using the /state/poll
+long-poll endpoint. The server blocks until state changes or timeout,
+so the poller gets near-instant updates without busy-polling.
+
+Falls back to regular /state polling if long-poll is unavailable.
 """
 
 import json
@@ -19,59 +20,40 @@ log = logging.getLogger("gwent_tui.snapshot")
 # Module-level URL, set from CLI arg in app.py
 gwent_state_url = "http://localhost:8080/state"
 
-# Max snapshots buffered before poller backs off
+# Max snapshots buffered before poller drops
 MAX_QUEUE_SIZE = 3
 
-
-def fetch_snapshot():
-    """Fetch game state JSON from the HTTP API.
-
-    Returns the parsed dict on success, None on failure.
-    """
-    try:
-        req = urllib.request.Request(gwent_state_url)
-        with urllib.request.urlopen(req, timeout=2) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except (urllib.error.URLError, json.JSONDecodeError, OSError) as e:
-        log.debug("Snapshot fetch failed: %s", e)
-        return None
-
-
-def load_snapshot(state):
-    """Fetch and apply a snapshot directly (used for initial load).
-
-    Returns True if snapshot was loaded, False otherwise.
-    """
-    data = fetch_snapshot()
-    if data is not None:
-        state.load_snapshot(data)
-        state.http_ok = True
-        log.debug("Snapshot loaded from %s", gwent_state_url)
-        return True
-    state.http_ok = False
-    return False
+# Long-poll settings
+POLL_TIMEOUT = 30       # server-side wait (seconds)
+CLIENT_TIMEOUT = 35     # client-side urllib timeout (slightly longer)
+RETRY_DELAY = 2         # seconds between retries on error
 
 
 class SnapshotPoller:
-    """Background thread that polls /state and pushes snapshots onto a queue."""
+    """Background thread that long-polls /state/poll for state changes."""
 
-    def __init__(self, interval=5.0):
-        self.interval = interval
+    def __init__(self, state=None):
         self.queue = queue.Queue(maxsize=MAX_QUEUE_SIZE)
-        self.data_ready = threading.Event()  # signaled when new data is available
+        self.data_ready = threading.Event()
+        self.data_ready_callback = None  # called from poller thread on new data
         self._running = False
         self._thread = None
-        self._backoff = 1.0
+        self._etag = None  # tracks last seen state
+        self._state = state  # for http_status updates
 
     def start(self):
         self._running = True
         self._thread = threading.Thread(
             target=self._run, name="snapshot-poller", daemon=True)
         self._thread.start()
-        log.info("Snapshot poller started (interval=%.1fs)", self.interval)
+        log.info("Snapshot long-poller started")
 
     def stop(self):
         self._running = False
+
+    def _set_status(self, status):
+        if self._state:
+            self._state.http_status = status
 
     def drain(self, state):
         """Apply all pending snapshots to state. Returns number applied."""
@@ -79,38 +61,57 @@ class SnapshotPoller:
         while True:
             try:
                 data = self.queue.get_nowait()
+                self._set_status("processing")
                 state.load_snapshot(data)
-                state.http_ok = True
                 count += 1
             except queue.Empty:
                 break
+        if count > 0:
+            self._set_status("polling")
         return count
 
     def _run(self):
+        poll_url = gwent_state_url
+
         while self._running:
-            # Check queue pressure — back off if full
-            if self.queue.full():
-                backoff = min(self._backoff * 2, self.interval * 4)
-                if backoff != self._backoff:
-                    log.warning("Queue full, backing off to %.1fs", backoff)
-                self._backoff = backoff
-                time.sleep(self._backoff)
-                continue
+            self._set_status("polling")
+            try:
+                url = f"{poll_url}?timeout={POLL_TIMEOUT}"
+                req = urllib.request.Request(url)
+                if self._etag:
+                    req.add_header("If-None-Match", self._etag)
 
-            # Reset backoff when queue has room
-            if self._backoff > 1.0:
-                log.debug("Queue drained, resetting backoff")
-                self._backoff = 1.0
+                with urllib.request.urlopen(req, timeout=CLIENT_TIMEOUT) as resp:
+                    if resp.status == 200:
+                        data = json.loads(resp.read().decode("utf-8"))
+                        self._etag = resp.headers.get("ETag", "")
+                        try:
+                            self.queue.put_nowait(data)
+                            self.data_ready.set()
+                            if self.data_ready_callback:
+                                self.data_ready_callback()
+                        except queue.Full:
+                            pass  # drop oldest, UI will catch up
+                    # 304 = no change, loop immediately to re-poll
 
-            data = fetch_snapshot()
-            if data is not None:
-                try:
-                    self.queue.put_nowait(data)
-                    self.data_ready.set()  # wake up the UI thread
-                except queue.Full:
-                    pass  # drop it, will back off next iteration
-            else:
-                # Mark HTTP as down — UI can check state.http_ok
-                pass
+            except urllib.error.HTTPError as e:
+                if e.code == 304:
+                    # No change — loop immediately to re-poll
+                    continue
+                log.debug("Long-poll HTTP error %d: %s", e.code, e)
+                self._set_status("error")
+                self._error_backoff()
 
-            time.sleep(self.interval)
+            except (urllib.error.URLError, OSError, json.JSONDecodeError) as e:
+                log.debug("Long-poll failed: %s", e)
+                self._set_status("error")
+                self._error_backoff()
+
+        self._set_status("off")
+
+    def _error_backoff(self):
+        """Sleep on error, but check _running flag to allow quick exit."""
+        for _ in range(int(RETRY_DELAY / 0.2)):
+            if not self._running:
+                return
+            time.sleep(0.2)

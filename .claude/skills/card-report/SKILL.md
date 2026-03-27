@@ -95,3 +95,7 @@ Three tables, each with columns Name, Faction, Owner, RFID:
 1. **Cards with Owner but No RFID**
 2. **Cards with RFID but No Owner**
 3. **Misconfigured Starter Cards** — cards where (owner or rfid is set) AND (starter is true AND the card is not a leader)
+
+### Cross-referencing
+
+In the Section 4 faction tables, any card that appears in the "Misconfigured Starter Cards" anomaly table should have its name linked to the anomalies section using a markdown anchor: `[Card Name](#misconfigured-starter-cards)`. This makes it easy to identify misconfigured cards while browsing faction tables.

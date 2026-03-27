@@ -96,9 +96,11 @@ class Board:
         weather_active = row_name in self.weather_rows
         horn_active = row_name in self.commander_horn_rows[player]
 
-        # Also check if any card in the row has commander specialty
+        # Check if any card in the row has commander (specialty or ability)
         has_commander_card = any(
-            c.has_specialty and c.specialty == "commander" for c in cards
+            (c.has_specialty and c.specialty == "commander")
+            or (c.has_abilities and "commander" in c.abilities)
+            for c in cards
         )
 
         # Step 1: Base strengths (weather reduces non-heroes to 1)
@@ -226,6 +228,15 @@ class Board:
             },
             "current_player": str(self.current_player),
             "round_number": self.round_number,
+            "scores": {
+                str(p): {
+                    "total": self.calculate_player_score(p),
+                    "close": self.calculate_row_score(p, "close"),
+                    "ranged": self.calculate_row_score(p, "ranged"),
+                    "siege": self.calculate_row_score(p, "siege"),
+                }
+                for p in (PLAYER.ONE, PLAYER.TWO)
+            },
         }
 
     @staticmethod

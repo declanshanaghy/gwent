@@ -158,8 +158,8 @@ def card_prefix(card):
 # Rich markup colors for faction-colored card names
 FACTION_COLOR = {
     "Monsters":        "red",
-    "Nilfgaardian":    "yellow",
-    "Northern Realms": "blue",
+    "Nilfgaardian":    "grey74",
+    "Northern Realms": "royal_blue1",
     "Scoia'tael":      "green",
     "Scoiatael":       "green",
     "Skellige":        "cyan",
@@ -231,7 +231,7 @@ def card_display_short(card, max_name=22, weather_active=False):
     return "".join(parts)
 
 
-def leader_display(card):
+def leader_display(card, used=False):
     """Format a leader card for display."""
     if not card:
         return "—"
@@ -241,10 +241,14 @@ def leader_display(card):
 
     fc = _faction_color(card)
     name = _truncate_name(name, 20)
-    parts = [CROWN, f" [{fc}]", name, f"[/{fc}]"]
-    if starter:
-        parts.append(f" {STAR}")
-    elif owner:
-        parts.append(f" {owner_short(card)}")
+
+    if used:
+        parts = [CROWN, f" [strike dim]{name}[/strike dim] [dim](used)[/dim]"]
+    else:
+        parts = [CROWN, f" [{fc}]", name, f"[/{fc}]"]
+        if starter:
+            parts.append(f" {STAR}")
+        elif owner:
+            parts.append(f" {owner_short(card)}")
 
     return "".join(parts)

@@ -8,6 +8,8 @@ Rules for the physical card game Gwent from The Witcher III: Wild Hunt, as imple
 - Each player starts with **2 gems** (lives)
 - At game start, **5 non-leader cards** are dealt randomly from each deck to form the player's hand
 - Leaders are not part of the hand — they are played separately
+- Owned cards are dealt first; starters fill remaining slots
+- If a deck has no leader, a random starter leader is assigned
 
 ## Round Flow
 
@@ -20,11 +22,12 @@ Rules for the physical card game Gwent from The Witcher III: Wild Hunt, as imple
 
 Each player's score is the sum of their card strengths across three combat rows: **Close**, **Ranged**, and **Siege**.
 
-**Order of operations for strength calculation:**
-1. Base strength (weather reduces non-heroes to 1)
-2. Tight Bond multiplier (same-name non-hero cards multiply)
-3. Morale boost (+1 per morale card to other non-hero cards in the row)
-4. Commander's Horn (doubles non-hero card strengths in the row)
+**Order of operations for strength calculation (per row):**
+
+1. **Base strength** — weather reduces non-heroes to 1; heroes keep their full strength
+2. **Tight Bond** — cards with the `bond` ability that share the same name multiply their strength by the count of same-name bond cards in the row
+3. **Morale Boost** — each card with the `morale` ability adds +1 to every OTHER non-hero card in the row (morale cards boost each other but not themselves)
+4. **Commander's Horn** — doubles all non-hero card strengths in the row (from horn flag OR a unit card with the `commander` ability)
 
 **Hero cards** are immune to weather, scorch, and all strength-modifying effects.
 
@@ -39,42 +42,16 @@ Each player's score is the sum of their card strengths across three combat rows:
 
 - A player is eliminated when they reach **0 gems**
 - The match is best-of-3 (2 gems each = need to lose 2 rounds)
+- Winner determined by gem count, not board score
 
-## Card Abilities
+## Card Types: Specialties vs Abilities
 
-| Ability | Effect |
-|---|---|
-| **Spy** | Placed on opponent's board; player draws 2 cards from their own deck |
-| **Medic** | Resurrect 1 non-hero card from own discard pile to hand |
-| **Muster** | Auto-play all cards with the same name from hand and deck |
-| **Weather** (Frost/Fog/Rain) | Reduces non-hero units to strength 1 in the affected row |
-| **Clear Weather** (Mardroeme) | Removes all active weather effects |
-| **Scorch** | Destroys the highest-strength non-hero card(s) on the board |
-| **Decoy** | Swap with any non-hero card on your own board, returning it to hand |
-| **Commander's Horn** | Doubles the strength of all non-hero units in one row |
-| **Tight Bond** | Same-name non-hero cards multiply their strength |
-| **Morale Boost** | Adds +1 strength to every other non-hero card in the same row |
-| **Agile** | Can be placed in multiple rows (close or ranged) |
+Cards have two different systems for special effects:
 
-## Leader Abilities
+- **Specialty** = what the card IS (determines how it's played — unit, special item, weather, etc.)
+- **Ability** = what extra effects a unit card HAS (applied after placement on the board)
 
-Leaders have a one-time ability usable once per game. Examples:
-- **Francesca Findabair - The Beautiful** (Scoia'tael): Commander's Horn on ranged row
-- **Crach an Craite** (Skellige): Shuffle all cards from each player's graveyard back into their decks
-- **Foltest King of Temeria** (Northern Realms): Clear all weather effects
-- **Eredin King of the Wild Hunt** (Monsters): Play a weather card from your deck
-
-## Faction Passive Abilities
-
-These trigger automatically at the end of each round:
-
-| Faction | Passive Ability |
-|---|---|
-| **Monsters** 👹🔥 | Keep the strongest non-hero card on the board for next round |
-| **Northern Realms** 🦁⚜️ | Round winner draws 1 extra card from deck |
-| **Skellige** ⚓🪓 | Resurrect 2 random non-hero cards from discard to hand |
-| **Nilfgaardian** 🌑☀️ | Win tied rounds |
-| **Scoia'tael** 🌿🏹 | Choose who goes first (coin toss) |
+A card can have one specialty and multiple abilities. See [Card Specialties & Abilities](GwentCardMechanics.md) for full details.
 
 ## Combat Rows
 
@@ -83,3 +60,9 @@ These trigger automatically at the end of each round:
 | Close | ⚔️ | Biting Frost 🌨️ |
 | Ranged | 🏹 | Impenetrable Fog 🌫️ |
 | Siege | 🏰 | Torrential Rain 🌧️ |
+
+## Sub-Pages
+
+- [Card Specialties & Abilities](GwentCardMechanics.md) — detailed mechanics for every card type
+- [Leaders](GwentLeaders.md) — all leader abilities and implementation status
+- [Faction Passives](GwentFactions.md) — end-of-round faction abilities

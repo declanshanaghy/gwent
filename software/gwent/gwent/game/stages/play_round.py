@@ -29,6 +29,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
     AWAITING_MEDIC_CHOICE = 'medic_choice'
     AWAITING_DECOY_CHOICE = 'decoy_choice'
     AWAITING_LEADER_DISCARD = 'leader_discard'
+    AWAITING_SPY_DRAW = 'spy_draw'
 
     @property
     def stage(self):
@@ -39,7 +40,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         super().activate(complete, cancel)
 
         self._pending_card = None
+        self._pending_weather_cards = None
         self._last_action_summary = None
+        self._spy_draws_remaining = 0
 
         if board is None:
             # First round — extract leaders from decks
@@ -172,6 +175,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if self._awaiting == self.AWAITING_LEADER_DISCARD:
             self._process_leader_discard_scan(card)
             return
+        if self._awaiting == self.AWAITING_SPY_DRAW:
+            self._process_spy_draw_scan(card)
+            return
         if self._awaiting != self.AWAITING_CARD:
             return
 
@@ -229,6 +235,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "ranged": _FOG_COMMENTARY,
         "siege": _RAIN_COMMENTARY,
     }
+    _COMMANDER_PHRASES = [
+        "{faction}'s fearless commander {name} sounds the horn! All {row} units double their strength!",
+        "The horn of {name} echoes across the {row} line! {faction} warriors fight with renewed fury!",
+        "{name} rallies the troops! {faction}'s {row} combat forces surge with power!",
+        "A mighty blast from {name}'s horn! {faction}'s {row} warriors are inspired to fight harder!",
+        "Commander {name} takes the field! The {row} line roars with doubled strength for {faction}!",
+        "{name} raises the banner of {faction}! Every {row} soldier fights with the strength of two!",
+    ]
     _NO_IMPACT = [
         "The weather shifts, but no one is affected.",
         "The elements rage, but the battlefield is empty.",
@@ -414,7 +428,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             f"Horn on {', '.join(card.ranges)}.")
 
     def _play_leader(self, card):
-        """Play a leader card ability."""
+        """Play a leader card ability. Dispatches to specific handler by JSON key."""
         cur = self._board.current_player
         pb = self._board.players[cur]
 
@@ -424,40 +438,96 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         pb.leader_used = True
         leader_data = card.leader if card.leader else {}
-        label = self._player_label(cur)
 
         if leader_data.get("weather_ranges"):
-            for row in leader_data["weather_ranges"]:
-                self._board.weather_rows.add(row)
-            prompt = f"{label}: leader ability. Weather on {leader_data['weather_ranges']}."
+            self._leader_pick_weather(leader_data)
         elif leader_data.get("commander_ranges"):
-            for row in leader_data["commander_ranges"]:
-                self._board.commander_horn_rows[cur].add(row)
-            prompt = f"{label}: leader ability. Horn on {leader_data['commander_ranges']}."
+            self._leader_commander_horn(leader_data)
         elif leader_data.get("draw_opponent_discard"):
-            opp = self._board.opponent(cur)
-            opp_discard = self._board.players[opp].discard
-            if opp_discard:
-                self._awaiting = self.AWAITING_LEADER_DISCARD
-                self.publish_prompt(
-                    f"{label}: leader ability. Scan a card from opponent's discard to take. "
-                    f"{len(opp_discard)} available.",
-                    ok=False, cancel=False, clear_choices=True)
-                return
-            else:
-                prompt = f"{label}: leader ability. Opponent's discard pile is empty."
+            self._leader_draw_opponent_discard()
         elif leader_data.get("reshuffle_graveyards"):
-            for player in (PLAYER.ONE, PLAYER.TWO):
-                discard = self._board.players[player].discard
-                if discard:
-                    self._board.decks[player].extend(discard)
-                    self._board.players[player].discard = []
-                    random.shuffle(self._board.decks[player])
-            prompt = f"{label}: leader ability. All graveyards reshuffled into decks."
+            self._leader_reshuffle_graveyards()
         else:
-            prompt = f"{label}: leader ability. {leader_data.get('instructions', 'No effect')}."
+            instructions = leader_data.get('instructions', 'No effect')
+            self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
+            self.publish_error(f"Leader ability not implemented: {instructions}")
+            pb.leader_used = False
+            return
 
-        self._announce_and_advance(prompt)
+    def _leader_pick_weather(self, leader_data):
+        """Leader ability: pick a weather card from deck and play it."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        allowed_ranges = set(leader_data["weather_ranges"])
+
+        weather_cards = [
+            c for c in self._board.decks[cur]
+            if c.is_weather and any(r in allowed_ranges for r in (c.ranges or []))
+        ]
+        if len(allowed_ranges) == 3:
+            weather_cards += [
+                c for c in self._board.decks[cur]
+                if c.is_weather and c.name == "Clear Weather"
+                and c not in weather_cards
+            ]
+
+        if not weather_cards:
+            self._announce_and_advance(
+                f"{label}: leader ability. No weather cards in deck!")
+        elif len(weather_cards) == 1:
+            wc = weather_cards[0]
+            self._board.decks[cur].remove(wc)
+            self._play_weather(wc)
+        else:
+            self._pending_weather_cards = weather_cards
+            self._awaiting = 'leader_weather_choice'
+            choices = [
+                gwent.messaging.choice.Message.from_properties(str(i), wc.name)
+                for i, wc in enumerate(weather_cards)
+            ]
+            mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
+            self.publish(gwent.game.CH_MFD_PRESENT, mfd)
+            self.publish_prompt(
+                f"{label}: leader ability. Choose a weather card from your deck.")
+
+    def _leader_commander_horn(self, leader_data):
+        """Leader ability: apply commander's horn to specified rows."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        for row in leader_data["commander_ranges"]:
+            self._board.commander_horn_rows[cur].add(row)
+        self._announce_and_advance(
+            f"{label}: leader ability. Horn on {leader_data['commander_ranges']}.")
+
+    def _leader_draw_opponent_discard(self):
+        """Leader ability: draw a card from opponent's discard pile."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        opp = self._board.opponent(cur)
+        opp_discard = self._board.players[opp].discard
+
+        if opp_discard:
+            self._awaiting = self.AWAITING_LEADER_DISCARD
+            self.publish_prompt(
+                f"{label}: leader ability. Scan a card from opponent's discard to take. "
+                f"{len(opp_discard)} available.",
+                ok=False, cancel=False, clear_choices=True)
+        else:
+            self._announce_and_advance(
+                f"{label}: leader ability. Opponent's discard pile is empty.")
+
+    def _leader_reshuffle_graveyards(self):
+        """Leader ability: shuffle all discard piles back into decks."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        for player in (PLAYER.ONE, PLAYER.TWO):
+            discard = self._board.players[player].discard
+            if discard:
+                self._board.decks[player].extend(discard)
+                self._board.players[player].discard = []
+                random.shuffle(self._board.decks[player])
+        self._announce_and_advance(
+            f"{label}: leader ability. All graveyards reshuffled into decks.")
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
@@ -504,10 +574,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         # Process abilities
         if is_spy:
-            drawn = self._board.draw_from_deck(cur, 2)
-            drawn_names = ", ".join(c.name for c in drawn)
-            self._announce_and_advance(
-                f"{place_msg}. Spy! Drew: {drawn_names}")
+            self._spy_draws_remaining = 2
+            self._awaiting = self.AWAITING_SPY_DRAW
+            self.publish_prompt(
+                f"{place_msg}. Spy! Scan 2 cards from your deck to draw.",
+                ok=False, cancel=False, clear_choices=True)
             return
 
         if card.has_abilities and "medic" in card.abilities:
@@ -540,6 +611,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._announce_and_advance(place_msg)
             return
 
+        # Commander unit — fancy horn announcement
+        if card.has_abilities and "commander" in card.abilities:
+            faction = self._board.factions[cur]
+            horn_phrase = random.choice(self._COMMANDER_PHRASES).format(
+                name=card.name, faction=faction, row=row_name)
+            self._announce_and_advance(f"{place_msg}. {horn_phrase}")
+            return
+
         # Normal card
         self._announce_and_advance(
             f"{place_msg}, strength {card.strength}.")
@@ -560,6 +639,31 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.hands[cur].append(drawn)
         self._announce_and_advance(
             f"{label}: took {drawn.name} from opponent's discard. Return to hand.")
+
+    def _process_spy_draw_scan(self, card):
+        """Handle a scanned card during spy draw — must be from player's own deck."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+
+        # Card must be in the player's deck
+        deck_card = next((c for c in self._board.decks[cur] if c.rfid == card.rfid), None)
+        if not deck_card:
+            self.publish_error(f"{card.name} is not in {label}'s deck")
+            return
+
+        self._board.decks[cur].remove(deck_card)
+        self._board.hands[cur].append(deck_card)
+        self._spy_draws_remaining -= 1
+        self._log.info(f"Spy draw: {deck_card.name} from deck ({self._spy_draws_remaining} remaining)")
+
+        if self._spy_draws_remaining > 0:
+            self.publish_prompt(
+                f"{label}: drew {card.name}. Scan {self._spy_draws_remaining} more card(s) from your deck.",
+                ok=False, cancel=False, clear_choices=True)
+        else:
+            self._awaiting = None
+            self._announce_and_advance(
+                f"{label}: Spy! Drew {card.name}. Hand restocked.")
 
     def _process_medic_scan(self, card):
         """Handle a scanned card during medic resurrection."""
@@ -643,6 +747,19 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._awaiting = None
                 self._pending_card = None
                 self._place_card_on_row(card, row)
+
+        elif self._awaiting == 'leader_weather_choice':
+            # Leader weather card selection
+            cards = getattr(self, '_pending_weather_cards', [])
+            if cards and choice.id.isdigit():
+                idx = int(choice.id)
+                idx = min(idx, len(cards) - 1)
+                wc = cards[idx]
+                cur = self._board.current_player
+                self._board.decks[cur].remove(wc)
+                self._awaiting = None
+                self._pending_weather_cards = None
+                self._play_weather(wc)
 
         elif self._awaiting == self.AWAITING_MEDIC_CHOICE:
             # Medic resurrection is handled by scanning, ignore MFD choices

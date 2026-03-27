@@ -8,7 +8,7 @@ setup(
     python_requires=">=3.6",
     install_requires=[
         "paho-mqtt>=2.1.0",
-        "rich>=13.3.0",
+        "textual>=0.40.0",
     ],
     entry_points={
         "console_scripts": [

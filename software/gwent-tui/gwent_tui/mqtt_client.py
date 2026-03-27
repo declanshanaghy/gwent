@@ -44,7 +44,7 @@ class MqttSubscriber:
             self.client.loop_start()
         except Exception as e:
             log.error("MQTT connect failed: %s", e)
-            self.state.connected = False
+            self.state.mqtt_status = "error"
 
     def disconnect(self):
         """Stop loop and disconnect."""
@@ -53,13 +53,13 @@ class MqttSubscriber:
 
     def _on_connect(self, client, userdata, flags, reason_code, properties=None):
         log.info("MQTT connected (rc=%s)", reason_code)
-        self.state.connected = True
+        self.state.mqtt_status = "polling"
         client.subscribe(TOPICS)
         self.state.event_log.append("MQTT connected")
 
     def _on_disconnect(self, client, userdata, flags, reason_code, properties=None):
         log.warning("MQTT disconnected (rc=%s)", reason_code)
-        self.state.connected = False
+        self.state.mqtt_status = "error"
         self.state.event_log.append("MQTT disconnected")
 
     def _on_message(self, client, userdata, msg):
@@ -73,6 +73,7 @@ class MqttSubscriber:
         kind = data.get("kind", "")
         subkind = data.get("subkind", "")
         log.debug("MQTT msg topic=%s kind=%s subkind=%s", topic, kind, subkind)
+        self.state.mqtt_status = "processing"
 
         if topic == "gwent/ctrl":
             self.state.on_ctrl(data)
@@ -85,3 +86,5 @@ class MqttSubscriber:
 
         elif topic == "gwent/cards/raw/read":
             self.state.on_raw_read(data)
+
+        self.state.mqtt_status = "polling"

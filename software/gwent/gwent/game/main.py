@@ -33,6 +33,7 @@ class MQTTClient:
         self._connected = threading.Event()
         self._lock = threading.RLock()
         self._subscriptions = {}
+        self.state_condition = threading.Condition()  # signaled on every publish
         
         # Set up callbacks
         self._client.on_connect = self._on_connect
@@ -326,7 +327,7 @@ class Gwent:
 
         # Start HTTP API server for state access
         from gwent.game.http_api import start_http_server
-        self._http_server = start_http_server(self._get_controller)
+        self._http_server = start_http_server(self._get_controller, self.pubsub)
 
         # Load saved game state to jump to a specific point.
         # GWENT_STATE: path to a state JSON file (absolute, or name resolved under recordings/)
