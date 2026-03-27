@@ -58,6 +58,12 @@ class GameState:
         self.passed = {P1: False, P2: False}
         self.leader_used = {P1: False, P2: False}
 
+        # Registration state (pre-game stages)
+        self.reg_leader1 = None
+        self.reg_leader2 = None
+        self.reg_deck1 = []
+        self.reg_deck2 = []
+
         # Event log (recent events for footer)
         self.last_prompt = ""
         self.last_error = ""
@@ -85,6 +91,8 @@ class GameState:
         board = state.get("board", {})
         if not board or self.stage not in self._GAME_STAGES:
             self._reset_board()
+            # Load registration data (leaders/decks from pre-game stages)
+            self._load_registration_data(state)
             return
 
         self.round_number = board.get("round_number", 1)
@@ -169,6 +177,13 @@ class GameState:
         self.commander_horn_rows = {P1: set(), P2: set()}
         self.passed = {P1: False, P2: False}
         self.leader_used = {P1: False, P2: False}
+
+    def _load_registration_data(self, state):
+        """Load pre-game registration data (leaders/decks being built)."""
+        self.reg_leader1 = state.get("leader1")
+        self.reg_leader2 = state.get("leader2")
+        self.reg_deck1 = state.get("player1_deck", [])
+        self.reg_deck2 = state.get("player2_deck", [])
 
     # --- MQTT event handlers ---
 

@@ -75,7 +75,10 @@ class Controller(gwent.game.PubSubComponent):
 
         def complete(choice):
             self._log.info(f'main menu completed with choice: {choice}')
-            self.start_game_from_decks()
+            if choice == 'player_deal':
+                self.start_register_leaders()
+            else:
+                self.start_game_from_decks()
 
         def cancel():
             self._log.error("main menu can't be canceled")

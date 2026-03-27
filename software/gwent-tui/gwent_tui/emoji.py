@@ -231,7 +231,7 @@ def card_display_short(card, max_name=22, weather_active=False):
     return "".join(parts)
 
 
-def leader_display(card, used=False):
+def leader_display(card, used=False, max_name=20):
     """Format a leader card for display."""
     if not card:
         return "—"
@@ -240,7 +240,7 @@ def leader_display(card, used=False):
     owner = card.get("owner", "")
 
     fc = _faction_color(card)
-    name = _truncate_name(name, 20)
+    name = _truncate_name(name, max_name)
 
     if used:
         parts = [CROWN, f" [strike dim]{name}[/strike dim] [dim](used)[/dim]"]

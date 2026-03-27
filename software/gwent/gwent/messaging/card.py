@@ -16,6 +16,7 @@ STRENGTH = 'strength'
 ABILITIES = 'abilities'
 SPECIALTY = "specialty"
 OWNER = "owner"
+OWNER_NICKNAME = "owner_nickname"
 STARTER = 'starter'
 
 # SPECIALTIES
@@ -267,6 +268,10 @@ class Message(gwent.messaging.base.Message):
     @property
     def owner(self):
         return self._instance.get(OWNER, None)
+
+    @property
+    def owner_nickname(self):
+        return self._instance.get(OWNER_NICKNAME, None)
 
     @property
     def bytes(self):

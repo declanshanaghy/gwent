@@ -14,6 +14,18 @@ _STATUS_COLOR = {
     "error": "red", "off": "grey50",
 }
 
+_STAGE_ICON = {
+    "MainMenu":        "\U0001f3e0",  # house
+    "RegisterLeaders": "\U0001f451",  # crown
+    "RegisterDecks":   "\U0001f0cf",  # playing card
+    "DealCards":       "\U0001f3b4",  # flower playing card
+    "PlayRound":       "\u2694\ufe0f",  # crossed swords
+    "RoundEnd":        "\U0001f3c1",  # chequered flag
+    "GameOver":        "\U0001f3c6",  # trophy
+    "DisplayWinner":   "\U0001f3c6",  # trophy
+    "—":               "\u23f3",      # hourglass
+}
+
 
 class HeaderWidget(Static):
 
@@ -54,9 +66,15 @@ class HeaderWidget(Static):
         )
         status.justify = "right"
 
+        stage_icon = _STAGE_ICON.get(state.stage, "\u2753")
+        stage_label = Text.from_markup(
+            f" {stage_icon} [dim]{state.stage}[/dim]"
+        )
+
         table = Table(box=None, expand=True, show_header=False, padding=0)
+        table.add_column(width=20, justify="left")
         table.add_column(ratio=1)
         table.add_column(width=16, justify="right")
-        table.add_row(center, status)
+        table.add_row(stage_label, center, status)
 
         return Panel(table, style="bold")

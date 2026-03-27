@@ -24,8 +24,8 @@ gwent_state_url = "http://localhost:8080/state"
 MAX_QUEUE_SIZE = 3
 
 # Long-poll settings
-POLL_TIMEOUT = 30       # server-side wait (seconds)
-CLIENT_TIMEOUT = 35     # client-side urllib timeout (slightly longer)
+POLL_TIMEOUT = 5        # server-side wait (seconds) — short to catch missed notifications
+CLIENT_TIMEOUT = 10     # client-side urllib timeout (slightly longer than POLL_TIMEOUT)
 RETRY_DELAY = 2         # seconds between retries on error
 
 
@@ -72,19 +72,24 @@ class SnapshotPoller:
 
     def _run(self):
         poll_url = gwent_state_url
+        log.info("Poller thread started, url=%s", poll_url)
 
         while self._running:
             self._set_status("polling")
             try:
+                log.debug("Polling %s (etag=%s, timeout=%d)", poll_url, self._etag or "(none)", POLL_TIMEOUT)
                 url = f"{poll_url}?timeout={POLL_TIMEOUT}"
                 req = urllib.request.Request(url)
+                req.add_header("Connection", "close")
                 if self._etag:
                     req.add_header("If-None-Match", self._etag)
 
                 with urllib.request.urlopen(req, timeout=CLIENT_TIMEOUT) as resp:
+                    log.debug("Response status=%d", resp.status)
                     if resp.status == 200:
                         data = json.loads(resp.read().decode("utf-8"))
                         self._etag = resp.headers.get("ETag", "")
+                        log.debug("Got snapshot: stage=%s etag=%s", data.get("active_stage"), self._etag)
                         try:
                             self.queue.put_nowait(data)
                             self.data_ready.set()
@@ -96,7 +101,7 @@ class SnapshotPoller:
 
             except urllib.error.HTTPError as e:
                 if e.code == 304:
-                    # No change — loop immediately to re-poll
+                    log.debug("304 no change, re-polling")
                     continue
                 log.debug("Long-poll HTTP error %d: %s", e.code, e)
                 self._set_status("error")
@@ -107,6 +112,12 @@ class SnapshotPoller:
                 self._set_status("error")
                 self._error_backoff()
 
+            except Exception as e:
+                log.error("Poller unexpected error: %s", e, exc_info=True)
+                self._set_status("error")
+                self._error_backoff()
+
+        log.info("Poller thread exiting")
         self._set_status("off")
 
     def _error_backoff(self):

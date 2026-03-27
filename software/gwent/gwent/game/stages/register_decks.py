@@ -45,28 +45,23 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
             'choice_text': choice.text
         })
             
-        # Determine if either player needs to register more cards
-        required_cards = 6
-        plr1_needs = required_cards - len(self._player1_deck)
-        plr2_needs = required_cards - len(self._player2_deck)
-        complete = plr1_needs <= 0 and plr2_needs <= 0
-
-        # Only complete if we have cards registered for all players
-        if complete:
-            self._log.info("Both players have enough cards, completing stage")
-            # Call complete with the registered decks
-            self.complete(self._player1_deck, self._player2_deck)
-        elif choice.id == 'y' and choice.text == 'ok':
-            self._log.info("User clicked OK, checking deck registrations", 
-                           extra={"plr1_needs": plr1_needs, "plr2_needs": plr2_needs})
-
-            if plr1_needs > 0:
-                self.publish_prompt(f"Player 1, you need to register {plr1_needs} more cards")
-            elif plr2_needs > 0:
-                self.publish_prompt(f"Player 2, you need to register {plr2_needs} more cards")
+        if choice.id == 'y':
+            # OK pressed — complete with whatever cards are registered
+            p1_count = len(self._player1_deck)
+            p2_count = len(self._player2_deck)
+            if p1_count < 2 or p2_count < 2:
+                # Need at least leader + 1 card per player
+                self.publish_error(
+                    f"Need more cards! P1: {p1_count}, P2: {p2_count}. "
+                    f"Each player needs at least 2 cards (leader + 1).")
             else:
+                self._log.info(f"Completing registration: P1={p1_count}, P2={p2_count}")
+                self.complete(self._player1_deck, self._player2_deck)
+        elif choice.id == 'n':
+            # Cancel
+            self.cancel()
 
-                self.publish_prompt(f"Players, continue registering your deck")
+    MAX_DECK_SIZE = 20
 
     def _find_card_in_deck(self, deck, card):
         return any(c.rfid == card.rfid for c in deck)
@@ -111,9 +106,15 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
             self.publish_error(f"{card.name} is already in Player 2's deck")
             return
 
+        if len(deck) >= self.MAX_DECK_SIZE:
+            self.publish_error(f"{player_label}'s deck is full ({self.MAX_DECK_SIZE} cards)")
+            return
+
         deck.append(card)
         self._publish_card_to_player(player, card)
-        self.publish_prompt(f"{player_label} added {card.full_name} ({len(deck)} cards)")
+        remaining = self.MAX_DECK_SIZE - len(deck)
+        self.publish_prompt(
+            f"{player_label} added {card.full_name} ({len(deck)} cards, {remaining} slots left)")
     
     def _publish_card_to_player(self, player: PLAYER, card: gwent.messaging.card.Message):
         """

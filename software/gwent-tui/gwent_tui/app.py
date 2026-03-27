@@ -7,19 +7,15 @@ import os
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Horizontal, Vertical
 from textual.widgets import Static
-from rich.text import Text
-from rich.align import Align
 
 from gwent_tui.game_state import GameState
 from gwent_tui.mqtt_client import MqttSubscriber
 from gwent_tui.snapshot import SnapshotPoller
 from gwent_tui.save_dialog import SaveScreen
-from gwent_tui.widgets import (
-    HeaderWidget, BoardWidget, HandsWidget,
-    DecksWidget, DiscardWidget, WeatherWidget, FooterWidget,
-)
+from gwent_tui.widgets.header import HeaderWidget
+from gwent_tui.widgets.footer import FooterWidget
+from gwent_tui.stages import STAGE_WIDGETS, UnknownStage
 import gwent_tui.snapshot as snapshot_mod
 
 log = logging.getLogger("gwent_tui.app")
@@ -42,45 +38,16 @@ def _configure_logging():
         fh.doRollover()
 
 
-class LobbyWidget(Static):
-    """Simple lobby screen for non-game stages."""
-
-    def render(self):
-        state = self.app.state
-        from gwent_tui.widgets.header import _STATUS_COLOR
-        mc = _STATUS_COLOR.get(state.mqtt_status, "grey50")
-        hc = _STATUS_COLOR.get(state.http_status, "grey50")
-
-        text = Text.from_markup(
-            f"\n\n\u2694\ufe0f  Server Stage: [bold cyan]{state.stage}[/bold cyan]\n\n"
-            f"[dim]Waiting for game to start...[/dim]\n\n"
-            f"[{mc}]MQTT[/{mc}] [{hc}]HTTP[/{hc}]\n\n"
-            f"[dim]? for help  Ctrl+S to save state[/dim]"
-        )
-        text.justify = "center"
-        return Align.center(text, vertical="middle")
-
-
 class GwentTUI(App):
     """Gwent Companion TUI."""
 
     TITLE = "Gwent TUI"
 
     CSS = """
-    Screen {
-        layout: vertical;
-    }
+    Screen { layout: vertical; }
     #header { height: 3; }
-    #body { height: 1fr; }
+    #stage-container { height: 1fr; }
     #footer { height: 7; }
-    #left { width: 1fr; }
-    #right { width: 1fr; }
-    #board-area { height: 2fr; }
-    #discard-area { height: 1fr; min-height: 5; }
-    #weather-area { height: 6; }
-    #hands-area { height: 2fr; }
-    #decks-area { height: 1fr; }
-    #lobby { height: 1fr; }
     """
 
     ENABLE_COMMAND_PALETTE = False
@@ -89,8 +56,6 @@ class GwentTUI(App):
         Binding("ctrl+c", "quit", "Quit", priority=True),
         Binding("question_mark", "help", "Help"),
         Binding("ctrl+s", "save", "Save State"),
-        Binding("left", "widen_left", "Widen Left", show=False),
-        Binding("right", "widen_right", "Widen Right", show=False),
         Binding("up", "poll_up", "Poll +5s", show=False),
         Binding("down", "poll_down", "Poll -5s", show=False),
     ]
@@ -105,17 +70,12 @@ class GwentTUI(App):
         self._no_snapshot = no_snapshot
         self._poller = None
         self._subscriber = None
+        self._current_stage_name = None
 
     def compose(self) -> ComposeResult:
         yield HeaderWidget(id="header")
-        with Horizontal(id="body"):
-            with Vertical(id="left"):
-                yield BoardWidget(id="board-area")
-                yield DiscardWidget(id="discard-area")
-                yield WeatherWidget(id="weather-area")
-            with Vertical(id="right"):
-                yield HandsWidget(id="hands-area")
-                yield DecksWidget(id="decks-area")
+        # Stage container — will be populated dynamically
+        yield UnknownStage(id="stage-container")
         yield FooterWidget(id="footer")
 
     def on_mount(self):
@@ -137,21 +97,56 @@ class GwentTUI(App):
 
     def _on_poller_data(self):
         """Called from poller thread when new data is available."""
-        self.call_from_thread(self._apply_pending_snapshots)
+        try:
+            self.call_from_thread(self._apply_pending_snapshots)
+        except Exception as e:
+            log.debug("call_from_thread failed: %s", e)
 
-    def _check_updates(self):
+    async def _check_updates(self):
         """Periodic check for pending snapshot data."""
-        self._apply_pending_snapshots()
+        await self._apply_pending_snapshots()
 
-    def _apply_pending_snapshots(self):
+    async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
         if self._poller:
             count = self._poller.drain(self.state)
             if count > 0:
-                self._refresh_all()
+                await self._refresh_all()
 
-    def _refresh_all(self):
-        """Refresh all widgets."""
+    async def _switch_stage(self, stage_name):
+        """Swap the stage container widget if the stage changed."""
+        if stage_name == self._current_stage_name:
+            return
+
+        self._current_stage_name = stage_name
+        stage_cls = STAGE_WIDGETS.get(stage_name)
+
+        if stage_cls is None and stage_name != "—":
+            log.error("No TUI screen for stage: %s", stage_name)
+            stage_cls = UnknownStage
+
+        if stage_cls is None:
+            stage_cls = UnknownStage
+
+        # Replace the stage container
+        try:
+            old = self.query_one("#stage-container")
+            await old.remove()
+        except Exception:
+            pass
+
+        new_widget = stage_cls(id="stage-container")
+        try:
+            await self.mount(new_widget, before=self.query_one("#footer"))
+            log.info("Switched to stage: %s", stage_name)
+        except Exception as e:
+            log.error("Failed to mount stage %s: %s", stage_name, e)
+
+        log.info("Switched to stage: %s (%s)", stage_name, stage_cls.__name__)
+
+    async def _refresh_all(self):
+        """Refresh all visible widgets and switch stage if needed."""
+        await self._switch_stage(self.state.stage)
         for widget in self.query("Static"):
             widget.refresh()
 
@@ -181,16 +176,15 @@ class GwentTUI(App):
                 table.add_column("Key", style="bold yellow", justify="right")
                 table.add_column("Action", style="white")
                 for key, action in [
-                    ("?", "Help"), ("\u2190/\u2192", "Resize panels"),
-                    ("\u2191/\u2193", "Poll timeout"), ("Ctrl+S", "Save state"),
-                    ("Ctrl+C", "Quit"), ("Tab", "Navigate dialog"),
+                    ("?", "Help"),
+                    ("\u2191/\u2193", "Poll timeout"),
+                    ("Ctrl+S", "Save state"),
+                    ("Ctrl+C", "Quit"),
+                    ("Tab", "Navigate dialog"),
                     ("Esc", "Close dialog/help"),
                 ]:
                     table.add_row(key, action)
                 self.query_one("#help-box").update(table)
-
-            def key_escape(self):
-                self.dismiss()
 
             def on_key(self, event):
                 self.dismiss()
@@ -200,25 +194,15 @@ class GwentTUI(App):
     def action_save(self):
         self.push_screen(SaveScreen(self._gwent_url, self.state))
 
-    def action_widen_left(self):
-        left = self.query_one("#left")
-        right = self.query_one("#right")
-        # Cycle through ratios by adjusting CSS
-        # Simple approach: toggle between presets
-        pass  # TODO: implement CSS-based ratio adjustment
-
-    def action_widen_right(self):
-        pass  # TODO: implement CSS-based ratio adjustment
-
-    def action_poll_up(self):
+    async def action_poll_up(self):
         snapshot_mod.POLL_TIMEOUT = min(60, snapshot_mod.POLL_TIMEOUT + 5)
         log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
-        self._refresh_all()
+        await self._refresh_all()
 
-    def action_poll_down(self):
+    async def action_poll_down(self):
         snapshot_mod.POLL_TIMEOUT = max(0, snapshot_mod.POLL_TIMEOUT - 5)
         log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
-        self._refresh_all()
+        await self._refresh_all()
 
     def on_unmount(self):
         if self._poller:
