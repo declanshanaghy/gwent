@@ -15,7 +15,8 @@
       "owner": "Declan Shanaghy (dek)",
       "rfid": 413287665097,
       "specialty": "leader",
-      "starter": true
+      "starter": true,
+      "owner_nickname": "dek"
     },
     "leader2": {
       "content_id": "edca77bff15641be451750b273adbb2a",
@@ -31,7 +32,8 @@
       "owner": "Declan Shanaghy (dek)",
       "rfid": 553478147534,
       "specialty": "leader",
-      "starter": true
+      "starter": true,
+      "owner_nickname": "dek"
     },
     "player1_deck": [
       {
@@ -43,7 +45,6 @@
           "instructions": "Draw a card from your opponents discard pile"
         },
         "name": "Emhyr var Emreis - The Relentless",
-        "owner": "Declan Shanaghy (dek)",
         "rfid": 413287665097,
         "specialty": "leader",
         "starter": true
@@ -61,7 +62,8 @@
           "close"
         ],
         "rfid": 620267982189,
-        "strength": 2
+        "strength": 2,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "b12b71e7cf67839d4998169c5659473c",
@@ -75,7 +77,8 @@
           "siege"
         ],
         "rfid": 621643189683,
-        "specialty": "commander"
+        "specialty": "commander",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "97100c2497a6354399d3f4d30f297d37",
@@ -87,7 +90,8 @@
           "close"
         ],
         "rfid": 2782088507,
-        "strength": 5
+        "strength": 5,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "f8ce4420a105273f2ebb624cf626711e",
@@ -99,7 +103,8 @@
           "close"
         ],
         "rfid": 344299163104,
-        "strength": 5
+        "strength": 5,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "99215fe5d244cbaa906b115261cfe353",
@@ -111,7 +116,8 @@
           "ranged"
         ],
         "rfid": 2312391952,
-        "strength": 6
+        "strength": 6,
+        "owner_nickname": "dek"
       },
       {
         "abilities": [
@@ -139,7 +145,8 @@
         ],
         "rfid": 275059527124,
         "specialty": "hero",
-        "strength": 10
+        "strength": 10,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "1db4c44728adb2e049fd1ebbb81ba86b",
@@ -161,7 +168,8 @@
         "owner": "Declan Shanaghy (dek)",
         "rfid": 2245217563,
         "specialty": "decoy",
-        "strength": 0
+        "strength": 0,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "5f997b09c89dcb5ad8b10722f2460c11",
@@ -183,7 +191,8 @@
           "close"
         ],
         "rfid": 687846149400,
-        "strength": 10
+        "strength": 10,
+        "owner_nickname": "dek"
       }
     ],
     "player2_deck": [
@@ -198,7 +207,6 @@
           "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
         },
         "name": "Francesca Findabair - The Beautiful",
-        "owner": "Declan Shanaghy (dek)",
         "rfid": 553478147534,
         "specialty": "leader",
         "starter": true
@@ -210,7 +218,8 @@
         "name": "Decoy: 2",
         "owner": "Declan Shanaghy (dek)",
         "rfid": 140825152881,
-        "specialty": "decoy"
+        "specialty": "decoy",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "2ff2e32c16c247b827a68079bc751e81",
@@ -219,7 +228,8 @@
         "name": "Decoy: 1",
         "owner": "Declan Shanaghy (dek)",
         "rfid": 619110092078,
-        "specialty": "decoy"
+        "specialty": "decoy",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "08b19013812952e1fa7ee201dbd2e692",
@@ -245,7 +255,8 @@
           "siege"
         ],
         "rfid": 895447682358,
-        "specialty": "scorch"
+        "specialty": "scorch",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "ef27f307707daa51b50ead951f630346",
@@ -258,7 +269,8 @@
         ],
         "rfid": 416307170583,
         "specialty": "hero",
-        "strength": 15
+        "strength": 15,
+        "owner_nickname": "dek"
       },
       {
         "ability": "muster",
@@ -271,7 +283,8 @@
           "ranged"
         ],
         "rfid": 1272335824,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "cf9f2c7d21794f2e8376df604def8664",
@@ -295,7 +308,8 @@
           "close"
         ],
         "rfid": 141278203231,
-        "specialty": "weather"
+        "specialty": "weather",
+        "owner_nickname": "dek"
       }
     ],
     "player1_hand": [
@@ -310,7 +324,8 @@
           "close"
         ],
         "rfid": 687846149400,
-        "strength": 10
+        "strength": 10,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "2a124c9f90b3cd33adfc748dd6252f63",
@@ -320,7 +335,8 @@
         "owner": "Declan Shanaghy (dek)",
         "rfid": 2245217563,
         "specialty": "decoy",
-        "strength": 0
+        "strength": 0,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "97100c2497a6354399d3f4d30f297d37",
@@ -332,7 +348,8 @@
           "close"
         ],
         "rfid": 2782088507,
-        "strength": 5
+        "strength": 5,
+        "owner_nickname": "dek"
       }
     ],
     "player2_hand": [
@@ -347,7 +364,8 @@
           "ranged"
         ],
         "rfid": 1272335824,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "04887a79e9b50fa7ccc4d1c67d6cefa9",
@@ -359,7 +377,8 @@
           "close"
         ],
         "rfid": 141278203231,
-        "specialty": "weather"
+        "specialty": "weather",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "2ff2e32c16c247b827a68079bc751e81",
@@ -368,7 +387,8 @@
         "name": "Decoy: 1",
         "owner": "Declan Shanaghy (dek)",
         "rfid": 619110092078,
-        "specialty": "decoy"
+        "specialty": "decoy",
+        "owner_nickname": "dek"
       }
     ],
     "player1_score": 0,

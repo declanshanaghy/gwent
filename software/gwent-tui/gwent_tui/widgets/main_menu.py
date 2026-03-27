@@ -57,7 +57,7 @@ class MainMenuWidget(Static):
         p2_leader = "\u2713" if state.reg_leader2 else "\u2717"
         count_summary = (
             f"  [bold yellow]P1[/bold yellow] {p1_leader} {p1_count}/20"
-            f"  [bold blue]P2[/bold blue] {p2_leader} {p2_count}/20"
+            f"  [bold dodger_blue2]P2[/bold dodger_blue2] {p2_leader} {p2_count}/20"
         )
 
         return Panel(

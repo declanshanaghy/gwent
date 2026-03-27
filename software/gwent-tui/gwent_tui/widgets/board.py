@@ -41,7 +41,7 @@ class BoardWidget(Static):
         title = Text.from_markup(
             f"\u2694\ufe0f [bold yellow]{p1s}[/bold yellow]"
             f" [dim]vs[/dim] "
-            f"[bold blue]{p2s}[/bold blue]"
+            f"[bold dodger_blue2]{p2s}[/bold dodger_blue2]"
         )
 
         table = Table(

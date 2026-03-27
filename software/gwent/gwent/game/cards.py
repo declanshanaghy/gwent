@@ -1,13 +1,40 @@
+import json
+import os
 import time
 import threading
 
 import gwent.cards
 import gwent.game
+import gwent.messaging.card
 import gwent.messaging.factory
 import gwent.messaging.ctrl
 import gwent.messaging.sfx
 
 import gwent.hal.rfid
+
+CARDS_DIR = os.path.normpath(
+    os.path.join(os.path.dirname(__file__), "..", "..", "..", "data", "cards"))
+
+
+def _build_rfid_index():
+    """Build a lookup from RFID → full card data dict from JSON files."""
+    index = {}
+    for faction_dir in os.listdir(CARDS_DIR):
+        dirpath = os.path.join(CARDS_DIR, faction_dir)
+        if not os.path.isdir(dirpath) or faction_dir in ("tmp",):
+            continue
+        for fname in os.listdir(dirpath):
+            if not fname.endswith(".json"):
+                continue
+            try:
+                with open(os.path.join(dirpath, fname)) as f:
+                    data = json.load(f)
+                rfid = data.get("rfid")
+                if rfid:
+                    index[rfid] = data
+            except (json.JSONDecodeError, KeyError):
+                continue
+    return index
 
 T_PAUSE_CARD_READ_SHORT = 1
 T_PAUSE_CARD_READ_LONG = 3
@@ -28,6 +55,8 @@ class Reader(gwent.game.PubSubComponent):
         self._read_enabled = False
         self._rfid = None
         self._last_rfid = None
+        self._card_index = _build_rfid_index()
+        self._log.info(f"Card index loaded: {len(self._card_index)} cards")
 
         self.subscribe(gwent.game.CH_CTRL,
                       gwent.messaging.ctrl.KIND,
@@ -53,6 +82,29 @@ class Reader(gwent.game.PubSubComponent):
         self._read_enabled = False
         self.unsubscribe(gwent.game.CH_CTRL)
         super().shutdown()
+
+    def _enrich_card(self, card):
+        """Merge scanned card with full data from JSON files by RFID match.
+
+        Scanned tag data takes priority. JSON file fills in missing fields.
+        Ownership fields are skipped for starter cards to avoid validation errors.
+        """
+        if not card.rfid or card.rfid not in self._card_index:
+            return card
+        json_data = self._card_index[card.rfid]
+        tag_data = dict(card._instance)
+
+        # Start with tag data, fill gaps from JSON
+        for key, val in json_data.items():
+            if key not in tag_data and val is not None:
+                # Don't add ownership to starter cards
+                if tag_data.get("starter") and key in ("owner", "owner_nickname"):
+                    continue
+                tag_data[key] = val
+
+        enriched = gwent.messaging.card.Message.from_properties(tag_data)
+        self._log.debug("Enriched card %s from JSON", card.name)
+        return enriched
 
     def process_ctrl(self, ctrl: gwent.messaging.ctrl.Message):
         self._log.info('received ctrl', extra={
@@ -130,6 +182,9 @@ class Reader(gwent.game.PubSubComponent):
                         })
                         self.pause_reading()
                         continue
+
+                    # Enrich card with full data from JSON files
+                    card = self._enrich_card(card)
 
                     self.publish_effect(
                         gwent.messaging.sfx.EFFECT_CARD_READ)

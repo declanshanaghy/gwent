@@ -72,7 +72,8 @@
               "ranged"
             ],
             "rfid": 2312391952,
-            "strength": 6
+            "strength": 6,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "b12b71e7cf67839d4998169c5659473c",
@@ -86,7 +87,8 @@
               "siege"
             ],
             "rfid": 621643189683,
-            "specialty": "commander"
+            "specialty": "commander",
+            "owner_nickname": "dek"
           },
           {
             "abilities": "medic",
@@ -99,7 +101,8 @@
               "close"
             ],
             "rfid": 687846149400,
-            "strength": 10
+            "strength": 10,
+            "owner_nickname": "dek"
           },
           {
             "abilities": [
@@ -114,7 +117,8 @@
               "close"
             ],
             "rfid": 620267982189,
-            "strength": 2
+            "strength": 2,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "2a124c9f90b3cd33adfc748dd6252f63",
@@ -124,7 +128,8 @@
             "owner": "Declan Shanaghy (dek)",
             "rfid": 2245217563,
             "specialty": "decoy",
-            "strength": 0
+            "strength": 0,
+            "owner_nickname": "dek"
           }
         ],
         "PLAYER.TWO": [
@@ -139,7 +144,8 @@
             ],
             "rfid": 828539751860,
             "specialty": "hero",
-            "strength": 7
+            "strength": 7,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "a79340eb77496e0d6a44323d7ddbcb98",
@@ -153,7 +159,8 @@
               "siege"
             ],
             "rfid": 552051232148,
-            "specialty": "scorch"
+            "specialty": "scorch",
+            "owner_nickname": "dek"
           },
           {
             "abilities": [
@@ -168,7 +175,8 @@
               "ranged"
             ],
             "rfid": 826006457614,
-            "strength": 4
+            "strength": 4,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "184a50fac38bbfa23c852f7d6f2c38de",
@@ -181,7 +189,8 @@
             ],
             "rfid": 208604843325,
             "specialty": "hero",
-            "strength": 10
+            "strength": 10,
+            "owner_nickname": "dek"
           },
           {
             "abilities": [
@@ -196,7 +205,8 @@
               "ranged"
             ],
             "rfid": 278582611200,
-            "strength": 8
+            "strength": 8,
+            "owner_nickname": "dek"
           }
         ]
       },
@@ -212,7 +222,8 @@
               "close"
             ],
             "rfid": 344299163104,
-            "strength": 5
+            "strength": 5,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "0c68733cea3faf70ef924bf807813ff8",
@@ -225,7 +236,8 @@
             ],
             "rfid": 275059527124,
             "specialty": "hero",
-            "strength": 10
+            "strength": 10,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "97100c2497a6354399d3f4d30f297d37",
@@ -237,7 +249,8 @@
               "close"
             ],
             "rfid": 2782088507,
-            "strength": 5
+            "strength": 5,
+            "owner_nickname": "dek"
           },
           {
             "faction": "Nilfgaardian",
@@ -267,7 +280,8 @@
               "close"
             ],
             "rfid": 986860965,
-            "strength": 4
+            "strength": 4,
+            "owner_nickname": "dek"
           },
           {
             "abilities": [
@@ -282,7 +296,8 @@
               "close"
             ],
             "rfid": 209829580150,
-            "strength": 7
+            "strength": 7,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "2e5d10a15696057c87434be9730b81f0",
@@ -296,7 +311,8 @@
               "siege"
             ],
             "rfid": 620696986138,
-            "specialty": "commander"
+            "specialty": "commander",
+            "owner_nickname": "dek"
           },
           {
             "abilities": [
@@ -312,7 +328,8 @@
             ],
             "rfid": 691167907280,
             "specialty": "hero",
-            "strength": 7
+            "strength": 7,
+            "owner_nickname": "dek"
           },
           {
             "content_id": "0f8a49dd72dbf712856fda12d0f5daa5",
@@ -324,7 +341,8 @@
               "close"
             ],
             "rfid": 620730540568,
-            "strength": 5
+            "strength": 5,
+            "owner_nickname": "dek"
           },
           {
             "faction": "Northern Realms",

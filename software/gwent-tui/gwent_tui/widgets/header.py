@@ -47,7 +47,7 @@ class HeaderWidget(Static):
         p2e = faction_emoji(p2f)
 
         p1_label = f"{p1e[0]} [bold yellow]P1 ({p1f})[/bold yellow] {p1e[1]}" if p1f else "[bold yellow]P1[/bold yellow]"
-        p2_label = f"{p2e[0]} [bold blue]P2 ({p2f})[/bold blue] {p2e[1]}" if p2f else "[bold blue]P2[/bold blue]"
+        p2_label = f"{p2e[0]} [bold dodger_blue2]P2 ({p2f})[/bold dodger_blue2] {p2e[1]}" if p2f else "[bold dodger_blue2]P2[/bold dodger_blue2]"
 
         center = Text.from_markup(
             f" {p1_label} {p1_gems}    "

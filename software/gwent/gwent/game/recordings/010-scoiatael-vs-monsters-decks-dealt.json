@@ -17,7 +17,8 @@
       "owner": "Declan Shanaghy",
       "rfid": 553478147534,
       "specialty": "leader",
-      "starter": true
+      "starter": true,
+      "owner_nickname": "dek"
     },
     "leader2": {
       "content_id": "629e4ee356bde0288d8b024f7dde678b",
@@ -48,7 +49,6 @@
           "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
         },
         "name": "Francesca Findabair - The Beautiful",
-        "owner": "Declan Shanaghy",
         "rfid": 553478147534,
         "specialty": "leader",
         "starter": true
@@ -111,7 +111,8 @@
         "name": "Decoy: 2",
         "owner": "Declan Shanaghy",
         "rfid": 140825152881,
-        "specialty": "decoy"
+        "specialty": "decoy",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "08b19013812952e1fa7ee201dbd2e692",
@@ -148,7 +149,8 @@
           "ranged"
         ],
         "rfid": 1272335824,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "ef27f307707daa51b50ead951f630346",
@@ -161,7 +163,8 @@
         ],
         "rfid": 416307170583,
         "specialty": "hero",
-        "strength": 15
+        "strength": 15,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "04887a79e9b50fa7ccc4d1c67d6cefa9",
@@ -173,7 +176,8 @@
           "close"
         ],
         "rfid": 141278203231,
-        "specialty": "weather"
+        "specialty": "weather",
+        "owner_nickname": "dek"
       },
       {
         "abilities": [
@@ -198,7 +202,8 @@
         "name": "Decoy: 1",
         "owner": "Declan Shanaghy",
         "rfid": 619110092078,
-        "specialty": "decoy"
+        "specialty": "decoy",
+        "owner_nickname": "dek"
       },
       {
         "content_id": "adbd36a39c5d1e3e65ea2f26fc1c0284",
@@ -328,7 +333,10 @@
         ],
         "rfid": 825553669486,
         "starter": true,
-        "strength": 2
+        "strength": 2,
+        "abilities": [
+          "muster"
+        ]
       },
       {
         "abilities": [
@@ -343,7 +351,8 @@
           "close"
         ],
         "rfid": 964737453542,
-        "strength": 7
+        "strength": 7,
+        "owner_nickname": "dek"
       },
       {
         "abilities": [
@@ -358,7 +367,8 @@
           "close"
         ],
         "rfid": 618623487232,
-        "strength": 2
+        "strength": 2,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "9ae775749740d690d692e46fa5070aa6",
@@ -385,7 +395,8 @@
           "ranged"
         ],
         "rfid": 2211728666,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "abilities": [
@@ -400,7 +411,8 @@
           "ranged"
         ],
         "rfid": 550004673814,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "d563ded4b9b805c36415c0f132d1e365",
@@ -413,7 +425,8 @@
         ],
         "rfid": 346429869409,
         "specialty": "hero",
-        "strength": 15
+        "strength": 15,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "9e7902237708d753263d1a1319d1b0ee",
@@ -425,7 +438,8 @@
           "close"
         ],
         "rfid": 206172343721,
-        "strength": 4
+        "strength": 4,
+        "owner_nickname": "dek"
       },
       {
         "content_id": "e32f90303c82a90bd2931ee329db9e7c",
@@ -437,7 +451,8 @@
           "close"
         ],
         "rfid": 275479023098,
-        "strength": 8
+        "strength": 8,
+        "owner_nickname": "dek"
       },
       {
         "abililties": [
