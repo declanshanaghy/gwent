@@ -30,7 +30,7 @@ CH_MFD_CHOOSE = CH_SEP.join((CH_MFD, 'choose'))
 CH_SFX = CH_SEP.join((MAIN_CHANNEL, 'sfx'))
 CH_SFX_COMPLETE = CH_SEP.join((CH_SFX, 'complete'))
 
-DEFAULT_YIELD_TIME = 0.1
+DEFAULT_YIELD_TIME = 0.5
 DEFAULT_ERROR_TIME = 3.0
 LOG_FREQ_SECS = 5
 
@@ -101,8 +101,7 @@ class ThreadComponent(BaseComponent):
     
     def run(self):
         """Override this method in subclasses"""
-        while not self._stop_event.is_set():
-            time.sleep(DEFAULT_YIELD_TIME)
+        self._stop_event.wait()
     
     def shutdown(self):
         """Shutdown the component"""

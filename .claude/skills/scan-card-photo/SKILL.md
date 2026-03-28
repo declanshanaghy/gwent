@@ -2,7 +2,7 @@
 name: scan-card-photo
 description: Extract Gwent card data from photos and generate JSON files. Use when the user says "scan card", "photo of card", "card photo", "extract card", or provides card images to process.
 user_invocable: true
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Agent
 ---
 
 Extract Gwent card data from photos of physical cards, match against existing database, and generate missing JSON files.
@@ -71,61 +71,80 @@ If the sidecar exists, the image was already processed. Read it and report:
 
 To **re-process** an already-scanned image, the user can delete the sidecar file or pass `--force`.
 
-### 4. Process each unprocessed image
+### 4. Process unprocessed images in parallel
 
-For each image WITHOUT a sidecar:
+Split the unprocessed image list into batches and dispatch to **3 parallel Agent workers**. Each agent processes its batch independently and returns structured results.
 
-#### 4a. Read the image
+#### Batch splitting
 
-Use the **Read** tool to view the image. Extract ALL fields from visual content:
+- **3 agents** in parallel (launch all 3 in a single message with multiple Agent tool calls)
+- Split the file list evenly: if 61 files, agents get ~20 each
+- Each agent runs in the background
 
-| Field | How to identify |
-|-------|----------------|
-| **name** | Text at bottom of card |
-| **faction** | Vertical colored sash on left side: BLUE = Northern Realms, GREEN = Scoia'tael, RED = Monsters, PURPLE = Skellige, GRAY = Nilfgaardian. Crest at bottom of sash confirms. |
-| **strength** | Number in top-left medallion (absent for weather/special/leader) |
-| **ranges** | Left-side icon: sword = close, bow = ranged, catapult = siege. Multiple icons = agile |
-| **specialty** | Gold border = hero. Weather icon = weather. Skull = scorch. Puppet = decoy. Horn = commander. Crown = leader. Mushroom = mardroeme |
-| **abilities** | Icons below row: chains = bond, triple arrows = muster, star = morale, eye = spy, cross = medic, flex = commander, small skull = scorch, bear = berserker |
-| **leader instructions** | Text below leader name (leader cards only) |
+#### Agent prompt template
 
-#### 4b. Search for existing match
+Each agent gets this prompt (fill in the file list and owner info):
 
-Search the card database for this card by name:
+```
+You are processing Gwent card photos. For each image file listed below:
 
-```bash
-grep -rl '"name".*"CARD_NAME' software/data/cards/ | head -5
+1. Use the Read tool to view the image
+2. Extract card data from the visual content:
+   - name: text at bottom of card
+   - faction: from VERTICAL COLORED SASH on left side:
+     BLUE = Northern Realms, GREEN = Scoia'tael, RED = Monsters,
+     PURPLE = Skellige, GRAY = Nilfgaardian
+   - strength: number in top-left medallion (omit for weather/special/leader)
+   - ranges: sword icon = close, bow = ranged, catapult = siege
+   - specialty: gold border = hero, weather icon = weather, skull = scorch,
+     puppet = decoy, horn = commander, crown = leader, mushroom = mardroeme
+   - abilities: chains = bond, triple arrows = muster, star = morale,
+     eye = spy, cross = medic, bear = berserker, small skull = scorch ability
+3. Search for existing match: grep -rl '"name".*"CARD_NAME' software/data/cards/
+4. Determine status: NEW, EXISTS (has RFID), EXISTS (no RFID), or MISMATCH
+
+Owner for all cards: {owner} / {nickname}
+
+Return a JSON array of results, one per image:
+[
+  {
+    "file": "20260328_152822.jpg",
+    "name": "Zoltan Chivay",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": ["close"],
+    "abilities": null,
+    "specialty": null,
+    "status": "NEW",
+    "existing_path": null,
+    "notes": ""
+  },
+  ...
+]
+
+Status values:
+- "NEW" — no matching card in database
+- "EXISTS_COMPLETE" — match found with RFID
+- "EXISTS_NO_RFID" — match found without RFID
+- "MISMATCH" — match found but fields differ (include details in notes)
+- "UNCLEAR" — could not read a field (include details in notes)
+
+If a card with the same base name exists, count copies and assign next number.
+If you can't read something clearly, set status to "UNCLEAR" with notes explaining what's unreadable.
+
+DO NOT write any files. Just return the JSON array of extracted data.
+
+Files to process:
+{file_list}
 ```
 
-**If exact match found:**
-- Read the existing JSON
-- **Compare all fields** (strength, ranges, abilities, specialty, faction) between photo extraction and stored JSON
-- If data **matches** and has `"rfid"`: mark as `EXISTS (complete)` — skip
-- If data **matches** and no `"rfid"`: mark as `EXISTS (needs RFID)` — skip creating, but note it
-- If data **mismatches**: mark as `MISMATCH` — flag with **AskUserQuestion** showing both versions:
-  ```
-  MISMATCH in `IMG_1234.jpg` for "Dwarven Skirmisher: 1":
-    Photo:  str=3, row=close, abilities=[muster]
-    JSON:   str=3, row=ranged, abilities=[muster]
-  Which is correct?
-  ```
-  Options: "Photo is correct (update JSON)", "JSON is correct (skip)", "Neither (let me specify)"
+#### Collecting results
 
-**If no exact match but base name matches** (numbered copies like `Dwarven Skirmisher: 1`, `: 2`, `: 3`):
-- Count existing copies
-- **Compare fields** against the first existing copy to sanity-check (same strength, row, abilities)
-- If fields match: the new card becomes the next number: `Dwarven Skirmisher: N+1`
-- If fields differ: flag with **AskUserQuestion** — may be a different card entirely
-
-**If no match at all:**
-- This is a NEW card — will create JSON
-
-#### 4c. Handle uncertainty
-
-If ANY field is unclear from the image, use **AskUserQuestion** immediately:
-- Include the **source filename** in the question
-- Show what you COULD read and ask about the unclear part
-- Example: "In `IMG_4521.jpg`: I read 'Dwarven Skirmisher' str 3 close. Is the ability muster or bond? (Icon is unclear)"
+After all 3 agents complete:
+1. Parse their JSON arrays
+2. Merge into a single results list
+3. Handle UNCLEAR and MISMATCH items with AskUserQuestion
+4. Proceed to summary table (step 5)
 
 ### 5. Build summary table
 

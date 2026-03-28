@@ -37,9 +37,7 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
             daemon=True)
         monitor_thread.start()
 
-        while not self._stop_event.is_set():
-            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
-
+        self._stop_event.wait()
         monitor_thread.join(timeout=1.0)
         return self._choice
 
@@ -67,7 +65,7 @@ class RotaryChooser(gwent.hal.mfdi.Chooser):
                 self._stop_event.set()
                 return
 
-            time.sleep(gwent.game.DEFAULT_YIELD_TIME)
+            time.sleep(0.1)
 
 
 class RotaryEncoder(gwent.game.BaseComponent):

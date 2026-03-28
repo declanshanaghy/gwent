@@ -382,26 +382,21 @@ class MenuSystem:
             
         while self.running:
             try:
-                # Get the next event from the queue with a short timeout
-                event = self.rotary.get_next_event(block=True, timeout=0.01)
-                
+                # Block on the queue; the timeout just lets us check self.running periodically
+                event = self.rotary.get_next_event(block=True, timeout=0.5)
+
                 if event is None:
                     continue
-                    
+
                 # Process the event based on its type
                 if event.event_type.name == 'ROTATION':
-                    # Set flag to indicate we're processing an event
                     self.processing_event = True
                     self.on_rotation(event.value)
                     self.processing_event = False
                 elif event.event_type.name == 'BUTTON':
-                    # Set flag to indicate we're processing an event
                     self.processing_event = True
                     self.on_button(event.value)
                     self.processing_event = False
-                    
-                # Small delay to prevent CPU hogging
-                time.sleep(0.001)
                 
             except Exception as e:
                 logger.error(f"Error processing encoder event: {e}", exc_info=True)

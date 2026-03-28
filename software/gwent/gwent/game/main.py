@@ -182,8 +182,7 @@ class ThreadComponent:
     
     def run(self):
         """Override this method in subclasses"""
-        while not self._stop_event.is_set():
-            time.sleep(0.1)
+        self._stop_event.wait()
     
     def shutdown(self):
         """Shutdown the component"""
@@ -350,8 +349,7 @@ class Gwent:
 
         # Wait for shutdown signal
         try:
-            while not self._stop_event.is_set():
-                time.sleep(0.5)
+            self._stop_event.wait()
         except KeyboardInterrupt:
             self._log.info('Keyboard interrupt received')
         finally:
