@@ -43,7 +43,7 @@ class FooterWidget(Static):
             parts.append(f"\u274c {state.last_error}")
 
         if state.event_log:
-            recent = [e for e in state.event_log if "\U0001f4e2" not in e][-3:]
+            recent = [e for e in state.event_log if "\U0001f4e2" not in e][-6:]
             for e in recent:
                 parts.append(f"[dim]{e}[/dim]")
 

@@ -17,8 +17,8 @@ class PlayRoundStage(Vertical):
     PlayRoundStage #right { width: 1fr; }
     PlayRoundStage #board-area { height: 3fr; }
     PlayRoundStage #discard-area { height: 1fr; }
-    PlayRoundStage #hands-area { height: 2fr; }
-    PlayRoundStage #decks-area { height: 1fr; }
+    PlayRoundStage #hands-area { height: 3fr; }
+    PlayRoundStage #decks-area { height: 2fr; }
     """
 
     def compose(self):

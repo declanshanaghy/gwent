@@ -50,9 +50,9 @@ class GwentTUI(App):
     * { scrollbar-size: 0 0; }
     #header { height: 3; }
     #stage-container { height: 1fr; overflow-y: auto; }
-    #bottom-bar { height: 9; }
-    #footer { width: 3fr; }
-    #timers { width: 1fr; }
+    #bottom-bar { height: 7; }
+    #footer { width: 3fr; height: 100%; }
+    #timers { width: 1fr; height: 100%; }
     """
 
     ENABLE_COMMAND_PALETTE = False

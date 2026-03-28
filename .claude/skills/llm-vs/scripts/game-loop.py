@@ -27,6 +27,7 @@ import json
 import os
 import re
 import requests
+import signal
 import subprocess
 import sys
 import threading
@@ -187,8 +188,135 @@ class AnnouncementSync:
         self._client.disconnect()
 
 
+_json_output = False
+
+# Pause/resume via SIGUSR1, auto-pause toggle via SIGUSR2
+_pause_event = threading.Event()
+_pause_event.set()  # starts unpaused
+_auto_pause = True  # default: pause after every turn
+
+ORDERS_FILE_P1 = '/tmp/llm-vs-orders-p1.json'
+ORDERS_FILE_P2 = '/tmp/llm-vs-orders-p2.json'
+STATUS_FILE = '/tmp/llm-vs-status.json'
+
+# Faction-themed commander order preambles
+COMMANDER_PREAMBLE = {
+    "Monsters":        "The Crone whispers from the shadows",
+    "Nilfgaardian":    "By Imperial decree of the Emperor",
+    "Northern Realms": "A royal edict from the throne of Temeria",
+    "Scoia'tael":      "The elder of the Scoia'tael commands",
+    "Scoiatael":       "The elder of the Scoia'tael commands",
+    "Skellige":        "The Jarl's war council demands",
+}
+
+
+def _toggle_pause(signum, frame):
+    """SIGUSR1: resume one turn (or pause if running)."""
+    if _pause_event.is_set():
+        _pause_event.clear()
+        log("\u23f8  PAUSED (SIGUSR1 to resume)")
+    else:
+        _pause_event.set()
+        log("\u25b6  RESUMED")
+
+
+def _toggle_auto_pause(signum, frame):
+    """SIGUSR2: toggle auto-pause mode on/off."""
+    global _auto_pause
+    _auto_pause = not _auto_pause
+    if _auto_pause:
+        log("\u23f8  AUTO-PAUSE ON — will pause after each turn")
+    else:
+        log("\u25b6  AUTO-PAUSE OFF — running uninterrupted")
+        _pause_event.set()  # unpause immediately when switching to continuous
+
+
+signal.signal(signal.SIGUSR1, _toggle_pause)
+signal.signal(signal.SIGUSR2, _toggle_auto_pause)
+
+
+def _read_orders(pnum):
+    """Read and consume the orders file for a specific player. Returns order text or None."""
+    orders_file = ORDERS_FILE_P1 if pnum == '1' else ORDERS_FILE_P2
+    try:
+        if os.path.exists(orders_file):
+            with open(orders_file) as f:
+                data = json.load(f)
+            os.remove(orders_file)
+            return data.get('order', '')
+    except Exception:
+        pass
+    return None
+
+
+def _write_status(board, cur, turn):
+    """Write current status for external tools to read."""
+    try:
+        status = {
+            'turn': turn,
+            'current_player': cur,
+            'round': board.get('round_number', 1),
+            'scores': board.get('scores', {}),
+            'pid': os.getpid(),
+        }
+        with open(STATUS_FILE, 'w') as f:
+            json.dump(status, f)
+    except Exception:
+        pass
+
+
 def log(msg):
     print(msg, flush=True)
+
+
+def log_json(event_type, data):
+    """Log a structured JSON event to stdout."""
+    if _json_output:
+        print(json.dumps({"event": event_type, **data}), flush=True)
+
+
+def board_summary(board):
+    """Return a compact board state summary string."""
+    if not board:
+        return ""
+    scores = board.get('scores', {})
+    p1s = scores.get('PLAYER.ONE', {})
+    p2s = scores.get('PLAYER.TWO', {})
+    players = board.get('players', {})
+    p1b = players.get('PLAYER.ONE', {})
+    p2b = players.get('PLAYER.TWO', {})
+
+    def row_cards(pb, row):
+        cards = pb.get('rows', {}).get(row, [])
+        return [c.get('name', '?') for c in cards]
+
+    def row_str(pb, sc, label):
+        parts = []
+        for row in ('close', 'ranged', 'siege'):
+            names = row_cards(pb, row)
+            rs = sc.get(row, 0)
+            if names:
+                parts.append(f"  {row}: {rs} [{', '.join(names)}]")
+            elif rs:
+                parts.append(f"  {row}: {rs}")
+        gems = pb.get('gems', '?')
+        passed = " PASSED" if pb.get('passed') else ""
+        header = f"{label}: {sc.get('total', 0)} pts, {gems} gems{passed}"
+        return header + ("\n" + "\n".join(parts) if parts else "")
+
+    weather = board.get('weather_rows', [])
+    w_str = f"  Weather: {', '.join(weather)}" if weather else ""
+    p1_hands = len(board.get('hands', {}).get('PLAYER.ONE', []))
+    p2_hands = len(board.get('hands', {}).get('PLAYER.TWO', []))
+
+    lines = [
+        row_str(p1b, p1s, "P1"),
+        row_str(p2b, p2s, "P2"),
+    ]
+    if weather:
+        lines.append(w_str)
+    lines.append(f"  Hands: P1={p1_hands} P2={p2_hands}")
+    return "\n".join(lines)
 
 
 def mqpub(topic, payload):
@@ -812,10 +940,43 @@ def game_loop(args, board, etag, sync):
             continue
 
         pnum = '1' if cur == 'PLAYER.ONE' else '2'
-        plab = f"P{pnum} ({board['factions'][cur]})"
+        faction = board['factions'][cur]
+        plab = f"P{pnum} ({faction})"
+
+        # --- Pause checkpoint ---
+        _write_status(board, cur, turn)
+        if _auto_pause:
+            _pause_event.clear()  # re-pause after each turn
+        _pause_event.wait()  # blocks until unpaused
+
+        # --- Check for commander orders ---
+        order_text = _read_orders(pnum)
+        orders_for_cur = None
+        if order_text:
+            preamble = COMMANDER_PREAMBLE.get(faction, "Your commander orders")
+            orders_for_cur = (
+                f"[COMMANDER'S ORDERS] {preamble}: {order_text}\n"
+                f"You MUST follow these orders. They override your own strategy.\n\n"
+            )
+            log(f"\u2694 Commander orders for {plab}: {order_text}")
 
         state = build_state(board, cur)
         state_json = json.dumps(state)
+        if orders_for_cur:
+            state_json = orders_for_cur + state_json
+
+        # --- Pre-turn input summary ---
+        hand_size = len(board['hands'][cur])
+        ps1 = board['scores']['PLAYER.ONE']['total']
+        ps2 = board['scores']['PLAYER.TWO']['total']
+        weather = board.get('weather_rows', [])
+        leader_used = board['players'][cur]['leader_used']
+        log(f"--- {plab} turn {turn} ---")
+        log(f"  Hand: {hand_size} cards | Scores: P1={ps1} P2={ps2}")
+        log(f"  Weather: {', '.join(weather) if weather else 'clear'} | "
+            f"Leader: {'spent' if leader_used else 'available'}")
+        if orders_for_cur:
+            log(f"  ORDERS: {order_text}")
 
         ok = False
         for attempt in range(3):
@@ -859,11 +1020,23 @@ def game_loop(args, board, etag, sync):
                     ps2 = board['scores']['PLAYER.TWO']['total']
                 else:
                     ps1, ps2 = '?', '?'
-                log(f"R{board.get('round_number','?')}T{turn-1} {plab}: "
+                turn_label = f"R{board.get('round_number','?')}T{turn-1}"
+                log(f"{turn_label} {plab}: "
                     f"{act} {card_name} ({lat}ms) | {msg} | "
                     f"P1={ps1} P2={ps2}")
                 if reasoning:
                     log(f'  "{reasoning}"')
+                log(board_summary(board))
+                log_json("turn", {
+                    "turn": turn_label,
+                    "player": plab,
+                    "action": act,
+                    "card": card_name,
+                    "reasoning": reasoning,
+                    "latency_ms": lat,
+                    "scores": {"P1": ps1, "P2": ps2},
+                    "board": board,
+                })
                 break
             else:
                 err = f"ERROR: {msg}"
@@ -901,7 +1074,20 @@ def main():
                         help='TTS provider: gtts (default, free), openai, elevenlabs')
     parser.add_argument('--fresh', action='store_true',
                         help='Restart server and trigger random deal')
+    parser.add_argument('--json', action='store_true',
+                        help='Also emit structured JSON events to stdout')
+    parser.add_argument('--no-pause', action='store_true',
+                        help='Run continuously without pausing between turns')
     args = parser.parse_args()
+
+    global _json_output
+    _json_output = args.json
+
+    global _auto_pause
+    if args.no_pause:
+        _auto_pause = False
+    else:
+        _pause_event.clear()  # default: start paused
 
     # Load .env for API keys
     _load_env()

@@ -2,7 +2,7 @@
 name: llm-vs
 description: Two LLM models play Gwent against each other via the live game server. Use when the user says "llm vs", "ollama vs", "models play gwent", "AI vs AI", or specifies model names to play.
 user_invocable: true
-allowed-tools: Bash, Read, Grep, Glob
+allowed-tools: Bash, Read, Grep, Glob, AskUserQuestion
 ---
 
 Orchestrate two LLM models playing Gwent against each other through the live game server.
@@ -24,6 +24,8 @@ The game-loop.py script handles everything: prerequisite checks, game startup, s
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
   --model MODEL \
   [--fresh] \
+  [--pause] \
+  [--json] \
   [--ollama-url URL] \
   [--game-url URL] \
   [--max-turns N]
@@ -35,6 +37,8 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
 |------|---------|-------------|
 | `--model` | `anthropic/claude-haiku-4-5-20251001` | Model with provider prefix |
 | `--fresh` | off | Restart game server and trigger random deal |
+| `--no-pause` | off | Run continuously without pausing between turns |
+| `--json` | off | Also emit structured JSON events per turn |
 | `--ollama-url` | `http://hal-9005.lan:11434` | Ollama API URL |
 | `--game-url` | `http://localhost:8080` | Game server URL |
 | `--max-turns` | 60 | Safety limit |
@@ -48,33 +52,122 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
 
 Without `--fresh`, the script expects the game to already be in PlayRound.
 
-### What the script does
+### What `--pause` does
 
-1. Checks Ollama model availability and MQTT connectivity
-2. Ensures game is in PlayRound (or starts fresh)
-3. Builds per-player system prompts with faction, leader, and full deck info
-4. Writes conversation logs to `/tmp/logs/llm-vs-p{1,2}.jsonl`
-5. Runs the turn loop: fetch state -> call LLM -> validate -> publish MQTT -> long-poll for turn advance
-6. Uses ETag-based long-polling to sync with TTS audio playback (waits for announcements to finish before next turn)
-7. Reports each turn as a one-liner with reasoning
+The script pauses **after every turn**, writing status to `/tmp/llm-vs-status.json` and blocking until SIGUSR1 is received. This enables turn-by-turn orchestration from the skill.
+
+**Resume methods:**
+- `kill -USR1 <pid>` — resume without orders
+- Write `/tmp/llm-vs-orders-p{1,2}.json` then `kill -USR1 <pid>` — resume with commander orders injected into the next LLM call
+
+**Orders file format:**
+```bash
+# P1 orders:
+echo '{"order": "Focus on siege units"}' > /tmp/llm-vs-orders-p1.json
+# P2 orders:
+echo '{"order": "Play your spy card"}' > /tmp/llm-vs-orders-p2.json
+```
+
+Orders are wrapped in faction-themed language before injection (e.g., "The Jarl's war council demands: ...").
 
 ### Mapping user args
 
-- `/llm-vs` -> `python3 ... --model llama3.2:3b --fresh`
-- `/llm-vs deepseek-r1:14b` -> `python3 ... --model deepseek-r1:14b --fresh`
-- No explicit `--fresh` from user -> do NOT pass `--fresh` (continue existing game if running)
-- Only pass `--fresh` when user explicitly says "new game", "fresh", "restart", or "start over"
+### Decision tree
 
-## User intervention
+1. **Check if game-loop.py is already running**: `pgrep -f game-loop.py`
+2. **If running** and user says "unpause", "continue", "next turn", "just unpause":
+   - Read PID: `pgrep -f game-loop.py` or from `/tmp/llm-vs-status.json`
+   - Send `kill -USR1 <pid>` to unpause
+   - Do NOT launch a new process
+3. **If NOT running**: launch a new game-loop.py process in background
+4. **Model mapping**: `/llm-vs deepseek-r1:14b` → `--model deepseek-r1:14b`
+5. **Fresh game**: only pass `--fresh` when user says "new game", "fresh", "restart"
+6. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
 
-If the user says something during the game loop (interrupts), they may want to:
-- Change strategy for a player
-- Force a specific action
-- Stop the game
+## Turn-by-Turn Orchestration
 
-Honor their request, then re-launch the script without `--fresh` to continue.
+When running with `--pause`, use this loop:
+
+### 1. Launch in background
+
+```bash
+python3 .claude/skills/llm-vs/scripts/game-loop.py \
+  --model MODEL --pause --game-url http://localhost:8080 &
+```
+
+Capture the PID. The script will play the first turn then pause.
+
+### 2. Wait for pause and read status
+
+After each turn, the script writes `/tmp/llm-vs-status.json`:
+```json
+{"turn": 3, "current_player": "PLAYER.ONE", "round": 1, "scores": {...}, "pid": 12345}
+```
+
+Read the script's stdout for the turn summary, board state, and reasoning.
+
+### 3. Present AskUserQuestion
+
+After each turn completes, use **AskUserQuestion** with these options:
+
+- **"Continue"** — resume for one turn, then pause again
+- **"Run uninterrupted"** — disable auto-pause, let agents play freely until game ends (sends SIGUSR2)
+- **"Order P1"** — prompt for orders to P1's agent (use faction-themed label)
+- **"Order P2"** — prompt for orders to P2's agent (use faction-themed label)
+- **"Stop"** — kill the game loop
+
+Use faction-themed labels for order options, e.g.:
+- If P1 is Skellige: "Order the Jarl's army"
+- If P2 is Monsters: "Command the Wild Hunt"
+
+Note: max 4 options in AskUserQuestion. Use the 2 most relevant order options plus Continue and Run uninterrupted. Put Stop as the "Other" fallback.
+
+### 4. Handle user choice
+
+**"Continue"**: `kill -USR1 <pid>` — plays one turn, pauses again
+
+**"Run uninterrupted"**: `kill -USR2 <pid>` then `kill -USR1 <pid>` — disables auto-pause and unpauses. The game runs freely. The skill should exit the AskUserQuestion loop and just let stdout flow.
+
+**Orders**: Write the user's **exact raw text** — do NOT rephrase, sanitize, or summarize. The game-loop adds faction preamble automatically:
+```bash
+echo '{"order": "<user text VERBATIM>"}' > /tmp/llm-vs-orders-p1.json  # or p2
+kill -USR1 <pid>
+```
+
+**"Stop"**: `kill <pid>` (SIGTERM)
+
+### SIGUSR2 from outside the loop
+
+If the user says "let them play", "auto-play", "run free", "uninterrupted" while the game is running (outside the AskUserQuestion loop), `/llm-vs` should:
+1. Find PID: `pgrep -f game-loop.py`
+2. Send `kill -USR2 <pid>` to toggle auto-pause off
+3. If currently paused, also send `kill -USR1 <pid>` to unpause
+
+To re-enable auto-pause from outside: `kill -USR2 <pid>` again (it's a toggle)
+
+### 5. Repeat
+
+Loop back to step 2 until the game ends.
+
+## Faction-Themed Commander Labels
+
+Use these for AskUserQuestion labels/descriptions:
+
+| Faction | Order label | Preamble |
+|---------|-------------|----------|
+| Monsters | "Command the Wild Hunt" | "The Crone whispers from the shadows" |
+| Nilfgaardian | "Issue Imperial decree" | "By Imperial decree of the Emperor" |
+| Northern Realms | "Send royal edict" | "A royal edict from the throne of Temeria" |
+| Scoia'tael | "Elder's command" | "The elder of the Scoia'tael commands" |
+| Skellige | "Order the Jarl's army" | "The Jarl's war council demands" |
 
 ## Output
+
+Each turn shows:
+1. Pre-turn summary (hand size, scores, weather, leader, orders)
+2. LLM action and reasoning
+3. Board state summary
+4. JSON event (if `--json`)
 
 After the game ends, report:
 - Final scores and winner

@@ -9,10 +9,11 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import (
     card_display, leader_display, gems_display, faction_emoji, card_display_short,
-    FACTION_COLOR, CROWN, GEM, SKULL, ROW_EMOJI, WEATHER_EMOJI, ZAP,
+    FACTION_COLOR, FACTION_STYLE, CROWN, GEM, SKULL, ROW_EMOJI, WEATHER_EMOJI, ZAP,
 )
 from gwent_tui.game_state import P1, P2
 from gwent_tui.widgets.board import ScoreboardWidget
+from gwent_tui.widgets.header import _leader_nick
 
 
 class _WinnerBanner(Static):
@@ -24,40 +25,56 @@ class _WinnerBanner(Static):
         p2_gems = state.gems.get(P2, 0)
 
         if p1_gems > p2_gems:
-            winner, loser = P1, P2
+            winner = P1
         elif p2_gems > p1_gems:
-            winner, loser = P2, P1
+            winner = P2
         else:
-            winner, loser = None, None
+            winner = None
+
+        # Always show P1 on left, P2 on right
+        p1_leader = state.leaders.get(P1) or {}
+        p2_leader = state.leaders.get(P2) or {}
+        p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
+        p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
+        p1f = state.factions.get(P1, "")
+        p2f = state.factions.get(P2, "")
+        p1e = faction_emoji(p1f)
+        p2e = faction_emoji(p2f)
+        p1_fc = FACTION_COLOR.get(p1f, "white")
+        p2_fc = FACTION_COLOR.get(p2f, "white")
 
         if winner:
             w_leader = state.leaders.get(winner) or {}
             w_faction = state.factions.get(winner, "")
-            w_name = w_leader.get("name", "Unknown")
-            w_num = "1" if winner == P1 else "2"
-            l_num = "1" if loser == P1 else "2"
-            fe = faction_emoji(w_faction)
-            fc = FACTION_COLOR.get(w_faction, "white")
+            w_name = _leader_nick(w_leader) if w_leader else "Unknown"
+            w_fe = faction_emoji(w_faction)
+            _, w_bg, w_fg = FACTION_STYLE.get(w_faction, ("white", "grey30", "white"))
+            w_fc = FACTION_COLOR.get(w_faction, "white")
 
             banner = (
-                f"{fe[0]} {CROWN} [{fc} bold]{w_name}[/{fc} bold] {CROWN} {fe[1]}\n"
-                f"[bold green]VICTORY![/bold green] "
-                f"Player {w_num} ({w_faction}) defeats Player {l_num}\n"
-                f"{gems_display(state.gems.get(winner, 0))} vs {gems_display(state.gems.get(loser, 0))}"
+                f"{w_fe[0]} {CROWN} [bold {w_fg} on {w_bg}] {w_name} WINS! [/bold {w_fg} on {w_bg}] {CROWN} {w_fe[1]}\n"
+                f"[bold green]VICTORY![/bold green] {w_name} ({w_faction})\n"
+                f"{p1e[0]} [{p1_fc}]{p1_nick}[/{p1_fc}] {gems_display(p1_gems)}"
+                f"  vs  "
+                f"{gems_display(p2_gems)} [{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[1]}"
             )
-            title = f"{fe[0]} GAME OVER {fe[1]}"
+            title = f"{w_fe[0]} GAME OVER {w_fe[1]}"
+            border = f"bold {w_fc}"
         else:
             banner = (
                 f"{SKULL} [bold yellow]DRAW![/bold yellow] {SKULL}\n"
                 f"Both leaders fall — no victor emerges\n"
-                f"{gems_display(0)} vs {gems_display(0)}"
+                f"{p1e[0]} [{p1_fc}]{p1_nick}[/{p1_fc}] {gems_display(p1_gems)}"
+                f"  vs  "
+                f"{gems_display(p2_gems)} [{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[1]}"
             )
             title = f"{SKULL} GAME OVER {SKULL}"
+            border = "bold yellow"
 
         return Panel(
             Text.from_markup(banner, justify="center"),
             title=title,
-            border_style="bold yellow",
+            border_style=border,
         )
 
 
@@ -161,14 +178,20 @@ class _HandsAndDiscards(Static):
 
     def _build_player_rows(self, state, player, is_winner):
         rows = []
-        pnum = "1" if player == P1 else "2"
         gems = state.gems.get(player, 0)
         faction = state.factions.get(player, "")
         fe = faction_emoji(faction)
+        fc = FACTION_COLOR.get(faction, "white")
+        leader = state.leaders.get(player)
+        nick = _leader_nick(leader) if leader else ("P1" if player == P1 else "P2")
 
-        # Header with gems
-        tag = "[bold green]WINNER[/bold green] " if is_winner else ""
-        rows.append(f"{tag}{fe[0]} [bold]Player {pnum}[/bold] {gems_display(gems)} {fe[1]}")
+        # Header with gems — winner gets highlight
+        if is_winner:
+            _, bg, fg = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
+            tag = f"[bold {fg} on {bg}] WINNER [/bold {fg} on {bg}] "
+        else:
+            tag = ""
+        rows.append(f"{tag}{fe[0]} [bold {fc}]{nick}[/bold {fc}] {gems_display(gems)} {fe[1]}")
 
         # Leader
         leader = state.leaders.get(player)
