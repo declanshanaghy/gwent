@@ -7,5 +7,7 @@
     ],
     "specialty": "weather",
     "starter": true,
-    "rfid": 70998314254
+    "rfid": 70998314254,
+    "last_updated": "2026-03-27T23:30:41",
+    "rfid_written_at": "2026-03-27T23:30:41"
 }

@@ -4,5 +4,7 @@
     "name": "Clear Weather",
     "specialty": "weather",
     "starter": true,
-    "rfid": 482040696283
+    "rfid": 482040696283,
+    "last_updated": "2026-03-26T16:05:21",
+    "rfid_written_at": "2026-03-26T16:05:21"
 }

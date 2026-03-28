@@ -13,5 +13,7 @@
     "specialty": "hero",
     "starter": true,
     "strength": 8,
-    "rfid": 485093756187
+    "rfid": 485093756187,
+    "last_updated": "2026-03-26T16:05:21",
+    "rfid_written_at": "2026-03-26T16:05:21"
 }

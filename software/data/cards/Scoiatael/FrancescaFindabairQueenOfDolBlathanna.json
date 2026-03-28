@@ -10,5 +10,7 @@
         }
     },
     "specialty": "leader",
-    "rfid": 1031880920344
+    "rfid": 1031880920344,
+    "last_updated": "2026-03-27T14:35:07",
+    "rfid_written_at": "2026-03-27T14:35:07"
 }

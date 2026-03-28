@@ -144,5 +144,13 @@
         "bond"
       ]
     }
+  },
+  "last_updated": {
+    "description": "ISO timestamp of when this card's data was last modified",
+    "type": "string"
+  },
+  "rfid_written_at": {
+    "description": "ISO timestamp of when this card's RFID chip was last programmed. Stale if last_updated > rfid_written_at",
+    "type": "string"
   }
 }

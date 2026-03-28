@@ -35,7 +35,11 @@ Example: `/write-card software/data/cards/NorthernRealms/FoltestKingofTemeria.js
    ```
    Use a 30-second timeout. The script waits for an RFID tag to be placed on the reader, writes the card data, and updates the JSON file with the assigned RFID.
 
-4. After writing, display the result:
+4. After writing, update timestamps and display the result:
+   - Read the updated JSON file (the write script adds the RFID)
+   - Set `"rfid_written_at"` to the current ISO timestamp in the JSON
    - Show the assigned RFID number
    - Confirm the JSON file was updated
-   - Read and display the updated JSON file to verify
+   - Display the final JSON to verify
+
+   The `rfid_written_at` timestamp is compared against `last_updated` by `/scan-card-photo` to detect cards that need re-writing (data changed since last chip write).

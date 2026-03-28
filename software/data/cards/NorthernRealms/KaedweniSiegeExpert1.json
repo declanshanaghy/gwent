@@ -10,5 +10,7 @@
     ],
     "starter": true,
     "strength": 1,
-    "rfid": 275025972694
+    "rfid": 275025972694,
+    "last_updated": "2026-03-26T16:05:21",
+    "rfid_written_at": "2026-03-26T16:05:21"
 }
