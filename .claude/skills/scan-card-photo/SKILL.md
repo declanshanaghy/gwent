@@ -57,9 +57,9 @@ Report count: "Found N card images to process."
 
 ### 3. Check sidecar files (skip already-processed)
 
-For each image, check if a **sidecar file** exists: `.{filename}.json` in the same directory.
+For each image, check if a **sidecar file** exists: `{filename}.json` in the same directory.
 
-Example: `IMG_1234.jpg` → `.IMG_1234.jpg.json`
+Example: `IMG_1234.jpg` → `IMG_1234.jpg.json`
 
 If the sidecar exists, the image was already processed. Read it and report:
 - `"status"`: "created", "exists", "mismatch_fixed", "skipped"
@@ -207,8 +207,8 @@ Neutral        → Neutral
 
 After each image is processed (whether new, existing, mismatch, or skipped), write a sidecar JSON file next to the source image:
 
-**Path**: same directory as image, named `.{filename}.json`
-- `IMG_1234.jpg` → `.IMG_1234.jpg.json`
+**Path**: same directory as image, named `{filename}.json`
+- `IMG_1234.jpg` → `IMG_1234.jpg.json`
 
 **Sidecar content:**
 ```json
