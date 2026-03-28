@@ -189,6 +189,21 @@ class Board:
         self.commander_horn_rows = {PLAYER.ONE: set(), PLAYER.TWO: set()}
         self.round_number += 1
 
+    def transform_berserkers(self, card_loader):
+        """Replace all berserker cards on both players' boards with their
+        transformed versions. Returns list of (player, row, old, new) tuples."""
+        transforms = []
+        for player in (PLAYER.ONE, PLAYER.TWO):
+            for row_name in ROWS:
+                row = self.players[player].rows[row_name]
+                for i, card in enumerate(row):
+                    if card.is_berserker and card.transforms_to:
+                        new_card = card_loader(card.transforms_to)
+                        if new_card:
+                            row[i] = new_card
+                            transforms.append((player, row_name, card, new_card))
+        return transforms
+
     def destroy_strongest(self, player, row_name=None):
         """Destroy the strongest non-hero card(s) on a player's board.
 

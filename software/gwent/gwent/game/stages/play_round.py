@@ -1141,7 +1141,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         label = self._player_label(cur)
 
         is_clear = card.is_weather and not card.ranges
-        if is_clear or (card.has_specialty and card.specialty == "mardroeme"):
+        if is_clear:
             # Calculate recovery before clearing
             score_before = sum(
                 self._board.calculate_player_score(p)
@@ -1203,13 +1203,35 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 f"{label}: {card.name}. {commentary}")
 
     def _play_mardroeme(self, card):
-        """Mardroeme clears weather."""
+        """Mardroeme: clear weather AND transform all berserker cards on board."""
         cur = self._board.current_player
+        label = self._player_label(cur)
+
+        # Clear weather
+        had_weather = bool(self._board.weather_rows)
         self._board.weather_rows.clear()
+
+        # Transform berserkers on both players' boards
+        from gwent.cards.util import load_card_by_name
+        transforms = self._board.transform_berserkers(load_card_by_name)
+
+        # Discard the mardroeme card
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
-        self._announce_and_advance(
-            self._msg_mardroeme(self._player_label(cur), card.name))
+
+        # Announce
+        parts = []
+        if had_weather:
+            parts.append("Weather cleared")
+        if transforms:
+            for _, _, old, new in transforms:
+                parts.append(f"{old.name} \u2192 {new.name} ({new.strength})")
+        if parts:
+            self._announce_and_advance(
+                f"{label}: Mardroeme! {'. '.join(parts)}.")
+        else:
+            self._announce_and_advance(
+                f"{label}: {card.name}. No weather or berserkers to affect.")
 
     def _play_decoy(self, card):
         """Start the decoy swap flow. Player scans a card on their board to swap."""

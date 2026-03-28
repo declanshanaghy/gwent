@@ -226,6 +226,14 @@ class Message(gwent.messaging.base.Message):
         return self.has_specialty and self.specialty == MARDROEME
 
     @property
+    def is_berserker(self):
+        return self.has_abilities and "berserker" in self.abilities
+
+    @property
+    def transforms_to(self):
+        return self._instance.get("transforms_to")
+
+    @property
     def is_leader(self):
         return self.has_specialty and self.specialty == LEADER
 

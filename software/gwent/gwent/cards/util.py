@@ -39,6 +39,17 @@ def load_all_cards():
     return cards
 
 
+def load_card_by_name(name):
+    """Load a card from the data directory by name (prefix match before ':').
+    Returns a Card Message or None."""
+    for _, data in load_all_cards():
+        card_name = data.get("name", "")
+        base_name = card_name.split(":")[0].strip()
+        if base_name == name or card_name == name:
+            return gwent.messaging.card.Message.from_properties(data)
+    return None
+
+
 def random_card() -> gwent.messaging.card.Message:
     """Return a random card from the JSON database."""
     cards = load_all_cards()
