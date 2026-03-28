@@ -43,6 +43,7 @@ class Board:
         self.commander_horn_rows = {PLAYER.ONE: set(), PLAYER.TWO: set()}
         self.current_player = PLAYER.ONE
         self.round_number = 1
+        self.spy_doubling = False
 
     def opponent(self, player):
         return PLAYER.TWO if player == PLAYER.ONE else PLAYER.ONE
@@ -113,6 +114,12 @@ class Board:
                 strengths[card.rfid] = 1
             else:
                 strengths[card.rfid] = card.strength
+
+        # Step 1b: Spy doubling — doubles base strength of spy cards
+        if self.spy_doubling:
+            for card in cards:
+                if card.has_abilities and "spy" in card.abilities:
+                    strengths[card.rfid] *= 2
 
         # Step 2: Tight bond — same-name non-hero cards multiply
         # Strip ": N" suffix so "Poor Fucking Infantry: 1" bonds with ": 2"
@@ -233,6 +240,7 @@ class Board:
             },
             "current_player": str(self.current_player),
             "round_number": self.round_number,
+            "spy_doubling": self.spy_doubling,
             "scores": {
                 str(p): {
                     "total": self.calculate_player_score(p),
@@ -279,5 +287,6 @@ class Board:
         cp = data.get("current_player", str(PLAYER.ONE))
         board.current_player = player_from_str(cp)
         board.round_number = data.get("round_number", 1)
+        board.spy_doubling = data.get("spy_doubling", False)
 
         return board

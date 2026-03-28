@@ -31,6 +31,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
     AWAITING_LEADER_DISCARD = 'leader_discard'
     AWAITING_LEADER_OWN_DISCARD = 'leader_own_discard'
     AWAITING_SPY_DRAW = 'spy_draw'
+    AWAITING_LEADER_DISCARD_HAND = 'leader_discard_hand'
+    AWAITING_LEADER_DRAW_DECK = 'leader_draw_deck'
 
     @property
     def stage(self):
@@ -44,6 +46,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._pending_weather_cards = None
         self._last_action_summary = None
         self._spy_draws_remaining = 0
+        self._leader_discards_remaining = 0
+        self._leader_draws_remaining = 0
 
         if board is None:
             # First round — extract leaders from decks
@@ -321,6 +325,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
             return
         if self._awaiting == self.AWAITING_SPY_DRAW:
             self._process_spy_draw_scan(card)
+            return
+        if self._awaiting == self.AWAITING_LEADER_DISCARD_HAND:
+            self._process_leader_discard_hand_scan(card)
+            return
+        if self._awaiting == self.AWAITING_LEADER_DRAW_DECK:
+            self._process_leader_draw_deck_scan(card)
             return
         if self._awaiting == 'leader_weather_choice':
             self._process_leader_weather_scan(card)
@@ -807,6 +817,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._leader_draw_own_discard()
         elif leader_data.get("conditional_scorch"):
             self._leader_conditional_scorch(leader_data)
+        elif leader_data.get("spy_doubling"):
+            self._leader_spy_doubling()
+        elif leader_data.get("discard_and_draw"):
+            self._leader_discard_and_draw(leader_data)
         else:
             instructions = leader_data.get('instructions', 'No effect')
             self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
@@ -1012,6 +1026,106 @@ class PlayRound(gwent.game.stages.base.GameStage):
         else:
             self._announce_and_advance(
                 f"{label}: leader ability. No targets to scorch.")
+
+    def _leader_spy_doubling(self):
+        """Leader ability: double the strength of all spy cards (both players)."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        self._board.spy_doubling = True
+        self._announce_and_advance(
+            f"{label}: leader ability. All spy cards now have doubled strength!")
+
+    def _leader_discard_and_draw(self, leader_data):
+        """Leader ability: discard N cards from hand, then draw M from deck."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        cfg = leader_data["discard_and_draw"]
+        self._leader_discards_remaining = cfg.get("discard", 2)
+        self._leader_draws_remaining = cfg.get("draw", 1)
+
+        hand_size = len(self._board.hands[cur])
+        if hand_size < self._leader_discards_remaining:
+            self._announce_and_advance(
+                f"{label}: leader ability. Not enough cards in hand to discard "
+                f"({hand_size} < {self._leader_discards_remaining}). No effect.")
+            self._board.players[cur].leader_used = False
+            return
+
+        deck_size = len(self._board.decks[cur])
+        if deck_size < self._leader_draws_remaining:
+            self._announce_and_advance(
+                f"{label}: leader ability. Not enough cards in deck to draw "
+                f"({deck_size} < {self._leader_draws_remaining}). No effect.")
+            self._board.players[cur].leader_used = False
+            return
+
+        self._awaiting = self.AWAITING_LEADER_DISCARD_HAND
+        self.publish_prompt(
+            f"{label}: leader ability. Scan {self._leader_discards_remaining} "
+            f"card(s) from your hand to discard.",
+            ok=False, cancel=False, clear_choices=True,
+            faction=self._current_faction())
+
+    def _process_leader_discard_hand_scan(self, card):
+        """Handle a scanned card during leader discard-from-hand phase."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+
+        hand_card = self._board.find_in_hand(cur, card.rfid)
+        if not hand_card:
+            self.publish_error(f"{card.name} is not in {label}'s hand")
+            return
+
+        self._board.hands[cur].remove(hand_card)
+        self._board.players[cur].discard.append(hand_card)
+        self._leader_discards_remaining -= 1
+        self._log.info(
+            f"Leader discard: {hand_card.name} from hand "
+            f"({self._leader_discards_remaining} remaining)")
+
+        if self._leader_discards_remaining > 0:
+            self.publish_prompt(
+                f"{label}: discarded {hand_card.name}. Scan "
+                f"{self._leader_discards_remaining} more card(s) to discard.",
+                ok=False, cancel=False, clear_choices=True,
+                faction=self._current_faction())
+        else:
+            # Move to draw phase
+            self._awaiting = self.AWAITING_LEADER_DRAW_DECK
+            self.publish_prompt(
+                f"{label}: discarded {hand_card.name}. Now scan "
+                f"{self._leader_draws_remaining} card(s) from your deck to draw.",
+                ok=False, cancel=False, clear_choices=True,
+                faction=self._current_faction())
+
+    def _process_leader_draw_deck_scan(self, card):
+        """Handle a scanned card during leader draw-from-deck phase."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+
+        deck_card = next(
+            (c for c in self._board.decks[cur] if c.rfid == card.rfid), None)
+        if not deck_card:
+            self.publish_error(f"{card.name} is not in {label}'s deck")
+            return
+
+        self._board.decks[cur].remove(deck_card)
+        self._board.hands[cur].append(deck_card)
+        self._leader_draws_remaining -= 1
+        self._log.info(
+            f"Leader draw: {deck_card.name} from deck "
+            f"({self._leader_draws_remaining} remaining)")
+
+        if self._leader_draws_remaining > 0:
+            self.publish_prompt(
+                f"{label}: drew {deck_card.name}. Scan "
+                f"{self._leader_draws_remaining} more card(s) from your deck.",
+                ok=False, cancel=False, clear_choices=True,
+                faction=self._current_faction())
+        else:
+            self._awaiting = None
+            self._announce_and_advance(
+                f"{label}: leader ability complete. Drew {deck_card.name}!")
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""

@@ -17,7 +17,7 @@ Faction names: `monsters`, `northern-realms`, `nilfgaardian`, `scoiatael`, `skel
 
 ## Procedure
 
-### 1. Find open leader issues for both factions
+### 1. Auto-select leaders from open GitHub issues
 
 Search GitHub for **open** leader issues matching both factions:
 
@@ -25,16 +25,30 @@ Search GitHub for **open** leader issues matching both factions:
 gh issue list --state open --search "Leader" --json number,title --jq '.[] | select(.title | test("PATTERN")) | "#\(.number) \(.title)"'
 ```
 
-Filter to issues whose titles reference leader cards from the two requested factions. Present results and use **AskUserQuestion** to let the user pick which two leaders to face off.
+**Leader name mapping** — map issue titles to faction leader cards:
+- Monsters: `Eredin` → look up in `software/data/cards/Monsters/Eredin*.json`
+- Northern Realms: `Foltest` → look up in `software/data/cards/NorthernRealms/Foltest*.json`
+- Nilfgaardian: `Emhyr` → look up in `software/data/cards/Nilfgaardian/Emhyr*.json`
+- Scoia'tael: `Francesca` → look up in `software/data/cards/Scoiatael/Francesca*.json`
+- Skellige: `Crachan` → look up in `software/data/cards/Skellige/Crachan*.json`
+
+**Auto-selection rules:**
+1. Filter open issues to those matching the two requested factions.
+2. If **both factions** have open issues: pick the **first open issue from each faction** (lowest issue number).
+3. If **only one faction** has open issues: pick that faction's first open issue. For the other faction (all leaders already implemented), pick any already-implemented leader — prefer one whose ability creates interesting gameplay with the unimplemented leader (e.g., pick a leader with weather if the opponent has clear_weather).
+4. If **neither faction** has open issues: tell the user all leaders for these factions are implemented and stop.
+
+Present the auto-selected matchup to the user for confirmation: show the two leaders, their abilities, and the associated issue numbers. Only use **AskUserQuestion** if something is ambiguous (e.g., multiple open issues for the same faction and you want the user to prioritize).
 
 ### 2. Create task list
 
 Use **TaskCreate** to track all work:
 1. Generate test recording file
 2. Implement leader handler(s) in `play_round.py` (one task per handler needed)
-3. Write RFID cards for leaders (if missing)
-4. Reinstall package
-5. Playtest with recording
+3. Reinstall package
+4. Write integration test validator(s)
+5. Run validator — fix loop (up to 3 iterations)
+6. Close GitHub issue(s)
 
 Mark each task as `in_progress` when starting and `completed` when done.
 
@@ -115,21 +129,137 @@ Then add the handler method near the other `_leader_*` methods.
 - `extra_draw`: Draw N extra cards (triggers during deal, not play round)
 - `optimize_agile`: Move agile units to optimal rows
 
-### 5. Reinstall and launch
+### 5. Reinstall package
 
 ```bash
 cd software/gwent && pip install -e . -q
 ```
 
-Then use `/playback-trace NNN-faction1-vs-faction2` to load the recording and start testing.
+### 6. Write integration tests (pytest)
 
-### 6. Close issues
+**Directory**: `software/gwent/integration-tests/`
+**Shared fixtures**: `software/gwent/integration-tests/conftest.py` (already exists — provides `game`, `recording`, `mqtt_client` fixtures and `GameAPI` helper)
+**Naming**: `test_{leader_ability_key}_validator.py` (e.g., `test_discard_and_draw_validator.py`)
 
-After successful playtest, close the implemented issues:
+**IMPORTANT**: Write tests for **BOTH** leaders in the matchup, not just the newly implemented one. Already-implemented leaders that lack a test file still need one.
+
+Before writing a new test, check if one already exists for each leader's ability key:
 ```bash
-gh issue close NN --comment "Implemented and verified in recording NNN-faction1-vs-faction2.json"
+ls software/gwent/integration-tests/test_*_validator.py 2>/dev/null
+```
+If a matching validator already exists, reuse it. Only write a new one for abilities that lack a test.
+
+#### Test structure
+
+Each validator is a **pytest** test module that uses shared fixtures from `conftest.py`:
+- `game` — `GameAPI` instance with helpers: `inject_card_and_wait()`, `wait_for_current_player()`, `get_board()`, `get_state()`
+- `recording` — parsed recording JSON dict
+- `mqtt_client` — connected paho MQTT client
+
+Recording path is passed via `--recording` CLI flag.
+
+**Template** — write validators following this pattern:
+
+```python
+"""Integration test for {leader_name} — {ability_description}.
+
+Run:
+    GWENT_STATE=<recording> bash scripts/dev-server.sh gwent start
+    pytest software/gwent/integration-tests/test_{ability_key}_validator.py \
+        --recording <recording.json> -v
+"""
+
+from conftest import card_names
+
+
+class TestAbilityName:
+
+    def test_initial_state(self, game, recording):
+        """Verify the game loaded correctly."""
+        state = game.get_state()
+        board = state["state"]["board"]
+        assert state["active_stage"] == "PlayRound"
+        # ...more initial state checks...
+
+    def test_ability_full_flow(self, game, recording):
+        """Exercise the leader ability and assert outcomes."""
+        rec = recording["state"]
+        leader = rec["leader1"]  # or leader2
+
+        # Inject card and wait for state change
+        state = game.inject_card_and_wait(leader)
+        board = state["state"]["board"]
+
+        # Assert outcomes
+        assert board["players"]["PLAYER.ONE"]["leader_used"] is True
+
+        # Wait for turn advancement (deferred after TTS)
+        board = game.wait_for_current_player("PLAYER.TWO")
+        assert board["current_player"] == "PLAYER.TWO"
 ```
 
-### 7. Update issues with recording details
+**Key `GameAPI` methods:**
+- `game.inject_card_and_wait(card_json)` — inject card via MQTT, wait for state change, return new state
+- `game.wait_for_current_player(player)` — poll until `current_player` matches (handles TTS delay)
+- `game.get_state()` / `game.get_board()` — fetch current state from HTTP API
+- `game.inject_choice(choice_id)` — send MFD choice via MQTT
 
-For each issue involved, add a comment with the recording file path and load command.
+**Key assertions by ability type:**
+- `spy_doubling`: After activating, play a spy card → assert score = 2× spy strength on opponent's board
+- `discard_and_draw`: After activating, scan 2 hand cards + 1 deck card → assert hand size = original - 2 + 1, discarded cards in discard pile
+- `conditional_scorch`: Play units to exceed threshold → activate → assert strongest destroyed
+- `commander_ranges`: Activate → assert horn applied to correct row, score doubled
+- `clear_weather`: Play weather first, then activate → assert weather_rows empty
+- `draw_own_discard`: Put card in discard first → activate + scan discard card → assert card back in hand
+
+### 7. Run integration test loop
+
+After writing the tests, execute them in a fix loop. **Both** leader tests must pass.
+
+**Step 1 — Launch game with recording:**
+```bash
+bash scripts/dev-server.sh gwent stop 2>/dev/null
+GWENT_STATE=<absolute-recording-path> bash scripts/dev-server.sh gwent start
+sleep 4
+```
+
+**Step 2 — Run ALL validators for this matchup:**
+```bash
+pytest software/gwent/integration-tests/test_{ability1}_validator.py \
+       software/gwent/integration-tests/test_{ability2}_validator.py \
+       --recording <absolute-recording-path> -v
+```
+
+Note: tests that modify game state (playing cards, using leader abilities) affect each other. If both leaders need testing in the same game session, **order matters** — run the PLAYER.ONE leader test first, then the PLAYER.TWO leader test. If tests cannot coexist in one session, restart the game between them.
+
+**Step 3 — If ALL tests PASS:** proceed to step 8 (close issues).
+
+**Step 4 — If any test FAILS (iteration ≤ 3):**
+1. Create a task: "Fix: {failure description}"
+2. Read the game log (`/tmp/logs/gwent.log`) for error context — grep for ERROR, the ability key, and the leader name
+3. Diagnose the root cause from the pytest output + logs
+4. Fix the code (in `play_round.py`, `board.py`, or the leader JSON)
+5. Reinstall: `cd software/gwent && pip install -e . -q`
+6. Restart game with recording and re-run ALL validators
+7. Mark the fix task as completed
+
+**Step 5 — If 3 fix iterations exhausted without passing:**
+1. Stop and present a summary to the user:
+   - What the test expected vs. what it got
+   - Relevant log excerpts
+   - What was tried in each fix iteration
+   - Suggested next steps
+2. Do NOT close the GitHub issue
+
+### 8. Close issues
+
+Only after ALL validators pass:
+```bash
+gh issue close NN --comment "Implemented and validated via integration test.
+
+Recording: NNN-faction1-vs-faction2.json
+Validator: software/gwent/integration-tests/test_{ability_key}_validator.py
+
+Load: /playback-trace NNN-faction1-vs-faction2
+Test: pytest software/gwent/integration-tests/test_{ability_key}_validator.py --recording <recording> -v"
+```
