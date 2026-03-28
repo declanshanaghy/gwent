@@ -11,7 +11,7 @@ Audition TTS voices for a specific faction and provider, then let the user pick 
 
 `/voice-explorer <provider> [faction]`
 
-- **provider** (required): `elevenlabs` | `openai`
+- **provider** (required): `elevenlabs` | `openai` | `gtts` | `google`
 - **faction** (optional): `monsters` | `northern-realms` | `skellige` | `scoiatael` | `nilfgaardian`
 
 If **faction is omitted**, run in **all-factions mode**: randomly assign one voice from the provider's catalog to each faction, update the provider file, clear the TTS cache, and confirm the mapping. No audition — just shuffle and apply.
@@ -51,7 +51,47 @@ pMsXgVXv3BLzUgSXRplE  Glinda     (witch-like female)
 alloy, ash, coral, echo, fable, nova, onyx, sage, shimmer
 ```
 
-## Faction audition mode (faction provided)
+### gTTS accents (TLD → accent)
+```
+com      US English
+co.uk    UK English
+com.au   Australian English
+co.in    Indian English
+ca       Canadian English
+co.za    South African English
+ie       Irish English
+co.nz    New Zealand English
+com.ng   Nigerian English
+com.gh   Ghanaian English
+com.ph   Philippine English
+com.sg   Singaporean English
+com.hk   Hong Kong English
+```
+
+## gTTS faction audition mode (provider is gtts or google)
+
+gTTS voices are regional accents selected by TLD. The procedure is different from ElevenLabs/OpenAI:
+
+1. **Read the current mapping** from `software/gwent/gwent/hal/tts/gtts_provider.py` → `FACTION_VOICE` dict.
+
+2. **Play all TLD accents** in one Bash call using a Python script that loops through every TLD:
+   ```python
+   import gtts, pydub, pygame.mixer, os, time
+   TLDS = [("com","US"), ("co.uk","UK"), ("com.au","Australian"), ...]
+   for tld, accent in TLDS:
+       text = f"Google, {accent}. {Faction} voice. {gwent_phrase}"
+       # generate mp3, convert wav, play, sleep
+   ```
+
+3. **One AskUserQuestion** with all accents listed. Mark the current TLD with "(current)".
+
+4. **Apply the choice**: Edit `FACTION_VOICE` dict in `gtts_provider.py` to update the TLD for that faction.
+
+5. **Clear TTS cache**: `rm -rf /tmp/gwent-sfx/`
+
+Provider file: `software/gwent/gwent/hal/tts/gtts_provider.py`
+
+## Faction audition mode (elevenlabs or openai)
 
 Run **one single Bash command** that generates ALL voices, then plays them back-to-back. Each voice announces itself: `"{provider}, {voice_name}. {Faction} voice. {gwent_phrase}"`.
 

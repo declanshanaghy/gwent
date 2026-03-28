@@ -86,7 +86,9 @@ start_gwent() {
     [ -n "${GWENT_OWNER}" ] && owner_arg="--owner ${GWENT_OWNER}"
     local tts_arg=""
     [ -n "${GWENT_TTS}" ] && tts_arg="--tts ${GWENT_TTS}"
-    nohup "${VENV_DIR}/bin/gwent" ${owner_arg} ${tts_arg} >> "${GWENT_LOG}" 2>&1 &
+    local simple_arg=""
+    [ -n "${GWENT_SIMPLE}" ] && simple_arg="--simple"
+    nohup "${VENV_DIR}/bin/gwent" ${owner_arg} ${tts_arg} ${simple_arg} >> "${GWENT_LOG}" 2>&1 &
     disown $! 2>/dev/null
     # Wait for gwent to write its PID file
     for i in 1 2 3 4 5; do
@@ -222,6 +224,7 @@ while [ $# -gt 0 ]; do
     case "$1" in
         -o|--owner) GWENT_OWNER="$2"; shift 2 ;;
         -t|--tts)   GWENT_TTS="$2"; shift 2 ;;
+        -s|--simple) GWENT_SIMPLE=1; shift ;;
         *) shift ;;
     esac
 done

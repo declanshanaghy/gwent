@@ -47,6 +47,21 @@ _DRAW_TEMPLATES = [
 
 class GameOver(gwent.game.stages.base.GameStage):
 
+    def _msg_game_over_win(self, winner, loser, w_gems, l_gems):
+        if gwent.game.BaseComponent.simple_mode:
+            return f"{winner} wins the game."
+        location = random.choice(LOCATIONS)
+        return random.choice(_WIN_TEMPLATES).format(
+            winner=winner, loser=loser, location=location,
+            w_gems=w_gems, l_gems=l_gems)
+
+    def _msg_game_over_draw(self, leader1, leader2):
+        if gwent.game.BaseComponent.simple_mode:
+            return "The game ends in a draw."
+        location = random.choice(LOCATIONS)
+        return random.choice(_DRAW_TEMPLATES).format(
+            leader1=leader1, leader2=leader2, location=location)
+
     @property
     def stage(self):
         return gwent.messaging.ctrl.STAGE_GAME_OVER
@@ -60,19 +75,13 @@ class GameOver(gwent.game.stages.base.GameStage):
         from gwent.game.stages.round_end import _leader_nickname
         leader1 = _leader_nickname(board, PLAYER.ONE)
         leader2 = _leader_nickname(board, PLAYER.TWO)
-        location = random.choice(LOCATIONS)
 
         if p1_gems > p2_gems:
-            msg = random.choice(_WIN_TEMPLATES).format(
-                winner=leader1, loser=leader2, location=location,
-                w_gems=p1_gems, l_gems=p2_gems)
+            msg = self._msg_game_over_win(leader1, leader2, p1_gems, p2_gems)
         elif p2_gems > p1_gems:
-            msg = random.choice(_WIN_TEMPLATES).format(
-                winner=leader2, loser=leader1, location=location,
-                w_gems=p2_gems, l_gems=p1_gems)
+            msg = self._msg_game_over_win(leader2, leader1, p2_gems, p1_gems)
         else:
-            msg = random.choice(_DRAW_TEMPLATES).format(
-                leader1=leader1, leader2=leader2, location=location)
+            msg = self._msg_game_over_draw(leader1, leader2)
 
         self._log.info({
             'action': 'game_over',

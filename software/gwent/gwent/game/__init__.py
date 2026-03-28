@@ -42,6 +42,7 @@ def make_channel(base, *topics):
 class BaseComponent(object):
     _last_log = time.time() - LOG_FREQ_SECS - 1
     _log = None
+    simple_mode = False  # Set True by --simple flag; use static TTS messages
 
     def __init__(self):
         self._log = get_logger(f'{self.__class__.__module__}.{self.__class__.__name__}')

@@ -144,6 +144,99 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._publish_prompt_then(prompt, self._advance_turn,
                                   faction=self._current_faction())
 
+    @property
+    def _simple(self):
+        return gwent.game.BaseComponent.simple_mode
+
+    # --- Announcement helpers (SRP: one method per announcement type) ---
+
+    def _msg_turn_prompt(self, label, score, opp_score, margin, opp_passed):
+        if self._simple:
+            return f"{label}'s turn."
+        if opp_passed:
+            quips = self._TURN_OPP_PASSED_AHEAD if margin > 0 else self._TURN_OPP_PASSED_BEHIND
+        elif margin > 15:
+            quips = self._TURN_CRUSHING
+        elif margin > 5:
+            quips = self._TURN_AHEAD
+        elif margin > -5:
+            quips = self._TURN_EVEN
+        elif margin > -15:
+            quips = self._TURN_BEHIND
+        else:
+            quips = self._TURN_DESPERATE
+        return random.choice(quips).format(
+            player=label, score=score, opp_score=opp_score, margin=abs(margin))
+
+    def _msg_pass(self, label, score, opp_score, margin):
+        if self._simple:
+            return f"{label} passed."
+        if margin > 10:
+            quips = self._PASS_DOMINATING
+        elif margin > 0:
+            quips = self._PASS_AHEAD
+        elif margin == 0:
+            quips = self._PASS_TIED
+        elif margin > -10:
+            quips = self._PASS_BEHIND
+        else:
+            quips = self._PASS_DESPERATE
+        return random.choice(quips).format(
+            player=label, score=score, opp_score=opp_score, margin=abs(margin))
+
+    def _msg_placement(self, label, name, strength, row):
+        if self._simple:
+            return f"{label}: {name} on {row}, strength {strength}."
+        row_phrases = self._ROW_PHRASES.get(row, self._CLOSE_PHRASES)
+        return random.choice(row_phrases).format(
+            player=label, name=name, strength=strength)
+
+    def _msg_spy(self, label, name, strength):
+        if self._simple:
+            return f"{label}: {name}, spy. Draw 2."
+        return random.choice(self._SPY_PHRASES).format(
+            player=label, name=name, strength=strength)
+
+    def _msg_medic_prompt(self, label, name, count):
+        if self._simple:
+            return f"{label}: {name}, medic. Scan discard. {count} available."
+        return (f"{label} deploys {name} the battlefield medic! "
+                f"Scan a card from discard to resurrect. {count} available.")
+
+    def _msg_medic_resurrect(self, label, resurrected):
+        if self._simple:
+            return f"{label}: {resurrected} resurrected."
+        return random.choice(self._MEDIC_PHRASES).format(
+            player=label, name="the medic", resurrected=resurrected)
+
+    def _msg_medic_empty(self, label, name):
+        if self._simple:
+            return f"{label}: {name}, medic. No targets."
+        return f"{label} deploys {name}, but the graveyard offers no one to save."
+
+    def _msg_muster(self, label, name, count, mustered):
+        if self._simple:
+            return f"{label}: {name}, muster. {mustered}."
+        return random.choice(self._MUSTER_PHRASES).format(
+            player=label, name=name, count=count, mustered=mustered)
+
+    def _msg_scorch(self, label, name, scorched):
+        if self._simple:
+            return f"{label}: {name}, scorch. {scorched}."
+        return random.choice(self._SCORCH_ABILITY_PHRASES).format(
+            player=label, name=name, scorched=scorched)
+
+    def _msg_scorch_no_targets(self, name):
+        if self._simple:
+            return f"{name}, scorch. No targets."
+        return f"{name} breathes fire, but finds no worthy targets!"
+
+    def _msg_commander(self, label, name, faction, row):
+        if self._simple:
+            return f"{label}: {name}, horn on {row}."
+        return random.choice(self._COMMANDER_PHRASES).format(
+            name=name, faction=faction, row=row)
+
     def _prompt_turn(self):
         """Prompt the current player to play a card or pass."""
         p1_passed = self._board.players[PLAYER.ONE].passed
@@ -171,22 +264,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         margin = cur_score - opp_score
         opp_passed = self._board.players[opp].passed
 
-        if opp_passed:
-            quips = self._TURN_OPP_PASSED_AHEAD if margin > 0 else self._TURN_OPP_PASSED_BEHIND
-        elif margin > 15:
-            quips = self._TURN_CRUSHING
-        elif margin > 5:
-            quips = self._TURN_AHEAD
-        elif margin > -5:
-            quips = self._TURN_EVEN
-        elif margin > -15:
-            quips = self._TURN_BEHIND
-        else:
-            quips = self._TURN_DESPERATE
-
-        prompt = random.choice(quips).format(
-            player=label, score=cur_score, opp_score=opp_score,
-            margin=abs(margin))
+        prompt = self._msg_turn_prompt(label, cur_score, opp_score, margin, opp_passed)
 
         self._awaiting = self.AWAITING_CARD
         self.publish_prompt(
@@ -984,10 +1062,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if is_spy:
             self._spy_draws_remaining = 2
             self._awaiting = self.AWAITING_SPY_DRAW
-            spy_phrase = random.choice(self._SPY_PHRASES).format(
-                player=label, name=card.name, strength=card.strength or 0)
+            msg = self._msg_spy(label, card.name, card.strength or 0)
             self.publish_prompt(
-                f"{spy_phrase} Scan 2 cards from your deck to draw.",
+                f"{msg} Scan 2 cards from your deck to draw.",
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
             return
@@ -998,14 +1075,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
             if non_hero:
                 self._awaiting = self.AWAITING_MEDIC_CHOICE
                 self.publish_prompt(
-                    f"{label} deploys {card.name} the battlefield medic! "
-                    f"Scan a card from discard to resurrect. {len(non_hero)} available.",
+                    self._msg_medic_prompt(label, card.name, len(non_hero)),
                     ok=False, cancel=False, clear_choices=True,
                     faction=self._current_faction())
                 return
             else:
                 self._announce_and_advance(
-                    f"{label} deploys {card.name}, but the graveyard offers no one to save.")
+                    self._msg_medic_empty(label, card.name))
                 return
 
         if card.has_abilities and "muster" in card.abilities:
@@ -1018,27 +1094,23 @@ class PlayRound(gwent.game.stages.base.GameStage):
             destroyed = self._board.destroy_strongest(opp, row_name)
             if destroyed:
                 scorched = ", ".join(c.name for c in destroyed)
-                phrase = random.choice(self._SCORCH_ABILITY_PHRASES).format(
-                    player=label, name=card.name, scorched=scorched)
-                self._announce_and_advance(phrase)
+                self._announce_and_advance(
+                    self._msg_scorch(label, card.name, scorched))
             else:
                 self._announce_and_advance(
-                    f"{card.name} breathes fire, but finds no worthy targets!")
+                    self._msg_scorch_no_targets(card.name))
             return
 
-        # Commander unit — fancy horn announcement
+        # Commander unit
         if card.has_abilities and "commander" in card.abilities:
             faction = self._board.factions[cur]
-            horn_phrase = random.choice(self._COMMANDER_PHRASES).format(
-                name=card.name, faction=faction, row=row_name)
-            self._announce_and_advance(f"{place_msg}. {horn_phrase}")
+            self._announce_and_advance(
+                self._msg_commander(label, card.name, faction, row_name))
             return
 
-        # Normal card — row-themed commentary
-        row_phrases = self._ROW_PHRASES.get(row_name, self._CLOSE_PHRASES)
-        phrase = random.choice(row_phrases).format(
-            player=label, name=card.name, strength=card.strength or 0)
-        self._announce_and_advance(phrase)
+        # Normal card
+        self._announce_and_advance(
+            self._msg_placement(label, card.name, card.strength or 0, row_name))
 
     def _process_leader_discard_scan(self, card):
         """Handle a scanned card during leader draw-from-opponent-discard."""
@@ -1104,9 +1176,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         discard.remove(resurrected)
         self._board.hands[cur].append(resurrected)
-        phrase = random.choice(self._MEDIC_PHRASES).format(
-            player=label, name="the medic", resurrected=resurrected.name)
-        self._announce_and_advance(phrase)
+        self._announce_and_advance(
+            self._msg_medic_resurrect(label, resurrected.name))
 
     def _process_muster(self, card, row_name):
         """Auto-play all cards with the same name from hand and deck."""
@@ -1133,14 +1204,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         label = self._player_label(cur)
         if mustered:
             names = ", ".join(c.name for c in mustered)
-            phrase = random.choice(self._MUSTER_PHRASES).format(
-                player=label, name=card.name, count=len(mustered), mustered=names)
-            self._announce_and_advance(phrase)
+            self._announce_and_advance(
+                self._msg_muster(label, card.name, len(mustered), names))
         else:
-            row_phrases = self._ROW_PHRASES.get(row_name, self._CLOSE_PHRASES)
-            phrase = random.choice(row_phrases).format(
-                player=label, name=card.name, strength=card.strength or 0)
-            self._announce_and_advance(phrase)
+            self._announce_and_advance(
+                self._msg_placement(label, card.name, card.strength or 0, row_name))
 
     # --- Choice processing ---
 
@@ -1163,20 +1231,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._log.info(f"{label} passed")
                 self._board.current_player = opp
 
-                if margin > 10:
-                    quips = self._PASS_DOMINATING
-                elif margin > 0:
-                    quips = self._PASS_AHEAD
-                elif margin == 0:
-                    quips = self._PASS_TIED
-                elif margin > -10:
-                    quips = self._PASS_BEHIND
-                else:
-                    quips = self._PASS_DESPERATE
-
-                quip = random.choice(quips).format(
-                    player=label, score=cur_score, opp_score=opp_score,
-                    margin=abs(margin))
+                quip = self._msg_pass(label, cur_score, opp_score, margin)
                 self._last_action_summary = quip
                 self._publish_prompt_then(
                     quip, self._prompt_turn, faction=faction)

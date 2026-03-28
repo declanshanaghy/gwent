@@ -20,7 +20,7 @@ FACTION_VOICE = {
     "Northern Realms": ("co.uk",  False),
     "Skellige":        ("co.in",  False),
     "Scoia'tael":      ("ie",     False),
-    "Monsters":        ("com.ng", True),
+    "Monsters":        ("com.au", False),
     "Nilfgaardian":    ("com.au", False),
 }
 

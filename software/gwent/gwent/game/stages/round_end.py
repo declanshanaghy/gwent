@@ -79,6 +79,23 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         self._game_over = False
         self._determine_winner()
 
+    def _msg_round_win(self, winner, loser, w_score, l_score, rnd, w_faction, l_faction):
+        if gwent.game.BaseComponent.simple_mode:
+            return f"Round {rnd}. {winner} wins {w_score} to {l_score}."
+        location = random.choice(LOCATIONS)
+        margin = w_score - l_score
+        return random.choice(_WIN_TEMPLATES).format(
+            winner=winner, loser=loser, w_score=w_score, l_score=l_score,
+            w_faction=w_faction, l_faction=l_faction,
+            margin=margin, round=rnd, location=location)
+
+    def _msg_round_draw(self, p1, p2, score, rnd):
+        if gwent.game.BaseComponent.simple_mode:
+            return f"Round {rnd}. Draw at {score}."
+        location = random.choice(LOCATIONS)
+        return random.choice(_DRAW_TEMPLATES).format(
+            p1=p1, p2=p2, score=score, round=rnd, location=location)
+
     def _determine_winner(self):
         p1_score = self._board.calculate_player_score(PLAYER.ONE)
         p2_score = self._board.calculate_player_score(PLAYER.TWO)
@@ -104,7 +121,6 @@ class RoundEnd(gwent.game.stages.base.GameStage):
                 winner, loser = None, None
 
         # Remove gems and build commentary
-        location = random.choice(LOCATIONS)
         rnd = self._board.round_number
 
         if loser:
@@ -113,23 +129,17 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             l_label = _leader_nickname(self._board, loser)
             w_score = max(p1_score, p2_score)
             l_score = min(p1_score, p2_score)
-            margin = w_score - l_score
-            w_faction = self._board.factions.get(winner, "")
-            l_faction = self._board.factions.get(loser, "")
-            commentary = random.choice(_WIN_TEMPLATES).format(
-                winner=w_label, loser=l_label,
-                w_score=w_score, l_score=l_score,
-                w_faction=w_faction, l_faction=l_faction,
-                margin=margin, round=rnd, location=location,
-            )
+            commentary = self._msg_round_win(
+                w_label, l_label, w_score, l_score, rnd,
+                self._board.factions.get(winner, ""),
+                self._board.factions.get(loser, ""))
         elif winner is None:
             self._board.players[PLAYER.ONE].gems -= 1
             self._board.players[PLAYER.TWO].gems -= 1
-            commentary = random.choice(_DRAW_TEMPLATES).format(
-                p1=_leader_nickname(self._board, PLAYER.ONE),
-                p2=_leader_nickname(self._board, PLAYER.TWO),
-                score=p1_score, round=rnd, location=location,
-            )
+            commentary = self._msg_round_draw(
+                _leader_nickname(self._board, PLAYER.ONE),
+                _leader_nickname(self._board, PLAYER.TWO),
+                p1_score, rnd)
         else:
             commentary = ""
 

@@ -399,12 +399,17 @@ def run():
     parser.add_argument("-t", "--tts", default="elevenlabs",
                         choices=["gtts", "elevenlabs", "openai"],
                         help="TTS provider: elevenlabs (default), gtts, or openai")
+    parser.add_argument("-s", "--simple", action="store_true",
+                        help="Simple mode: gTTS with static messages for max caching, no API cost")
     args, _unknown = parser.parse_known_args()
 
     configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
     _check_pid_file()
     _write_pid_file()
     try:
+        if args.simple:
+            args.tts = "gtts"
+            gwent.game.BaseComponent.simple_mode = True
         gwent_app = Gwent()
         gwent_app._owner_filter = args.owner
         gwent_app._tts_provider = args.tts
