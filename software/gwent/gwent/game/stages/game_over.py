@@ -33,6 +33,14 @@ _WIN_TEMPLATES = [
     "{loser}'s forces crumble before {winner} at {location}! {w_gems} gems left to {l_gems}.",
     "A decisive victory! {winner} claims {location} from {loser}. {w_gems} gems left to {l_gems}!",
     "{winner} raises their banner over {location} after defeating {loser}! {w_gems} gems left to {l_gems}.",
+    "The White Wolf of Gwent! {winner} vanquishes {loser} at {location}! {w_gems} gems to {l_gems}!",
+    "A victory worthy of Kaer Morhen! {winner} destroys {loser} at the battle of {location}. {w_gems} to {l_gems}!",
+    "The tavern at {location} erupts! {winner} claims total victory over {loser}! {w_gems} gems standing!",
+    "From the ashes of {location}, {winner} rises triumphant! {loser} falls with {l_gems} gems. {w_gems} remain for the champion!",
+    "Dandelion composes an epic! {winner}'s conquest of {loser} at {location} will echo across the Continent! {w_gems} to {l_gems}!",
+    "Like Geralt slaying the Striga! {winner} fells {loser} at {location}! {w_gems} gems to {l_gems}. Legendary!",
+    "The Lodge of Sorceresses applauds! {winner} outplays {loser} at {location}. {w_gems} gems to {l_gems}!",
+    "Ploughing magnificent! {winner} annihilates {loser} at the gates of {location}! {w_gems} to {l_gems}. Game over!",
 ]
 
 _DRAW_TEMPLATES = [
@@ -42,6 +50,12 @@ _DRAW_TEMPLATES = [
     "The tavern runs out of ale and warriors! {leader1} and {leader2} annihilate each other at {location}.",
     "Dandelion couldn't write a winner for this one. {leader1} and {leader2} both fall at {location}!",
     "A draw worthy of legend! {leader1} and {leader2} destroy each other at {location}. No gems left.",
+    "The Continent weeps! Neither {leader1} nor {leader2} survives the battle of {location}. A draw most foul!",
+    "Like two monsters killing each other! {leader1} and {leader2} destroy everything at {location}. No winner!",
+    "Even Gaunter O'Dimm couldn't rig this one! {leader1} and {leader2} annihilate each other at {location}!",
+    "The bookmakers at {location} tear up their tickets! {leader1} vs {leader2} ends in mutual destruction!",
+    "A draw? At {location}? {leader1} and {leader2} should be ashamed! Lambert walks away in disgust.",
+    "The bards of {location} have nothing to sing about! {leader1} and {leader2} cancel each other out!",
 ]
 
 

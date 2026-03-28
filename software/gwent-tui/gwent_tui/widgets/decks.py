@@ -20,6 +20,8 @@ class _DecksContent(Static):
         state = self.app.state
         p1_count = len(state.decks[P1])
         p2_count = len(state.decks[P2])
+        p1_hl = state.is_highlighted(f"deck:{P1}")
+        p2_hl = state.is_highlighted(f"deck:{P2}")
 
         table = Table(
             box=box.SIMPLE_HEAVY,
@@ -40,7 +42,9 @@ class _DecksContent(Static):
         for p1, p2 in zip(p1_cards, p2_cards):
             table.add_row(p1, p2)
 
-        return Panel(table, title=f"\U0001f4e6 Deck ({p1_count} | {p2_count})")
+        p1_tag = f"[on dark_green]{p1_count}[/on dark_green]" if p1_hl else str(p1_count)
+        p2_tag = f"[on dark_green]{p2_count}[/on dark_green]" if p2_hl else str(p2_count)
+        return Panel(table, title=f"\U0001f4e6 Deck ({p1_tag} | {p2_tag})")
 
 
 class DecksWidget(Vertical):

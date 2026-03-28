@@ -35,6 +35,24 @@ DEAL_ANNOUNCEMENTS = [
     "{l1} of {f1} unleashes {n1} upon the battlefield for Player 1. "
     "Not to be outdone, {l2} of {f2} deploys {n2} for Player 2. "
     "May fortune favor the bold!",
+
+    "The cards are dealt at Kaer Morhen's table! {l1} of {f1} draws {n1} for Player 1. "
+    "{l2} of {f2} counters with {n2} for Player 2. Medallion's humming!",
+
+    "A match worthy of Novigrad's finest tavern! {l1} leads {f1} with {n1} cards for Player 1. "
+    "{l2} marshals {n2} warriors of {f2} for Player 2. Let blood be spilled!",
+
+    "Wind's howling, and the cards are flying! {l1} of {f1} commands {n1} for Player 1. "
+    "{l2} of {f2} answers with {n2} for Player 2. A round of Gwent?",
+
+    "The Continent holds its breath! {l1}, champion of {f1}, wields {n1} cards for Player 1. "
+    "Across the field, {l2} of {f2} readies {n2} for Player 2!",
+
+    "Dandelion narrates: {l1} of {f1} musters {n1} souls for Player 1! "
+    "And {l2} of {f2} brings {n2} warriors for Player 2! This will be one for the ballads!",
+
+    "Like wolves circling prey! {l1} of {f1} draws {n1} for Player 1. "
+    "{l2} of {f2} bares teeth with {n2} for Player 2. The hunt begins!",
 ]
 
 
@@ -139,14 +157,17 @@ class DealCards(gwent.game.stages.base.GameStage):
         p1_leader = next((c for c in self._player1_deck if c.is_leader), None)
         p2_leader = next((c for c in self._player2_deck if c.is_leader), None)
 
-        summary = random.choice(DEAL_ANNOUNCEMENTS).format(
-            l1=p1_leader.name if p1_leader else "An unknown commander",
-            f1=p1_leader.faction if p1_leader else self._player1_deck[0].faction,
-            n1=len(self._player1_hand),
-            l2=p2_leader.name if p2_leader else "An unknown commander",
-            f2=p2_leader.faction if p2_leader else self._player2_deck[0].faction,
-            n2=len(self._player2_hand),
-        )
+        if gwent.game.BaseComponent.simple_mode:
+            summary = f"{p1_leader.name if p1_leader else 'P1'} vs {p2_leader.name if p2_leader else 'P2'}. {len(self._player1_hand)} vs {len(self._player2_hand)} cards."
+        else:
+            summary = random.choice(DEAL_ANNOUNCEMENTS).format(
+                l1=p1_leader.name if p1_leader else "An unknown commander",
+                f1=p1_leader.faction if p1_leader else self._player1_deck[0].faction,
+                n1=len(self._player1_hand),
+                l2=p2_leader.name if p2_leader else "An unknown commander",
+                f2=p2_leader.faction if p2_leader else self._player2_deck[0].faction,
+                n2=len(self._player2_hand),
+            )
 
         # Announce and auto-progress to next stage
         self._publish_prompt_then(summary, self._auto_complete)

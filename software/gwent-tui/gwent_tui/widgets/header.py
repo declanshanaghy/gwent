@@ -62,9 +62,6 @@ class HeaderWidget(Static):
         else:
             is_p1_turn = state.current_player == P1
 
-            p1_gems = self._gems(state.gems[P1])
-            p2_gems = self._gems(state.gems[P2])
-
             p1f = state.factions.get(P1, "")
             p2f = state.factions.get(P2, "")
             p1e = faction_emoji(p1f)
@@ -90,10 +87,10 @@ class HeaderWidget(Static):
             p2_time = f"[dim dodger_blue2]{p2_avg:.0f}s[/dim dodger_blue2]" if p2_n else "[dim]-[/dim]"
 
             center = Text.from_markup(
-                f" {p1_label} {p1_gems} avg:{p1_time}    "
+                f" {p1_label} avg:{p1_time}    "
                 f"\u2694\ufe0f Round {state.round_number} "
                 f"{turn_label} {cur_time}"
-                f"    avg:{p2_time} {p2_gems} {p2_label} "
+                f"    avg:{p2_time} {p2_label} "
             )
             center.justify = "center"
 

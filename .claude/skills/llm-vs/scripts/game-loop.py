@@ -132,9 +132,11 @@ You MUST respond with ONLY a JSON object. No other text, no markdown, no explana
 # ---------------------------------------------------------------------------
 
 class AnnouncementSync:
-    """Subscribe to MQTT and block until announcement_complete arrives."""
+    """Subscribe to MQTT and block until all announcements finish."""
 
     def __init__(self):
+        self._count = 0
+        self._lock = threading.Lock()
         self._event = threading.Event()
         self._client = mqtt.Client(client_id='llm-vs-sync',
                                    protocol=mqtt.MQTTv311)
@@ -148,20 +150,37 @@ class AnnouncementSync:
         try:
             d = json.loads(msg.payload)
             if d.get('subkind') == 'announcement_complete':
+                with self._lock:
+                    self._count += 1
                 self._event.set()
         except Exception:
             pass
 
-    def wait(self, timeout=30):
-        """Block until the next announcement_complete, then clear."""
-        self._event.clear()
-        self._event.wait(timeout=timeout)
+    def wait_all(self, timeout=60):
+        """Block until all queued announcements finish playing.
 
-    def drain(self, timeout=0.5):
-        """Wait briefly and consume any pending announcement_complete."""
+        First waits for at least one announcement_complete (long timeout
+        to allow TTS generation/download), then drains any remaining
+        announcements using a shorter gap timer.
+        """
+        deadline = time.time() + timeout
+        # Phase 1: wait for first announcement (TTS generation can be slow)
         self._event.clear()
-        self._event.wait(timeout=timeout)
+        got = self._event.wait(timeout=min(30, timeout))
+        if not got:
+            return  # no announcement at all, move on
+        # Phase 2: drain remaining — wait until no announcement for 5s
+        while time.time() < deadline:
+            self._event.clear()
+            got = self._event.wait(timeout=5.0)
+            if not got:
+                return  # queue drained
+
+    def drain(self):
+        """Consume any stale events without blocking."""
         self._event.clear()
+        with self._lock:
+            self._count = 0
 
     def stop(self):
         self._client.loop_stop()
@@ -726,7 +745,7 @@ def game_loop(args, board, etag, sync):
                 log(f"  {plab}: bad JSON (attempt {attempt + 1})")
                 continue
 
-            # Drain any stale announcements before executing
+            # Drain stale announcements, then execute
             sync.drain()
             valid, msg = execute(board, cur, action)
             reasoning = action.get('reasoning', '')
@@ -736,14 +755,12 @@ def game_loop(args, board, etag, sync):
             if valid:
                 ok = True
                 turn += 1
-                # Wait for action announcement to finish
-                sync.wait(timeout=30)
-                # Wait for turn to advance (state change)
+                # 1. Confirm state changed (turn advanced or stage changed)
                 stage, board, etag = wait_for_turn_advance(
                     args.game_url, etag, cur)
-                # Wait for next turn-prompt announcement to finish
-                sync.wait(timeout=30)
-                # Report post-action scores
+                # 2. Wait for ALL queued announcements to finish playing
+                sync.wait_all()
+                # 3. Fetch final state for accurate scores
                 stage, board, etag = fetch(args.game_url)
                 if board and 'scores' in board:
                     ps1 = board['scores']['PLAYER.ONE']['total']
@@ -770,9 +787,8 @@ def game_loop(args, board, etag, sync):
             mqpub('gwent/mfd/choose',
                   json.dumps({"kind": "choice", "id": "p",
                               "text": "Pass"}))
-            sync.wait(timeout=30)
             wait_for_turn_advance(args.game_url, etag, cur)
-            sync.wait(timeout=30)
+            sync.wait_all()
 
     log(f"\n{turn} turns played.")
     log(f"Logs: /tmp/logs/llm-vs-p1.jsonl, /tmp/logs/llm-vs-p2.jsonl")
@@ -850,7 +866,7 @@ def main():
     # 5. Start MQTT announcement sync
     sync = AnnouncementSync()
     # Drain any announcements from the deal stage
-    sync.drain(timeout=2)
+    sync.drain()
 
     # 6. Run the game loop
     log(f"\nStarting game: {args.model} vs {args.model}")

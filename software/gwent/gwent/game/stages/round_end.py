@@ -54,6 +54,11 @@ _DRAW_TEMPLATES = [
     "Dandelion can't pick a winner at {location}. {p1} and {p2} tied at {score}!",
     "The fog over {location} clears to reveal a draw. {score} to {score}. A gem from each!",
     "Even Gaunter O'Dimm couldn't decide this one at {location}. Both score {score}!",
+    "The battle of {location} grinds to a halt! {p1} and {p2} lock horns at {score}. Both lose a gem!",
+    "Like two Witchers fighting over a contract! {p1} and {p2} tie at {score} in round {round} at {location}!",
+    "The merchants of {location} can't pick a winner! {p1} and {p2} deadlocked at {score}. A gem from each!",
+    "Stalemate at {location}! {p1} and {p2} matched blow for blow at {score}. Round {round} claims a gem from both!",
+    "Lambert would call this pathetic! {p1} and {p2} both score {score} at {location}. Neither deserves to win!",
 ]
 
 

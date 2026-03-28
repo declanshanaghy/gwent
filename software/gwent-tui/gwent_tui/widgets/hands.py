@@ -34,10 +34,24 @@ class _HandsContent(Static):
         p1_rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
         p2_rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
 
+        # Show ghost (removed) cards first with red strikethrough
+        for c in state.get_ghosts("hand", P1):
+            text = card_display(c)
+            p1_rows.append(f"[on dark_red strike]{text}[/on dark_red strike]")
+        for c in state.get_ghosts("hand", P2):
+            text = card_display(c)
+            p2_rows.append(f"[on dark_red strike]{text}[/on dark_red strike]")
+
         for c in state.hands[P1]:
-            p1_rows.append(card_display(c))
+            text = card_display(c)
+            if state.is_highlighted(f"hand:{P1}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p1_rows.append(text)
         for c in state.hands[P2]:
-            p2_rows.append(card_display(c))
+            text = card_display(c)
+            if state.is_highlighted(f"hand:{P2}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p2_rows.append(text)
 
         max_len = max(len(p1_rows), len(p2_rows))
         p1_rows.extend([""] * (max_len - len(p1_rows)))

@@ -3,6 +3,7 @@
 Shows the match winner and returns to main menu on OK.
 """
 
+import random
 from typing import Callable
 
 import gwent.game
@@ -14,6 +15,28 @@ import gwent.messaging.card_play
 
 from gwent.game.constants import PLAYER
 from gwent.game.board import Board
+
+_WIN_TEMPLATES = [
+    "Player {w_num} wins the match! {w_gems} gems to {l_gems}.",
+    "Victory for Player {w_num}! The battlefield belongs to them. {w_gems} gems to {l_gems}.",
+    "Player {w_num} claims the prize! {w_gems} gems standing, Player {l_num} left with {l_gems}.",
+    "The crowd roars! Player {w_num} triumphs with {w_gems} gems! Player {l_num} has {l_gems}.",
+    "A glorious win for Player {w_num}! {w_gems} to {l_gems}. The bards will sing!",
+    "Player {w_num} stands victorious! {w_gems} gems shine bright. Player {l_num}'s {l_gems} fade to dust.",
+    "Like Geralt collecting his reward! Player {w_num} wins {w_gems} to {l_gems}!",
+    "The White Wolf would be proud! Player {w_num} conquers with {w_gems} gems to {l_gems}!",
+    "Dandelion's quill flies! Player {w_num}'s victory — {w_gems} gems to {l_gems} — will echo across the Continent!",
+    "A match worthy of legend! Player {w_num} prevails with {w_gems} gems. Player {l_num} falls at {l_gems}.",
+]
+
+_DRAW_TEMPLATES = [
+    "The match is a draw! Both players have {gems} gems. Neither army prevails.",
+    "A stalemate for the ages! Both commanders hold {gems} gems. The Continent is undecided.",
+    "Neither player yields! {gems} gems apiece. Even Gaunter O'Dimm couldn't pick a winner!",
+    "Deadlocked at {gems} gems! The tavern argues all night about who really won.",
+    "A draw most foul! {gems} gems each. Lambert storms off in disgust.",
+    "Both armies bloodied, neither broken! {gems} gems remain on each side. Rematch?",
+]
 
 
 class DisplayWinner(gwent.game.stages.base.GameStage):
@@ -29,11 +52,26 @@ class DisplayWinner(gwent.game.stages.base.GameStage):
         p2_gems = board.players[PLAYER.TWO].gems
 
         if p1_gems > p2_gems:
-            msg = f"Player 1 wins the match! Player 1 has {p1_gems} gems, Player 2 has {p2_gems}."
+            w_num, l_num = "1", "2"
+            w_gems, l_gems = p1_gems, p2_gems
         elif p2_gems > p1_gems:
-            msg = f"Player 2 wins the match! Player 2 has {p2_gems} gems, Player 1 has {p1_gems}."
+            w_num, l_num = "2", "1"
+            w_gems, l_gems = p2_gems, p1_gems
         else:
-            msg = f"The match is a draw! Both players have {p1_gems} gems."
+            w_num, l_num = None, None
+            w_gems, l_gems = p1_gems, p2_gems
+
+        if gwent.game.BaseComponent.simple_mode:
+            if w_num:
+                msg = f"Player {w_num} wins. {w_gems} to {l_gems}."
+            else:
+                msg = f"Draw. {p1_gems} gems each."
+        else:
+            if w_num:
+                msg = random.choice(_WIN_TEMPLATES).format(
+                    w_num=w_num, l_num=l_num, w_gems=w_gems, l_gems=l_gems)
+            else:
+                msg = random.choice(_DRAW_TEMPLATES).format(gems=p1_gems)
 
         self._log.info({
             'action': 'display_winner',

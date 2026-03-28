@@ -36,8 +36,18 @@ class _DiscardContent(Static):
         table.add_column(ratio=1)
         table.add_column(ratio=1)
 
-        p1_cards = [card_display(c) for c in p1_disc]
-        p2_cards = [card_display(c) for c in p2_disc]
+        p1_cards = []
+        for c in p1_disc:
+            text = card_display(c)
+            if state.is_highlighted(f"discard:{P1}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p1_cards.append(text)
+        p2_cards = []
+        for c in p2_disc:
+            text = card_display(c)
+            if state.is_highlighted(f"discard:{P2}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p2_cards.append(text)
 
         max_len = max(len(p1_cards), len(p2_cards), 1)
         p1_cards.extend([""] * (max_len - len(p1_cards)))

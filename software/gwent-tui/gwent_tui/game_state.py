@@ -38,6 +38,9 @@ class GameState:
 
     _ZERO_ROW_SCORES = {"close": 0, "ranged": 0, "siege": 0}
 
+    # How long highlights persist (seconds)
+    HIGHLIGHT_TTL = 2.0
+
     def _reset(self):
         self.stage = "—"
         self.round_number = 1
@@ -75,6 +78,16 @@ class GameState:
         self.mqtt_status = "off"    # off, polling, processing, error
         self.http_status = "off"    # off, polling, processing, error
 
+        # Change highlights: {key: expire_time}
+        # Keys: "board:{player}:{row}:{card_name}", "hand:{player}:{card_name}",
+        #        "discard:{player}:{card_name}", "score:{player}", "gems:{player}",
+        #        "deck:{player}", "weather:{row}"
+        #        "removed:hand:{player}:{card_name}" — ghost entries for removed cards
+        self.highlights = {}
+        # Ghost cards: temporarily shown as removed (red highlight then vanish)
+        # {("hand", player): [card_dict, ...], ("board", player, row): [...]}
+        self.ghosts = {}
+
         # Move timing
         self._turn_start = time.monotonic()
         self._prev_player = None
@@ -100,6 +113,9 @@ class GameState:
             # Load registration data (leaders/decks from pre-game stages)
             self._load_registration_data(state)
             return
+
+        # Detect changes before overwriting state
+        self._detect_changes(board)
 
         self.round_number = board.get("round_number", 1)
         new_player = _normalize_player(board.get("current_player", P1))
@@ -174,6 +190,114 @@ class GameState:
                 "ranged": p_scores.get("ranged", 0),
                 "siege": p_scores.get("siege", 0),
             }
+
+    def is_highlighted(self, key):
+        """Check if a key is currently highlighted (within TTL)."""
+        expire = self.highlights.get(key)
+        if expire is None:
+            return False
+        if time.monotonic() > expire:
+            del self.highlights[key]
+            return False
+        return True
+
+    def _highlight(self, key):
+        """Mark a key as highlighted."""
+        self.highlights[key] = time.monotonic() + self.HIGHLIGHT_TTL
+
+    def _expire_ghosts(self):
+        """Remove expired ghost entries."""
+        now = time.monotonic()
+        expired = [k for k, (_, exp) in self.ghosts.items() if now > exp]
+        for k in expired:
+            del self.ghosts[k]
+
+    def get_ghosts(self, *ghost_key):
+        """Get ghost cards for a key, or empty list if expired."""
+        entry = self.ghosts.get(ghost_key)
+        if entry is None:
+            return []
+        cards, expire = entry
+        if time.monotonic() > expire:
+            del self.ghosts[ghost_key]
+            return []
+        return cards
+
+    def _detect_changes(self, board):
+        """Compare new board state against current and highlight differences."""
+        now_ttl = time.monotonic() + self.HIGHLIGHT_TTL
+
+        players = board.get("players", {})
+        hands = board.get("hands", {})
+        decks = board.get("decks", {})
+        server_scores = board.get("scores", {})
+
+        for key, pdata in players.items():
+            p = _normalize_player(key)
+
+            # Gems changed
+            new_gems = pdata.get("gems", 2)
+            if new_gems != self.gems.get(p, 2):
+                self._highlight(f"gems:{p}")
+
+            # Board rows changed — detect new cards
+            rows = pdata.get("rows", {})
+            for row_name in ("close", "ranged", "siege"):
+                old_names = {c.get("name") for c in self.board_rows[p].get(row_name, [])}
+                new_cards = rows.get(row_name, [])
+                for c in new_cards:
+                    if c.get("name") not in old_names:
+                        self._highlight(f"board:{p}:{row_name}:{c.get('name')}")
+
+            # Discard changed — detect new cards
+            old_disc_names = {c.get("name") for c in self.discard.get(p, [])}
+            for c in pdata.get("discard", []):
+                if c.get("name") not in old_disc_names:
+                    self._highlight(f"discard:{p}:{c.get('name')}")
+
+        # Hands — detect removed cards (played) and new cards (drawn)
+        # Clear expired ghosts first
+        self._expire_ghosts()
+        for key, hand in hands.items():
+            p = _normalize_player(key)
+            old_names = {c.get("name") for c in self.hands.get(p, [])}
+            new_names = {c.get("name") for c in hand}
+            for name in new_names - old_names:
+                self._highlight(f"hand:{p}:{name}")
+            # Track removed cards as ghosts (briefly visible with red highlight)
+            removed_names = old_names - new_names
+            if removed_names:
+                ghost_key = ("hand", p)
+                ghosts = []
+                for c in self.hands.get(p, []):
+                    if c.get("name") in removed_names:
+                        ghosts.append(c)
+                        self._highlight(f"removed:hand:{p}:{c.get('name')}")
+                if ghosts:
+                    self.ghosts[ghost_key] = (ghosts, time.monotonic() + self.HIGHLIGHT_TTL)
+            if old_names != new_names:
+                self._highlight(f"hand_count:{p}")
+
+        # Decks — detect size change
+        for key, deck in decks.items():
+            p = _normalize_player(key)
+            old_size = len(self.decks.get(p, []))
+            new_size = len([c for c in deck if c.get("specialty") != "leader"])
+            if old_size != new_size:
+                self._highlight(f"deck:{p}")
+
+        # Scores changed
+        for key, p_scores in server_scores.items():
+            p = _normalize_player(key)
+            new_total = p_scores.get("total", 0)
+            if new_total != self.scores.get(p, 0):
+                self._highlight(f"score:{p}")
+
+        # Weather changed
+        new_weather = set(board.get("weather_rows", []))
+        if new_weather != self.weather_rows:
+            for row in new_weather.symmetric_difference(self.weather_rows):
+                self._highlight(f"weather:{row}")
 
     def _reset_board(self):
         """Reset all game board state to defaults."""
