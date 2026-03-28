@@ -1,0 +1,10 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "King Bran",
+    "specialty": "leader",
+    "leader": {
+        "instructions": "Units only lose half their strength in bad weather conditions",
+        "half_weather_penalty": true
+    }
+}

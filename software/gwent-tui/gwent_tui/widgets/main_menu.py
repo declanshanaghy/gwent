@@ -62,7 +62,7 @@ class MainMenuWidget(Static):
 
         return Panel(
             table,
-            title=f"\u2694\ufe0f [bold]{state.stage}[/bold]{count_summary}",
+            title=f"\u2694 [bold]{state.stage}[/bold]{count_summary}",
             subtitle=status_line,
         )
 

@@ -58,6 +58,7 @@ class GameState:
         self.discard = {P1: [], P2: []}
         self.decks = {P1: [], P2: []}
         self.weather_rows = set()
+        self.half_weather_penalty = {P1: False, P2: False}
         self.commander_horn_rows = {P1: set(), P2: set()}
         self.passed = {P1: False, P2: False}
         self.leader_used = {P1: False, P2: False}
@@ -134,6 +135,10 @@ class GameState:
         self.current_player = new_player
 
         self.weather_rows = set(board.get("weather_rows", []))
+        hwp = board.get("half_weather_penalty", {})
+        for key, val in hwp.items():
+            p = _normalize_player(key)
+            self.half_weather_penalty[p] = val
 
         # Factions
         factions = board.get("factions", {})
@@ -316,6 +321,7 @@ class GameState:
         self.discard = {P1: [], P2: []}
         self.decks = {P1: [], P2: []}
         self.weather_rows = set()
+        self.half_weather_penalty = {P1: False, P2: False}
         self.commander_horn_rows = {P1: set(), P2: set()}
         self.passed = {P1: False, P2: False}
         self.leader_used = {P1: False, P2: False}

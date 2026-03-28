@@ -1,8 +1,8 @@
 """Emoji constants and helper functions for game state rendering."""
 
 FACTION_EMOJI = {
-    "Northern Realms": ("\U0001f981", "\u2696\ufe0f"),   # lion, fleur-de-lis
-    "Nilfgaardian":    ("\U0001f311", "\u2600\ufe0f"),    # new moon, sun
+    "Northern Realms": ("\U0001f981", "\u2696"),   # lion, fleur-de-lis
+    "Nilfgaardian":    ("\U0001f311", "\u2600"),    # new moon, sun
     "Scoia'tael":      ("\U0001f33f", "\U0001f3f9"),      # herb, bow
     "Scoiatael":       ("\U0001f33f", "\U0001f3f9"),      # alt spelling
     "Monsters":        ("\U0001f479", "\U0001f525"),       # ogre, fire
@@ -10,15 +10,15 @@ FACTION_EMOJI = {
 }
 
 ROW_EMOJI = {
-    "close":  "\u2694\ufe0f",   # crossed swords
+    "close":  "\u2694",   # crossed swords
     "ranged": "\U0001f3f9",     # bow
     "siege":  "\U0001f3f0",     # castle
 }
 
 WEATHER_EMOJI = {
-    "close":  "\u2744\ufe0f",     # snowflake
-    "ranged": "\U0001f32b\ufe0f", # fog
-    "siege":  "\U0001f327\ufe0f", # rain
+    "close":  "\u2744",     # snowflake
+    "ranged": "\U0001f32b", # fog
+    "siege":  "\U0001f327", # rain
 }
 
 WEATHER_NAME = {
@@ -28,15 +28,15 @@ WEATHER_NAME = {
 }
 
 # Card specialty/ability emoji
-HERO = "\U0001f6e1\ufe0f"          # shield
+HERO = "\U0001f6e1"          # shield
 SCORCH = "\U0001f525"              # fire
 DECOY = "\U0001f3ad"               # masks
 COMMANDER = "\U0001f4ef"           # postal horn
 WEATHER_CARD = {
-    "Biting Frost":       "\U0001f328\ufe0f",
-    "Impenetrable Fog":   "\U0001f32b\ufe0f",
-    "Torrential Rain":    "\U0001f327\ufe0f",
-    "Clear Weather":      "\u2600\ufe0f",
+    "Biting Frost":       "\U0001f328",
+    "Impenetrable Fog":   "\U0001f32b",
+    "Torrential Rain":    "\U0001f327",
+    "Clear Weather":      "\u2600",
 }
 # Short display names for weather cards
 WEATHER_SHORT = {
@@ -48,7 +48,7 @@ WEATHER_SHORT = {
 MEDIC = "\U0001fa7a"               # stethoscope
 MUSTER = "\U0001f465"              # busts in silhouette
 BOND = "\U0001f91d"                # handshake
-SPY = "\U0001f575\ufe0f"           # detective
+SPY = "\U0001f575"           # detective
 MORALE = "\U0001f4aa"              # flexed bicep
 BERSERKER = "\U0001f43b"           # bear
 
@@ -58,7 +58,7 @@ CROWN = "\U0001f451"               # crown
 STAR = "\u2b50"                    # star (starter)
 CUBE = "\U0001f4e6"               # package (remainder/unowned)
 ZAP = "\u26a1"                     # high voltage (row total)
-FLAG = "\U0001f3f3\ufe0f"          # white flag (passed)
+FLAG = "\U0001f3f3"          # white flag (passed)
 
 
 def faction_emoji(faction):
@@ -114,7 +114,7 @@ def card_prefix(card):
     # Weather cards — strip ": N" suffix for lookup
     if specialty == "weather":
         base_name = name.split(":")[0].strip() if ":" in name else name
-        emoji = WEATHER_CARD.get(base_name, WEATHER_CARD.get(name, "\U0001f327\ufe0f"))
+        emoji = WEATHER_CARD.get(base_name, WEATHER_CARD.get(name, "\U0001f327"))
         return emoji
 
     # Scorch
@@ -164,16 +164,22 @@ def card_prefix(card):
     return "".join(parts) if parts else "\u2753"  # question mark fallback
 
 
-# Rich markup colors for faction-colored card names
-FACTION_COLOR = {
-    "Monsters":        "red",
-    "Nilfgaardian":    "grey74",
-    "Northern Realms": "royal_blue1",
-    "Scoia'tael":      "green",
-    "Scoiatael":       "green",
-    "Skellige":        "cyan",
-    "Neutral":         "white",
+# Standardized faction colors: (text_color, bg_color, fg_on_bg)
+# - text_color: used for card names and inline text
+# - bg_color: used for highlighted backgrounds (header, active player)
+# - fg_on_bg: contrasting text when bg_color is the background
+FACTION_STYLE = {
+    "Monsters":        ("red",         "dark_red",       "white"),
+    "Nilfgaardian":    ("grey74",      "grey11",         "bright_yellow"),
+    "Northern Realms": ("dodger_blue2", "dodger_blue2",     "white"),
+    "Scoia'tael":      ("green",       "dark_green",     "white"),
+    "Scoiatael":       ("green",       "dark_green",     "white"),
+    "Skellige":        ("medium_purple1", "blue",          "white"),
+    "Neutral":         ("white",       "grey30",         "white"),
 }
+
+# Convenience: just the text color (backwards compat)
+FACTION_COLOR = {k: v[0] for k, v in FACTION_STYLE.items()}
 
 
 def _faction_color(card):
@@ -224,11 +230,12 @@ def card_display(card, max_name=None):
     return "".join(parts)
 
 
-def card_display_short(card, max_name=None, weather_active=False):
+def card_display_short(card, max_name=None, weather_active=False,
+                       half_weather=False):
     """Card display for board rows: emoji + full name + (strength).
 
     When weather_active, non-hero units show strikethrough name and reduced
-    strength (1) instead of their base strength.
+    strength (1, or half with half_weather) instead of their base strength.
     """
     prefix = card_prefix(card)
     name = card.get("name", "???")
@@ -239,8 +246,12 @@ def card_display_short(card, max_name=None, weather_active=False):
     weathered = weather_active and not is_hero and strength and strength > 1
 
     if weathered:
+        if half_weather:
+            reduced = max(1, strength // 2)
+        else:
+            reduced = 1
         parts = [prefix, " [strike dim]", name, "[/strike dim]"]
-        parts.append(f" [strike dim]({strength})[/strike dim] [bold cyan](1)[/bold cyan]")
+        parts.append(f" [strike dim]({strength})[/strike dim] [bold cyan]({reduced})[/bold cyan]")
     else:
         parts = [prefix, f" [{fc}]", name, f"[/{fc}]"]
         if strength is not None:

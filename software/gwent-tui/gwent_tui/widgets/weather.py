@@ -21,9 +21,9 @@ class WeatherWidget(Static):
                 emoji = WEATHER_EMOJI.get(row, "")
                 name = WEATHER_NAME.get(row, row)
                 weather_items.append(f"{emoji} {name}")
-            weather = "\U0001f326\ufe0f " + ", ".join(weather_items)
+            weather = "\U0001f326 " + ", ".join(weather_items)
         else:
-            weather = "\U0001f326\ufe0f Clear skies"
+            weather = "\U0001f326 Clear skies"
 
         # Passed status
         p1_passed = state.passed.get(P1, False)

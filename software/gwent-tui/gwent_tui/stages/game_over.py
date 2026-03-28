@@ -108,7 +108,7 @@ class _FinalBoard(Static):
                 row_name in state.commander_horn_rows.get(P2, set()))
             table.add_row(p1_text, p2_text)
 
-        return Panel(table, title="\u2694\ufe0f Final Board")
+        return Panel(table, title="\u2694 Final Board")
 
 
 class _HandsAndDiscards(Static):
@@ -191,7 +191,7 @@ class _HandsAndDiscards(Static):
         # Discards
         disc = state.discard.get(player, [])
         if disc:
-            rows.append(f"[bold]\U0001f5d1\ufe0f Discard ({len(disc)}):[/bold]")
+            rows.append(f"[bold]\U0001f5d1 Discard ({len(disc)}):[/bold]")
             for c in disc:
                 rows.append(f"  {card_display(c)}")
         else:

@@ -62,7 +62,8 @@ Without `--fresh`, the script expects the game to already be in PlayRound.
 
 - `/llm-vs` -> `python3 ... --model llama3.2:3b --fresh`
 - `/llm-vs deepseek-r1:14b` -> `python3 ... --model deepseek-r1:14b --fresh`
-- No explicit `--fresh` from user -> always pass `--fresh` unless user says "resume" or "continue"
+- No explicit `--fresh` from user -> do NOT pass `--fresh` (continue existing game if running)
+- Only pass `--fresh` when user explicitly says "new game", "fresh", "restart", or "start over"
 
 ## User intervention
 

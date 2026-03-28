@@ -45,6 +45,7 @@ class Board:
         self.round_number = 1
         self.spy_doubling = False
         self.medic_random = False
+        self.half_weather_penalty = {PLAYER.ONE: False, PLAYER.TWO: False}
 
     def opponent(self, player):
         return PLAYER.TWO if player == PLAYER.ONE else PLAYER.ONE
@@ -105,14 +106,19 @@ class Board:
             for c in cards
         )
 
-        # Step 1: Base strengths (weather reduces non-heroes to 1)
+        # Step 1: Base strengths (weather reduces non-heroes to 1,
+        # or half strength if half_weather_penalty is active for this player)
+        half_weather = self.half_weather_penalty.get(player, False)
         strengths = {}
         for card in cards:
             if not card.strength:
                 strengths[card.rfid] = 0
                 continue
             if weather_active and not (card.has_specialty and card.specialty == "hero"):
-                strengths[card.rfid] = 1
+                if half_weather:
+                    strengths[card.rfid] = max(1, card.strength // 2)
+                else:
+                    strengths[card.rfid] = 1
             else:
                 strengths[card.rfid] = card.strength
 
@@ -243,6 +249,9 @@ class Board:
             "round_number": self.round_number,
             "spy_doubling": self.spy_doubling,
             "medic_random": self.medic_random,
+            "half_weather_penalty": {
+                str(p): v for p, v in self.half_weather_penalty.items()
+            },
             "scores": {
                 str(p): {
                     "total": self.calculate_player_score(p),
@@ -291,5 +300,8 @@ class Board:
         board.round_number = data.get("round_number", 1)
         board.spy_doubling = data.get("spy_doubling", False)
         board.medic_random = data.get("medic_random", False)
+        hwp = data.get("half_weather_penalty", {})
+        for p_str, val in hwp.items():
+            board.half_weather_penalty[player_from_str(p_str)] = val
 
         return board

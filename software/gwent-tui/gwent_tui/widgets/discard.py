@@ -9,6 +9,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
+from gwent_tui.widgets.board import SPLIT_BOX
 
 
 class _DiscardContent(Static):
@@ -24,14 +25,15 @@ class _DiscardContent(Static):
         if not p1_disc and not p2_disc:
             return Panel(
                 Text("No discards", justify="center", style="dim"),
-                title="\U0001f5d1\ufe0f Discard",
+                title="\U0001f5d1 Discard",
             )
 
         table = Table(
-            box=box.SIMPLE_HEAVY,
+            box=SPLIT_BOX,
             expand=True,
             padding=(0, 1),
             show_header=False,
+            show_edge=False,
         )
         table.add_column(ratio=1)
         table.add_column(ratio=1)
@@ -56,7 +58,7 @@ class _DiscardContent(Static):
         for p1, p2 in zip(p1_cards, p2_cards):
             table.add_row(p1, p2)
 
-        return Panel(table, title=f"\U0001f5d1\ufe0f Discard ({len(p1_disc)} | {len(p2_disc)})")
+        return Panel(table, title=f"\U0001f5d1 Discard ({len(p1_disc)} | {len(p2_disc)})")
 
 
 class DiscardWidget(Vertical):

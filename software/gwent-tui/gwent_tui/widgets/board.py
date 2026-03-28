@@ -9,6 +9,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import (
     card_display_short, gems_display, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
+    FACTION_STYLE,
 )
 from gwent_tui.game_state import P1, P2
 
@@ -17,6 +18,18 @@ ROW_COLOR = {
     "ranged": "orchid",
     "siege": "turquoise2",
 }
+
+# Two-column box with solid vertical divider and horizontal row separators
+SPLIT_BOX = box.Box(
+    "    \n"
+    "  \u2502 \n"
+    "\u2500\u2500\u253c\u2500\n"
+    "  \u2502 \n"
+    "\u2500\u2500\u253c\u2500\n"
+    "  \u2502 \n"
+    "  \u2502 \n"
+    "    \n"
+)
 
 
 class ScoreboardWidget(Static):
@@ -44,10 +57,6 @@ class ScoreboardWidget(Static):
         p1_pass = f"{FLAG}" if p1_passed else ""
         p2_pass = f"{FLAG}" if p2_passed else ""
 
-        # Leader status
-        p1_ldr = "\U0001f451" + ("[dim]x[/dim]" if state.leader_used.get(P1) else "[green]\u26a1[/green]")
-        p2_ldr = ("[dim]x[/dim]" if state.leader_used.get(P2) else "[green]\u26a1[/green]") + "\U0001f451"
-
         # Gems (highlight on change)
         p1_gems_str = gems_display(state.gems.get(P1, 0))
         p2_gems_str = gems_display(state.gems.get(P2, 0))
@@ -65,15 +74,15 @@ class ScoreboardWidget(Static):
         p2s_close = f"[/{p2s_style}]" if p2s_style else ""
 
         # Build: P1 info | score | weather | score | P2 info
-        left = f"[bold yellow]P1[/bold yellow] {p1_ldr} {p1_gems_str} {p1_pass}"
+        left = f"{p1_gems_str} {p1_pass}"
         center = (
-            f"\U0001f5e1\ufe0f {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
-            f"  \u2694\ufe0f  "
-            f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1\ufe0f"
+            f"\U0001f5e1 {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
+            f"  \u2694  "
+            f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1"
         )
         if weather:
             center += f"  {weather}"
-        right = f"{p2_pass} {p2_gems_str} {p2_ldr} [bold dodger_blue2]P2[/bold dodger_blue2]"
+        right = f"{p2_pass} {p2_gems_str}"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
         table.add_column(ratio=1, justify="left")
@@ -95,35 +104,48 @@ class _BoardRows(Static):
     """
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
-                    row_score=0, weather_active=False, player=None):
+                    row_score=0, weather_active=False, player=None,
+                    min_lines=0):
         rc = ROW_COLOR.get(row_name, "white")
         horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
         header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag}  {ZAP} {row_score}[/bold {rc}]"
 
-        if not cards:
-            return header
-
         state = self.app.state
+        half_weather = state.half_weather_penalty.get(player, False) if player else False
         lines = [header]
         for c in cards:
             name = c.get("name", "")
             hl_key = f"board:{player}:{row_name}:{name}" if player else ""
-            text = card_display_short(c, weather_active=weather_active)
+            text = card_display_short(c, weather_active=weather_active,
+                                      half_weather=half_weather)
             if player and state.is_highlighted(hl_key):
                 lines.append(f"  [on dark_green]{text}[/on dark_green]")
             else:
                 lines.append(f"  {text}")
+        # Pad to min_lines so rows fill evenly
+        while len(lines) < min_lines:
+            lines.append("")
         return "\n".join(lines)
 
     def render(self):
         state = self.app.state
 
+        # Calculate min lines per row to fill board evenly
+        # Overhead: panel border (2) + 2 row separators (2) + footer row (1)
+        #         + top/bottom padding on each of 4 rows (0) = ~5 lines
+        try:
+            avail = self.size.height - 7
+        except Exception:
+            avail = 18
+        row_height = max(2, min(avail // 3, 12))
+
         table = Table(
-            box=box.SIMPLE_HEAVY,
+            box=SPLIT_BOX,
             expand=True,
             padding=(0, 1),
             show_header=False,
             show_lines=True,
+            show_edge=False,
         )
         table.add_column(ratio=1)
         table.add_column(ratio=1)
@@ -144,14 +166,39 @@ class _BoardRows(Static):
 
             p1_text = self._format_row(p1_cards, row_name, re, weather_tag, p1_horn,
                                        p1_row_score, weather_active=weather_active,
-                                       player=P1)
+                                       player=P1, min_lines=row_height)
             p2_text = self._format_row(p2_cards, row_name, re, weather_tag, p2_horn,
                                        p2_row_score, weather_active=weather_active,
-                                       player=P2)
+                                       player=P2, min_lines=row_height)
 
             table.add_row(p1_text, p2_text)
 
-        return Panel(table, title="\u2694\ufe0f Board")
+        # Leader ability footer row — short nickname, faction colored
+        from gwent_tui.widgets.header import _leader_nick
+        p1_ability = ""
+        p2_ability = ""
+        p1_leader = state.leaders.get(P1)
+        p2_leader = state.leaders.get(P2)
+        for p, leader in ((P1, p1_leader), (P2, p2_leader)):
+            if not leader:
+                continue
+            nick = _leader_nick(leader)
+            instr = leader.get("leader", {}).get("instructions", "")
+            used = state.leader_used.get(p, False)
+            faction = leader.get("faction", "")
+            fg = FACTION_STYLE.get(faction, ("white", "grey30", "white"))[0]
+            if used:
+                style = f"strike dim {fg}"
+            else:
+                style = f"italic {fg}"
+            text = f"\U0001f451 [{style}]{nick}: {instr}[/{style}]"
+            if p == P1:
+                p1_ability = text
+            else:
+                p2_ability = text
+        table.add_row(p1_ability, p2_ability)
+
+        return Panel(table, title="\u2694 Board")
 
 
 class BoardWidget(Vertical):

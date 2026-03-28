@@ -25,7 +25,7 @@ class _OfflineContent(Static):
         ]
         return Panel(
             Text.from_markup("\n".join(lines)),
-            title="\u26a0\ufe0f  Gwent Server Offline",
+            title="\u26a0  Gwent Server Offline",
             style="red",
         )
 

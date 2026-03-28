@@ -2,6 +2,7 @@
     "kind": "card",
     "faction": "Neutral",
     "name": "Cow",
+    "strength": 0,
     "ranges": [
         "ranged"
     ]

@@ -7,6 +7,7 @@ import os
 
 from textual.app import App, ComposeResult
 from textual.binding import Binding
+from textual.containers import Horizontal
 from textual.widgets import Static
 
 from gwent_tui.game_state import GameState
@@ -15,6 +16,7 @@ from gwent_tui.snapshot import SnapshotPoller
 from gwent_tui.save_dialog import SaveScreen
 from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
+from gwent_tui.widgets.timers import TimersWidget
 from gwent_tui.stages import STAGE_WIDGETS, UnknownStage, OfflineStage
 import gwent_tui.snapshot as snapshot_mod
 
@@ -48,7 +50,9 @@ class GwentTUI(App):
     * { scrollbar-size: 0 0; }
     #header { height: 3; }
     #stage-container { height: 1fr; overflow-y: auto; }
-    #footer { height: 7; }
+    #bottom-bar { height: 9; }
+    #footer { width: 3fr; }
+    #timers { width: 1fr; }
     """
 
     ENABLE_COMMAND_PALETTE = False
@@ -76,7 +80,9 @@ class GwentTUI(App):
         yield HeaderWidget(id="header")
         # Stage container — will be populated dynamically
         yield UnknownStage(id="stage-container")
-        yield FooterWidget(id="footer")
+        with Horizontal(id="bottom-bar"):
+            yield FooterWidget(id="footer")
+            yield TimersWidget(id="timers")
 
     def on_mount(self):
         log.info("gwent-tui starting (url=%s)", self._gwent_url)
@@ -113,6 +119,12 @@ class GwentTUI(App):
         elif self._current_stage_name == "Offline":
             # Recovered — refresh will pick up the real stage
             await self._refresh_all()
+        # Always refresh timers and footer (elapsed time ticks every second)
+        try:
+            for widget_id in ("#timers", "#footer"):
+                self.query_one(widget_id).refresh()
+        except Exception:
+            pass
 
     async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
@@ -149,7 +161,7 @@ class GwentTUI(App):
 
         new_widget = stage_cls(id="stage-container")
         try:
-            await self.mount(new_widget, before=self.query_one("#footer"))
+            await self.mount(new_widget, before=self.query_one("#bottom-bar"))
             log.info("Switched to stage: %s", stage_name)
         except Exception as e:
             log.error("Failed to mount stage %s: %s", stage_name, e)

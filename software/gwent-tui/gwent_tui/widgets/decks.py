@@ -8,6 +8,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
+from gwent_tui.widgets.board import SPLIT_BOX
 
 
 class _DecksContent(Static):
@@ -24,10 +25,11 @@ class _DecksContent(Static):
         p2_hl = state.is_highlighted(f"deck:{P2}")
 
         table = Table(
-            box=box.SIMPLE_HEAVY,
+            box=SPLIT_BOX,
             expand=True,
             padding=(0, 1),
             show_header=False,
+            show_edge=False,
         )
         table.add_column(ratio=1)
         table.add_column(ratio=1)

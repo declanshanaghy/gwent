@@ -1105,6 +1105,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
             "Too late! {target}'s ability was already used. {player}'s cancel fizzles!",
             "The horse has bolted! {player} can't cancel what {target} already used!",
         ],
+        "half_weather_penalty": [
+            "{player}: leader ability. Units now lose only half strength in weather!",
+            "{player}'s warriors shrug off the storm! Weather penalties halved!",
+            "Skellige blood runs thick! {player}'s units resist the weather's bite!",
+            "The Isles breed hardy folk! {player}'s leader halves all weather penalties!",
+            "King Bran's decree! {player}'s units only lose half strength in bad weather!",
+            "Storm-born warriors! {player}'s leader shields the army from the worst of it!",
+        ],
         "optimize_agile": [
             "{player}: leader ability. Optimized agile units: {moves}!",
             "{player}'s tactical genius shines! Agile units repositioned: {moves}!",
@@ -1351,6 +1359,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 f"battle start (extra card drawn).")
         elif leader_data.get("cancel_leader"):
             self._leader_cancel_leader()
+        elif leader_data.get("half_weather_penalty"):
+            self._leader_half_weather_penalty()
         else:
             instructions = leader_data.get('instructions', 'No effect')
             self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
@@ -1785,6 +1795,19 @@ class PlayRound(gwent.game.stages.base.GameStage):
             opp_pb.leader_used = True
             self._announce_and_advance(
                 f"{label}: leader ability. {opp_name}'s ability has been cancelled!")
+
+    def _leader_half_weather_penalty(self):
+        """Leader ability: units only lose half strength in weather conditions."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        self._board.half_weather_penalty[cur] = True
+        if self._simple:
+            self._announce_and_advance(
+                f"{label}: leader ability. Units now lose only half strength in weather!")
+        else:
+            self._announce_and_advance(
+                random.choice(self._LEADER_PHRASES["half_weather_penalty"]).format(
+                    player=label))
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
