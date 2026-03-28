@@ -9,8 +9,9 @@ Implement and test leader abilities for two opposing factions.
 
 ## Usage
 
-`/implement-leaders <faction1> <faction2> [--generate-decks]`
+`/implement-leaders [faction1] [faction2] [--generate-decks]`
 
+- **faction1/faction2**: Optional. If omitted, auto-detect from open GitHub issues (see below).
 - **--generate-decks**: Skip reuse of existing recordings/templates and force a fresh call to `/build-decks` to generate new decks.
 
 Faction names: `monsters`, `northern-realms`, `nilfgaardian`, `scoiatael`, `skellige`
@@ -19,24 +20,36 @@ Faction names: `monsters`, `northern-realms`, `nilfgaardian`, `scoiatael`, `skel
 
 ### 1. Auto-select leaders from open GitHub issues
 
-Search GitHub for **open** leader issues matching both factions:
+First, fetch **all** open leader issues:
 
 ```bash
-gh issue list --state open --search "Leader" --json number,title --jq '.[] | select(.title | test("PATTERN")) | "#\(.number) \(.title)"'
+gh issue list --state open --search "Leader" --json number,title --jq '.[] | "#\(.number) \(.title)"'
 ```
 
-**Leader name mapping** — map issue titles to faction leader cards:
-- Monsters: `Eredin` → look up in `software/data/cards/Monsters/Eredin*.json`
-- Northern Realms: `Foltest` → look up in `software/data/cards/NorthernRealms/Foltest*.json`
-- Nilfgaardian: `Emhyr` → look up in `software/data/cards/Nilfgaardian/Emhyr*.json`
-- Scoia'tael: `Francesca` → look up in `software/data/cards/Scoiatael/Francesca*.json`
-- Skellige: `Crachan` → look up in `software/data/cards/Skellige/Crachan*.json`
+**Leader name → faction mapping:**
+- `Eredin` → Monsters (`software/data/cards/Monsters/Eredin*.json`)
+- `Foltest` → Northern Realms (`software/data/cards/NorthernRealms/Foltest*.json`)
+- `Emhyr` → Nilfgaardian (`software/data/cards/Nilfgaardian/Emhyr*.json`)
+- `Francesca` → Scoia'tael (`software/data/cards/Scoiatael/Francesca*.json`)
+- `Crachan` → Skellige (`software/data/cards/Skellige/Crachan*.json`)
 
-**Auto-selection rules:**
-1. Filter open issues to those matching the two requested factions.
-2. If **both factions** have open issues: pick the **first open issue from each faction** (lowest issue number).
-3. If **only one faction** has open issues: pick that faction's first open issue. For the other faction (all leaders already implemented), pick any already-implemented leader — prefer one whose ability creates interesting gameplay with the unimplemented leader (e.g., pick a leader with weather if the opponent has clear_weather).
-4. If **neither faction** has open issues: tell the user all leaders for these factions are implemented and stop.
+#### If no factions were given
+
+Auto-detect factions from open issues:
+1. Group open leader issues by faction using the name mapping above.
+2. If **two or more factions** have open issues: pick the **two factions with the most open issues** (break ties by lowest issue number). This creates the most productive matchup.
+3. If **only one faction** has open issues: use that faction paired with any other faction (prefer one that has already-implemented leaders for interesting gameplay).
+4. If **no open issues** exist: tell the user all leaders are implemented and stop.
+
+#### If factions were given
+
+Filter open issues to those matching the two requested factions.
+
+#### Leader selection rules (apply in both cases)
+
+1. If **both factions** have open issues: pick the **first open issue from each faction** (lowest issue number).
+2. If **only one faction** has open issues: pick that faction's first open issue. For the other faction (all leaders already implemented), pick any already-implemented leader — prefer one whose ability creates interesting gameplay with the unimplemented leader (e.g., pick a leader with weather if the opponent has clear_weather).
+3. If **neither faction** has open issues: tell the user all leaders for these factions are implemented and stop.
 
 Present the auto-selected matchup to the user for confirmation: show the two leaders, their abilities, and the associated issue numbers. Only use **AskUserQuestion** if something is ambiguous (e.g., multiple open issues for the same faction and you want the user to prioritize).
 
