@@ -821,6 +821,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._leader_spy_doubling()
         elif leader_data.get("discard_and_draw"):
             self._leader_discard_and_draw(leader_data)
+        elif leader_data.get("view_opponent_hand"):
+            self._leader_view_opponent_hand(leader_data)
+        elif leader_data.get("optimize_agile"):
+            self._leader_optimize_agile()
         else:
             instructions = leader_data.get('instructions', 'No effect')
             self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
@@ -1126,6 +1130,85 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._awaiting = None
             self._announce_and_advance(
                 f"{label}: leader ability complete. Drew {deck_card.name}!")
+
+    def _leader_view_opponent_hand(self, leader_data):
+        """Leader ability: view N random cards from opponent's hand."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        opp = self._board.opponent(cur)
+        count = leader_data.get("view_opponent_hand", 3)
+
+        opp_hand = self._board.hands[opp]
+        if not opp_hand:
+            self._announce_and_advance(
+                f"{label}: leader ability. Opponent's hand is empty!")
+            return
+
+        sample_size = min(count, len(opp_hand))
+        revealed = random.sample(opp_hand, sample_size)
+        names = ", ".join(c.name for c in revealed)
+        self._announce_and_advance(
+            f"{label}: leader ability. Revealed {sample_size} opponent card(s): {names}!")
+
+    def _leader_optimize_agile(self):
+        """Leader ability: move agile units to their optimal rows."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        pb = self._board.players[cur]
+
+        moved = []
+        for row_name in ("close", "ranged", "siege"):
+            for card in list(pb.rows[row_name]):
+                if not (card.has_abilities and "agile" in card.abilities):
+                    continue
+                if card.has_specialty and card.specialty == "hero":
+                    continue
+                if not card.ranges or len(card.ranges) < 2:
+                    continue
+
+                # Calculate score contribution in each valid row
+                best_row = row_name
+                best_score = self._board.calculate_row_score(cur, row_name)
+
+                for candidate_row in card.ranges:
+                    if candidate_row == row_name:
+                        continue
+                    # Temporarily move card to candidate row
+                    pb.rows[row_name].remove(card)
+                    pb.rows[candidate_row].append(card)
+                    candidate_score = self._board.calculate_row_score(cur, candidate_row)
+                    orig_score = self._board.calculate_row_score(cur, row_name)
+                    # Restore
+                    pb.rows[candidate_row].remove(card)
+                    pb.rows[row_name].append(card)
+
+                    # Compare total contribution (new row score - old row score without card)
+                    if candidate_score - orig_score > best_score - self._board.calculate_row_score(cur, row_name):
+                        # Simpler: just check if moving increases total player score
+                        # Move temporarily and compare total
+                        pb.rows[row_name].remove(card)
+                        pb.rows[candidate_row].append(card)
+                        new_total = self._board.calculate_player_score(cur)
+                        pb.rows[candidate_row].remove(card)
+                        pb.rows[row_name].append(card)
+                        old_total = self._board.calculate_player_score(cur)
+
+                        if new_total > old_total:
+                            best_row = candidate_row
+                            best_score = new_total
+
+                if best_row != row_name:
+                    pb.rows[row_name].remove(card)
+                    pb.rows[best_row].append(card)
+                    moved.append(f"{card.name} → {best_row}")
+
+        if moved:
+            moves_str = ", ".join(moved)
+            self._announce_and_advance(
+                f"{label}: leader ability. Optimized agile units: {moves_str}!")
+        else:
+            self._announce_and_advance(
+                f"{label}: leader ability. All agile units already in optimal rows.")
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
