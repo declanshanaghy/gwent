@@ -825,6 +825,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._leader_view_opponent_hand(leader_data)
         elif leader_data.get("optimize_agile"):
             self._leader_optimize_agile()
+        elif leader_data.get("medic_random"):
+            self._leader_medic_random()
+        elif leader_data.get("extra_draw"):
+            self._announce_and_advance(
+                f"{self._player_label(cur)}: leader ability already applied at "
+                f"battle start (extra card drawn).")
         else:
             instructions = leader_data.get('instructions', 'No effect')
             self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
@@ -1210,6 +1216,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._announce_and_advance(
                 f"{label}: leader ability. All agile units already in optimal rows.")
 
+    def _leader_medic_random(self):
+        """Leader ability: all medic restores pick a random unit (both players)."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        self._board.medic_random = True
+        self._announce_and_advance(
+            f"{label}: leader ability. All medic cards now restore random units!")
+
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
         if card.has_abilities and "agile" in card.abilities and len(card.ranges) > 1:
@@ -1270,6 +1284,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
             discard = self._board.players[cur].discard
             non_hero = [c for c in discard if not (c.has_specialty and c.specialty == "hero")]
             if non_hero:
+                if self._board.medic_random:
+                    # Auto-pick random card from discard
+                    resurrected = random.choice(non_hero)
+                    discard.remove(resurrected)
+                    self._board.hands[cur].append(resurrected)
+                    self._announce_and_advance(
+                        f"{label}: {card.name} medic. Randomly restored "
+                        f"{resurrected.name} to hand!")
+                    return
                 self._awaiting = self.AWAITING_MEDIC_CHOICE
                 self.publish_prompt(
                     self._msg_medic_prompt(label, card.name, len(non_hero)),

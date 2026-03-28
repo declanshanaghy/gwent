@@ -44,6 +44,7 @@ class Board:
         self.current_player = PLAYER.ONE
         self.round_number = 1
         self.spy_doubling = False
+        self.medic_random = False
 
     def opponent(self, player):
         return PLAYER.TWO if player == PLAYER.ONE else PLAYER.ONE
@@ -241,6 +242,7 @@ class Board:
             "current_player": str(self.current_player),
             "round_number": self.round_number,
             "spy_doubling": self.spy_doubling,
+            "medic_random": self.medic_random,
             "scores": {
                 str(p): {
                     "total": self.calculate_player_score(p),
@@ -288,5 +290,6 @@ class Board:
         board.current_player = player_from_str(cp)
         board.round_number = data.get("round_number", 1)
         board.spy_doubling = data.get("spy_doubling", False)
+        board.medic_random = data.get("medic_random", False)
 
         return board

@@ -119,6 +119,10 @@ class DealCards(gwent.game.stages.base.GameStage):
         self._player1_hand = self._deal_from_deck(self._player1_deck, PLAYER.ONE)
         self._player2_hand = self._deal_from_deck(self._player2_deck, PLAYER.TWO)
 
+        # Check for extra_draw leader abilities
+        self._apply_extra_draw(self._player1_deck, self._player1_hand, PLAYER.ONE)
+        self._apply_extra_draw(self._player2_deck, self._player2_hand, PLAYER.TWO)
+
         self._log.info({
             'action': 'hands_dealt',
             'player1_hand_size': len(self._player1_hand),
@@ -145,6 +149,24 @@ class DealCards(gwent.game.stages.base.GameStage):
 
         # Announce and auto-progress to next stage
         self._publish_prompt_then(summary, self._auto_complete)
+
+    def _apply_extra_draw(self, deck, hand, player):
+        """If this player's leader has extra_draw, draw additional cards from deck."""
+        leader = next((c for c in deck if c.is_leader), None)
+        if not leader or not leader.leader:
+            return
+        extra = leader.leader.get("extra_draw", 0) if isinstance(leader.leader, dict) else 0
+        if not extra:
+            return
+
+        dealt_rfids = {c.rfid for c in hand}
+        remaining = [c for c in deck if not c.is_leader and c.rfid not in dealt_rfids]
+        random.shuffle(remaining)
+
+        drawn = remaining[:extra]
+        hand.extend(drawn)
+        for c in drawn:
+            self._log.info(f"{player}: extra_draw — drew {c.name}")
 
     def _deal_from_deck(self, deck, player):
         """Randomly select HAND_SIZE cards from the deck with ~50/50 owned/starter mix."""
