@@ -15,7 +15,7 @@ from gwent_tui.snapshot import SnapshotPoller
 from gwent_tui.save_dialog import SaveScreen
 from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
-from gwent_tui.stages import STAGE_WIDGETS, UnknownStage
+from gwent_tui.stages import STAGE_WIDGETS, UnknownStage, OfflineStage
 import gwent_tui.snapshot as snapshot_mod
 
 log = logging.getLogger("gwent_tui.app")
@@ -45,8 +45,9 @@ class GwentTUI(App):
 
     CSS = """
     Screen { layout: vertical; }
+    * { scrollbar-size: 0 0; }
     #header { height: 3; }
-    #stage-container { height: 1fr; }
+    #stage-container { height: 1fr; overflow-y: auto; }
     #footer { height: 7; }
     """
 
@@ -102,8 +103,16 @@ class GwentTUI(App):
             log.debug("call_from_thread failed: %s", e)
 
     async def _check_updates(self):
-        """Periodic check for pending snapshot data."""
+        """Periodic check for pending snapshot data and connection status."""
         await self._apply_pending_snapshots()
+        # Switch to/from offline stage based on HTTP status
+        if self.state.http_status == "error":
+            if self._current_stage_name != "Offline":
+                self.state.stage = "Offline"
+                await self._refresh_all()
+        elif self._current_stage_name == "Offline":
+            # Recovered — refresh will pick up the real stage
+            await self._refresh_all()
 
     async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
@@ -118,14 +127,18 @@ class GwentTUI(App):
             return
 
         self._current_stage_name = stage_name
-        stage_cls = STAGE_WIDGETS.get(stage_name)
 
-        if stage_cls is None and stage_name != "—":
-            log.error("No TUI screen for stage: %s", stage_name)
-            stage_cls = UnknownStage
+        if stage_name == "Offline":
+            stage_cls = OfflineStage
+        else:
+            stage_cls = STAGE_WIDGETS.get(stage_name)
 
-        if stage_cls is None:
-            stage_cls = UnknownStage
+            if stage_cls is None and stage_name != "—":
+                log.error("No TUI screen for stage: %s", stage_name)
+                stage_cls = UnknownStage
+
+            if stage_cls is None:
+                stage_cls = UnknownStage
 
         # Replace the stage container
         try:
@@ -180,8 +193,6 @@ class GwentTUI(App):
                 table.add_column("Action", style="white")
                 for key, action in [
                     ("?", "Help"),
-                    ("Tab", "Cycle focus between panes"),
-                    ("\u2191/\u2193", "Scroll within focused pane"),
                     ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),

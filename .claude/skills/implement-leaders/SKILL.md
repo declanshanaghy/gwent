@@ -9,7 +9,9 @@ Implement and test leader abilities for two opposing factions.
 
 ## Usage
 
-`/implement-leaders <faction1> <faction2>`
+`/implement-leaders <faction1> <faction2> [--generate-decks]`
+
+- **--generate-decks**: Skip reuse of existing recordings/templates and force a fresh call to `/build-decks` to generate new decks.
 
 Faction names: `monsters`, `northern-realms`, `nilfgaardian`, `scoiatael`, `skellige`
 
@@ -40,6 +42,10 @@ Mark each task as `in_progress` when starting and `completed` when done.
 
 **Recordings dir**: `software/gwent/gwent/game/recordings/`
 **Naming convention**: `NNN-faction1-vs-faction2.json` (3-digit zero-padded index)
+
+#### If `--generate-decks` was passed
+
+Skip all reuse checks below and jump straight to calling `/build-decks <faction1> vs <faction2>` to generate fresh decks, then save the output as a recording JSON.
 
 #### Check for exact match first
 

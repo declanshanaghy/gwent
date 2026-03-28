@@ -8,6 +8,7 @@ from gwent_tui.stages.play_round import PlayRoundStage
 from gwent_tui.stages.round_end import RoundEndStage
 from gwent_tui.stages.game_over import GameOverStage
 from gwent_tui.stages.unknown import UnknownStage
+from gwent_tui.stages.offline import OfflineStage
 
 # Map server stage names to TUI stage widgets
 STAGE_WIDGETS = {

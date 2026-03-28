@@ -31,6 +31,8 @@ MODEL = "tts-1"
 
 
 class OpenAIProvider(TTSProvider):
+    native_wav = True
+
     def __init__(self):
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -40,7 +42,7 @@ class OpenAIProvider(TTSProvider):
         from openai import OpenAI
         self._client = OpenAI(api_key=api_key)
 
-    def synthesize(self, text: str, faction: str | None, dest_mp3: str) -> None:
+    def synthesize(self, text: str, faction: str | None, dest: str) -> None:
         voice, speed = (
             FACTION_VOICE.get(faction, DEFAULT_VOICE)
             if faction else DEFAULT_VOICE
@@ -50,6 +52,7 @@ class OpenAIProvider(TTSProvider):
             voice=voice,
             input=text,
             speed=speed,
+            response_format="wav",
         )
-        with open(dest_mp3, "wb") as f:
+        with open(dest, "wb") as f:
             f.write(response.content)

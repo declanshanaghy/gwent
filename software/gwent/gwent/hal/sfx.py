@@ -61,8 +61,8 @@ class _SFX(gwent.game.BaseComponent):
 
     def clear_cache(self, msg: gwent.messaging.base.Message):
         files = [
-            self.tts_filename(msg),
-            self.tts_filename(msg, extn='wav')
+            self.tts_filename(msg, extn='mp3'),
+            self.tts_filename(msg, extn='wav'),
         ]
         for f in files:
             if os.path.exists(f):
@@ -190,49 +190,43 @@ class _SFX(gwent.game.BaseComponent):
                 'speech': msg.announcement,
             })
             start = time.time()
-            fmp3 = self.tts_filename(msg)
+            native_wav = self._tts_provider.native_wav
             fwav = self.tts_filename(msg, extn='wav')
 
-            self._log.debug({
-                'action': 'announce_paths',
-                'fmp3': fmp3,
-                'fwav': fwav,
-                'fmp3_exists': os.path.exists(fmp3),
-                'fwav_exists': os.path.exists(fwav),
-                'mixer_initialized': pygame.mixer.get_init() is not None
-            })
+            if native_wav:
+                # Provider outputs WAV directly — no conversion needed
+                if not os.path.exists(fwav):
+                    faction = getattr(msg, 'faction', None)
+                    self._log.debug({
+                        'action': 'tts_generate_wav',
+                        'speech': msg.announcement,
+                        'file': fwav,
+                        'faction': faction,
+                        'provider': type(self._tts_provider).__name__,
+                    })
+                    self._tts_provider.synthesize(msg.announcement, faction, fwav)
+            else:
+                # Provider outputs MP3 — generate then convert to WAV
+                fmp3 = self.tts_filename(msg, extn='mp3')
+                if not os.path.exists(fmp3):
+                    faction = getattr(msg, 'faction', None)
+                    self._log.debug({
+                        'action': 'tts_generate_mp3',
+                        'speech': msg.announcement,
+                        'file': fmp3,
+                        'faction': faction,
+                        'provider': type(self._tts_provider).__name__,
+                    })
+                    self._tts_provider.synthesize(msg.announcement, faction, fmp3)
 
-            # Cache TTS if needed
-            if not os.path.exists(fmp3):
-                faction = getattr(msg, 'faction', None)
-                self._log.debug({
-                    'action': 'tts_generate',
-                    'speech': msg.announcement,
-                    'tts_name_file': fmp3,
-                    'faction': faction,
-                    'provider': type(self._tts_provider).__name__,
-                })
-                self._tts_provider.synthesize(msg.announcement, faction, fmp3)
-                self._log.debug({
-                    'action': 'tts_saved',
-                    'file': fmp3,
-                    'size': os.path.getsize(fmp3) if os.path.exists(fmp3) else 0
-                })
-
-            if not os.path.exists(fwav):
-                # convert to wav for pygame
-                self._log.debug({
-                    'action': 'convert_to_wav',
-                    'source': fmp3,
-                    'target': fwav
-                })
-                sound = pydub.AudioSegment.from_mp3(fmp3)
-                sound.export(fwav, format="wav")
-                self._log.debug({
-                    'action': 'wav_saved',
-                    'file': fwav,
-                    'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0
-                })
+                if not os.path.exists(fwav):
+                    self._log.debug({
+                        'action': 'convert_to_wav',
+                        'source': fmp3,
+                        'target': fwav,
+                    })
+                    sound = pydub.AudioSegment.from_mp3(fmp3)
+                    sound.export(fwav, format="wav")
 
             speech = self.load_sound(fwav)
             self.play_sound(speech, channel=CHANNEL_TTS)

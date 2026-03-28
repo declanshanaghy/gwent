@@ -3,7 +3,7 @@
     "kind": "card",
     "name": "Ballista: 2",
     "ranges": [
-        "ranged"
+        "siege"
     ],
     "starter": true,
     "strength": 6,

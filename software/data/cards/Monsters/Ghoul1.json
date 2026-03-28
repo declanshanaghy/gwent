@@ -1,7 +1,4 @@
 {
-    "abililties": [
-        "muster"
-    ],
     "faction": "Monsters",
     "kind": "card",
     "name": "Ghoul: 1",
@@ -10,5 +7,8 @@
     ],
     "starter": true,
     "strength": 1,
-    "rfid": 414176660889
+    "rfid": 206374063531,
+    "abilities": [
+        "muster"
+    ]
 }

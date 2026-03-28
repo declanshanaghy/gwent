@@ -22,9 +22,9 @@ WEATHER_EMOJI = {
 }
 
 WEATHER_NAME = {
-    "close":  "Biting Frost",
-    "ranged": "Impenetrable Fog",
-    "siege":  "Torrential Rain",
+    "close":  "Frost",
+    "ranged": "Fog",
+    "siege":  "Rain",
 }
 
 # Card specialty/ability emoji
@@ -37,6 +37,13 @@ WEATHER_CARD = {
     "Impenetrable Fog":   "\U0001f32b\ufe0f",
     "Torrential Rain":    "\U0001f327\ufe0f",
     "Clear Weather":      "\u2600\ufe0f",
+}
+# Short display names for weather cards
+WEATHER_SHORT = {
+    "Biting Frost":       "Frost",
+    "Impenetrable Fog":   "Fog",
+    "Torrential Rain":    "Rain",
+    "Clear Weather":      "Clear Weather",
 }
 MEDIC = "\U0001fa7a"               # stethoscope
 MUSTER = "\U0001f465"              # busts in silhouette
@@ -104,9 +111,10 @@ def card_prefix(card):
     ranges = card.get("ranges", []) or []
     name = card.get("name", "")
 
-    # Weather cards
+    # Weather cards — strip ": N" suffix for lookup
     if specialty == "weather":
-        emoji = WEATHER_CARD.get(name, "\U0001f327\ufe0f")
+        base_name = name.split(":")[0].strip() if ":" in name else name
+        emoji = WEATHER_CARD.get(base_name, WEATHER_CARD.get(name, "\U0001f327\ufe0f"))
         return emoji
 
     # Scorch
@@ -184,10 +192,19 @@ def _truncate_name(name, max_len=20):
     return name[:left] + "\u2026" + name[-right:]
 
 
-def card_display(card, max_name=20):
-    """Format a card for display: emoji + truncated name + (strength) + ownership."""
+def _display_name(card):
+    """Get display name for a card. Weather cards use short names."""
+    name = card.get("name", "???")
+    if card.get("specialty") == "weather":
+        base = name.split(":")[0].strip() if ":" in name else name
+        return WEATHER_SHORT.get(base, name)
+    return name
+
+
+def card_display(card, max_name=None):
+    """Format a card for display: emoji + full name + (strength) + ownership."""
     prefix = card_prefix(card)
-    name = _truncate_name(card.get("name", "???"), max_name)
+    name = card.get("name", "???")
     strength = card.get("strength")
     owner = card.get("owner", "")
     starter = card.get("starter", False)
@@ -207,8 +224,8 @@ def card_display(card, max_name=20):
     return "".join(parts)
 
 
-def card_display_short(card, max_name=22, weather_active=False):
-    """Short card display for board rows: emoji + truncated name + (strength).
+def card_display_short(card, max_name=None, weather_active=False):
+    """Card display for board rows: emoji + full name + (strength).
 
     When weather_active, non-hero units show strikethrough name and reduced
     strength (1) instead of their base strength.
@@ -218,24 +235,40 @@ def card_display_short(card, max_name=22, weather_active=False):
     strength = card.get("strength")
     is_hero = card.get("specialty") == "hero"
 
-    short = _truncate_name(name, max_name)
-
     fc = _faction_color(card)
     weathered = weather_active and not is_hero and strength and strength > 1
 
     if weathered:
-        parts = [prefix, " [strike dim]", short, "[/strike dim]"]
+        parts = [prefix, " [strike dim]", name, "[/strike dim]"]
         parts.append(f" [strike dim]({strength})[/strike dim] [bold cyan](1)[/bold cyan]")
     else:
-        parts = [prefix, f" [{fc}]", short, f"[/{fc}]"]
+        parts = [prefix, f" [{fc}]", name, f"[/{fc}]"]
         if strength is not None:
             parts.append(f" ({strength})")
 
     return "".join(parts)
 
 
-def leader_display(card, used=False, max_name=20):
-    """Format a leader card for display."""
+def _wrap_name(name, max_width=30):
+    """Wrap a long name on word boundaries, returning multiple lines."""
+    if len(name) <= max_width:
+        return [name]
+    words = name.split()
+    lines = []
+    current = ""
+    for word in words:
+        if current and len(current) + 1 + len(word) > max_width:
+            lines.append(current)
+            current = word
+        else:
+            current = f"{current} {word}" if current else word
+    if current:
+        lines.append(current)
+    return lines
+
+
+def leader_display(card, used=False, max_name=None):
+    """Format a leader card for display. Long names wrap on word boundaries."""
     if not card:
         return "—"
     name = card.get("name", "???")
@@ -243,12 +276,18 @@ def leader_display(card, used=False, max_name=20):
     owner = card.get("owner", "")
 
     fc = _faction_color(card)
-    name = _truncate_name(name, max_name)
+    name_lines = _wrap_name(name)
 
     if used:
-        parts = [CROWN, f" [strike dim]{name}[/strike dim] [dim](used)[/dim]"]
+        wrapped = "\n         ".join(name_lines)
+        parts = [CROWN, f" [strike dim]{wrapped}[/strike dim] [dim](used)[/dim]"]
     else:
-        parts = [CROWN, f" [{fc}]", name, f"[/{fc}]"]
+        first = name_lines[0]
+        rest = name_lines[1:]
+        parts = [CROWN, f" [{fc}]", first]
+        for line in rest:
+            parts.append(f"\n         {line}")
+        parts.append(f"[/{fc}]")
         if starter:
             parts.append(f" {STAR}")
         elif owner:

@@ -1,7 +1,4 @@
 {
-    "abililties": [
-        "muster"
-    ],
     "faction": "Monsters",
     "kind": "card",
     "name": "Arachas: 2",
@@ -10,5 +7,8 @@
     ],
     "starter": true,
     "strength": 4,
-    "rfid": 482409860530
+    "rfid": 482409860530,
+    "abilities": [
+        "muster"
+    ]
 }

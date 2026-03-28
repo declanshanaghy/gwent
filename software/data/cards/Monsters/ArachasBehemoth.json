@@ -1,7 +1,4 @@
 {
-    "abililties": [
-        "muster"
-    ],
     "faction": "Monsters",
     "kind": "card",
     "name": "Arachas: Behemoth",
@@ -10,5 +7,8 @@
     ],
     "starter": true,
     "strength": 6,
-    "rfid": 345675550136
+    "rfid": 345675550136,
+    "abilities": [
+        "muster"
+    ]
 }

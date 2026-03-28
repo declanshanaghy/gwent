@@ -15,8 +15,8 @@ class PlayRoundStage(Vertical):
     PlayRoundStage #columns { height: 1fr; }
     PlayRoundStage #left { width: 1fr; }
     PlayRoundStage #right { width: 1fr; }
-    PlayRoundStage #board-area { height: 1fr; }
-    PlayRoundStage #discard-area { height: 1fr; min-height: 5; }
+    PlayRoundStage #board-area { height: 3fr; }
+    PlayRoundStage #discard-area { height: 1fr; }
     PlayRoundStage #hands-area { height: 2fr; }
     PlayRoundStage #decks-area { height: 1fr; }
     """

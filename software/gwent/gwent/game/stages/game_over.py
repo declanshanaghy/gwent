@@ -57,8 +57,9 @@ class GameOver(gwent.game.stages.base.GameStage):
         p1_gems = board.players[PLAYER.ONE].gems
         p2_gems = board.players[PLAYER.TWO].gems
 
-        leader1 = board.leaders[PLAYER.ONE].name if board.leaders.get(PLAYER.ONE) else "Player 1"
-        leader2 = board.leaders[PLAYER.TWO].name if board.leaders.get(PLAYER.TWO) else "Player 2"
+        from gwent.game.stages.round_end import _leader_nickname
+        leader1 = _leader_nickname(board, PLAYER.ONE)
+        leader2 = _leader_nickname(board, PLAYER.TWO)
         location = random.choice(LOCATIONS)
 
         if p1_gems > p2_gems:

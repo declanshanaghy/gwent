@@ -235,9 +235,24 @@ def prompt_owner(name, owners):
         print(f"  Invalid choice. Enter 1-{len(owners)}, 'n', or Esc.")
 
 
+def find_specific_cards(filepaths):
+    """Yield (faction, filepath, card_data) for explicit file paths (even if already chipped)."""
+    for fp in filepaths:
+        abspath = os.path.abspath(fp)
+        if not os.path.exists(abspath):
+            print(f"  {RED}✗ File not found: {fp}{RESET}")
+            continue
+        with open(abspath) as f:
+            data = json.load(f)
+        faction = data.get("faction", "Unknown")
+        yield faction, abspath, data
+
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(description="Write unchipped Gwent cards to RFID tags")
+    parser.add_argument("cards", nargs="*", metavar="CARD_JSON",
+                        help="Specific card JSON files to write (re-writes even if already chipped)")
     parser.add_argument("-q", "--quiet", action="store_true",
                         help="Quiet mode — only show card name and TTS announcements")
     parser.add_argument("-u", "--unowned", action="store_true",
@@ -263,11 +278,19 @@ def main():
     owners = find_all_owners()
     log.info("Known owners: %s", owners)
 
-    # Count unchipped cards
-    unchipped = list(find_unchipped_cards())
-    if not unchipped:
-        print("All cards have been chipped!")
-        return
+    # Build card list: explicit paths or unchipped scan
+    if args.cards:
+        unchipped = list(find_specific_cards(args.cards))
+        if not unchipped:
+            print("No valid card files found.")
+            return
+        mode = "specific"
+    else:
+        unchipped = list(find_unchipped_cards())
+        if not unchipped:
+            print("All cards have been chipped!")
+            return
+        mode = "unchipped"
 
     total = len(unchipped)
     if not quiet:
@@ -309,15 +332,17 @@ def main():
             if shutting_down:
                 break
 
-            # --leaders: only leader cards
-            if leaders_only and data.get("specialty") != "leader":
-                skipped += 1
-                continue
+            # Filters only apply in unchipped scan mode, not explicit card list
+            if mode == "unchipped":
+                # --leaders: only leader cards
+                if leaders_only and data.get("specialty") != "leader":
+                    skipped += 1
+                    continue
 
-            # --unowned: skip owned cards (keep starters and unowned)
-            if unowned and data.get("owner") and not data.get("starter"):
-                skipped += 1
-                continue
+                # --unowned: skip owned cards (keep starters and unowned)
+                if unowned and data.get("owner") and not data.get("starter"):
+                    skipped += 1
+                    continue
 
             if faction != current_faction:
                 current_faction = faction
@@ -402,7 +427,19 @@ def main():
             log.info("Writing [%d/%d] %s from %s", i, total, name, os.path.basename(filepath))
 
             # Load as card Message and write (with Esc to skip)
-            card = gwent.cards.util.read_card(filepath)
+            # For explicit card list (rewrite mode), strip existing RFID so the
+            # writer waits for a fresh physical tag instead of returning instantly.
+            if mode == "specific" and data.get("rfid"):
+                import tempfile, shutil
+                tmp = tempfile.NamedTemporaryFile(
+                    mode="w", suffix=".json", delete=False)
+                stripped = {k: v for k, v in data.items() if k != "rfid"}
+                json.dump(stripped, tmp, indent=4)
+                tmp.close()
+                card = gwent.cards.util.read_card(tmp.name)
+                os.unlink(tmp.name)
+            else:
+                card = gwent.cards.util.read_card(filepath)
             rfid = None
             skip_pressed = False
 

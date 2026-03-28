@@ -7,7 +7,7 @@
     "name": "Catapult",
     "owner": "Declan Shanaghy",
     "ranges": [
-        "ranged"
+        "siege"
     ],
     "strength": 8,
     "content_id": "d82e5ac57e77c6e36478031cb16a3253",

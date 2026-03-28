@@ -106,7 +106,36 @@ class PlayRound(gwent.game.stages.base.GameStage):
         except (AttributeError, KeyError):
             return None
 
+    # Short nicknames for leader names used in announcements
+    _LEADER_NICKNAMES = {
+        "Eredin Bréacc Glas: the Treacherous": "Eredin the Treacherous",
+        "Eredin: Bringer of Death": "Eredin",
+        "Eredin: Commander of the Red Riders": "Eredin",
+        "Eredin: Destroyer of Worlds": "Eredin Destroyer",
+        "Eredin - King of the Wild Hunt": "Eredin",
+        "Emhyr var Emreis: Emperor of Nilfgaard": "Emperor Emhyr",
+        "Emhyr var Emreis: Invader of the North": "Emhyr the Invader",
+        "Emhyr var Emreis: The White Flame": "The White Flame",
+        "Emhyr var Emreis - His Imperial Majesty": "Emhyr",
+        "Emhyr var Emreis - The Relentless": "Emhyr the Relentless",
+        "Foltest - King of Temeria": "King Foltest",
+        "Foltest: Lord Commander of the North": "Lord Commander Foltest",
+        "Foltest: Son of Medell": "Foltest",
+        "Foltest: the Siegemaster": "Foltest the Siegemaster",
+        "Foltest: The Steel-Forged": "Foltest Steel-Forged",
+        "Francesca Findabair: Daisy of the Valley": "Francesca Daisy",
+        "Francesca Findabair: Hope of the aen Seidhe": "Francesca",
+        "Francesca Findabair - Pureblood Elf": "Francesca Pureblood",
+        "Francesca Findabair: Queen of Dol Blathanna": "Queen Francesca",
+        "Francesca Findabair - The Beautiful": "Francesca the Beautiful",
+        "Crach an Craite": "Crach",
+    }
+
     def _player_label(self, player):
+        leader = self._board.leaders.get(player)
+        if leader:
+            name = leader.name if hasattr(leader, 'name') else leader.get('name', '')
+            return self._LEADER_NICKNAMES.get(name, name)
         return "Player 1" if player == PLAYER.ONE else "Player 2"
 
     def _announce_and_advance(self, prompt):
@@ -134,11 +163,34 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._publish_scores()
 
         label = self._player_label(cur)
+        opp = self._board.opponent(cur)
         player_num = "1" if cur == PLAYER.ONE else "2"
+
+        cur_score = self._board.calculate_player_score(cur)
+        opp_score = self._board.calculate_player_score(opp)
+        margin = cur_score - opp_score
+        opp_passed = self._board.players[opp].passed
+
+        if opp_passed:
+            quips = self._TURN_OPP_PASSED_AHEAD if margin > 0 else self._TURN_OPP_PASSED_BEHIND
+        elif margin > 15:
+            quips = self._TURN_CRUSHING
+        elif margin > 5:
+            quips = self._TURN_AHEAD
+        elif margin > -5:
+            quips = self._TURN_EVEN
+        elif margin > -15:
+            quips = self._TURN_BEHIND
+        else:
+            quips = self._TURN_DESPERATE
+
+        prompt = random.choice(quips).format(
+            player=label, score=cur_score, opp_score=opp_score,
+            margin=abs(margin))
 
         self._awaiting = self.AWAITING_CARD
         self.publish_prompt(
-            f"{label}'s turn.",
+            prompt,
             ok=False, cancel=False, clear_choices=True,
             faction=self._current_faction())
 
@@ -264,6 +316,212 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "The weather shifts, but no one is affected.",
         "The elements rage, but the battlefield is empty.",
         "Nature's fury finds no targets.",
+    ]
+
+    # --- Placement commentary by row ---
+    # All templates accept: {player}, {name}, {strength}
+    _CLOSE_PHRASES = [
+        "{player} sends {name} charging into the fray! Strength {strength}.",
+        "{name} draws steel and joins the melee for {player}! Strength {strength}.",
+        "{name} storms the front line! {strength} points of raw fury for {player}.",
+        "Swords clash as {name} enters close combat! Strength {strength} for {player}.",
+        "{player} deploys {name} to the vanguard. {strength} strength holds the line!",
+        "Blood and steel! {name} wades into the thick of battle for {player}! Strength {strength}.",
+        "{name} roars a challenge and charges! {strength} points of close combat carnage for {player}!",
+        "The enemy flinches as {name} joins {player}'s front line. {strength} strength, blade raised!",
+        "Into the breach! {player} throws {name} at the enemy! Strength {strength}.",
+        "{name} shoulders past the shield wall! {strength} points of melee might for {player}!",
+    ]
+    _RANGED_PHRASES = [
+        "{name} takes aim from the ridge! {strength} points of ranged power for {player}.",
+        "{player} positions {name} among the archers. Strength {strength}, arrows nocked!",
+        "From beyond the treeline, {name} rains down fire! Strength {strength} for {player}.",
+        "{name} joins {player}'s ranged line. {strength} strength, eyes on the enemy.",
+        "{player} sends {name} to high ground! {strength} points of deadly precision.",
+        "A volley of death! {name} draws back and lets fly for {player}! Strength {strength}.",
+        "{name} picks their target from afar. {strength} points of cold, calculated fury for {player}.",
+        "The arrows of {name} darken the sky! {strength} ranged strength for {player}!",
+        "{player} stations {name} on the hill. {strength} points of eagle-eyed destruction!",
+        "No one is safe from {name}'s reach! {strength} ranged power rains down for {player}!",
+    ]
+    _SIEGE_PHRASES = [
+        "{name} rolls onto the battlefield! {strength} siege power for {player}.",
+        "{player} deploys {name} behind the walls. Strength {strength}, ready to bombard!",
+        "The ground shakes as {name} takes position! {strength} points of siege for {player}.",
+        "{name} locks onto enemy fortifications! Strength {strength} for {player}.",
+        "{player} unleashes {name}! {strength} points of devastating siege force.",
+        "Walls crumble as {name} opens fire! {strength} siege power for {player}!",
+        "{name} hurls destruction from afar! {strength} points of earth-shattering siege for {player}!",
+        "The war machines roar! {player} deploys {name} with {strength} points of crushing force!",
+        "Towers topple! {name} brings {strength} points of siege devastation for {player}!",
+        "{player} rolls out the heavy artillery! {name} at {strength} siege strength, ready to level everything!",
+    ]
+    _ROW_PHRASES = {
+        "close": _CLOSE_PHRASES,
+        "ranged": _RANGED_PHRASES,
+        "siege": _SIEGE_PHRASES,
+    }
+
+    # --- Spy commentary ---
+    # Templates accept: {player}, {name}, {strength}
+    _SPY_PHRASES = [
+        "A poisoned gift! {player} sends {name} to betray the enemy from within. {strength} points of treachery!",
+        "{name} whispers sweet lies and crosses enemy lines. {player} trades {strength} strength for stolen secrets!",
+        "The treacherous {name} pledges false loyalty to the enemy. A wolf among sheep for {player}!",
+        "{player} plays a dangerous game. {name} feigns surrender, but carries a dagger and a deck of stolen intel!",
+        "Betrayal most foul! {name} sells their sword to the enemy, but their soul belongs to {player}!",
+        "Like a serpent in the grass, {name} slithers into enemy ranks. {player} sacrifices {strength} points for the greater scheme!",
+        "{name} kneels before the enemy commander, hiding {player}'s knife behind their back. Draw 2!",
+        "Every court needs its traitor. {name} joins the enemy at strength {strength}, feeding {player} precious intelligence!",
+        "The enemy welcomes {name} with open arms. Fools! {player} just bought two cards with {strength} points of deception!",
+        "Scheming and skulduggery! {player} deploys {name} as a double agent. The enemy gains {strength}, but at what cost?",
+    ]
+
+    # --- Medic commentary ---
+    # Templates accept: {player}, {name}, {resurrected}
+    _MEDIC_PHRASES = [
+        "{name} works dark magic over the fallen! {resurrected} claws back from the grave for {player}!",
+        "By blood and sorcery, {name} drags {resurrected} from death's embrace!",
+        "{player}'s {name} kneels over the corpse of {resurrected}. A heartbeat returns!",
+        "The battlefield surgeon {name} refuses to let death have {resurrected}!",
+        "From ashes to fury! {name} resurrects {resurrected}. The enemy won't believe their eyes!",
+        "Death is merely an inconvenience! {name} brings {resurrected} back to fight for {player}!",
+        "{resurrected} gasps for air as {name} pulls them from the abyss. Back in {player}'s hand!",
+        "The graveyard surrenders its prize! {name} returns {resurrected} to the land of the living!",
+        "Not today, death! {player}'s {name} snatches {resurrected} from the void!",
+        "A miracle on the battlefield! {name} breathes life into {resurrected} once more!",
+    ]
+
+    # --- Muster commentary ---
+    # Templates accept: {player}, {name}, {count}, {mustered}
+    _MUSTER_PHRASES = [
+        "{name} calls their fellow soldiers to battle! {mustered} answer for {player}!",
+        "{name} rallies the ranks! {count} comrades rush to {player}'s side: {mustered}!",
+        "Brothers in arms! {name} summons {mustered} to fight alongside {player}!",
+        "{player}'s {name} lets out a war cry! {count} allies storm the field: {mustered}!",
+        "The muster horn sounds! {name} brings {mustered} charging into battle for {player}!",
+        "They hunt in packs! {name} howls and {mustered} emerge from the shadows for {player}!",
+        "The earth trembles as {name} calls the swarm! {mustered} pour onto the field!",
+        "Blood calls to blood! {name} summons {count} kin: {mustered}. {player}'s horde grows!",
+        "One becomes many! {name} musters {mustered} from every corner of {player}'s forces!",
+        "Where there's one, there's more! {name} brings {count} allies: {mustered}!",
+    ]
+
+    # --- Scorch ability commentary ---
+    # Templates accept: {player}, {name}, {scorched}
+    _SCORCH_ABILITY_PHRASES = [
+        "{name} breathes fire! {scorched} consumed by flames!",
+        "Dragon fire erupts from {name}! {scorched} scorched to ashes!",
+        "{player}'s {name} unleashes inferno! {scorched} burned from the battlefield!",
+        "The flames of {name} spare no one! {scorched} destroyed!",
+        "{name} turns the air to fire! {scorched} reduced to cinders!",
+        "Burn them all! {name} incinerates {scorched} where they stand!",
+        "The stench of charred armor fills the air. {name} has scorched {scorched}!",
+        "{name} opens their maw and hellfire pours forth! {scorched} is no more!",
+        "A pillar of flame erupts! {player}'s {name} annihilates {scorched}!",
+        "The battlefield burns! {name} leaves nothing but ash where {scorched} once stood!",
+    ]
+
+    # --- Turn prompt quips by game state ---
+    # All templates accept: {player}, {score}, {opp_score}, {margin}
+    _TURN_CRUSHING = [  # >15 ahead
+        "{player}'s turn. They're trampling the opposition! {score} to {opp_score}.",
+        "{player} is on a rampage! Up {margin} points. Can anyone stop them?",
+        "Total domination from {player}! {score} to {opp_score}. Play on!",
+        "{player}'s army is unstoppable! {margin} points ahead, the battlefield belongs to them!",
+        "The bards will write legends of {player}'s conquest! {score} to {opp_score}!",
+        "Like the Wild Hunt itself! {player} devastates at {score} to {opp_score}!",
+        "{player} lords over the field! {margin} ahead. Another card to twist the knife?",
+        "Nilfgaard's finest generals couldn't plan a better assault! {player} leads {margin}!",
+    ]
+    _TURN_AHEAD = [  # 5-15 ahead
+        "{player}'s turn. Leading {score} to {opp_score}. Keep the pressure on!",
+        "The advantage is {player}'s! {margin} ahead. Press the attack?",
+        "{player} holds the upper hand at {score}. Can they seal the deal?",
+        "{player} smells blood! {margin} points up. Time to go for the kill!",
+        "The tide favors {player}! {score} to {opp_score}. Will they push or hold?",
+        "Kaer Morhen trained warriors well. {player} leads by {margin}!",
+        "{player}'s forces are gaining ground! {score} to {opp_score}, play wisely!",
+        "The sorceresses of Aretuza nod approvingly. {player} leads by {margin}!",
+    ]
+    _TURN_EVEN = [  # within 5 either way
+        "{player}'s turn. It's neck and neck! {score} to {opp_score}.",
+        "A tense standoff! {player} at {score}, opponent at {opp_score}. Every card matters!",
+        "{player} steps up. The scores are razor thin. {score} to {opp_score}!",
+        "This could go either way! {player} at {score}. Choose carefully!",
+        "The battlefield trembles in the balance! {player}'s move at {score} to {opp_score}.",
+        "Neither side gives an inch! {player} plays at {score} to {opp_score}.",
+        "Geralt would call this a true contest! {player} at {score}, deadlocked!",
+        "A match worthy of Vizima's finest tavern! {player}'s turn, scores nearly even!",
+        "Both commanders eye each other across the field. {player} at {score} to {opp_score}.",
+        "Tense as a crossbow string! {player}'s move. {score} to {opp_score}!",
+    ]
+    _TURN_BEHIND = [  # 5-15 behind
+        "{player}'s turn. Trailing by {margin}! Can they muster a comeback?",
+        "{player} is down {margin} points. Time to dig deep!",
+        "The situation looks grim for {player}! {opp_score} to {score}. What's the play?",
+        "{player} needs a miracle! Down {margin}. Do they have a trick up their sleeve?",
+        "The enemy presses their advantage! {player} trails {margin}. Fight back!",
+        "Even a cornered wolf is dangerous. {player}'s turn, down {margin}!",
+        "{player} searches their hand desperately. {margin} behind. What can turn this around?",
+        "Vesemir would say: never give up! {player} trails by {margin}. Play on!",
+    ]
+    _TURN_DESPERATE = [  # >15 behind
+        "{player}'s turn. It's looking bleak! Down {margin} points. Can they claw back?",
+        "A massacre on the field! {player} trails {margin}. Is there any hope?",
+        "{player} stares down a {margin}-point deficit. Only a Scorch or a miracle can save them!",
+        "The crows are circling {player}'s army! Down {margin}. This may be the end!",
+        "Dandelion winces. {player} is getting destroyed! {opp_score} to {score}!",
+        "Even Yennefer's magic couldn't close this gap! {player} down {margin}!",
+        "The White Frost cometh for {player}! Trailing by {margin}. Desperate times!",
+        "From the ashes? {player} down {margin}. The greatest comebacks start here!",
+    ]
+    _TURN_OPP_PASSED_AHEAD = [  # opponent passed, we're ahead
+        "{player}'s turn. The enemy has passed! {score} to {opp_score}. The round is yours to lose!",
+        "The opponent retreats! {player} leads {score} to {opp_score}. Pass or pile on?",
+        "With the enemy done, {player} reigns supreme at {score}! More cards, or save them?",
+        "The field is {player}'s alone! Opponent passed at {opp_score}. Conserve or crush?",
+        "Victory is assured! {player} at {score}. Every extra card is a waste, or is it insurance?",
+    ]
+    _TURN_OPP_PASSED_BEHIND = [  # opponent passed, we're behind
+        "{player}'s turn. The enemy passed at {opp_score}! Down {margin}. Time to catch up!",
+        "The opponent bows out at {opp_score}! {player} trails by {margin}. The comeback is on!",
+        "A chance to strike! Opponent passed. {player} needs {margin} more points to win!",
+        "The enemy thinks they've won at {opp_score}! {player} at {score}. Prove them wrong!",
+        "No more interference! Opponent passed. {player} needs to close a {margin}-point gap!",
+    ]
+
+    # --- Pass quips by game state ---
+    # All templates accept: {player}, {score}, {opp_score}, {margin}
+    _PASS_DOMINATING = [
+        "{player} passes with supreme confidence! {score} to {opp_score}. A lead of {margin}!",
+        "{player} leans back and smirks. {margin} points ahead. This round is all but won.",
+        "With a {margin}-point cushion, {player} has nothing to prove. Pass!",
+        "{player} raises a tankard. {score} to {opp_score}? That'll do nicely.",
+    ]
+    _PASS_AHEAD = [
+        "{player} passes, holding a slim lead. {score} to {opp_score}.",
+        "A calculated pass from {player}. {margin} points ahead, but is it enough?",
+        "{player} holds steady at {score}. The lead is narrow but the nerve is steel.",
+        "Dandelion would call this bold. {player} passes with just {margin} points to spare!",
+    ]
+    _PASS_TIED = [
+        "{player} passes on a knife's edge! {score} to {opp_score}. Dead even!",
+        "All square at {score}! {player} blinks first and passes. A gambler's move!",
+        "{player} passes at {score} all. This could go either way!",
+        "The scores are locked at {score}. {player} passes and holds their breath!",
+    ]
+    _PASS_BEHIND = [
+        "{player} passes, trailing by {margin}. A bluff, or out of options?",
+        "Down {margin} points, {player} throws in the towel. {opp_score} to {score}.",
+        "{player} concedes the ground. {margin} behind, sometimes discretion is the better part of valor.",
+        "A tactical retreat! {player} passes at {score}, hoping the opponent overextends.",
+    ]
+    _PASS_DESPERATE = [
+        "{player} passes in desperation! Down {margin} points. The round looks lost.",
+        "Mercy! {player} waves the white flag. {opp_score} to {score} is too much to overcome.",
+        "{player} cuts their losses. {margin} points behind. Save the cards for next round!",
+        "Even Geralt couldn't save {player} now. Down {margin}, they pass and pray.",
     ]
 
     def _play_weather(self, card):
@@ -726,8 +984,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if is_spy:
             self._spy_draws_remaining = 2
             self._awaiting = self.AWAITING_SPY_DRAW
+            spy_phrase = random.choice(self._SPY_PHRASES).format(
+                player=label, name=card.name, strength=card.strength or 0)
             self.publish_prompt(
-                f"{place_msg}. Spy! Scan 2 cards from your deck to draw.",
+                f"{spy_phrase} Scan 2 cards from your deck to draw.",
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
             return
@@ -738,13 +998,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
             if non_hero:
                 self._awaiting = self.AWAITING_MEDIC_CHOICE
                 self.publish_prompt(
-                    f"{place_msg}. Medic! Scan a card from discard to resurrect. {len(non_hero)} available.",
+                    f"{label} deploys {card.name} the battlefield medic! "
+                    f"Scan a card from discard to resurrect. {len(non_hero)} available.",
                     ok=False, cancel=False, clear_choices=True,
                     faction=self._current_faction())
                 return
             else:
                 self._announce_and_advance(
-                    f"{place_msg}. No cards to resurrect.")
+                    f"{label} deploys {card.name}, but the graveyard offers no one to save.")
                 return
 
         if card.has_abilities and "muster" in card.abilities:
@@ -756,11 +1017,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
             opp = self._board.opponent(cur)
             destroyed = self._board.destroy_strongest(opp, row_name)
             if destroyed:
-                names = ", ".join(c.name for c in destroyed)
-                self._announce_and_advance(
-                    f"{place_msg}. Scorched: {names}")
+                scorched = ", ".join(c.name for c in destroyed)
+                phrase = random.choice(self._SCORCH_ABILITY_PHRASES).format(
+                    player=label, name=card.name, scorched=scorched)
+                self._announce_and_advance(phrase)
             else:
-                self._announce_and_advance(place_msg)
+                self._announce_and_advance(
+                    f"{card.name} breathes fire, but finds no worthy targets!")
             return
 
         # Commander unit — fancy horn announcement
@@ -771,9 +1034,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._announce_and_advance(f"{place_msg}. {horn_phrase}")
             return
 
-        # Normal card
-        self._announce_and_advance(
-            f"{place_msg}, strength {card.strength}.")
+        # Normal card — row-themed commentary
+        row_phrases = self._ROW_PHRASES.get(row_name, self._CLOSE_PHRASES)
+        phrase = random.choice(row_phrases).format(
+            player=label, name=card.name, strength=card.strength or 0)
+        self._announce_and_advance(phrase)
 
     def _process_leader_discard_scan(self, card):
         """Handle a scanned card during leader draw-from-opponent-discard."""
@@ -839,8 +1104,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         discard.remove(resurrected)
         self._board.hands[cur].append(resurrected)
-        self._announce_and_advance(
-            f"{label}: {resurrected.name} resurrected! Return to hand.")
+        phrase = random.choice(self._MEDIC_PHRASES).format(
+            player=label, name="the medic", resurrected=resurrected.name)
+        self._announce_and_advance(phrase)
 
     def _process_muster(self, card, row_name):
         """Auto-play all cards with the same name from hand and deck."""
@@ -867,12 +1133,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
         label = self._player_label(cur)
         if mustered:
             names = ", ".join(c.name for c in mustered)
-            self._announce_and_advance(
-                f"{label}: place {card.name} on {row_name}. "
-                f"Muster! Also place: {names}")
+            phrase = random.choice(self._MUSTER_PHRASES).format(
+                player=label, name=card.name, count=len(mustered), mustered=names)
+            self._announce_and_advance(phrase)
         else:
-            self._announce_and_advance(
-                f"{label}: place {card.name} on {row_name}.")
+            row_phrases = self._ROW_PHRASES.get(row_name, self._CLOSE_PHRASES)
+            phrase = random.choice(row_phrases).format(
+                player=label, name=card.name, strength=card.strength or 0)
+            self._announce_and_advance(phrase)
 
     # --- Choice processing ---
 
@@ -883,14 +1151,35 @@ class PlayRound(gwent.game.stages.base.GameStage):
             if choice.id == 'p':
                 # Player passes
                 cur = self._board.current_player
+                opp = self._board.opponent(cur)
                 faction = self._current_faction()
+                label = self._player_label(cur)
+
+                cur_score = self._board.calculate_player_score(cur)
+                opp_score = self._board.calculate_player_score(opp)
+                margin = cur_score - opp_score
+
                 self._board.players[cur].passed = True
-                self._log.info(f"{self._player_label(cur)} passed")
-                self._board.current_player = self._board.opponent(cur)
-                self._last_action_summary = f"{self._player_label(cur)} passed their turn."
+                self._log.info(f"{label} passed")
+                self._board.current_player = opp
+
+                if margin > 10:
+                    quips = self._PASS_DOMINATING
+                elif margin > 0:
+                    quips = self._PASS_AHEAD
+                elif margin == 0:
+                    quips = self._PASS_TIED
+                elif margin > -10:
+                    quips = self._PASS_BEHIND
+                else:
+                    quips = self._PASS_DESPERATE
+
+                quip = random.choice(quips).format(
+                    player=label, score=cur_score, opp_score=opp_score,
+                    margin=abs(margin))
+                self._last_action_summary = quip
                 self._publish_prompt_then(
-                    f"{self._player_label(cur)} passed!",
-                    self._prompt_turn, faction=faction)
+                    quip, self._prompt_turn, faction=faction)
             elif choice.id == 'h' and self._last_action_summary:
                 # Help — announce last action summary
                 self._publish_prompt_then(

@@ -3,7 +3,7 @@
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
-from textual.containers import VerticalScroll
+from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
@@ -43,14 +43,11 @@ class _DecksContent(Static):
         return Panel(table, title=f"\U0001f4e6 Deck ({p1_count} | {p2_count})")
 
 
-class DecksWidget(VerticalScroll, can_focus=True):
+class DecksWidget(Vertical):
 
     DEFAULT_CSS = """
     DecksWidget {
         height: 1fr;
-    }
-    DecksWidget:focus {
-        border: tall $accent;
     }
     """
 

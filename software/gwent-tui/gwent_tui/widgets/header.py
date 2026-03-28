@@ -11,7 +11,7 @@ import gwent_tui.snapshot as snapshot_mod
 
 _STATUS_COLOR = {
     "polling": "green", "processing": "yellow",
-    "error": "red", "off": "grey50",
+    "error": "red", "off": "grey50", "offline": "red",
 }
 
 _STAGE_ICON = {
@@ -23,6 +23,7 @@ _STAGE_ICON = {
     "RoundEnd":        "\U0001f3c1",  # chequered flag
     "GameOver":        "\U0001f3c6",  # trophy
     "DisplayWinner":   "\U0001f3c6",  # trophy
+    "Offline":         "\u26a0\ufe0f",  # warning
     "—":               "\u23f3",      # hourglass
 }
 
@@ -36,26 +37,6 @@ class HeaderWidget(Static):
 
     def render(self):
         state = self.app.state
-        turn = "P1" if state.current_player == P1 else "P2"
-
-        p1_gems = self._gems(state.gems[P1])
-        p2_gems = self._gems(state.gems[P2])
-
-        p1f = state.factions.get(P1, "")
-        p2f = state.factions.get(P2, "")
-        p1e = faction_emoji(p1f)
-        p2e = faction_emoji(p2f)
-
-        p1_label = f"{p1e[0]} [bold yellow]P1 ({p1f})[/bold yellow] {p1e[1]}" if p1f else "[bold yellow]P1[/bold yellow]"
-        p2_label = f"{p2e[0]} [bold dodger_blue2]P2 ({p2f})[/bold dodger_blue2] {p2e[1]}" if p2f else "[bold dodger_blue2]P2[/bold dodger_blue2]"
-
-        center = Text.from_markup(
-            f" {p1_label} {p1_gems}    "
-            f"\u2694\ufe0f Round {state.round_number} "
-            f"\U0001f3af {turn}"
-            f"    {p2_gems} {p2_label} "
-        )
-        center.justify = "center"
 
         mc = _STATUS_COLOR.get(state.mqtt_status, "grey50")
         hc = _STATUS_COLOR.get(state.http_status, "grey50")
@@ -70,6 +51,39 @@ class HeaderWidget(Static):
         stage_label = Text.from_markup(
             f" {stage_icon} [dim]{state.stage}[/dim]"
         )
+
+        # Offline mode — no player data to show
+        if state.http_status == "error" or state.stage == "Offline":
+            center = Text.from_markup(
+                " \u26a0\ufe0f [bold red]Server Offline[/bold red] — waiting for connection"
+            )
+            center.justify = "center"
+        else:
+            is_p1_turn = state.current_player == P1
+
+            p1_gems = self._gems(state.gems[P1])
+            p2_gems = self._gems(state.gems[P2])
+
+            p1f = state.factions.get(P1, "")
+            p2f = state.factions.get(P2, "")
+            p1e = faction_emoji(p1f)
+            p2e = faction_emoji(p2f)
+
+            p1_label = f"{p1e[0]} [bold yellow]P1 ({p1f})[/bold yellow] {p1e[1]}" if p1f else "[bold yellow]P1[/bold yellow]"
+            p2_label = f"{p2e[0]} [bold dodger_blue2]P2 ({p2f})[/bold dodger_blue2] {p2e[1]}" if p2f else "[bold dodger_blue2]P2[/bold dodger_blue2]"
+
+            if is_p1_turn:
+                turn_label = f"\U0001f3af [bold yellow]P1 to Play[/bold yellow]"
+            else:
+                turn_label = f"\U0001f3af [bold dodger_blue2]P2 to Play[/bold dodger_blue2]"
+
+            center = Text.from_markup(
+                f" {p1_label} {p1_gems}    "
+                f"\u2694\ufe0f Round {state.round_number} "
+                f"{turn_label}"
+                f"    {p2_gems} {p2_label} "
+            )
+            center.justify = "center"
 
         table = Table(box=None, expand=True, show_header=False, padding=0)
         table.add_column(width=20, justify="left")

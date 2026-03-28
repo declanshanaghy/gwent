@@ -57,6 +57,16 @@ _DRAW_TEMPLATES = [
 ]
 
 
+def _leader_nickname(board, player):
+    """Get a short leader nickname for announcements."""
+    from gwent.game.stages.play_round import PlayRound
+    leader = board.leaders.get(player)
+    if leader:
+        name = leader.name if hasattr(leader, 'name') else leader.get('name', '')
+        return PlayRound._LEADER_NICKNAMES.get(name, name)
+    return "Player 1" if str(player) == "PLAYER.ONE" else "Player 2"
+
+
 class RoundEnd(gwent.game.stages.base.GameStage):
 
     @property
@@ -99,8 +109,8 @@ class RoundEnd(gwent.game.stages.base.GameStage):
 
         if loser:
             self._board.players[loser].gems -= 1
-            w_label = "Player 1" if winner == PLAYER.ONE else "Player 2"
-            l_label = "Player 1" if loser == PLAYER.ONE else "Player 2"
+            w_label = _leader_nickname(self._board, winner)
+            l_label = _leader_nickname(self._board, loser)
             w_score = max(p1_score, p2_score)
             l_score = min(p1_score, p2_score)
             margin = w_score - l_score
@@ -116,7 +126,8 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             self._board.players[PLAYER.ONE].gems -= 1
             self._board.players[PLAYER.TWO].gems -= 1
             commentary = random.choice(_DRAW_TEMPLATES).format(
-                p1="Player 1", p2="Player 2",
+                p1=_leader_nickname(self._board, PLAYER.ONE),
+                p2=_leader_nickname(self._board, PLAYER.TWO),
                 score=p1_score, round=rnd, location=location,
             )
         else:
@@ -138,7 +149,9 @@ class RoundEnd(gwent.game.stages.base.GameStage):
 
         g1 = "gem" if p1_gems == 1 else "gems"
         g2 = "gem" if p2_gems == 1 else "gems"
-        gems_info = f"Player 1: {p1_gems} {g1}. Player 2: {p2_gems} {g2}."
+        p1_name = _leader_nickname(self._board, PLAYER.ONE)
+        p2_name = _leader_nickname(self._board, PLAYER.TWO)
+        gems_info = f"{p1_name}: {p1_gems} {g1}. {p2_name}: {p2_gems} {g2}."
 
         prompt = f"{commentary} {gems_info}"
 

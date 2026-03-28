@@ -1,7 +1,4 @@
 {
-    "abililties": [
-        "muster"
-    ],
     "faction": "Monsters",
     "kind": "card",
     "name": "Crone: Brewess",
@@ -10,5 +7,8 @@
     ],
     "starter": true,
     "strength": 6,
-    "rfid": 895011802403
+    "rfid": 895011802403,
+    "abilities": [
+        "muster"
+    ]
 }

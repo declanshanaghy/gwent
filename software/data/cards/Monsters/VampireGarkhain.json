@@ -1,7 +1,4 @@
 {
-    "abililties": [
-        "muster"
-    ],
     "faction": "Monsters",
     "kind": "card",
     "name": "Vampire: Garkhain",
@@ -10,5 +7,8 @@
     ],
     "starter": true,
     "strength": 4,
-    "rfid": 552789757359
+    "rfid": 552789757359,
+    "abilities": [
+        "muster"
+    ]
 }

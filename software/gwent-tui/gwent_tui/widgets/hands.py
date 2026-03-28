@@ -3,7 +3,7 @@
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
-from textual.containers import VerticalScroll
+from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display, leader_display
@@ -31,6 +31,8 @@ class _HandsContent(Static):
 
         p1_rows = [leader_display(state.leaders[P1], used=state.leader_used.get(P1, False))]
         p2_rows = [leader_display(state.leaders[P2], used=state.leader_used.get(P2, False))]
+        p1_rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
+        p2_rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
 
         for c in state.hands[P1]:
             p1_rows.append(card_display(c))
@@ -47,14 +49,11 @@ class _HandsContent(Static):
         return Panel(table, title=f"\U0001f0cf Hands ({p1_count} | {p2_count})")
 
 
-class HandsWidget(VerticalScroll, can_focus=True):
+class HandsWidget(Vertical):
 
     DEFAULT_CSS = """
     HandsWidget {
         height: 1fr;
-    }
-    HandsWidget:focus {
-        border: tall $accent;
     }
     """
 

@@ -115,16 +115,21 @@ class Board:
                 strengths[card.rfid] = card.strength
 
         # Step 2: Tight bond — same-name non-hero cards multiply
+        # Strip ": N" suffix so "Poor Fucking Infantry: 1" bonds with ": 2"
+        def _bond_name(name):
+            return name.split(":")[0].strip() if ":" in name else name
+
         name_counts = {}
         for card in cards:
             if card.has_abilities and "bond" in card.abilities:
                 if not (card.has_specialty and card.specialty == "hero"):
-                    name_counts[card.name] = name_counts.get(card.name, 0) + 1
+                    bn = _bond_name(card.name)
+                    name_counts[bn] = name_counts.get(bn, 0) + 1
 
         for card in cards:
             if card.has_abilities and "bond" in card.abilities:
                 if not (card.has_specialty and card.specialty == "hero"):
-                    count = name_counts.get(card.name, 1)
+                    count = name_counts.get(_bond_name(card.name), 1)
                     if count > 1:
                         strengths[card.rfid] *= count
 

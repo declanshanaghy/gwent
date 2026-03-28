@@ -48,6 +48,8 @@ MODEL_ID = "eleven_monolingual_v1"
 
 
 class ElevenLabsProvider(TTSProvider):
+    native_wav = False  # WAV output requires Pro tier; use MP3 + convert
+
     def __init__(self):
         api_key = os.environ.get("ELEVENLABS_API_KEY")
         if not api_key:
@@ -57,7 +59,7 @@ class ElevenLabsProvider(TTSProvider):
         from elevenlabs.client import ElevenLabs
         self._client = ElevenLabs(api_key=api_key)
 
-    def synthesize(self, text: str, faction: str | None, dest_mp3: str) -> None:
+    def synthesize(self, text: str, faction: str | None, dest: str) -> None:
         from elevenlabs import VoiceSettings
 
         voice_id = FACTION_VOICE_ID.get(faction, DEFAULT_VOICE_ID) if faction else DEFAULT_VOICE_ID
@@ -70,6 +72,7 @@ class ElevenLabsProvider(TTSProvider):
             voice_id=voice_id,
             text=text,
             model_id=MODEL_ID,
+            output_format="mp3_44100_128",
             voice_settings=VoiceSettings(
                 stability=stability,
                 similarity_boost=similarity,
@@ -77,6 +80,6 @@ class ElevenLabsProvider(TTSProvider):
                 use_speaker_boost=True,
             ),
         )
-        with open(dest_mp3, "wb") as f:
+        with open(dest, "wb") as f:
             for chunk in audio_iter:
                 f.write(chunk)

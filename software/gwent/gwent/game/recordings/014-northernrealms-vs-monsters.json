@@ -113,7 +113,7 @@
         "owner_nickname": "dek"
       },
       {
-        "abililties": [
+        "abilities": [
           "muster"
         ],
         "faction": "Monsters",
@@ -262,7 +262,7 @@
         "name": "Catapult",
         "owner": "Declan Shanaghy",
         "ranges": [
-          "ranged"
+          "siege"
         ],
         "strength": 8,
         "content_id": "d82e5ac57e77c6e36478031cb16a3253",
@@ -274,7 +274,7 @@
         "kind": "card",
         "name": "Ballista: 1",
         "ranges": [
-          "ranged"
+          "siege"
         ],
         "starter": true,
         "strength": 6,
@@ -286,7 +286,7 @@
         "kind": "card",
         "name": "Ballista: 2",
         "ranges": [
-          "ranged"
+          "siege"
         ],
         "starter": true,
         "strength": 6,
@@ -565,7 +565,7 @@
             "owner_nickname": "dek"
           },
           {
-            "abililties": [
+            "abilities": [
               "muster"
             ],
             "faction": "Monsters",
@@ -654,7 +654,7 @@
             "name": "Catapult",
             "owner": "Declan Shanaghy",
             "ranges": [
-              "ranged"
+              "siege"
             ],
             "strength": 8,
             "content_id": "d82e5ac57e77c6e36478031cb16a3253",
@@ -666,7 +666,7 @@
             "kind": "card",
             "name": "Ballista: 1",
             "ranges": [
-              "ranged"
+              "siege"
             ],
             "starter": true,
             "strength": 6,
@@ -678,7 +678,7 @@
             "kind": "card",
             "name": "Ballista: 2",
             "ranges": [
-              "ranged"
+              "siege"
             ],
             "starter": true,
             "strength": 6,

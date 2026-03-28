@@ -4,7 +4,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich import box
-from textual.containers import VerticalScroll
+from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import (
@@ -34,7 +34,7 @@ class ScoreboardWidget(Static):
                 emoji = WEATHER_EMOJI.get(row, "")
                 name = WEATHER_NAME.get(row, row)
                 weather_items.append(f"{emoji}{name}")
-            weather = " ".join(weather_items)
+            weather = " | ".join(weather_items)
         else:
             weather = ""
 
@@ -82,7 +82,7 @@ class _BoardRows(Static):
                     row_score=0, weather_active=False):
         rc = ROW_COLOR.get(row_name, "white")
         horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
-        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag} {ZAP}{row_score}[/bold {rc}]"
+        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag}  {ZAP} {row_score}[/bold {rc}]"
 
         if not cards:
             return header
@@ -129,14 +129,11 @@ class _BoardRows(Static):
         return Panel(table, title="\u2694\ufe0f Board")
 
 
-class BoardWidget(VerticalScroll, can_focus=True):
+class BoardWidget(Vertical):
 
     DEFAULT_CSS = """
     BoardWidget {
         height: 1fr;
-    }
-    BoardWidget:focus {
-        border: tall $accent;
     }
     """
 
