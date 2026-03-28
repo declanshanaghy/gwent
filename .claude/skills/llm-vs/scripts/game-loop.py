@@ -337,14 +337,25 @@ OPPONENT LEADER ABILITY: {opp_leader.get('leader', {}).get('instructions', '?')}
     return SYSTEM_PROMPT_SHARED + "\n" + section7
 
 
-def init_conversations(board):
-    """Create /tmp/logs/llm-vs-p{1,2}.jsonl with system prompts."""
+def init_conversations(board, round_history=None):
+    """Create /tmp/logs/llm-vs-p{1,2}.jsonl with system prompts.
+
+    If round_history is provided, appends a round summary as the first
+    user message so the LLM has context about past rounds.
+    """
     os.makedirs('/tmp/logs', exist_ok=True)
     for pnum, player in [('1', 'PLAYER.ONE'), ('2', 'PLAYER.TWO')]:
         prompt = build_system_prompt(board, player)
         fp = f'/tmp/logs/llm-vs-p{pnum}.jsonl'
         with open(fp, 'w') as f:
             f.write(json.dumps({"role": "system", "content": prompt}) + '\n')
+            if round_history:
+                summary = _build_round_summary(board, player, round_history)
+                f.write(json.dumps({"role": "user", "content": summary}) + '\n')
+                f.write(json.dumps({"role": "assistant", "content":
+                    json.dumps({"action": "acknowledge",
+                                "reasoning": "Understood. New round, fresh strategy."})
+                }) + '\n')
 
     f1 = board['factions']['PLAYER.ONE']
     f2 = board['factions']['PLAYER.TWO']
@@ -354,8 +365,58 @@ def init_conversations(board):
     d1 = len(board['decks']['PLAYER.ONE'])
     h2 = len(board['hands']['PLAYER.TWO'])
     d2 = len(board['decks']['PLAYER.TWO'])
-    log(f"P1: {f1} ({l1}) -- {h1} hand + {d1} deck")
-    log(f"P2: {f2} ({l2}) -- {h2} hand + {d2} deck")
+    rnd = board.get('round_number', 1)
+    log(f"Round {rnd}: P1 {f1} ({l1}) {h1}h+{d1}d | "
+        f"P2 {f2} ({l2}) {h2}h+{d2}d")
+
+
+def _build_round_summary(board, player, round_history):
+    """Build a concise summary of past rounds for a player."""
+    opp = 'PLAYER.TWO' if player == 'PLAYER.ONE' else 'PLAYER.ONE'
+    pnum = '1' if player == 'PLAYER.ONE' else '2'
+    opp_num = '2' if player == 'PLAYER.ONE' else '1'
+    my_gems = board['players'][player]['gems']
+    opp_gems = board['players'][opp]['gems']
+    my_hand = len(board['hands'][player])
+    opp_hand = len(board['hands'][opp])
+    my_deck = len(board['decks'][player])
+    rnd = board.get('round_number', 1)
+
+    lines = ["ROUND SUMMARY — NEW ROUND STARTING"]
+    lines.append("")
+
+    # Past rounds
+    for rh in round_history:
+        my_score = rh['scores'].get(player, 0)
+        opp_score = rh['scores'].get(opp, 0)
+        if rh['winner'] == player:
+            result = "YOU WON"
+        elif rh['winner'] == opp:
+            result = "YOU LOST"
+        else:
+            result = "DRAW"
+        lines.append(f"Round {rh['round']}: {result} ({my_score} vs {opp_score})")
+
+    # Current standings
+    lines.append("")
+    lines.append(f"CURRENT STANDINGS: You have {my_gems} gem(s), opponent has {opp_gems} gem(s).")
+    lines.append(f"You have {my_hand} cards in hand, {my_deck} in deck. Opponent has {opp_hand} cards in hand.")
+
+    # Stakes
+    if my_gems == 1 and opp_gems == 1:
+        lines.append("STAKES: FINAL ROUND — whoever loses this round loses the match!")
+    elif my_gems == 1:
+        lines.append("STAKES: You are on your LAST GEM. You MUST win this round to survive!")
+    elif opp_gems == 1:
+        lines.append("STAKES: Opponent is on their last gem. Win this round to claim victory!")
+    else:
+        lines.append(f"STAKES: Round {rnd} of best-of-3. Play smart, conserve cards when possible.")
+
+    lines.append("")
+    lines.append("No cards are re-dealt between rounds. You keep your remaining hand.")
+    lines.append("The game state below shows your current hand and board for this new round.")
+
+    return "\n".join(lines)
 
 
 # ---------------------------------------------------------------------------
@@ -676,6 +737,9 @@ def execute(board, cur, action):
 def game_loop(args, board, etag, sync):
     """Run the turn-by-turn game loop until game over or max turns."""
     turn = 0
+    current_round = board.get('round_number', 1)
+    round_history = []  # [{round, scores, winner}, ...]
+
     while turn < args.max_turns:
         stage, board, etag = fetch(args.game_url)
 
@@ -694,11 +758,39 @@ def game_loop(args, board, etag, sync):
             g2 = board['players']['PLAYER.TWO']['gems']
             log(f"--- Round End --- scores P1={s1} P2={s2} | "
                 f"gems P1={g1} P2={g2}")
+
+            # Record round result
+            if s1 > s2:
+                winner = 'PLAYER.ONE'
+            elif s2 > s1:
+                winner = 'PLAYER.TWO'
+            else:
+                winner = None
+            round_history.append({
+                'round': current_round,
+                'scores': {'PLAYER.ONE': s1, 'PLAYER.TWO': s2},
+                'winner': winner,
+            })
+
+            # Wait for server to leave RoundEnd
             for _ in range(30):
                 s, b, etag = poll_until_change(
                     args.game_url, etag, timeout=5)
                 if s is not None and s != 'RoundEnd':
                     break
+            # Wait for round-end announcements to finish
+            sync.wait_all()
+
+            # Fresh fetch to get definitive post-round state
+            stage, board, etag = fetch(args.game_url)
+
+            # If new round started, reset conversations with round summary
+            if stage == 'PlayRound':
+                new_round = board.get('round_number', current_round)
+                if new_round != current_round:
+                    current_round = new_round
+                    log(f"--- New Round {current_round} — resetting conversations ---")
+                    init_conversations(board, round_history=round_history)
             continue
 
         if stage != 'PlayRound':
