@@ -831,6 +831,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._announce_and_advance(
                 f"{self._player_label(cur)}: leader ability already applied at "
                 f"battle start (extra card drawn).")
+        elif leader_data.get("cancel_leader"):
+            self._leader_cancel_leader()
         else:
             instructions = leader_data.get('instructions', 'No effect')
             self._log.error(f"Unimplemented leader ability for {card.name}: {instructions}")
@@ -1223,6 +1225,23 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.medic_random = True
         self._announce_and_advance(
             f"{label}: leader ability. All medic cards now restore random units!")
+
+    def _leader_cancel_leader(self):
+        """Leader ability: cancel opponent's leader ability."""
+        cur = self._board.current_player
+        label = self._player_label(cur)
+        opp = self._board.opponent(cur)
+        opp_pb = self._board.players[opp]
+        opp_leader = self._board.leaders.get(opp)
+        opp_name = opp_leader.name if opp_leader else "opponent's leader"
+
+        if opp_pb.leader_used:
+            self._announce_and_advance(
+                f"{label}: leader ability. {opp_name}'s ability was already used!")
+        else:
+            opp_pb.leader_used = True
+            self._announce_and_advance(
+                f"{label}: leader ability. {opp_name}'s ability has been cancelled!")
 
     def _play_unit_card(self, card):
         """Play a normal unit card (with strength)."""
