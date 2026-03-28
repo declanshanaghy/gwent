@@ -1,11 +1,11 @@
 {
     "faction": "Northern Realms",
     "kind": "card",
-    "name": "Impenetrable Fog",
+    "name": "Impenetrable Fog: 2",
     "ranges": [
         "ranged"
     ],
     "specialty": "weather",
     "starter": true,
-    "rfid": 2279689515
+    "rfid": 277643152763
 }

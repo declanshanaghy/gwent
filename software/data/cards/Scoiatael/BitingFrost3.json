@@ -1,11 +1,11 @@
 {
     "faction": "Scoia'tael",
     "kind": "card",
-    "name": "Biting Frost",
+    "name": "Biting Frost: 3",
     "ranges": [
         "close"
     ],
     "specialty": "weather",
     "starter": true,
-    "rfid": 553545190897
+    "rfid": 141278203231
 }

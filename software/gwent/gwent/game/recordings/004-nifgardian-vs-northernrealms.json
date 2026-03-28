@@ -40,7 +40,8 @@
           },
           "name": "Emhyr var Emreis - His Imperial Majesty",
           "specialty": "leader",
-          "starter": true
+          "starter": true,
+          "rfid": 137554120118
         },
         "PLAYER.TWO": {
           "faction": "Northern Realms",
@@ -53,7 +54,8 @@
           },
           "name": "Foltest - King of Temeria",
           "specialty": "leader",
-          "starter": true
+          "starter": true,
+          "rfid": 894239591804
         }
       },
       "factions": {
@@ -91,7 +93,9 @@
             "owner_nickname": "dek"
           },
           {
-            "abilities": "medic",
+            "abilities": [
+              "medic"
+            ],
             "content_id": "e7f3061967cbc2a416029177bce62fbe",
             "faction": "Nilfgaardian",
             "kind": "card",
@@ -379,7 +383,37 @@
           "ranged": 0,
           "siege": 0
         }
-      }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    },
+    "leader1": {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick a torrential rain card from your deck and play it instantly",
+        "weather_ranges": [
+          "siege"
+        ]
+      },
+      "name": "Emhyr var Emreis - His Imperial Majesty",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 137554120118
+    },
+    "leader2": {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+        "weather_ranges": [
+          "ranged"
+        ]
+      },
+      "name": "Foltest - King of Temeria",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 894239591804
     }
   }
 }

@@ -139,7 +139,6 @@
         "strength": 5
       },
       {
-        "ability": "muster",
         "content_id": "29884a1b8e1c3271de7f50300734d8f9",
         "faction": "Scoia'tael",
         "kind": "card",
@@ -150,7 +149,10 @@
         ],
         "rfid": 1272335824,
         "strength": 4,
-        "owner_nickname": "dek"
+        "owner_nickname": "dek",
+        "abilities": [
+          "muster"
+        ]
       },
       {
         "content_id": "ef27f307707daa51b50ead951f630346",
@@ -249,9 +251,6 @@
         "starter": true
       },
       {
-        "abililties": [
-          "muster"
-        ],
         "content_id": "03af67773630ecd80fc9c0b89610b475",
         "faction": "Monsters",
         "kind": "card",
@@ -261,7 +260,10 @@
         ],
         "rfid": 895011802403,
         "starter": true,
-        "strength": 6
+        "strength": 6,
+        "abilities": [
+          "muster"
+        ]
       },
       {
         "abilities": [
@@ -294,9 +296,6 @@
         "strength": 5
       },
       {
-        "abililties": [
-          "muster"
-        ],
         "content_id": "8733703b7d593d034299478c4fb62a0f",
         "faction": "Monsters",
         "kind": "card",
@@ -306,7 +305,10 @@
         ],
         "rfid": 622264733154,
         "starter": true,
-        "strength": 4
+        "strength": 4,
+        "abilities": [
+          "muster"
+        ]
       },
       {
         "content_id": "623a164b0b33886106e51505d85a8be6",
@@ -321,9 +323,6 @@
         "strength": 6
       },
       {
-        "abililties": [
-          "muster"
-        ],
         "content_id": "474924fcde4f63aed238540e764985c2",
         "faction": "Monsters",
         "kind": "card",
@@ -455,9 +454,6 @@
         "owner_nickname": "dek"
       },
       {
-        "abililties": [
-          "muster"
-        ],
         "content_id": "bc43a30cb43be5adb8967aa9b18bc349",
         "faction": "Monsters",
         "kind": "card",
@@ -467,12 +463,12 @@
         ],
         "rfid": 482409860530,
         "starter": true,
-        "strength": 4
+        "strength": 4,
+        "abilities": [
+          "muster"
+        ]
       },
       {
-        "abililties": [
-          "muster"
-        ],
         "content_id": "936bb45f67936325cbc67b265d4794da",
         "faction": "Monsters",
         "kind": "card",
@@ -482,7 +478,10 @@
         ],
         "rfid": 552789757359,
         "starter": true,
-        "strength": 4
+        "strength": 4,
+        "abilities": [
+          "muster"
+        ]
       },
       {
         "content_id": "e459b2eecf25a04472b0b445a0d6a800",
@@ -589,7 +588,6 @@
       "hands": {
         "PLAYER.ONE": [
           {
-            "ability": "muster",
             "content_id": "29884a1b8e1c3271de7f50300734d8f9",
             "faction": "Scoia'tael",
             "kind": "card",
@@ -600,7 +598,10 @@
             ],
             "rfid": 1272335824,
             "strength": 4,
-            "owner_nickname": "dek"
+            "owner_nickname": "dek",
+            "abilities": [
+              "muster"
+            ]
           },
           {
             "content_id": "2ff2e32c16c247b827a68079bc751e81",
@@ -780,9 +781,6 @@
             "rfid": 141160959337
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "content_id": "8733703b7d593d034299478c4fb62a0f",
             "faction": "Monsters",
             "kind": "card",
@@ -792,7 +790,10 @@
             ],
             "rfid": 622264733154,
             "starter": true,
-            "strength": 4
+            "strength": 4,
+            "abilities": [
+              "muster"
+            ]
           }
         ]
       },
@@ -1056,9 +1057,6 @@
         ],
         "PLAYER.TWO": [
           {
-            "abililties": [
-              "muster"
-            ],
             "content_id": "03af67773630ecd80fc9c0b89610b475",
             "faction": "Monsters",
             "kind": "card",
@@ -1068,7 +1066,10 @@
             ],
             "rfid": 895011802403,
             "starter": true,
-            "strength": 6
+            "strength": 6,
+            "abilities": [
+              "muster"
+            ]
           },
           {
             "abilities": [
@@ -1113,9 +1114,6 @@
             "strength": 6
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "content_id": "474924fcde4f63aed238540e764985c2",
             "faction": "Monsters",
             "kind": "card",
@@ -1189,9 +1187,6 @@
             "owner_nickname": "dek"
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "content_id": "bc43a30cb43be5adb8967aa9b18bc349",
             "faction": "Monsters",
             "kind": "card",
@@ -1201,12 +1196,12 @@
             ],
             "rfid": 482409860530,
             "starter": true,
-            "strength": 4
+            "strength": 4,
+            "abilities": [
+              "muster"
+            ]
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "content_id": "936bb45f67936325cbc67b265d4794da",
             "faction": "Monsters",
             "kind": "card",
@@ -1216,7 +1211,10 @@
             ],
             "rfid": 552789757359,
             "starter": true,
-            "strength": 4
+            "strength": 4,
+            "abilities": [
+              "muster"
+            ]
           },
           {
             "content_id": "4049cb39a4d7c884c6499405f460bb04",
@@ -1243,9 +1241,6 @@
             "strength": 2
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "faction": "Monsters",
             "kind": "card",
             "name": "Ghoul: 1",
@@ -1254,12 +1249,12 @@
             ],
             "starter": true,
             "strength": 1,
-            "rfid": 414176660889
+            "rfid": 414176660889,
+            "abilities": [
+              "muster"
+            ]
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "faction": "Monsters",
             "kind": "card",
             "name": "Arachas: Behemoth",
@@ -1268,7 +1263,10 @@
             ],
             "starter": true,
             "strength": 6,
-            "rfid": 345675550136
+            "rfid": 345675550136,
+            "abilities": [
+              "muster"
+            ]
           },
           {
             "faction": "Monsters",
@@ -1334,9 +1332,6 @@
             "rfid": 1032567999757
           },
           {
-            "abililties": [
-              "muster"
-            ],
             "faction": "Monsters",
             "kind": "card",
             "name": "Ghoul: 2",
@@ -1345,7 +1340,10 @@
             ],
             "starter": true,
             "strength": 1,
-            "rfid": 206374063531
+            "rfid": 206374063531,
+            "abilities": [
+              "muster"
+            ]
           },
           {
             "faction": "Monsters",
@@ -1462,7 +1460,9 @@
           "ranged": 0,
           "siege": 0
         }
-      }
+      },
+      "spy_doubling": false,
+      "medic_random": false
     }
   }
 }

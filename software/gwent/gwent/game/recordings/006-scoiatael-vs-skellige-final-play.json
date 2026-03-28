@@ -28,7 +28,6 @@
           },
           "discard": [
             {
-              "ability": "muster",
               "content_id": "29884a1b8e1c3271de7f50300734d8f9",
               "faction": "Scoia'tael",
               "kind": "card",
@@ -39,7 +38,10 @@
               ],
               "rfid": 1272335824,
               "strength": 4,
-              "owner_nickname": "dek"
+              "owner_nickname": "dek",
+              "abilities": [
+                "muster"
+              ]
             }
           ],
           "gems": 2,
@@ -365,7 +367,38 @@
           "ranged": 0,
           "siege": 0
         }
-      }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    },
+    "leader1": {
+      "content_id": "edca77bff15641be451750b273adbb2a",
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "leader": {
+        "commander_ranges": [
+          "ranged"
+        ],
+        "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+      },
+      "name": "Francesca Findabair - The Beautiful",
+      "owner": "Declan Shanaghy (dek)",
+      "rfid": 553478147534,
+      "specialty": "leader",
+      "starter": true,
+      "owner_nickname": "dek"
+    },
+    "leader2": {
+      "faction": "Skellige",
+      "kind": "card",
+      "leader": {
+        "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+        "reshuffle_graveyards": true
+      },
+      "name": "Crach an Craite",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 1033423375860
     }
   }
 }

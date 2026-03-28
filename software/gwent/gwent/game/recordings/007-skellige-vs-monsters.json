@@ -441,7 +441,37 @@
           "ranged": 0,
           "siege": 0
         }
-      }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    },
+    "leader1": {
+      "faction": "Skellige",
+      "kind": "card",
+      "leader": {
+        "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+        "reshuffle_graveyards": true
+      },
+      "name": "Crach an Craite",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 1033423375860
+    },
+    "leader2": {
+      "faction": "Monsters",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick any weather card from your deck and play it instantly",
+        "weather_ranges": [
+          "close",
+          "ranged",
+          "siege"
+        ]
+      },
+      "name": "Eredin - King of the Wild Hunt",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 209511075183
     }
   }
 }

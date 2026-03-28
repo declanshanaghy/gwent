@@ -115,7 +115,9 @@
             "rfid": 138040855982
           },
           {
-            "abilities": "medic",
+            "abilities": [
+              "medic"
+            ],
             "faction": "Nilfgaardian",
             "kind": "card",
             "name": "Menno Coehoorn",
@@ -715,7 +717,37 @@
           "ranged": 0,
           "siege": 0
         }
-      }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    },
+    "leader1": {
+      "faction": "Nilfgaardian",
+      "kind": "card",
+      "leader": {
+        "draw_opponent_discard": true,
+        "instructions": "Draw a card from your opponents discard pile"
+      },
+      "name": "Emhyr var Emreis - The Relentless",
+      "owner": "Declan Shanaghy",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 413287665097,
+      "owner_nickname": "dek"
+    },
+    "leader2": {
+      "faction": "Northern Realms",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick an impenetrable fog card from your deck and play it instantly",
+        "weather_ranges": [
+          "ranged"
+        ]
+      },
+      "name": "Foltest - King of Temeria",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 894239591804
     }
   }
 }

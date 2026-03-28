@@ -896,9 +896,21 @@
       "current_player": "PLAYER.ONE",
       "round_number": 1,
       "scores": {
-        "PLAYER.ONE": 0,
-        "PLAYER.TWO": 0
-      }
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      },
+      "spy_doubling": false,
+      "medic_random": false
     }
   }
 }

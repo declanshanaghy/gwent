@@ -8,7 +8,7 @@ from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import (
-    card_display_short, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
+    card_display_short, gems_display, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
 )
 from gwent_tui.game_state import P1, P2
 
@@ -33,7 +33,7 @@ class ScoreboardWidget(Static):
             for row in sorted(state.weather_rows):
                 emoji = WEATHER_EMOJI.get(row, "")
                 name = WEATHER_NAME.get(row, row)
-                weather_items.append(f"{emoji}{name}")
+                weather_items.append(f"{emoji} {name}")
             weather = " | ".join(weather_items)
         else:
             weather = ""
@@ -48,8 +48,12 @@ class ScoreboardWidget(Static):
         p1_ldr = "\U0001f451" + ("[dim]x[/dim]" if state.leader_used.get(P1) else "[green]\u26a1[/green]")
         p2_ldr = ("[dim]x[/dim]" if state.leader_used.get(P2) else "[green]\u26a1[/green]") + "\U0001f451"
 
+        # Gems
+        p1_gems = gems_display(state.gems.get(P1, 0))
+        p2_gems = gems_display(state.gems.get(P2, 0))
+
         # Build: P1 info | score | weather | score | P2 info
-        left = f"[bold yellow]P1[/bold yellow] {p1_ldr} {p1_pass}"
+        left = f"[bold yellow]P1[/bold yellow] {p1_ldr} {p1_gems} {p1_pass}"
         center = (
             f"\U0001f5e1\ufe0f [bold yellow]{p1s}[/bold yellow]"
             f"  \u2694\ufe0f  "
@@ -57,7 +61,7 @@ class ScoreboardWidget(Static):
         )
         if weather:
             center += f"  {weather}"
-        right = f"{p2_pass} {p2_ldr} [bold dodger_blue2]P2[/bold dodger_blue2]"
+        right = f"{p2_pass} {p2_gems} {p2_ldr} [bold dodger_blue2]P2[/bold dodger_blue2]"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
         table.add_column(ratio=1, justify="left")

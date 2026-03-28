@@ -1,0 +1,282 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "recording.schema.json",
+  "title": "Gwent Game Recording",
+  "description": "A saved Gwent game state at the PlayRound stage, used for playtesting and replay.",
+  "type": "object",
+  "required": ["version", "saved_at", "active_stage", "state"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Schema version."
+    },
+    "saved_at": {
+      "type": "string",
+      "description": "ISO-8601 timestamp when the recording was saved."
+    },
+    "active_stage": {
+      "type": "string",
+      "const": "PlayRound",
+      "description": "Must be PlayRound for vs recordings."
+    },
+    "state": {
+      "$ref": "#/$defs/state"
+    }
+  },
+
+  "$defs": {
+    "state": {
+      "type": "object",
+      "required": ["leader1", "leader2", "board"],
+      "additionalProperties": false,
+      "properties": {
+        "leader1": { "$ref": "#/$defs/leaderCard" },
+        "leader2": { "$ref": "#/$defs/leaderCard" },
+        "player1_deck": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/card" },
+          "description": "Full P1 deck (hand + deck combined). Present for deck-building provenance; board.hands/decks are authoritative at runtime."
+        },
+        "player2_deck": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/card" },
+          "description": "Full P2 deck (hand + deck combined)."
+        },
+        "board": { "$ref": "#/$defs/board" }
+      }
+    },
+
+    "playerKey": {
+      "type": "string",
+      "enum": ["PLAYER.ONE", "PLAYER.TWO"]
+    },
+
+    "rowName": {
+      "type": "string",
+      "enum": ["close", "ranged", "siege"]
+    },
+
+    "faction": {
+      "type": "string",
+      "enum": ["Monsters", "Nilfgaardian", "Northern Realms", "Scoia'tael", "Skellige", "Neutral"]
+    },
+
+    "card": {
+      "type": "object",
+      "required": ["name", "faction", "kind"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "faction": { "$ref": "#/$defs/faction" },
+        "kind": { "type": "string", "const": "card" },
+        "strength": { "type": "integer", "minimum": 0 },
+        "ranges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rowName" },
+          "minItems": 1
+        },
+        "abilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["spy", "medic", "muster", "scorch", "bond", "morale", "agile", "commander"]
+          }
+        },
+        "specialty": {
+          "type": ["string", "null"],
+          "enum": ["hero", "weather", "scorch", "decoy", "mardroeme", "commander", "leader", null]
+        },
+        "rfid": { "type": "integer" },
+        "content_id": { "type": "string" },
+        "owner": { "type": "string" },
+        "owner_nickname": { "type": "string" },
+        "starter": { "type": "boolean" },
+        "leader": { "$ref": "#/$defs/leaderAbility" }
+      }
+    },
+
+    "leaderCard": {
+      "description": "A leader card with specialty=leader and a leader ability block.",
+      "allOf": [
+        { "$ref": "#/$defs/card" },
+        {
+          "type": "object",
+          "required": ["specialty", "leader", "rfid"],
+          "properties": {
+            "specialty": { "const": "leader" },
+            "leader": { "$ref": "#/$defs/leaderAbility" }
+          }
+        }
+      ]
+    },
+
+    "leaderAbility": {
+      "type": "object",
+      "required": ["instructions"],
+      "additionalProperties": false,
+      "description": "Leader ability configuration. Exactly one ability key should be present alongside instructions.",
+      "properties": {
+        "instructions": { "type": "string", "description": "Human-readable description of the ability." },
+        "commander_ranges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rowName" },
+          "description": "Apply commander horn to these rows."
+        },
+        "weather_ranges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rowName" },
+          "description": "Pick a weather card affecting these rows."
+        },
+        "clear_weather": { "type": "boolean", "description": "Clear all active weather." },
+        "draw_opponent_discard": { "type": "boolean", "description": "Take a card from opponent's discard." },
+        "draw_own_discard": { "type": "boolean", "description": "Take a card from own discard." },
+        "reshuffle_graveyards": { "type": "boolean", "description": "Shuffle both discard piles into decks." },
+        "conditional_scorch": {
+          "type": "object",
+          "required": ["row", "threshold"],
+          "additionalProperties": false,
+          "properties": {
+            "row": { "$ref": "#/$defs/rowName" },
+            "threshold": { "type": "integer", "minimum": 1 }
+          },
+          "description": "Scorch opponent's row if total >= threshold."
+        },
+        "spy_doubling": { "type": "boolean", "description": "Double spy card strength." },
+        "discard_and_draw": {
+          "type": "object",
+          "required": ["discard", "draw"],
+          "additionalProperties": false,
+          "properties": {
+            "discard": { "type": "integer", "minimum": 1 },
+            "draw": { "type": "integer", "minimum": 1 }
+          },
+          "description": "Discard N cards from hand, draw M from deck."
+        },
+        "cancel_leader": { "type": "boolean", "description": "Cancel opponent's leader ability." },
+        "view_opponent_hand": { "type": "integer", "minimum": 1, "description": "Reveal N random cards from opponent's hand." },
+        "medic_random": { "type": "boolean", "description": "Medic auto-picks random card." },
+        "extra_draw": { "type": "integer", "minimum": 1, "description": "Draw N extra cards during deal." },
+        "optimize_agile": { "type": "boolean", "description": "Auto-move agile units to optimal rows." }
+      }
+    },
+
+    "playerBoard": {
+      "type": "object",
+      "required": ["gems", "passed", "leader_used", "rows", "discard"],
+      "additionalProperties": false,
+      "properties": {
+        "gems": { "type": "integer", "minimum": 0, "maximum": 2 },
+        "passed": { "type": "boolean" },
+        "leader_used": { "type": "boolean" },
+        "rows": {
+          "type": "object",
+          "required": ["close", "ranged", "siege"],
+          "additionalProperties": false,
+          "properties": {
+            "close": { "type": "array", "items": { "$ref": "#/$defs/card" } },
+            "ranged": { "type": "array", "items": { "$ref": "#/$defs/card" } },
+            "siege": { "type": "array", "items": { "$ref": "#/$defs/card" } }
+          }
+        },
+        "discard": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/card" }
+        }
+      }
+    },
+
+    "rowScores": {
+      "type": "object",
+      "required": ["total", "close", "ranged", "siege"],
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "close": { "type": "integer", "minimum": 0 },
+        "ranged": { "type": "integer", "minimum": 0 },
+        "siege": { "type": "integer", "minimum": 0 }
+      }
+    },
+
+    "board": {
+      "type": "object",
+      "required": ["players", "leaders", "factions", "hands", "decks", "weather_rows", "commander_horn_rows", "current_player", "round_number", "scores"],
+      "additionalProperties": false,
+      "properties": {
+        "players": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "$ref": "#/$defs/playerBoard" },
+            "PLAYER.TWO": { "$ref": "#/$defs/playerBoard" }
+          }
+        },
+        "leaders": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "$ref": "#/$defs/leaderCard" },
+            "PLAYER.TWO": { "$ref": "#/$defs/leaderCard" }
+          }
+        },
+        "factions": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "$ref": "#/$defs/faction" },
+            "PLAYER.TWO": { "$ref": "#/$defs/faction" }
+          }
+        },
+        "hands": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "type": "array", "items": { "$ref": "#/$defs/card" } },
+            "PLAYER.TWO": { "type": "array", "items": { "$ref": "#/$defs/card" } }
+          }
+        },
+        "decks": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "type": "array", "items": { "$ref": "#/$defs/card" } },
+            "PLAYER.TWO": { "type": "array", "items": { "$ref": "#/$defs/card" } }
+          }
+        },
+        "weather_rows": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/rowName" },
+          "uniqueItems": true
+        },
+        "commander_horn_rows": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "type": "array", "items": { "$ref": "#/$defs/rowName" }, "uniqueItems": true },
+            "PLAYER.TWO": { "type": "array", "items": { "$ref": "#/$defs/rowName" }, "uniqueItems": true }
+          }
+        },
+        "current_player": { "$ref": "#/$defs/playerKey" },
+        "round_number": { "type": "integer", "minimum": 1 },
+        "spy_doubling": { "type": "boolean", "default": false },
+        "medic_random": { "type": "boolean", "default": false },
+        "scores": {
+          "type": "object",
+          "required": ["PLAYER.ONE", "PLAYER.TWO"],
+          "additionalProperties": false,
+          "properties": {
+            "PLAYER.ONE": { "$ref": "#/$defs/rowScores" },
+            "PLAYER.TWO": { "$ref": "#/$defs/rowScores" }
+          }
+        }
+      }
+    }
+  }
+}

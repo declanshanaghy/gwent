@@ -16,9 +16,9 @@ ROW_EMOJI = {
 }
 
 WEATHER_EMOJI = {
-    "close":  "\U0001f328\ufe0f\u2744\ufe0f",   # cloud snow + snowflake
-    "ranged": "\U0001f32b\ufe0f\U0001f441\ufe0f", # fog + eye
-    "siege":  "\U0001f327\ufe0f\U0001f4a7",       # rain + droplet
+    "close":  "\u2744\ufe0f",     # snowflake
+    "ranged": "\U0001f32b\ufe0f", # fog
+    "siege":  "\U0001f327\ufe0f", # rain
 }
 
 WEATHER_NAME = {

@@ -28,6 +28,8 @@ import os
 import time
 from datetime import datetime, timezone
 
+import jsonschema
+
 import gwent.messaging.card
 from gwent.game.constants import PLAYER
 from gwent.utils.logging import get_logger
@@ -36,6 +38,7 @@ log = get_logger("gwent.game.state")
 
 STATE_VERSION = 1
 STATES_DIR = os.path.join(os.path.dirname(__file__), "recordings")
+SCHEMA_PATH = os.path.join(STATES_DIR, "recording.schema.json")
 
 
 def _cards_to_dicts(cards):
@@ -145,6 +148,15 @@ def load(filepath, controller):
     """
     with open(filepath) as f:
         snapshot = json.load(f)
+
+    # Validate against schema for PlayRound recordings
+    if snapshot.get("active_stage") == "PlayRound" and os.path.exists(SCHEMA_PATH):
+        try:
+            with open(SCHEMA_PATH) as sf:
+                schema = json.load(sf)
+            jsonschema.validate(snapshot, schema)
+        except jsonschema.ValidationError as e:
+            log.warning(f"Recording schema validation failed: {e.message} at {'.'.join(str(p) for p in e.absolute_path)}")
 
     version = snapshot.get("version", 0)
     if version > STATE_VERSION:

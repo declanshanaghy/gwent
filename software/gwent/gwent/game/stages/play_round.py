@@ -617,7 +617,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         cur = self._board.current_player
         label = self._player_label(cur)
 
-        if card.name == "Clear Weather" or (card.has_specialty and card.specialty == "mardroeme"):
+        is_clear = card.is_weather and not card.ranges
+        if is_clear or (card.has_specialty and card.specialty == "mardroeme"):
             # Calculate recovery before clearing
             score_before = sum(
                 self._board.calculate_player_score(p)
@@ -853,7 +854,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if len(allowed_ranges) == 3:
             weather_cards += [
                 c for c in self._board.decks[cur]
-                if c.is_weather and c.name == "Clear Weather"
+                if c.is_weather and not c.ranges
                 and c not in weather_cards
             ]
 

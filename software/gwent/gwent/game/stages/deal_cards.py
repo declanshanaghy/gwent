@@ -39,7 +39,8 @@ DEAL_ANNOUNCEMENTS = [
 
 
 class DealCards(gwent.game.stages.base.GameStage):
-    HAND_SIZE = 8
+    HAND_SIZE = 10
+    DECK_SIZE = 20
 
     _player1_deck = []
     _player2_deck = []
@@ -103,9 +104,9 @@ class DealCards(gwent.game.stages.base.GameStage):
                                and c.name not in existing_names]
         random.shuffle(starter_non_leaders)
 
-        # Target: same number of starters as owned non-leaders
-        target_starters = max(len(owned_non_leaders), self.HAND_SIZE)
-        to_add = starter_non_leaders[:target_starters]
+        # Target total non-leader deck size of DECK_SIZE
+        needed = max(self.DECK_SIZE - len(owned_non_leaders), 0)
+        to_add = starter_non_leaders[:needed]
 
         for card in to_add:
             deck.append(card)

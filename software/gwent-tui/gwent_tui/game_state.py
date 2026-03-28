@@ -2,6 +2,7 @@
 
 import logging
 import threading
+import time
 from collections import deque
 
 log = logging.getLogger("gwent_tui.state")
@@ -74,6 +75,11 @@ class GameState:
         self.mqtt_status = "off"    # off, polling, processing, error
         self.http_status = "off"    # off, polling, processing, error
 
+        # Move timing
+        self._turn_start = time.monotonic()
+        self._prev_player = None
+        self.move_times = {P1: [], P2: []}  # seconds per move
+
     def load_snapshot(self, snapshot):
         """Populate state from a JSON snapshot (HTTP API or SIGUSR1)."""
         with self.lock:
@@ -96,9 +102,21 @@ class GameState:
             return
 
         self.round_number = board.get("round_number", 1)
-        self.current_player = _normalize_player(
-            board.get("current_player", P1)
-        )
+        new_player = _normalize_player(board.get("current_player", P1))
+
+        # Track move duration when the turn changes
+        now = time.monotonic()
+        if (self._prev_player is not None
+                and self._prev_player != new_player
+                and self._prev_player in (P1, P2)):
+            elapsed = now - self._turn_start
+            if 0.5 < elapsed < 600:  # ignore sub-second glitches and >10min stalls
+                self.move_times[self._prev_player].append(elapsed)
+        if self._prev_player != new_player:
+            self._turn_start = now
+        self._prev_player = new_player
+        self.current_player = new_player
+
         self.weather_rows = set(board.get("weather_rows", []))
 
         # Factions
@@ -184,6 +202,15 @@ class GameState:
         self.reg_leader2 = state.get("leader2")
         self.reg_deck1 = state.get("player1_deck", [])
         self.reg_deck2 = state.get("player2_deck", [])
+
+    def avg_move_time(self, player):
+        """Average move time in seconds for a player, or 0 if no moves."""
+        times = self.move_times.get(player, [])
+        return sum(times) / len(times) if times else 0
+
+    def move_count(self, player):
+        """Number of completed moves for a player."""
+        return len(self.move_times.get(player, []))
 
     # --- MQTT event handlers ---
 

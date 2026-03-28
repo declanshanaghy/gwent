@@ -7,6 +7,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import faction_emoji
 from gwent_tui.game_state import P1, P2
+import time
 import gwent_tui.snapshot as snapshot_mod
 
 _STATUS_COLOR = {
@@ -77,11 +78,22 @@ class HeaderWidget(Static):
             else:
                 turn_label = f"\U0001f3af [bold dodger_blue2]P2 to Play[/bold dodger_blue2]"
 
+            # Move timing: current think time + averages
+            elapsed = time.monotonic() - state._turn_start
+            cur_time = f"[dim]{elapsed:.0f}s[/dim]"
+
+            p1_avg = state.avg_move_time(P1)
+            p2_avg = state.avg_move_time(P2)
+            p1_n = state.move_count(P1)
+            p2_n = state.move_count(P2)
+            p1_time = f"[dim yellow]{p1_avg:.0f}s[/dim yellow]" if p1_n else "[dim]-[/dim]"
+            p2_time = f"[dim dodger_blue2]{p2_avg:.0f}s[/dim dodger_blue2]" if p2_n else "[dim]-[/dim]"
+
             center = Text.from_markup(
-                f" {p1_label} {p1_gems}    "
+                f" {p1_label} {p1_gems} avg:{p1_time}    "
                 f"\u2694\ufe0f Round {state.round_number} "
-                f"{turn_label}"
-                f"    {p2_gems} {p2_label} "
+                f"{turn_label} {cur_time}"
+                f"    avg:{p2_time} {p2_gems} {p2_label} "
             )
             center.justify = "center"
 

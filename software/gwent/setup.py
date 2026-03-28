@@ -114,6 +114,9 @@ setuptools.setup(
             'tts-voice-explorer=gwent.poc.diagnostic_tools.tts_voice_explorer:main',
             'tts-service-explorer=gwent.poc.diagnostic_tools.tts_service_explorer:main',
             'download-skellige-cards=gwent.poc.util.card_downloader_witcher_fandom_com:main',
+
+            # LLM experiments
+            'ollama-vs=gwent.poc.ollama_vs:main',
         ],
     }
 )
