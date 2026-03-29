@@ -48,10 +48,6 @@ Welcome to the hand-crafted documentation for the Gwent Companion project, a phy
 - [Scripts README](scripts/README.md): Documentation for development scripts and utilities
 - [Task List](task-list.mdc): Current progress and upcoming tasks
 
-## 📱 Web Interface
-
-- [Glory Gate README](software/glory-gate/README.md): Documentation for the React-based web interface
-
 ## 📡 External Components
 
 - [MFRC522 Python](software/MFRC522-python/README.md): Documentation for the RFID reader library

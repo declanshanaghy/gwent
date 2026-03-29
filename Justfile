@@ -40,15 +40,7 @@ gwent-restart *args:
 status *args:
     bash scripts/dev-server.sh gwent status {{args}}
 
-# Start glory-gate React frontend
-glory-gate *args:
-    bash scripts/dev-server.sh glory-gate start {{args}}
-
-# Stop glory-gate
-glory-gate-stop *args:
-    bash scripts/dev-server.sh glory-gate stop {{args}}
-
-# Start all services (gwent + glory-gate)
+# Start all services
 up *args:
     bash scripts/dev-server.sh all start {{args}}
 
@@ -71,10 +63,6 @@ dump-state *args:
 # Tail gwent dev log
 log *args:
     tail -f /tmp/logs/gwent.log {{args}}
-
-# Tail glory-gate dev log
-log-glory-gate *args:
-    tail -f /tmp/logs/glory-gate.log {{args}}
 
 # === Card Utilities ==========================================================
 

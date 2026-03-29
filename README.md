@@ -158,11 +158,7 @@ graph TD
   - `gwent`: System service application for game state management
     - 🎮 Primary service: Game state management and hardware interfacing
     - 🌐 Secondary service: REST API for external interfaces
-- **⚔️ Glory Gate**: React-based Single Page Application
-  - Application name: `glory-gate`
-  - 🌍 Web-based interface for game management
-  - 🔌 Connects to the game server via REST API
-  - 🏙️ Named after one of the six gates in Novigrad, connecting Farcorners district to Glory Lane
+
 
 ```mermaid
 %%{init: {
@@ -198,13 +194,8 @@ graph TD
         api["🌐 REST API"]:::api
     end
     
-    subgraph web["Web Interface"]
-        glory["⚔️ Glory Gate React App"]:::ui
-    end
-    
     gwent --> components
     gwent --> api
-    api --> glory
 ```
 
 ## ✨ Features
@@ -216,7 +207,7 @@ graph TD
 - **📊 Statistics**: Track win/loss records and performance metrics
 - **🧭 Game Guidance**: Step-by-step assistance through the game process
 - **📋 Menu System**: Interactive menu system for device configuration and control
-- **🌐 Web Interface**: Access game data and controls through Glory Gate
+- **🌐 REST API**: Access game data and controls via the REST API
 
 ```mermaid
 %%{init: {
@@ -275,7 +266,7 @@ mindmap
 6. 📱 The menu system provides access to audio settings and other configuration options
 7. 🧭 The `gwent` service guides players through each phase of the game
 8. 💾 Game state is maintained throughout the match
-9. 🌐 The `gwent` service exposes a REST API that the `glory-gate` React application uses for additional game management features
+9. 🌐 The `gwent` service exposes a REST API for additional game management features
 
 ```mermaid
 %%{init: {
@@ -439,7 +430,7 @@ The project is organized into several key areas:
     - 🎮 Game state management
     - 🔌 Hardware interfacing
     - 🌐 REST API implementation
-  - `glory-gate` React front-end development
+
 
 See the [design documentation](design/README.md) for detailed information about each component.
 
@@ -471,7 +462,6 @@ graph TD
     scripts["📁 scripts/"]:::dir
     
     gwent["📁 gwent/"]:::code
-    glory["📁 glory-gate/"]:::code
     
     docs["📄 Documentation"]:::docs
     diagrams["📊 Diagrams"]:::docs
@@ -485,7 +475,6 @@ graph TD
     root --> scripts
     
     software --> gwent
-    software --> glory
     
     design --> docs
     design --> diagrams
@@ -511,5 +500,5 @@ graph TD
     - [Mermaid Style Guide](design/MermaidStyleGuide.md): Standard styling for all mermaid diagrams
 - [Software Components](software/):
   - [Gwent Core](software/gwent/README.md): Main game logic and system service
-  - [Glory Gate](software/glory-gate/README.md): React-based web interface
+
 - [Development Tools](scripts/README.md): Scripts and utilities for development

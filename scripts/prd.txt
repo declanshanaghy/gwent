@@ -33,13 +33,6 @@ The Gwent Companion is a physical-digital hybrid gaming system that enhances the
    - Player guidance system
    - Multi channel stereo audio output
 
-2. Glory Gate Web Interface (SPA)
-   - Real-time game state visualization
-   - Player interaction interface
-   - Deck management
-   - Game history tracking
-   - Statistics and analytics
-
 ### Game Features
 1. Automated Score Tracking
    - Real-time point calculation

@@ -36,13 +36,6 @@ The Gwent Companion is a digital device that enhances the physical card game Gwe
 - Game state persistence
 - Event logging
 
-### 4.2 Front-end Application (glory-gate)
-- React-based Single Page Application
-- Web-based interface
-- REST API integration
-- Real-time game state updates
-- User authentication
-
 ## 5. Functional Requirements
 
 ### 5.1 Core Features

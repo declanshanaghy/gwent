@@ -265,7 +265,10 @@ def main():
         mqtt_port=args.port,
         no_snapshot=args.no_snapshot,
     )
-    app.run()
+    try:
+        app.run()
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == "__main__":

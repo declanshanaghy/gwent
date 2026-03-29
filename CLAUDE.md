@@ -14,7 +14,6 @@ Gwent Companion — a Raspberry Pi-based digital companion for the physical card
 ## Project Structure
 
 - `software/gwent/` — Python game server (`gwent` system service)
-- `software/glory-gate/` — React web interface
 - `software/data/cards/` — card JSON definitions by faction
 - `software/data/decks/` — saved player decks
 - `design/` — architecture docs, ADRs, diagrams
