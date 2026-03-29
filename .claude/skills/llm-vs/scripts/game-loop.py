@@ -24,6 +24,7 @@ Flags:
 """
 import argparse
 import json
+import logging
 import os
 import re
 import requests
@@ -34,6 +35,20 @@ import threading
 import time
 
 import paho.mqtt.client as mqtt
+
+# --- File logging setup ---
+LOG_DIR = '/tmp/logs'
+LOG_FILE = os.path.join(LOG_DIR, 'game-loop.log')
+os.makedirs(LOG_DIR, exist_ok=True)
+
+_file_logger = logging.getLogger('game-loop')
+_file_logger.setLevel(logging.DEBUG)
+_fh = logging.FileHandler(LOG_FILE)
+_fh.setLevel(logging.DEBUG)
+_fh.setFormatter(logging.Formatter(
+    '%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'))
+_file_logger.addHandler(_fh)
 
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SKILL_DIR)))
@@ -140,6 +155,7 @@ class AnnouncementSync:
         self._count = 0
         self._lock = threading.Lock()
         self._event = threading.Event()
+        self._last_announcement_time = 0.0
         self._client = mqtt.Client(client_id='llm-vs-sync',
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
@@ -154,6 +170,7 @@ class AnnouncementSync:
             if d.get('subkind') == 'announcement_complete':
                 with self._lock:
                     self._count += 1
+                    self._last_announcement_time = time.time()
                 self._event.set()
         except Exception:
             pass
@@ -164,17 +181,25 @@ class AnnouncementSync:
         First waits for at least one announcement_complete (long timeout
         to allow TTS generation/download), then drains any remaining
         announcements using a shorter gap timer.
+
+        If an announcement already arrived recently (within 10s), skip
+        the long Phase 1 wait and go straight to draining.
         """
         deadline = time.time() + timeout
-        # Phase 1: wait for first announcement (TTS generation can be slow)
-        self._event.clear()
-        got = self._event.wait(timeout=min(30, timeout))
-        if not got:
-            return  # no announcement at all, move on
-        # Phase 2: drain remaining — wait until no announcement for 5s
+        # Check if an announcement already arrived recently (e.g. during
+        # wait_for_turn_advance) — skip the long Phase 1 wait.
+        with self._lock:
+            recent = (time.time() - self._last_announcement_time) < 10.0
+        if not recent:
+            # Phase 1: wait for first announcement (TTS generation can be slow)
+            self._event.clear()
+            got = self._event.wait(timeout=min(30, timeout))
+            if not got:
+                return  # no announcement at all, move on
+        # Phase 2: drain remaining — wait until no announcement for 3s
         while time.time() < deadline:
             self._event.clear()
-            got = self._event.wait(timeout=5.0)
+            got = self._event.wait(timeout=3.0)
             if not got:
                 return  # queue drained
 
@@ -213,6 +238,7 @@ COMMANDER_PREAMBLE = {
 
 def _toggle_pause(signum, frame):
     """SIGUSR1: resume one turn (or pause if running)."""
+    log_debug(f"SIGUSR1 received, _pause_event.is_set()={_pause_event.is_set()}")
     if _pause_event.is_set():
         _pause_event.clear()
         log("\u23f8  PAUSED (SIGUSR1 to resume)")
@@ -225,6 +251,7 @@ def _toggle_auto_pause(signum, frame):
     """SIGUSR2: toggle auto-pause mode on/off."""
     global _auto_pause
     _auto_pause = not _auto_pause
+    log_debug(f"SIGUSR2 received, _auto_pause={_auto_pause}")
     if _auto_pause:
         log("\u23f8  AUTO-PAUSE ON — will pause after each turn")
     else:
@@ -268,12 +295,19 @@ def _write_status(board, cur, turn):
 
 def log(msg):
     print(msg, flush=True)
+    _file_logger.info(msg)
+
+
+def log_debug(msg):
+    """Log to file only (not stdout)."""
+    _file_logger.debug(msg)
 
 
 def log_json(event_type, data):
     """Log a structured JSON event to stdout."""
     if _json_output:
         print(json.dumps({"event": event_type, **data}), flush=True)
+    _file_logger.debug("JSON event: %s %s", event_type, json.dumps(data)[:200])
 
 
 def board_summary(board):
@@ -660,6 +694,7 @@ def _load_env():
 
 def _call_openai(model_id, messages):
     """Call OpenAI chat completions API."""
+    log_debug(f"Calling OpenAI: model={model_id}, messages={len(messages)}")
     api_key = os.environ.get('OPENAI_API_KEY', '')
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")
@@ -677,6 +712,7 @@ def _call_openai(model_id, messages):
 
 def _call_anthropic(model_id, messages):
     """Call Anthropic messages API."""
+    log_debug(f"Calling Anthropic: model={model_id}, messages={len(messages)}")
     api_key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not api_key:
         raise RuntimeError("ANTHROPIC_API_KEY not set")
@@ -905,8 +941,10 @@ def game_loop(args, board, etag, sync):
     current_round = board.get('round_number', 1)
     round_history = []  # [{round, scores, winner}, ...]
 
+    log_debug(f"Entering game_loop, max_turns={args.max_turns}")
     while turn < args.max_turns:
         stage, board, etag = fetch(args.game_url)
+        log_debug(f"Loop iteration: turn={turn}, stage={stage}")
 
         if stage in ('GameOver', 'DisplayWinner'):
             g1 = board['players']['PLAYER.ONE']['gems']
@@ -981,10 +1019,13 @@ def game_loop(args, board, etag, sync):
         plab = f"P{pnum} ({faction})"
 
         # --- Pause checkpoint ---
+        log_debug(f"Pause checkpoint: turn={turn}, player={cur}, auto_pause={_auto_pause}")
         _write_status(board, cur, turn)
         if _auto_pause:
+            log_debug("Auto-pausing, waiting for SIGUSR1...")
             _pause_event.clear()  # re-pause after each turn
         _pause_event.wait()  # blocks until unpaused
+        log_debug(f"Unpaused, proceeding with turn {turn}")
 
         # --- Check for commander orders ---
         order_text = _read_orders(pnum)
@@ -1017,9 +1058,11 @@ def game_loop(args, board, etag, sync):
 
         ok = False
         for attempt in range(3):
+            log_debug(f"LLM call attempt {attempt+1}/3 for {plab}")
             content, lat = call_llm(
                 args.ollama_url, args.model, pnum,
                 state_json if attempt == 0 else json.dumps(state))
+            log_debug(f"LLM response received: latency={lat:.1f}s, len={len(content) if content else 0}")
             try:
                 cleaned = content.strip()
                 if cleaned.startswith('```'):
@@ -1036,21 +1079,28 @@ def game_loop(args, board, etag, sync):
                 continue
 
             # Drain stale announcements, then execute
+            act = action.get('action', '?')
+            card_name = action.get('card_name', '')
+            reasoning = action.get('reasoning', '')
+            log_debug(f"Parsed action: {act} {card_name}")
             sync.drain()
+            log_debug("Executing action...")
             valid, msg = execute(board, cur, action, sync=sync,
                                              game_url=args.game_url)
-            reasoning = action.get('reasoning', '')
-            card_name = action.get('card_name', '')
-            act = action.get('action', '?')
+            log_debug(f"Execute result: valid={valid}, msg={msg}")
 
             if valid:
                 ok = True
                 turn += 1
                 # 1. Confirm state changed (turn advanced or stage changed)
+                log_debug("Waiting for turn advance...")
                 stage, board, etag = wait_for_turn_advance(
                     args.game_url, etag, cur)
+                log_debug(f"Turn advanced: stage={stage}")
                 # 2. Wait for ALL queued announcements to finish playing
+                log_debug("Waiting for announcements...")
                 sync.wait_all()
+                log_debug("Announcements done")
                 # 3. Fetch final state for accurate scores
                 stage, board, etag = fetch(args.game_url)
                 if board and 'scores' in board:
@@ -1118,17 +1168,24 @@ def main():
                         help='Run continuously without pausing between turns')
     args = parser.parse_args()
 
+    log_debug(f"=== game-loop.py starting === PID={os.getpid()}")
+    log_debug(f"Args: model={args.model}, fresh={args.fresh}, no_pause={args.no_pause}, game_url={args.game_url}")
+
     global _json_output
     _json_output = args.json
 
     global _auto_pause
     if args.no_pause:
         _auto_pause = False
+        log_debug("Auto-pause disabled (--no-pause)")
     else:
         _pause_event.clear()  # default: start paused
+        log_debug("Starting PAUSED — waiting for SIGUSR1 to begin first turn")
 
     # Load .env for API keys
     _load_env()
+    log_debug(f"ANTHROPIC_API_KEY set: {'yes' if os.environ.get('ANTHROPIC_API_KEY') else 'NO'}")
+    log_debug(f"OPENAI_API_KEY set: {'yes' if os.environ.get('OPENAI_API_KEY') else 'NO'}")
 
     # 1. Check model availability
     provider, model_id = _provider(args.model)
@@ -1195,4 +1252,8 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main() or 0)
+    try:
+        sys.exit(main() or 0)
+    except Exception as e:
+        _file_logger.exception("game-loop.py crashed: %s", e)
+        raise

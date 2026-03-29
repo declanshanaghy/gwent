@@ -116,9 +116,74 @@ After each turn, the script writes `/tmp/llm-vs-status.json`:
 
 Read the script's stdout for the turn summary, board state, and reasoning.
 
-### 3. Present AskUserQuestion
+Then fetch the **full game state** for the rich summary:
+```bash
+curl -s http://localhost:8080/state | /home/dshanaghy/gwent-venv/bin/python3 -c "
+import json, sys
+s = json.load(sys.stdin)
+b = s['state']['board']
+print(json.dumps({
+    'factions': b.get('factions'),
+    'leaders': {p: v.get('name') for p, v in b.get('leaders', {}).items()},
+    'hand_sizes': {p: len(v) for p, v in b.get('hands', {}).items()},
+    'deck_sizes': {p: len(v) for p, v in b.get('decks', {}).items()},
+    'scores': b.get('scores'),
+    'weather': b.get('weather_rows', []),
+    'horns': b.get('commander_horn_rows', {}),
+    'current_player': b.get('current_player'),
+    'round': b.get('round_number'),
+}, indent=2))
+"
+```
 
-After each turn completes, use **AskUserQuestion** with these options:
+Use this data to render the rich game state summary (see step 3).
+
+### 3. Present game state summary and AskUserQuestion
+
+After each turn completes, fetch the full game state from `curl -s http://localhost:8080/state` and present a rich, emoji-laden markdown summary **before** the AskUserQuestion. Use this template:
+
+```
+## ⚔️ Round {round} — Turn {turn}
+
+### 🏰 {P1 Faction Emoji} {P1 Faction} vs {P2 Faction Emoji} {P2 Faction}
+
+| | {P1 Faction Emoji} {P1 Faction} | {P2 Faction Emoji} {P2 Faction} |
+|---|---|---|
+| 👑 Leader | {P1 leader name} | {P2 leader name} |
+| 🃏 Hand | {P1 hand size} cards | {P2 hand size} cards |
+| 📚 Deck | {P1 deck size} remaining | {P2 deck size} remaining |
+
+### 📊 Scoreboard
+
+| Row | {P1 Faction Emoji} {P1 Faction} | {P2 Faction Emoji} {P2 Faction} |
+|---|---|---|
+| ⚔️ Close | {p1_close} | {p2_close} |
+| 🏹 Ranged | {p1_ranged} | {p2_ranged} |
+| 🔥 Siege | {p1_siege} | {p2_siege} |
+| **🏆 Total** | **{p1_total}** | **{p2_total}** |
+
+{weather_line}
+{horn_line}
+
+### 🎯 Next up: {Current Player Faction Emoji} {Current Player Faction}
+```
+
+**Faction emojis:**
+| Faction | Emoji |
+|---------|-------|
+| Monsters | 👹 |
+| Nilfgaardian | 🦅 |
+| Northern Realms | 🏰 |
+| Scoia'tael | 🌿 |
+| Skellige | ⚓ |
+
+**Conditional lines:**
+- `{weather_line}`: If `weather_rows` is non-empty, show `🌨️ **Weather:** {comma-separated weather effects}`. Omit if empty.
+- `{horn_line}`: If any player has commander horns, show `📯 **Commander Horns:** {details}`. Omit if empty.
+- Show score cells with leading emoji when non-zero: e.g. `⚔️ 27` vs just `0`
+- If a player is winning, add 👑 next to their total
+
+After the summary, present **AskUserQuestion** with these options:
 
 - **"Continue"** — resume for one turn, then pause again
 - **"Run uninterrupted"** — disable auto-pause, let agents play freely until game ends (sends SIGUSR2)
