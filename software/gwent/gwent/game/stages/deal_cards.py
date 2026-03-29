@@ -222,7 +222,8 @@ class DealCards(gwent.game.stages.base.GameStage):
             )
 
         # Announce and auto-progress to next stage
-        self._publish_prompt_then(summary, self._auto_complete)
+        p1_faction = p1_leader.faction if p1_leader else self._player1_deck[0].faction
+        self._publish_prompt_then(summary, self._auto_complete, faction=p1_faction)
 
     def _apply_extra_draw(self, deck, hand, player):
         """If this player's leader has extra_draw, draw additional cards from deck."""

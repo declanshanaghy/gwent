@@ -39,7 +39,7 @@ def _get_provider():
         _provider = get_provider(name)
         log.info("TTS provider: %s", name)
     except Exception as e:
-        log.debug("TTS provider unavailable: %s", e)
+        log.warning("TTS provider unavailable: %s", e)
         _provider = False  # sentinel: tried and failed
     return _provider
 
@@ -59,14 +59,6 @@ def _speak_sync(text: str, faction: str | None = None):
     if not provider:
         return
 
-    os.makedirs(_CACHE_DIR, exist_ok=True)
-
-    # Generate a cache key from text + faction
-    import hashlib
-    key = hashlib.md5(f"{faction}:{text}".encode()).hexdigest()
-    ext = ".wav" if provider.native_wav else ".mp3"
-    cached = os.path.join(_CACHE_DIR, f"{key}{ext}")
-
     with _lock:
         # Stop any in-progress playback
         if _player_proc and _player_proc.poll() is None:
@@ -77,11 +69,22 @@ def _speak_sync(text: str, faction: str | None = None):
                 _player_proc.kill()
 
         try:
-            # Synthesize if not cached
+            # Fast path: provider can speak directly (e.g. macOS say)
+            if getattr(provider, 'can_speak_direct', False):
+                _player_proc = provider.speak_direct(text, faction)
+                _player_proc.wait()
+                return
+
+            # File-based path: synthesize then play
+            os.makedirs(_CACHE_DIR, exist_ok=True)
+            import hashlib
+            key = hashlib.md5(f"{faction}:{text}".encode()).hexdigest()
+            ext = ".wav" if provider.native_wav else ".mp3"
+            cached = os.path.join(_CACHE_DIR, f"{key}{ext}")
+
             if not os.path.exists(cached):
                 provider.synthesize(text, faction, cached)
 
-            # Play the audio
             _player_proc = _play_audio(cached)
             if _player_proc:
                 _player_proc.wait()

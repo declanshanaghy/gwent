@@ -29,15 +29,18 @@ DEFAULT_VOICE = "Daniel"
 
 class SayProvider(TTSProvider):
     native_wav = True
+    can_speak_direct = True  # can speak without file synthesis
+
+    def _voice_for(self, faction: str | None) -> str:
+        if faction:
+            return FACTION_VOICE.get(faction, DEFAULT_VOICE)
+        return DEFAULT_VOICE
 
     def synthesize(self, text: str, faction: str | None, dest: str) -> None:
-        voice = (
-            FACTION_VOICE.get(faction, DEFAULT_VOICE)
-            if faction else DEFAULT_VOICE
-        )
-
+        voice = self._voice_for(faction)
         result = subprocess.run(
-            ["say", "-v", voice, "-r", "180", "-o", dest, "--data-format=LEI16@22050"],
+            ["say", "-v", voice, "-r", "180", "-o", dest,
+             "--file-format=WAVE", "--data-format=LEI16@22050"],
             input=text,
             text=True,
             stdout=subprocess.DEVNULL,
@@ -45,3 +48,12 @@ class SayProvider(TTSProvider):
         )
         if result.returncode != 0:
             raise RuntimeError(f"say failed (rc={result.returncode})")
+
+    def speak_direct(self, text: str, faction: str | None = None) -> subprocess.Popen:
+        """Speak directly without writing to a file. Returns the process."""
+        voice = self._voice_for(faction)
+        return subprocess.Popen(
+            ["say", "-v", voice, "-r", "180", text],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
