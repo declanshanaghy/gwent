@@ -13,6 +13,7 @@
       "type": "string",
       "enum": [
         "add_to_deck",
+        "deal_leader",
         "deal_to_hand",
         "update_score",
         "update_gems"

@@ -119,10 +119,12 @@ class GwentTUI(App):
         elif self._current_stage_name == "Offline":
             # Recovered — refresh will pick up the real stage
             await self._refresh_all()
-        # Always refresh timers and footer (elapsed time ticks every second)
+        # Refresh all Static widgets so MQTT-driven updates (dealt cards,
+        # announcements, etc.) appear without waiting for an HTTP snapshot.
         try:
-            for widget_id in ("#timers", "#footer"):
-                self.query_one(widget_id).refresh()
+            await self._switch_stage(self.state.stage)
+            for widget in self.query("Static"):
+                widget.refresh()
         except Exception:
             pass
 

@@ -183,8 +183,27 @@ class DealCards(gwent.game.stages.base.GameStage):
             'player2_hand': [c.name for c in self._player2_hand],
         })
 
-        # Publish deals to players
-        self._publish_all_deals()
+        # Publish leaders first
+        self._publish_leader(PLAYER.ONE, self._player1_deck)
+        self._publish_leader(PLAYER.TWO, self._player2_deck)
+
+        # Publish hand cards interleaved (P1, P2, P1, P2, ...)
+        from itertools import zip_longest
+        for c1, c2 in zip_longest(self._player1_hand, self._player2_hand):
+            if c1:
+                self._publish_deal_to_player(PLAYER.ONE, c1)
+            if c2:
+                self._publish_deal_to_player(PLAYER.TWO, c2)
+
+        # Publish remaining deck cards
+        dealt_rfids_1 = {c.rfid for c in self._player1_hand}
+        dealt_rfids_2 = {c.rfid for c in self._player2_hand}
+        for card in self._player1_deck:
+            if not card.is_leader and card.rfid not in dealt_rfids_1:
+                self._publish_deck_card(PLAYER.ONE, card)
+        for card in self._player2_deck:
+            if not card.is_leader and card.rfid not in dealt_rfids_2:
+                self._publish_deck_card(PLAYER.TWO, card)
 
         # Build summary from templates
         p1_leader = next((c for c in self._player1_deck if c.is_leader), None)
@@ -269,9 +288,18 @@ class DealCards(gwent.game.stages.base.GameStage):
         topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
         self.publish(topic, msg)
 
-    def _publish_all_deals(self):
-        """Publish deal_to_hand messages for all dealt cards."""
-        for card in self._player1_hand:
-            self._publish_deal_to_player(PLAYER.ONE, card)
-        for card in self._player2_hand:
-            self._publish_deal_to_player(PLAYER.TWO, card)
+    def _publish_leader(self, player: PLAYER, deck):
+        """Publish the leader card for a player."""
+        leader = next((c for c in deck if c.is_leader), None)
+        if leader:
+            self._log.info(f"Publishing leader {leader.name} for {player}")
+            msg = gwent.messaging.card_play.Message.with_deal_leader(str(player), leader)
+            topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
+            self.publish(topic, msg)
+
+    def _publish_deck_card(self, player: PLAYER, card: gwent.messaging.card.Message):
+        """Publish an add_to_deck message for a remaining deck card."""
+        msg = gwent.messaging.card_play.Message.with_add_to_deck(str(player), card)
+        topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
+        self.publish(topic, msg)
+

@@ -359,6 +359,10 @@ class GameState:
             if active and stage:
                 if stage == "DealCards":
                     self.dealt_cards = {P1: [], P2: []}
+                    self.reg_leader1 = None
+                    self.reg_leader2 = None
+                    self.reg_deck1 = []
+                    self.reg_deck2 = []
                 self.stage = stage
                 self.event_log.append(f"\U0001f3ad Stage: {stage}")
 
@@ -386,15 +390,28 @@ class GameState:
                 )
 
     def on_card_play(self, player_suffix, data):
-        """Handle gwent/cards/play/{player} — tracks dealt cards."""
+        """Handle gwent/cards/play/{player} — tracks leaders, dealt cards, deck."""
         with self.lock:
             p = _normalize_player(player_suffix)
             subkind = data.get("subkind", "")
             card = data.get("card", {})
-            if subkind == "deal_to_hand" and card:
+            if not card:
+                return
+            name = card.get("name", "???")
+            if subkind == "deal_leader":
+                if p == P1:
+                    self.reg_leader1 = card
+                else:
+                    self.reg_leader2 = card
+                self.event_log.append(f"\U0001f451 Leader: {name} \u2192 {p}")
+            elif subkind == "deal_to_hand":
                 self.dealt_cards[p].append(card)
-                name = card.get("name", "???")
                 self.event_log.append(f"\U0001f0cf {name} \u2192 {p}")
+            elif subkind == "add_to_deck":
+                if p == P1:
+                    self.reg_deck1.append(card)
+                else:
+                    self.reg_deck2.append(card)
 
     def on_raw_read(self, data):
         """Handle gwent/cards/raw/read."""

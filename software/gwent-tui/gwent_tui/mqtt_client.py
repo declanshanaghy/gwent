@@ -5,6 +5,8 @@ import logging
 
 import paho.mqtt.client as mqtt
 
+from gwent_tui import tts
+
 log = logging.getLogger("gwent_tui.mqtt")
 
 
@@ -49,6 +51,7 @@ class MqttSubscriber:
 
     def disconnect(self):
         """Stop loop and disconnect."""
+        tts.stop()
         self.client.loop_stop()
         self.client.disconnect()
 
@@ -84,6 +87,8 @@ class MqttSubscriber:
 
         elif topic == "gwent/sfx":
             self.state.on_sfx(data)
+            if data.get("subkind") == "announcement":
+                tts.speak(data.get("announcement", ""))
 
         elif topic == "gwent/cards/raw/read":
             self.state.on_raw_read(data)

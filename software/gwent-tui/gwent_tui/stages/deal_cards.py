@@ -3,7 +3,7 @@
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
-from textual.containers import Vertical
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display, leader_display, faction_emoji
@@ -11,6 +11,22 @@ from gwent_tui.game_state import P1, P2
 
 
 class DealCardsWidget(Static):
+
+    def _get_leader(self, player, state):
+        """Get leader from registration data, board leaders, or deck."""
+        if player == P1:
+            leader = state.reg_leader1 or state.leaders.get(P1)
+            deck = state.reg_deck1
+        else:
+            leader = state.reg_leader2 or state.leaders.get(P2)
+            deck = state.reg_deck2
+        if not leader and deck:
+            leader = next((c for c in deck if c.get("leader")), None)
+        return leader
+
+    def _get_deck(self, player, state):
+        """Get the full deck from registration data."""
+        return state.reg_deck1 if player == P1 else state.reg_deck2
 
     def render(self):
         state = self.app.state
@@ -54,7 +70,7 @@ class DealCardsWidget(Static):
         )
 
     def _player_title(self, player, state):
-        leader = state.reg_leader1 if player == P1 else state.reg_leader2
+        leader = self._get_leader(player, state)
         label = "P1" if player == P1 else "P2"
         if leader:
             faction = leader.get("faction", "")
@@ -66,11 +82,11 @@ class DealCardsWidget(Static):
         lines = []
 
         # Leader
-        leader = state.reg_leader1 if player == P1 else state.reg_leader2
+        leader = self._get_leader(player, state)
         if leader:
             lines.append(leader_display(leader, max_name=50))
         else:
-            lines.append("[dim]No leader[/dim]")
+            lines.append("[dim]Waiting for leader...[/dim]")
 
         # Dealt cards (real-time from MQTT)
         dealt = state.dealt_cards.get(player, [])
@@ -81,12 +97,27 @@ class DealCardsWidget(Static):
         else:
             lines.append("[dim]Waiting for cards...[/dim]")
 
+        # Remaining deck cards (from HTTP snapshot)
+        deck = self._get_deck(player, state)
+        if deck:
+            dealt_names = {c.get("name") for c in dealt}
+            remaining = [c for c in deck
+                         if not c.get("leader")
+                         and c.get("name") not in dealt_names]
+            if remaining:
+                lines.append("")
+                lines.append(
+                    f"[dim]\u2500\u2500 Deck ({len(remaining)} remaining) \u2500\u2500[/dim]")
+                for i, card in enumerate(remaining, 1):
+                    lines.append(f"  {i}. [dim]{card_display(card, max_name=50)}[/dim]")
+
         return lines
 
 
-class DealCardsStage(Vertical):
+class DealCardsStage(VerticalScroll):
     DEFAULT_CSS = """
     DealCardsStage { height: 1fr; }
+    DealCardsStage #deal-cards-content { height: 1fr; min-height: 100%; }
     """
 
     def compose(self):

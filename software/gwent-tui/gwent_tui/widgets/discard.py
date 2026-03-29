@@ -32,28 +32,35 @@ class _DiscardContent(Static):
         table.add_column(ratio=1)
         table.add_column(ratio=1)
 
-        if not p1_disc and not p2_disc:
-            table.add_row("[dim]Empty[/dim]", "[dim]Empty[/dim]")
-        else:
-            p1_cards = []
-            for c in p1_disc:
-                text = card_display(c)
-                if state.is_highlighted(f"discard:{P1}:{c.get('name', '')}"):
-                    text = f"[on dark_green]{text}[/on dark_green]"
-                p1_cards.append(text)
-            p2_cards = []
-            for c in p2_disc:
-                text = card_display(c)
-                if state.is_highlighted(f"discard:{P2}:{c.get('name', '')}"):
-                    text = f"[on dark_green]{text}[/on dark_green]"
-                p2_cards.append(text)
+        p1_cards = []
+        for c in p1_disc:
+            text = card_display(c)
+            if state.is_highlighted(f"discard:{P1}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p1_cards.append(text)
+        p2_cards = []
+        for c in p2_disc:
+            text = card_display(c)
+            if state.is_highlighted(f"discard:{P2}:{c.get('name', '')}"):
+                text = f"[on dark_green]{text}[/on dark_green]"
+            p2_cards.append(text)
 
-            max_len = max(len(p1_cards), len(p2_cards), 1)
-            p1_cards.extend([""] * (max_len - len(p1_cards)))
-            p2_cards.extend([""] * (max_len - len(p2_cards)))
+        if not p1_cards:
+            p1_cards.append("[dim]Empty[/dim]")
+        if not p2_cards:
+            p2_cards.append("[dim]Empty[/dim]")
 
-            for p1, p2 in zip(p1_cards, p2_cards):
-                table.add_row(p1, p2)
+        # Pad to fill available height so the vertical separator runs full height
+        # Panel border = 2, approximate available lines
+        try:
+            min_rows = max(self.size.height - 3, len(p1_cards), len(p2_cards), 1)
+        except Exception:
+            min_rows = max(len(p1_cards), len(p2_cards), 1)
+        p1_cards.extend([""] * (min_rows - len(p1_cards)))
+        p2_cards.extend([""] * (min_rows - len(p2_cards)))
+
+        for p1, p2 in zip(p1_cards, p2_cards):
+            table.add_row(p1, p2)
 
         return Panel(table, title=f"\U0001f5d1 Discard ({len(p1_disc)} | {len(p2_disc)})")
 
