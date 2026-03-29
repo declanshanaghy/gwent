@@ -55,8 +55,6 @@ Generate a comprehensive Markdown report (without using a script) analyzing the 
   - The following tables all cards showing Name, Faction, Owner, RFID
     - Cards that have an owner but no RFID
     - Cards that have an RFID but no owner
-    - Cards that have (the owner or rfid set) and (starter is true and leader is false)
-      - Title this one: Misconfigured starter cards
 -->
 ```
 
@@ -94,8 +92,4 @@ For each faction, create:
 Three tables, each with columns Name, Faction, Owner, RFID:
 1. **Cards with Owner but No RFID**
 2. **Cards with RFID but No Owner**
-3. **Misconfigured Starter Cards** — cards where (owner or rfid is set) AND (starter is true AND the card is not a leader)
-
-### Cross-referencing
-
-In the Section 4 faction tables, any card that appears in the "Misconfigured Starter Cards" anomaly table should have its name linked to the anomalies section using a markdown anchor: `[Card Name](#misconfigured-starter-cards)`. This makes it easy to identify misconfigured cards while browsing faction tables.
+3. **Misconfigured Starter Cards** — starter cards that have owner set (including leaders)
