@@ -19,6 +19,7 @@ TOPICS = [
     ("gwent/sfx", 0),
     ("gwent/sfx/complete", 0),
     ("gwent/cards/raw/read", 0),
+    ("gwent/cards/play/+", 0),
 ]
 
 
@@ -86,5 +87,9 @@ class MqttSubscriber:
 
         elif topic == "gwent/cards/raw/read":
             self.state.on_raw_read(data)
+
+        elif topic.startswith("gwent/cards/play/"):
+            player_suffix = topic.rsplit("/", 1)[-1]
+            self.state.on_card_play(player_suffix, data)
 
         self.state.mqtt_status = "polling"

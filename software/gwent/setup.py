@@ -65,7 +65,7 @@ setuptools.setup(
         'pygame>=2.1.2',
         'gTTS>=2.2.4',
         'pydub>=0.24.0',
-        'audioop-lts>=0.2.1',  # Required for pydub on Python 3.13+ (audioop removed from stdlib)
+        'audioop-lts>=0.2.1; python_version>="3.13"',  # Required for pydub on Python 3.13+ (audioop removed from stdlib)
         
         # Utility libraries
         'jsonschema>=3.2.0',

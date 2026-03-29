@@ -248,16 +248,19 @@ def main():
     _configure_logging()
 
     parser = argparse.ArgumentParser(description="Gwent TUI — live game dashboard")
-    parser.add_argument("--host", default="localhost", help="MQTT broker host")
+    parser.add_argument("--host", default="localhost",
+                        help="Gwent server hostname (used for both MQTT and HTTP)")
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
     parser.add_argument("--no-snapshot", action="store_true")
-    parser.add_argument("--gwent-url", default=DEFAULT_GWENT_URL)
+    parser.add_argument("--gwent-url", default=None,
+                        help="Override HTTP state URL (default: http://<host>:8080/state)")
     args = parser.parse_args()
 
-    snapshot_mod.gwent_state_url = args.gwent_url
+    gwent_url = args.gwent_url or f"http://{args.host}:8080/state"
+    snapshot_mod.gwent_state_url = gwent_url
 
     app = GwentTUI(
-        gwent_url=args.gwent_url,
+        gwent_url=gwent_url,
         mqtt_host=args.host,
         mqtt_port=args.port,
         no_snapshot=args.no_snapshot,

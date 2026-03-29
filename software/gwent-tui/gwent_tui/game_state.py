@@ -70,6 +70,9 @@ class GameState:
         self.reg_deck1 = []
         self.reg_deck2 = []
 
+        # Deal tracking (cards dealt in real-time via MQTT)
+        self.dealt_cards = {P1: [], P2: []}
+
         # Event log (recent events for footer)
         self.last_prompt = ""
         self.last_error = ""
@@ -354,6 +357,8 @@ class GameState:
             stage = data.get("stage", "")
             active = data.get("active", True)
             if active and stage:
+                if stage == "DealCards":
+                    self.dealt_cards = {P1: [], P2: []}
                 self.stage = stage
                 self.event_log.append(f"\U0001f3ad Stage: {stage}")
 
@@ -379,6 +384,17 @@ class GameState:
                 self.event_log.append(
                     f"\U0001f4e2 {self.last_announcement}"
                 )
+
+    def on_card_play(self, player_suffix, data):
+        """Handle gwent/cards/play/{player} — tracks dealt cards."""
+        with self.lock:
+            p = _normalize_player(player_suffix)
+            subkind = data.get("subkind", "")
+            card = data.get("card", {})
+            if subkind == "deal_to_hand" and card:
+                self.dealt_cards[p].append(card)
+                name = card.get("name", "???")
+                self.event_log.append(f"\U0001f0cf {name} \u2192 {p}")
 
     def on_raw_read(self, data):
         """Handle gwent/cards/raw/read."""
