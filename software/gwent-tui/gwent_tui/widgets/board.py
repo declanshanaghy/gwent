@@ -105,7 +105,7 @@ class _BoardRows(Static):
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
                     row_score=0, weather_active=False, player=None,
-                    min_lines=0):
+                    min_lines=0, max_lines=0):
         rc = ROW_COLOR.get(row_name, "white")
         horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
         header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag}  {ZAP} {row_score}[/bold {rc}]"
@@ -122,6 +122,11 @@ class _BoardRows(Static):
                 lines.append(f"  [on dark_green]{text}[/on dark_green]")
             else:
                 lines.append(f"  {text}")
+        # Truncate to max_lines so rows don't push others off screen
+        if max_lines and len(lines) > max_lines:
+            hidden = len(lines) - max_lines + 1
+            lines = lines[:max_lines - 1]
+            lines.append(f"  [dim]… +{hidden} more[/dim]")
         # Pad to min_lines so rows fill evenly
         while len(lines) < min_lines:
             lines.append("")
@@ -130,14 +135,14 @@ class _BoardRows(Static):
     def render(self):
         state = self.app.state
 
-        # Calculate min lines per row to fill board evenly
-        # Overhead: panel border (2) + 2 row separators (2) + footer row (1)
-        #         + top/bottom padding on each of 4 rows (0) = ~5 lines
+        # Calculate fixed lines per row so all 3 combat rows always fit.
+        # Overhead: panel border (2) + 3 row separators (3) + leader footer (2) = 7
+        # Be conservative with -8 to avoid any clipping.
         try:
-            avail = self.size.height - 7
+            avail = self.size.height - 8
         except Exception:
-            avail = 18
-        row_height = max(2, min(avail // 3, 12))
+            avail = 15
+        row_height = max(2, avail // 3)
 
         table = Table(
             box=SPLIT_BOX,
@@ -166,10 +171,12 @@ class _BoardRows(Static):
 
             p1_text = self._format_row(p1_cards, row_name, re, weather_tag, p1_horn,
                                        p1_row_score, weather_active=weather_active,
-                                       player=P1, min_lines=row_height)
+                                       player=P1, min_lines=row_height,
+                                       max_lines=row_height)
             p2_text = self._format_row(p2_cards, row_name, re, weather_tag, p2_horn,
                                        p2_row_score, weather_active=weather_active,
-                                       player=P2, min_lines=row_height)
+                                       player=P2, min_lines=row_height,
+                                       max_lines=row_height)
 
             table.add_row(p1_text, p2_text)
 

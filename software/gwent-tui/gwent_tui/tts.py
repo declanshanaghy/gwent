@@ -16,6 +16,7 @@ log = logging.getLogger("gwent_tui.tts")
 _lock = threading.Lock()
 _provider = None
 _provider_name: str | None = None  # set via init() from CLI --tts flag
+_provider_error: str | None = None  # error message if provider init failed
 _player_proc: subprocess.Popen | None = None
 
 # Cache dir for synthesized audio
@@ -29,17 +30,26 @@ def init(provider_name: str | None = None):
 
 
 def _get_provider():
-    """Lazy-init the TTS provider."""
-    global _provider
+    """Lazy-init the TTS provider.
+
+    If the user explicitly requested a provider via --tts, failures are fatal.
+    Auto-detected providers fail gracefully to "off".
+    """
+    global _provider, _provider_error
     if _provider is not None:
         return _provider
     try:
         from gwent_shared.tts import LOCAL_PROVIDER, get_provider
         name = _provider_name or LOCAL_PROVIDER
         _provider = get_provider(name)
+        _provider_error = None
         log.info("TTS provider: %s", name)
     except Exception as e:
+        if _provider_name:
+            # User explicitly requested this provider — fail hard
+            raise SystemExit(f"TTS provider '{_provider_name}' failed: {e}")
         log.warning("TTS provider unavailable: %s", e)
+        _provider_error = str(e)
         _provider = False  # sentinel: tried and failed
     return _provider
 

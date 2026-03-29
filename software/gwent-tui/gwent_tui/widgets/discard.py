@@ -50,14 +50,24 @@ class _DiscardContent(Static):
         if not p2_cards:
             p2_cards.append("[dim]Empty[/dim]")
 
-        # Pad to fill available height so the vertical separator runs full height
-        # Panel border = 2, approximate available lines
+        # Pad to fill available height so the vertical separator runs full height,
+        # but cap so content never overflows past the panel border.
+        # Panel border = 2, table top/bottom padding = 1 → 3 lines of overhead
         try:
-            min_rows = max(self.size.height - 3, len(p1_cards), len(p2_cards), 1)
+            max_rows = max(self.size.height - 3, 1)
         except Exception:
-            min_rows = max(len(p1_cards), len(p2_cards), 1)
-        p1_cards.extend([""] * (min_rows - len(p1_cards)))
-        p2_cards.extend([""] * (min_rows - len(p2_cards)))
+            max_rows = max(len(p1_cards), len(p2_cards), 1)
+        target = max(min(max_rows, max(len(p1_cards), len(p2_cards))), 1)
+        # Pad shorter column
+        p1_cards.extend([""] * (target - len(p1_cards)))
+        p2_cards.extend([""] * (target - len(p2_cards)))
+        # Truncate if content exceeds available space
+        if len(p1_cards) > max_rows:
+            p1_hidden = len(p1_cards) - max_rows + 1
+            p1_cards = p1_cards[:max_rows - 1] + [f"[dim]… +{p1_hidden} more[/dim]"]
+        if len(p2_cards) > max_rows:
+            p2_hidden = len(p2_cards) - max_rows + 1
+            p2_cards = p2_cards[:max_rows - 1] + [f"[dim]… +{p2_hidden} more[/dim]"]
 
         for p1, p2 in zip(p1_cards, p2_cards):
             table.add_row(p1, p2)
