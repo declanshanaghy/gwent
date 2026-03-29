@@ -261,7 +261,7 @@ def explore_piper(tmpdir: str):
 
 def explore_provider(provider_name: str, tmpdir: str):
     """Test a provider with each Gwent faction voice."""
-    from gwent.hal.tts import get_provider
+    from gwent_shared.tts import get_provider
     provider = get_provider(provider_name)
 
     print(f"Exploring {provider_name} provider — {len(FACTIONS)} faction voices\n")
@@ -279,8 +279,8 @@ def explore_provider(provider_name: str, tmpdir: str):
 
 def show_mapping(provider_name: str):
     """Print the current faction→voice mapping for a provider."""
-    from gwent.hal.tts import piper_provider, say_provider
-    from gwent.hal.tts import elevenlabs_provider, openai_provider, gtts_provider
+    from gwent_shared.tts import piper_provider, say_provider
+    from gwent_shared.tts import elevenlabs_provider, openai_provider, gtts_provider
 
     maps = {
         "piper": (piper_provider.FACTION_VOICE, piper_provider.DEFAULT_VOICE),

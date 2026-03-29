@@ -1,6 +1,6 @@
 """Text-to-speech for TUI announcements.
 
-Uses the shared gwent TTS provider system (gwent.hal.tts).
+Uses the shared gwent_shared TTS provider system.
 On macOS uses the `say` provider, on Linux uses `piper`.
 Falls back to no-op if provider is unavailable.
 """
@@ -34,7 +34,7 @@ def _get_provider():
     if _provider is not None:
         return _provider
     try:
-        from gwent.hal.tts import LOCAL_PROVIDER, get_provider
+        from gwent_shared.tts import LOCAL_PROVIDER, get_provider
         name = _provider_name or LOCAL_PROVIDER
         _provider = get_provider(name)
         log.info("TTS provider: %s", name)

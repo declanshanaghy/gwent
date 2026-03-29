@@ -40,6 +40,7 @@ setuptools.setup(
     },
     install_requires=[
         # Core dependencies
+        'gwent-shared',
         'paho-mqtt>=2.1.0',
         'gpiozero>=1.6.2',
         'lgpio>=0.1.0',  # Required for LGPIOFactory in gpiozero

@@ -7,6 +7,7 @@ setup(
     packages=find_packages(),
     python_requires=">=3.6",
     install_requires=[
+        "gwent-shared",
         "paho-mqtt>=2.1.0",
         "textual>=0.40.0",
     ],
