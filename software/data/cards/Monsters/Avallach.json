@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Monsters",
+    "name": "Avallac'h",
+    "strength": 0,
+    "ranges": ["close"],
+    "specialty": "hero",
+    "abilities": ["spy"],
+    "owner": "Dylan Shanaghy",
+    "owner_nickname": "dylan",
+    "last_updated": "2026-03-28T16:52:00"
+}
