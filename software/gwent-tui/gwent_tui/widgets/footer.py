@@ -1,6 +1,7 @@
 """Footer widget: event log, prompts, connection status."""
 
 from rich.panel import Panel
+from rich.table import Table
 from rich.text import Text
 from textual.widgets import Static
 
@@ -10,9 +11,21 @@ from gwent_tui import tts as tts_mod
 
 _CONN_ICON = {
     "off":        ("\u26aa", "grey50"),    # white circle
-    "polling":    ("\u2705", "green"),      # check mark
+    "alive":      ("\u2705", "green"),      # check mark
     "processing": ("\u23f3", "yellow"),     # hourglass
     "error":      ("\u274c", "red"),        # red X
+}
+
+# Per-provider display colors
+_TTS_COLOR = {
+    "say":        "bright_cyan",
+    "piper":      "bright_magenta",
+    "gtts":       "bright_yellow",
+    "elevenlabs": "orange1",
+    "openai":     "bright_blue",
+    "off":        "red",
+    "?":          "grey50",
+    "auto":       "grey50",
 }
 
 
@@ -35,12 +48,20 @@ class FooterWidget(Static):
             client_tts = tts_mod._provider_name or type(provider).__name__.replace("Provider", "").lower()
         elif provider is False:
             client_tts = "off"
-        parts.append(
+        s_color = _TTS_COLOR.get(server_tts, "grey50")
+        c_color = _TTS_COLOR.get(client_tts, "grey50")
+        status_left = (
             f"{mqtt_icon} [{mqtt_c}]MQTT {state.mqtt_status}[/{mqtt_c}]  "
             f"{http_icon} [{http_c}]HTTP {state.http_status}[/{http_c}]  "
-            f"\U0001f504 [dim]poll {poll_label}[/dim]  "
-            f"\U0001f50a [dim]S:{server_tts} C:{client_tts}[/dim]"
+            f"\U0001f50a [green]server:[/green][{s_color}]{server_tts}[/{s_color}] "
+            f"[green]client:[/green][{c_color}]{client_tts}[/{c_color}]"
         )
+        status_right = f"\U0001f504 [dim]poll {poll_label}[/dim]"
+        tbl = Table.grid(expand=True)
+        tbl.add_column(ratio=1)
+        tbl.add_column(justify="right")
+        tbl.add_row(Text.from_markup(status_left), Text.from_markup(status_right))
+        parts.append(tbl)
 
         if state.last_prompt:
             parts.append(f"\U0001f4df {state.last_prompt}")
@@ -60,5 +81,11 @@ class FooterWidget(Static):
         if not parts:
             parts.append("[dim]Waiting for events...[/dim]")
 
-        content = "\n".join(parts)
-        return Panel(Text.from_markup(content), title="Events", style="dim")
+        from rich.console import Group
+        renderables = []
+        for p in parts:
+            if isinstance(p, str):
+                renderables.append(Text.from_markup(p))
+            else:
+                renderables.append(p)
+        return Panel(Group(*renderables), title="Events", style="dim")

@@ -57,7 +57,7 @@ class MqttSubscriber:
 
     def _on_connect(self, client, userdata, flags, reason_code, properties=None):
         log.info("MQTT connected (rc=%s)", reason_code)
-        self.state.mqtt_status = "polling"
+        self.state.mqtt_status = "alive"
         client.subscribe(TOPICS)
         self.state.event_log.append("MQTT connected")
 
@@ -98,4 +98,4 @@ class MqttSubscriber:
             player_suffix = topic.rsplit("/", 1)[-1]
             self.state.on_card_play(player_suffix, data)
 
-        self.state.mqtt_status = "polling"
+        self.state.mqtt_status = "alive"
