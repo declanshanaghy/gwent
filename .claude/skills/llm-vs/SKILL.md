@@ -75,14 +75,17 @@ Orders are wrapped in faction-themed language before injection (e.g., "The Jarl'
 ### Decision tree
 
 1. **Check if game-loop.py is already running**: `pgrep -f game-loop.py`
-2. **If running** and user says "unpause", "continue", "next turn", "just unpause":
+2. **Validate the PID is actually alive**: `kill -0 <pid> 2>/dev/null`
+   - If `pgrep` returns a PID but `kill -0` fails, the process is dead/stale — treat as "not running"
+   - Also validate against `/tmp/llm-vs-status.json` PID if present — if status PID differs from pgrep PID, the status file is stale
+3. **If running** and user says "unpause", "continue", "next turn", "just unpause":
    - Read PID: `pgrep -f game-loop.py` or from `/tmp/llm-vs-status.json`
    - Send `kill -USR1 <pid>` to unpause
    - Do NOT launch a new process
-3. **If NOT running**: launch a new game-loop.py process in background
-4. **Model mapping**: `/llm-vs deepseek-r1:14b` → `--model deepseek-r1:14b`
-5. **Fresh game**: only pass `--fresh` when user says "new game", "fresh", "restart"
-6. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
+4. **If NOT running**: launch a **fresh** game by default (`--fresh` flag). Only skip `--fresh` if the user explicitly says "resume", "continue from where we left off", or similar.
+5. **Model mapping**: `/llm-vs deepseek-r1:14b` → `--model deepseek-r1:14b`
+6. **Fresh game**: `--fresh` is the DEFAULT. Only omit it when user explicitly asks to resume an existing game.
+7. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
 
 ## Turn-by-Turn Orchestration
 
