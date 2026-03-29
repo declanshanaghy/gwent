@@ -24,7 +24,7 @@ The game-loop.py script handles everything: prerequisite checks, game startup, s
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
   --model MODEL \
   [--fresh] \
-  [--pause] \
+  [--no-pause] \
   [--json] \
   [--ollama-url URL] \
   [--game-url URL] \
@@ -52,9 +52,11 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
 
 Without `--fresh`, the script expects the game to already be in PlayRound.
 
-### What `--pause` does
+### Pause behavior (DEFAULT — no flag needed)
 
-The script pauses **after every turn**, writing status to `/tmp/llm-vs-status.json` and blocking until SIGUSR1 is received. This enables turn-by-turn orchestration from the skill.
+The script **pauses by default** — it starts paused and pauses again after every turn, writing status to `/tmp/llm-vs-status.json` and blocking until SIGUSR1 is received. This enables turn-by-turn orchestration from the skill. Use `--no-pause` to disable this.
+
+**IMPORTANT**: The script starts in a paused state. After launching, you MUST send `kill -USR1 <pid>` to begin the first turn.
 
 **Resume methods:**
 - `kill -USR1 <pid>` — resume without orders
@@ -82,23 +84,28 @@ Orders are wrapped in faction-themed language before injection (e.g., "The Jarl'
    - Read PID: `pgrep -f game-loop.py` or from `/tmp/llm-vs-status.json`
    - Send `kill -USR1 <pid>` to unpause
    - Do NOT launch a new process
-4. **If NOT running**: launch a **fresh** game by default (`--fresh` flag). Only skip `--fresh` if the user explicitly says "resume", "continue from where we left off", or similar.
+4. **If NOT running**: check current game state via `curl -s http://localhost:8080/state | python3 -c "import json,sys; print(json.load(sys.stdin).get('active_stage',''))"`:
+   - If stage is `PlayRound` → game is active, launch WITHOUT `--fresh` to join it
+   - If stage is anything else, or server is down → launch WITH `--fresh` to start a new game
 5. **Model mapping**: `/llm-vs deepseek-r1:14b` → `--model deepseek-r1:14b`
-6. **Fresh game**: `--fresh` is the DEFAULT. Only omit it when user explicitly asks to resume an existing game.
+6. **Fresh game**: only pass `--fresh` when user says "new game", "fresh", "restart", OR when the server isn't in PlayRound
 7. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
+8. **IMPORTANT**: After launching, send `kill -USR1 <pid>` to start the first turn (script starts paused)
 
 ## Turn-by-Turn Orchestration
 
-When running with `--pause`, use this loop:
+The script pauses by default (no flag needed). Use this loop:
 
 ### 1. Launch in background
 
 ```bash
+source ~/gwent-venv/bin/activate && \
+source <(grep -v '^#' .env | sed 's/^/export /') && \
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
-  --model MODEL --pause --game-url http://localhost:8080 &
+  --model MODEL [--fresh] --game-url http://localhost:8080 &
 ```
 
-Capture the PID. The script will play the first turn then pause.
+Capture the PID. The script starts **paused** — send `kill -USR1 <pid>` to begin the first turn. After each turn it pauses again.
 
 ### 2. Wait for pause and read status
 
