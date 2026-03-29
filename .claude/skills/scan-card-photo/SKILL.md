@@ -2,7 +2,7 @@
 name: scan-card-photo
 description: Extract Gwent card data from photos and generate JSON files. Use when the user says "scan card", "photo of card", "card photo", "extract card", or provides card images to process.
 user_invocable: true
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Agent
+allowed-tools: Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 ---
 
 Extract Gwent card data from photos of physical cards, match against existing database, and generate missing JSON files.
@@ -71,80 +71,48 @@ If the sidecar exists, the image was already processed. Read it and report:
 
 To **re-process** an already-scanned image, the user can delete the sidecar file or pass `--force`.
 
-### 4. Process unprocessed images in parallel
+### 4. Process each unprocessed image
 
-Split the unprocessed image list into batches and dispatch to **3 parallel Agent workers**. Each agent processes its batch independently and returns structured results.
+Process images **one at a time, sequentially**. Do NOT use sub-agents — they OOM on the Pi.
 
-#### Batch splitting
+For each image:
 
-- **3 agents** in parallel (launch all 3 in a single message with multiple Agent tool calls)
-- Split the file list evenly: if 61 files, agents get ~20 each
-- Each agent runs in the background
+#### 4a. Read the image
 
-#### Agent prompt template
+Use the **Read** tool to view the image. Extract ALL fields from visual content:
 
-Each agent gets this prompt (fill in the file list and owner info):
+| Field | How to identify |
+|-------|----------------|
+| **name** | Text at bottom of card |
+| **faction** | Vertical colored sash on left side: BLUE = Northern Realms, GREEN = Scoia'tael, RED = Monsters, PURPLE = Skellige, GRAY = Nilfgaardian. Crest at bottom of sash confirms. |
+| **strength** | Number in top-left medallion (absent for weather/special/leader) |
+| **ranges** | Sword icon = close, bow = ranged, catapult = siege |
+| **specialty** | Gold border = hero, weather icon = weather, skull = scorch, puppet = decoy, horn = commander, crown = leader, mushroom = mardroeme |
+| **abilities** | Chains = bond, triple arrows = muster, star = morale, eye = spy, cross = medic, bear = berserker, small skull = scorch ability |
 
-```
-You are processing Gwent card photos. For each image file listed below:
+#### 4b. Search for existing match
 
-1. Use the Read tool to view the image
-2. Extract card data from the visual content:
-   - name: text at bottom of card
-   - faction: from VERTICAL COLORED SASH on left side:
-     BLUE = Northern Realms, GREEN = Scoia'tael, RED = Monsters,
-     PURPLE = Skellige, GRAY = Nilfgaardian
-   - strength: number in top-left medallion (omit for weather/special/leader)
-   - ranges: sword icon = close, bow = ranged, catapult = siege
-   - specialty: gold border = hero, weather icon = weather, skull = scorch,
-     puppet = decoy, horn = commander, crown = leader, mushroom = mardroeme
-   - abilities: chains = bond, triple arrows = muster, star = morale,
-     eye = spy, cross = medic, bear = berserker, small skull = scorch ability
-3. Search for existing match: grep -rl '"name".*"CARD_NAME' software/data/cards/
-4. Determine status: NEW, EXISTS (has RFID), EXISTS (no RFID), or MISMATCH
+Use Grep to search `software/data/cards/` for the card name.
 
-Owner for all cards: {owner} / {nickname}
+#### 4c. Determine status
 
-Return a JSON array of results, one per image:
-[
-  {
-    "file": "20260328_152822.jpg",
-    "name": "Zoltan Chivay",
-    "faction": "Northern Realms",
-    "strength": 5,
-    "ranges": ["close"],
-    "abilities": null,
-    "specialty": null,
-    "status": "NEW",
-    "existing_path": null,
-    "notes": ""
-  },
-  ...
-]
+- **NEW** — no matching card in database
+- **EXISTS_COMPLETE** — match found with RFID
+- **EXISTS_NO_RFID** — match found without RFID
+- **MISMATCH** — match found but fields differ
+- **UNCLEAR** — could not read a field (use AskUserQuestion)
 
-Status values:
-- "NEW" — no matching card in database
-- "EXISTS_COMPLETE" — match found with RFID
-- "EXISTS_NO_RFID" — match found without RFID
-- "MISMATCH" — match found but fields differ (include details in notes)
-- "UNCLEAR" — could not read a field (include details in notes)
+#### 4d. Write card JSON + sidecar immediately
 
-If a card with the same base name exists, count copies and assign next number.
-If you can't read something clearly, set status to "UNCLEAR" with notes explaining what's unreadable.
+After extracting and confirming data for each card, write the card JSON file and sidecar file **right away** (don't batch). This way, if the process is interrupted, already-processed cards have sidecars and will be skipped on retry.
 
-DO NOT write any files. Just return the JSON array of extracted data.
+For NEW cards, write the JSON per step 7 rules. For EXISTS/MISMATCH, handle per step 7 rules. Then write the sidecar per step 8 rules.
 
-Files to process:
-{file_list}
-```
+#### 4e. Report progress inline
 
-#### Collecting results
+After each card, print a one-line status: `[N/TOTAL] CardName (Faction) — STATUS`
 
-After all 3 agents complete:
-1. Parse their JSON arrays
-2. Merge into a single results list
-3. Handle UNCLEAR and MISMATCH items with AskUserQuestion
-4. Proceed to summary table (step 5)
+After all images are processed, proceed to the summary table (step 5).
 
 ### 5. Build summary table
 
@@ -160,18 +128,11 @@ After processing ALL images, show results:
 | 5 | IMG_1238.jpg | Unknown Card | ??? | ? | ? | ? | ? | ASK USER |
 ```
 
-### 6. Confirm and write
+### 6. JSON file rules
 
-Use **AskUserQuestion** with the count of new cards:
+Cards are written immediately during step 4d. The rules below govern how to write them.
 
-Options:
-- **"Write all N new cards"** — create all JSON files at once
-- **"Review individually"** — show each JSON before writing
-- **"Skip"** — don't write anything
-
-### 7. Write JSON files
-
-For each NEW card, write to: `software/data/cards/{FactionDir}/{CardName}.json`
+Write to: `software/data/cards/{FactionDir}/{CardName}.json`
 
 **Faction directory mapping:**
 ```
@@ -222,9 +183,11 @@ Neutral        → Neutral
 - Only update the mismatched fields + set `last_updated`
 - Use `Edit` tool, not `Write`, to avoid clobbering other fields
 
-### 8. Write sidecar files
+### 7. Sidecar file rules
 
-After each image is processed (whether new, existing, mismatch, or skipped), write a sidecar JSON file next to the source image:
+Sidecars are written immediately during step 4d alongside the card JSON. The rules below govern their format.
+
+Write a sidecar JSON file next to the source image:
 
 **Path**: same directory as image, named `{filename}.json`
 - `IMG_1234.jpg` → `IMG_1234.jpg.json`
@@ -250,7 +213,7 @@ After each image is processed (whether new, existing, mismatch, or skipped), wri
 
 Sidecar files are gitignored (`.gitignore` has `software/data/images/**/.*.json`).
 
-### 9. Report
+### 8. Final report
 
 After writing, show:
 - How many new cards created

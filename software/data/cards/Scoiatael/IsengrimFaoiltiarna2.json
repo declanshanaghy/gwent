@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Scoia'tael",
+    "name": "Isengrim Faoiltiarna: 2",
+    "strength": 10,
+    "ranges": ["close"],
+    "specialty": "hero",
+    "abilities": ["morale"],
+    "owner": "Dylan Shanaghy",
+    "owner_nickname": "dylan",
+    "last_updated": "2026-03-28T16:38:00"
+}

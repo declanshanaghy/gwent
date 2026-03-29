@@ -1,0 +1,12 @@
+{
+    "kind": "card",
+    "faction": "Skellige",
+    "name": "Transformed Young Vidkaarl",
+    "strength": 8,
+    "ranges": ["ranged"],
+    "specialty": "hero",
+    "abilities": ["bond"],
+    "owner": "Dylan Shanaghy",
+    "owner_nickname": "dylan",
+    "last_updated": "2026-03-28T16:42:00"
+}

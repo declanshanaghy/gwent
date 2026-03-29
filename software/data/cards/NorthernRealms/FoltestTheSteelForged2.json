@@ -1,0 +1,16 @@
+{
+    "kind": "card",
+    "faction": "Northern Realms",
+    "name": "Foltest: The Steel-Forged: 2",
+    "leader": {
+        "instructions": "destroy your enemy's strongest siege unit(s) if the combined strength of all his or her siege units is 10 or more",
+        "conditional_scorch": {
+            "row": "siege",
+            "threshold": 10
+        }
+    },
+    "specialty": "leader",
+    "owner": "Dylan Shanaghy",
+    "owner_nickname": "dylan",
+    "last_updated": "2026-03-28T16:37:00"
+}
