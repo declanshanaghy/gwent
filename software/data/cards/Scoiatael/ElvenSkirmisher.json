@@ -3,9 +3,15 @@
     "faction": "Scoia'tael",
     "name": "Elven Skirmisher",
     "strength": 2,
-    "ranges": ["ranged"],
-    "abilities": ["muster"],
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:40:00"
+    "last_updated": "2026-03-28T16:40:00",
+    "rfid": 618724805900,
+    "rfid_written_at": "2026-03-29T04:26:28"
 }

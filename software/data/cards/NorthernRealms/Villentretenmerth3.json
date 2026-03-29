@@ -1,7 +1,7 @@
 {
     "kind": "card",
-    "faction": "Nilfgaardian",
-    "name": "Villentretenmerth",
+    "faction": "Northern Realms",
+    "name": "Villentretenmerth: 3",
     "strength": 7,
     "ranges": [
         "close"
@@ -11,7 +11,5 @@
     ],
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:46:00",
-    "rfid": 966046797217,
-    "rfid_written_at": "2026-03-29T03:56:50"
+    "last_updated": "2026-03-29T03:55:46"
 }

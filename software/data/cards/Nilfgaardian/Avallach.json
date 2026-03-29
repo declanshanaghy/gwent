@@ -3,10 +3,16 @@
     "faction": "Nilfgaardian",
     "name": "Avallac'h",
     "strength": 0,
-    "ranges": ["close"],
+    "ranges": [
+        "close"
+    ],
     "specialty": "hero",
-    "abilities": ["spy"],
+    "abilities": [
+        "spy"
+    ],
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:48:00"
+    "last_updated": "2026-03-28T16:48:00",
+    "rfid": 70931926273,
+    "rfid_written_at": "2026-03-29T02:42:00"
 }

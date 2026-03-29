@@ -3,9 +3,15 @@
     "faction": "Scoia'tael",
     "name": "Gaunter O'Dimm: Darkness",
     "strength": 4,
-    "ranges": ["ranged"],
-    "abilities": ["muster"],
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:41:00"
+    "last_updated": "2026-03-28T16:41:00",
+    "rfid": 69303946665,
+    "rfid_written_at": "2026-03-29T04:07:19"
 }

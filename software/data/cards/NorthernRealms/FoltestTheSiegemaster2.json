@@ -4,10 +4,14 @@
     "name": "Foltest: the Siegemaster: 2",
     "leader": {
         "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)",
-        "commander_ranges": ["siege"]
+        "commander_ranges": [
+            "siege"
+        ]
     },
     "specialty": "leader",
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:36:00"
+    "last_updated": "2026-03-28T16:36:00",
+    "rfid": 70059904503,
+    "rfid_written_at": "2026-03-29T04:24:07"
 }

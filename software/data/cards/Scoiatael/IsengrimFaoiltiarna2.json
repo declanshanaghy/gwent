@@ -3,10 +3,15 @@
     "faction": "Scoia'tael",
     "name": "Isengrim Faoiltiarna: 2",
     "strength": 10,
-    "ranges": ["close"],
-    "specialty": "hero",
-    "abilities": ["morale"],
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "medic"
+    ],
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:38:00"
+    "last_updated": "2026-03-28T16:38:00",
+    "rfid": 893552643445,
+    "rfid_written_at": "2026-03-29T04:44:26"
 }

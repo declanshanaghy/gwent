@@ -1,17 +1,17 @@
 {
     "kind": "card",
     "faction": "Monsters",
-    "name": "Vampire: Fleder",
+    "name": "Vampire: Fleder: 2",
     "strength": 4,
     "ranges": [
         "close"
     ],
-    "owner": "Dylan Shanaghy",
     "abilities": [
         "muster"
     ],
+    "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-26T17:48:19",
-    "rfid": 826761760036,
-    "rfid_written_at": "2026-03-29T03:57:50"
+    "last_updated": "2026-03-29T04:44:45",
+    "rfid": 1033944190438,
+    "rfid_written_at": "2026-03-29T04:45:06"
 }
