@@ -86,7 +86,7 @@ CARD SPECIALTIES (determines what the card IS):
 - leader: one-time ability, played by scanning leader card. Not part of hand.
 
 CARD ABILITIES (effects that unit cards HAVE):
-- spy: placed on OPPONENT's board (gives them the strength). You draw 2 cards from your deck. Play spies EARLY.
+- spy: placed on OPPONENT's board (gives them the strength). You CHOOSE and draw 2 cards from your deck. You MUST include "spy_draws" in your response listing the exact card names to draw. Play spies EARLY.
 - medic: after placing on board, resurrect 1 non-hero card from your discard to your hand. You must specify medic_target.
 - bond (tight bond): same-name bond cards in a row multiply strength by count.
 - morale: +1 to every OTHER non-hero in the same row. Stacks.
@@ -122,6 +122,7 @@ You MUST respond with ONLY a JSON object. No other text, no markdown, no explana
   "action": "play_card" or "pass" or "play_leader",
   "card_name": "exact card name from your hand (required for play_card)",
   "row": "close" or "ranged" or "siege" (required ONLY for agile cards with multiple rows)",
+  "spy_draws": ["card name 1", "card name 2"] (REQUIRED when playing a spy card — choose up to 2 cards from your_deck),
   "medic_target": "card name from your discard to resurrect (only if card has medic ability)",
   "decoy_target": "card name on your board to swap back to hand (only if playing a decoy card)",
   "reasoning": "brief explanation of your strategy"
@@ -443,9 +444,11 @@ def build_system_prompt(board, player):
     opp_faction = board['factions'][opp]
     leader = board['leaders'][player]
     opp_leader = board['leaders'][opp]
-    all_cards = board['hands'][player] + board['decks'][player]
+    hand_cards = board['hands'][player]
+    deck_cards = board['decks'][player]
 
-    cards_text = "\n".join(f"  - {card_line(c)}" for c in all_cards)
+    hand_text = "\n".join(f"  - {card_line(c)}" for c in hand_cards) or "  (empty)"
+    deck_text = "\n".join(f"  - {card_line(c)}" for c in deck_cards) or "  (empty)"
 
     section7 = f"""
 YOUR FACTION: {faction}
@@ -454,8 +457,11 @@ YOUR FACTION PASSIVE: {FACTION_PASSIVES.get(faction, 'Unknown')}
 YOUR LEADER: {leader['name']}
 LEADER ABILITY: {leader.get('leader', {}).get('instructions', '?')} (one-time use)
 
-YOUR DECK CARDS (hand + deck combined):
-{cards_text}
+YOUR HAND (cards you can play):
+{hand_text}
+
+YOUR DECK (draw pile — spy_draws MUST come from here, NOT from your hand):
+{deck_text}
 
 OPPONENT FACTION: {opp_faction}
 OPPONENT PASSIVE: {FACTION_PASSIVES.get(opp_faction, 'Unknown')}
@@ -614,6 +620,7 @@ def build_state(board, cur):
         'weather_active': board['weather_rows'],
         'your_leader': li,
         'your_deck_size': len(board['decks'][cur]),
+        'your_deck': [card_summary(c) for c in board['decks'][cur]],
         'opponent_hand_size': len(board['hands'][opp]),
         'opponent_passed': board['players'][opp]['passed'],
     }
@@ -753,7 +760,7 @@ def find_card(hand, name):
     return None
 
 
-def execute(board, cur, action):
+def execute(board, cur, action, sync=None, game_url=None):
     opp = 'PLAYER.TWO' if cur == 'PLAYER.ONE' else 'PLAYER.ONE'
     act = action.get('action', '').lower()
 
@@ -841,8 +848,38 @@ def execute(board, cur, action):
 
         if 'spy' in card.get('abilities', []):
             deck = board['decks'][cur]
-            for i in range(min(2, len(deck))):
-                mqpub('gwent/cards/raw/read', json.dumps(deck[i]))
+            # Build ordered draw list: LLM picks first, then top-of-deck
+            draws = []
+            for draw_name in action.get('spy_draws', [])[:2]:
+                tgt = find_card(deck, draw_name)
+                if tgt and tgt not in draws:
+                    draws.append(tgt)
+            # Fill remaining from top of deck (skip already-chosen)
+            for d in deck:
+                if len(draws) >= 2:
+                    break
+                if d not in draws:
+                    draws.append(d)
+            prev_deck_size = len(deck)
+            for tgt in draws[:min(2, len(deck))]:
+                # Wait for ALL pending announcements (placement + draw prompt)
+                if sync:
+                    sync.wait_all()
+                    sync.drain()
+                # Extra settle time — server needs to fully transition to
+                # AWAITING_SPY_DRAW after announcement completes.
+                time.sleep(2.0)
+                mqpub('gwent/cards/raw/read', json.dumps(tgt))
+                # Poll until the server actually processes the draw
+                # (deck shrinks) before sending the next card.
+                if game_url:
+                    for _ in range(30):
+                        time.sleep(0.5)
+                        _, fresh, _ = fetch(game_url)
+                        new_size = len(fresh['decks'][cur]) if fresh else prev_deck_size
+                        if new_size < prev_deck_size:
+                            prev_deck_size = new_size
+                            break
 
         if 'medic' in card.get('abilities', []):
             nh = [c for c in board['players'][cur]['discard']
@@ -1000,7 +1037,8 @@ def game_loop(args, board, etag, sync):
 
             # Drain stale announcements, then execute
             sync.drain()
-            valid, msg = execute(board, cur, action)
+            valid, msg = execute(board, cur, action, sync=sync,
+                                             game_url=args.game_url)
             reasoning = action.get('reasoning', '')
             card_name = action.get('card_name', '')
             act = action.get('action', '?')

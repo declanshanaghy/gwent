@@ -1,0 +1,13 @@
+A dark, cinematic logo for "GWENT COMPANION" — a Raspberry Pi-powered digital companion for the physical Gwent card game from The Witcher III.
+
+Center composition: The word "GWENT" in large, weathered medieval metallic lettering with a subtle golden gradient, slightly embossed. Below it in smaller italic text: "Cards & Circuits" as a tagline.
+
+Left side: Fanned-out Gwent playing cards with faction-colored edges (deep red, royal blue, forest green, dark purple, steel gray) emerging from shadow, with faint RFID radio waves emanating from the top card — thin concentric arcs in gold.
+
+Right side: A stylized Raspberry Pi circuit board pattern in muted gold traces, subtly integrated into the background like ancient runes meeting technology.
+
+Background: Deep charcoal (#2a2a2a) with a vignette, medieval parchment texture blended with faint circuit traces. Thin decorative borders in dark crimson (#6d1a36) along the edges, reminiscent of Witcher UI frames.
+
+Color palette: Dark charcoal background, crimson (#6d1a36) and antique gold (#d4af37) as accent colors, white highlights on card edges. No bright or neon colors.
+
+Style: Dark fantasy meets maker/hardware aesthetic. Photorealistic metallic text, painterly card art, technical circuit details. Landscape 16:9 ratio, 1280x720. No text other than "GWENT" and "Cards & Circuits".

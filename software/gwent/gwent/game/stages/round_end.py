@@ -46,6 +46,25 @@ _WIN_TEMPLATES = [
     "Triss would be proud. {winner} outmaneuvers {loser} at {location}, {w_score} to {l_score}.",
     "The dwarves of Mahakam raise their axes for {winner}! {w_score} to {l_score} at {location}.",
     "{winner} conquers {location}! {loser} left with nothing but {l_score} points and bruised pride.",
+    "Blood and thunder at {location}! {winner} grinds {loser} into the dirt, {w_score} to {l_score}.",
+    "A tale for the ages at {location}! {winner} takes round {round} by {margin}. {loser} never stood a chance.",
+    "The sorceresses of the Lodge watch from {location} as {winner} dismantles {loser}. {w_score} to {l_score}.",
+    "Zoltan Chivay would wager his last crown on {winner}! {w_score} to {l_score} at {location}.",
+    "{loser} should have stayed home. {winner} claims round {round} at {location}, {w_score} to {l_score}!",
+    "The druids of {location} foresaw this: {winner} triumphs over {loser} by {margin} points!",
+    "Roach gallops through {location} with news of {winner}'s victory! {w_score} to {l_score} over {loser}.",
+    "Vesemir would be proud. {winner} outfoxes {loser} at {location}, round {round}. {w_score} to {l_score}.",
+    "{winner} plays like a grandmaster at {location}. {loser} falls behind by {margin}!",
+    "The crows circle over {location} as {loser} crumbles. {winner} wins round {round}, {w_score} to {l_score}.",
+    "A cunning gambit at {location}! {winner} lures {loser} into defeat. {w_score} to {l_score}!",
+    "The Emperor himself would applaud. {winner} seizes {location}, crushing {loser} by {margin}.",
+    "Yennefer smirks from the gallery at {location}. {winner} dispatches {loser}, {w_score} to {l_score}.",
+    "Steel clashes at {location}! When the dust settles, {winner} stands tall. {w_score} to {l_score}.",
+    "The innkeeper at {location} pours a victory ale for {winner}. {loser} drowns their sorrows at {l_score}.",
+    "By the Eternal Fire! {winner} scorches {loser} at {location}. {w_score} to {l_score} in round {round}!",
+    "Dijkstra's spies confirm it: {winner} has routed {loser} at {location} by {margin} points.",
+    "The bonfires of {location} burn bright for {winner}! {loser} slinks away with only {l_score}.",
+    "A masterful round at {location}! {winner} leaves {loser} speechless. {w_score} to {l_score}, round {round}.",
 ]
 
 _DRAW_TEMPLATES = [
@@ -59,6 +78,16 @@ _DRAW_TEMPLATES = [
     "The merchants of {location} can't pick a winner! {p1} and {p2} deadlocked at {score}. A gem from each!",
     "Stalemate at {location}! {p1} and {p2} matched blow for blow at {score}. Round {round} claims a gem from both!",
     "Lambert would call this pathetic! {p1} and {p2} both score {score} at {location}. Neither deserves to win!",
+    "Geralt sighs at {location}. {p1} and {p2} locked at {score}. A pox on both houses!",
+    "The crowd at {location} groans. {p1} and {p2} deadlocked at {score} in round {round}. Both lose a gem!",
+    "Ciri would have ended this faster. {p1} and {p2} tie at {score} at {location}. How disappointing!",
+    "A draw worthy of {location}'s muddiest brawl! {p1} and {p2} stuck at {score}. Both pay the price!",
+    "The ravens of {location} caw in mockery. {p1} and {p2} matched at {score}. Round {round} claims two gems!",
+    "Triss shakes her head at {location}. {p1} and {p2} both manage {score}. Neither advances unscathed!",
+    "The dice land on edge at {location}! {p1} and {p2} share a grim {score}. A gem from each!",
+    "No glory at {location} tonight. {p1} and {p2} stagger away from round {round} tied at {score}.",
+    "Emhyr would have them both flogged. {p1} and {p2} draw at {score} in {location}. Two gems lost!",
+    "The philosophers of Oxenfurt debate who lost worse. {p1} and {p2} tied at {score} at {location}!",
 ]
 
 
@@ -251,4 +280,12 @@ class RoundEnd(gwent.game.stages.base.GameStage):
 
     def process_card(self, card: gwent.messaging.card.Message):
         super().process_card(card)
-        self.publish_error("Round is over — press OK to continue")
+        _ROUND_OVER_PROMPTS = [
+            "Round is over — press OK to continue",
+            "The round has ended. Press OK when ready.",
+            "Swords down! Press OK to move on.",
+            "The dust settles. Press OK to proceed.",
+            "This round is done. Press OK for the next.",
+            "Cards are spent. Press OK to continue.",
+        ]
+        self.publish_error(random.choice(_ROUND_OVER_PROMPTS))

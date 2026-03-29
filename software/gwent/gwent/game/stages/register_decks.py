@@ -1,4 +1,5 @@
 import collections
+import random
 from typing import Callable
 
 import gwent.game.stages.base
@@ -30,8 +31,18 @@ class RegisterDecks(gwent.game.stages.base.GameStage):
         self._publish_card_to_player(PLAYER.TWO, leader2)
         self.publish_start_prompt()
 
+    _REGISTER_PROMPTS = [
+        "Players, Register your decks",
+        "Present your cards, Witchers",
+        "Ready your arsenals, commanders",
+        "Scan your decks and prepare for battle",
+        "Place your cards on the reader, warriors",
+        "Assemble your forces, the board awaits",
+        "Time to muster your armies, challengers",
+    ]
+
     def publish_start_prompt(self):
-        self.publish_prompt("Players, Register your decks",
+        self.publish_prompt(random.choice(self._REGISTER_PROMPTS),
                            ok=True, cancel=True, clear_choices=True)
 
     def process_choice(self, choice: gwent.messaging.choice.Message):

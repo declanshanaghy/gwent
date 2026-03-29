@@ -1,7 +1,7 @@
 # ☕ Gwent Companion: The Artisanal Card Game Experience 🧙‍♂️
 
 <div align="center">
-  <img src="design/logo/gwent_logo.svg" alt="Gwent Companion Logo" width="800">
+  <img src="design/logo/gwent_logo_v9.png" alt="Gwent Companion Logo" width="800">
 </div>
 
 A hand-crafted digital companion for the physical card game Gwent from The Witcher III. This project combines locally-sourced physical cards with small-batch digital tracking to enhance the gameplay experience while maintaining the authentic, tactile feel of the original game.

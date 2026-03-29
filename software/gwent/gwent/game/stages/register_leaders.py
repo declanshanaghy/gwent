@@ -1,3 +1,4 @@
+import random
 from typing import Callable
 
 import gwent.game
@@ -8,6 +9,24 @@ import gwent.messaging.choice
 import gwent.messaging.card_play
 
 from gwent.game.constants import PLAYER
+
+_REGISTER_PROMPTS = [
+    "Players, register your leaders. Scan Player 1's leader card.",
+    "The battle awaits. Scan Player 1's leader to begin.",
+    "Choose your commanders. Player 1, scan your leader.",
+    "Destiny calls. Player 1, present your leader card.",
+    "The winds of war stir. Scan Player 1's leader card.",
+    "Steel yourselves. Player 1, scan your leader to start.",
+]
+
+_LEADERS_DONE_PROMPTS = [
+    "Leaders registered. Press OK to continue.",
+    "Your commanders are set. Press OK to proceed.",
+    "Both leaders stand ready. Press OK to begin.",
+    "The stage is set. Press OK when ready.",
+    "Commanders chosen. Press OK to march forward.",
+    "Leaders locked in. Press OK to enter the fray.",
+]
 
 
 class RegisterLeaders(gwent.game.stages.base.GameStage):
@@ -26,7 +45,7 @@ class RegisterLeaders(gwent.game.stages.base.GameStage):
         self._leader2 = None
 
         self._publish_prompt_then(
-            "Players, register your leaders. Scan Player 1's leader card.",
+            random.choice(_REGISTER_PROMPTS),
             self._ready_for_card)
 
     def _ready_for_card(self):
@@ -76,7 +95,7 @@ class RegisterLeaders(gwent.game.stages.base.GameStage):
     def _both_registered(self):
         self._awaiting = 'card'
         self.publish_prompt(
-            "Leaders registered. Press OK to continue.",
+            random.choice(_LEADERS_DONE_PROMPTS),
             ok=True, cancel=False, clear_choices=True,
             ok_text="Continue")
 

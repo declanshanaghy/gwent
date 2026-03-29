@@ -57,6 +57,7 @@ class GameState:
         }
         self.discard = {P1: [], P2: []}
         self.decks = {P1: [], P2: []}
+        self.initial_deck_sizes = {P1: 0, P2: 0}
         self.weather_rows = set()
         self.half_weather_penalty = {P1: False, P2: False}
         self.commander_horn_rows = {P1: set(), P2: set()}
@@ -175,9 +176,11 @@ class GameState:
         decks = board.get("decks", {})
         for key, deck in decks.items():
             p = _normalize_player(key)
-            self.decks[p] = [
-                c for c in deck if c.get("specialty") != "leader"
-            ]
+            filtered = [c for c in deck if c.get("specialty") != "leader"]
+            # Capture initial deck size on first load (before any draws)
+            if self.initial_deck_sizes[p] == 0 and filtered:
+                self.initial_deck_sizes[p] = len(filtered)
+            self.decks[p] = filtered
 
         # Commander horn rows
         horn_rows = board.get("commander_horn_rows", {})
@@ -320,6 +323,7 @@ class GameState:
         }
         self.discard = {P1: [], P2: []}
         self.decks = {P1: [], P2: []}
+        self.initial_deck_sizes = {P1: 0, P2: 0}
         self.weather_rows = set()
         self.half_weather_penalty = {P1: False, P2: False}
         self.commander_horn_rows = {P1: set(), P2: set()}

@@ -41,6 +41,22 @@ _WIN_TEMPLATES = [
     "Like Geralt slaying the Striga! {winner} fells {loser} at {location}! {w_gems} gems to {l_gems}. Legendary!",
     "The Lodge of Sorceresses applauds! {winner} outplays {loser} at {location}. {w_gems} gems to {l_gems}!",
     "Ploughing magnificent! {winner} annihilates {loser} at the gates of {location}! {w_gems} to {l_gems}. Game over!",
+    "Yennefer herself would applaud! {winner} dismantles {loser} at {location}! {w_gems} gems to {l_gems}!",
+    "The coin lands in {winner}'s favor! {loser} limps away from {location} empty-handed. {w_gems} to {l_gems}!",
+    "{winner} plays like a seasoned witcher! {loser} never stood a chance at {location}. {w_gems} gems to {l_gems}.",
+    "A massacre at {location}! {winner} leaves {loser} in ruins! {w_gems} gems standing to {l_gems}!",
+    "Triss Merigold sends a slow clap from {location}. {winner} dominates {loser}! {w_gems} to {l_gems}!",
+    "Lambert would buy {winner} an ale for this one! {loser} crumbles at {location}. {w_gems} gems to {l_gems}.",
+    "The prophecy of Ithlinne foretold it! {winner} conquers {loser} at {location}! {w_gems} to {l_gems}!",
+    "Vesemir nods approvingly. {winner} schools {loser} at {location} like a master witcher. {w_gems} to {l_gems}!",
+    "{winner} carves through {loser}'s defenses at {location} like a silver sword through wraiths! {w_gems} gems to {l_gems}!",
+    "The sorceresses of Aretuza bear witness! {winner} humiliates {loser} at {location}! {w_gems} to {l_gems}!",
+    "Not even a Quen shield could save {loser}! {winner} triumphs at {location}! {w_gems} gems to {l_gems}.",
+    "Zoltan raises his axe in salute! {winner} crushes {loser} at the walls of {location}! {w_gems} to {l_gems}!",
+    "{winner} fights with the fury of the Wild Hunt! {loser} falls at {location}. {w_gems} gems to {l_gems}!",
+    "The Emperor himself bows! {winner} claims absolute victory over {loser} at {location}! {w_gems} to {l_gems}!",
+    "Roach gallops in celebration! {winner} devastates {loser} at {location}! {w_gems} gems remain to {l_gems}!",
+    "A tale for the ages! {winner} outmaneuvers {loser} at {location} with cunning and steel! {w_gems} to {l_gems}!",
 ]
 
 _DRAW_TEMPLATES = [
@@ -56,6 +72,18 @@ _DRAW_TEMPLATES = [
     "The bookmakers at {location} tear up their tickets! {leader1} vs {leader2} ends in mutual destruction!",
     "A draw? At {location}? {leader1} and {leader2} should be ashamed! Lambert walks away in disgust.",
     "The bards of {location} have nothing to sing about! {leader1} and {leader2} cancel each other out!",
+    "Geralt sighs. {leader1} and {leader2} butcher each other at {location}. No winner. Typical.",
+    "The crones cackle! {leader1} and {leader2} destroy one another at {location}. Chaos reigns!",
+    "Triss and Yennefer agree on one thing: {leader1} vs {leader2} at {location} was a disaster for everyone.",
+    "Vesemir shakes his head. {leader1} and {leader2} waste their forces at {location}. Both eliminated!",
+    "The dwarves at {location} demand a refund! {leader1} and {leader2} end in pointless mutual destruction!",
+    "A plague on both your houses! {leader1} and {leader2} fall together at {location}. No gems, no glory.",
+    "Roach trots away in disgust. {leader1} and {leader2} obliterate each other at {location}. What a mess!",
+    "The Wild Hunt watches and laughs! {leader1} and {leader2} annihilate each other at {location}!",
+    "Zoltan spills his ale in disbelief! {leader1} and {leader2} draw at {location}. Nobody wins!",
+    "The Nilfgaardian treasury offers no payout. {leader1} and {leader2} cancel each other out at {location}!",
+    "Emhyr and Foltest would both be ashamed. {leader1} vs {leader2} at {location} ends in nothing!",
+    "Not even Regis could find a drop of victory here. {leader1} and {leader2} fall at {location}. A draw!",
 ]
 
 

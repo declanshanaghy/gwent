@@ -1,3 +1,4 @@
+import random
 from typing import Callable
 
 import gwent.game.stages.base
@@ -5,6 +6,18 @@ import gwent.messaging.card
 import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.mfd
+
+
+MAIN_MENU_GREETINGS = [
+    "Welcome to Gwent",
+    "A round of Gwent?",
+    "The cards await",
+    "Care for a game?",
+    "Fancy a hand?",
+    "How about a round?",
+    "Toss a coin, play a card",
+    "Gwent, anyone?",
+]
 
 
 class MainMenu(gwent.game.stages.base.GameStage):
@@ -20,7 +33,8 @@ class MainMenu(gwent.game.stages.base.GameStage):
         self.publish_main_menu()
 
     def publish_main_menu(self):
-        self.publish_prompt('Main Menu', ok=False, cancel=False,
+        self.publish_prompt(random.choice(MAIN_MENU_GREETINGS),
+                           ok=False, cancel=False,
                            clear_choices=False)
         choices = [
             gwent.messaging.choice.Message.from_properties(

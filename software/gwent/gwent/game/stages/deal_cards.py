@@ -53,6 +53,39 @@ DEAL_ANNOUNCEMENTS = [
 
     "Like wolves circling prey! {l1} of {f1} draws {n1} for Player 1. "
     "{l2} of {f2} bares teeth with {n2} for Player 2. The hunt begins!",
+
+    "Toss a coin to your Witcher! {l1} of {f1} fans out {n1} for Player 1. "
+    "{l2} of {f2} reveals {n2} for Player 2. Place your bets!",
+
+    "The fog rolls in! {l1} of {f1} summons {n1} to the front for Player 1. "
+    "{l2} of {f2} emerges from the mist with {n2} for Player 2. No turning back!",
+
+    "By the Eternal Fire! {l1} of {f1} brandishes {n1} for Player 1. "
+    "{l2} of {f2} answers with {n2} for Player 2. The pyre is lit!",
+
+    "Fate smiles on no one today! {l1} commands {n1} of {f1} for Player 1. "
+    "{l2} fields {n2} of {f2} for Player 2. Let the cards fall where they may!",
+
+    "The White Frost approaches! {l1} of {f1} gathers {n1} for Player 1. "
+    "{l2} of {f2} braces with {n2} for Player 2. Only the strong survive!",
+
+    "A storm brews over Skellige! {l1} of {f1} draws {n1} for Player 1. "
+    "{l2} of {f2} stands defiant with {n2} for Player 2. Blood and glory!",
+
+    "The Lodge convenes! {l1} of {f1} presents {n1} cards for Player 1. "
+    "{l2} of {f2} counters with {n2} for Player 2. Chaos or order?",
+
+    "Geralt would be proud! {l1} of {f1} lays down {n1} for Player 1. "
+    "{l2} of {f2} matches with {n2} for Player 2. Hmm, a worthy match!",
+
+    "The bards will sing of this! {l1} of {f1} wields {n1} for Player 1. "
+    "{l2} of {f2} raises {n2} for Player 2. Glory awaits the victor!",
+
+    "Portals crackle with chaos energy! {l1} of {f1} channels {n1} for Player 1. "
+    "{l2} of {f2} conjures {n2} for Player 2. Let sorcery decide!",
+
+    "The Northern Realms tremble! {l1} of {f1} marshals {n1} for Player 1. "
+    "{l2} of {f2} retaliates with {n2} for Player 2. For crown and country!",
 ]
 
 

@@ -6,7 +6,7 @@ Faction voices use ElevenLabs premade voice IDs chosen to match each
 faction's personality.  Per-faction VoiceSettings tune delivery style:
   Northern Realms → Antoni   (warm British male — noble, chivalric)
                     high stability, moderate style — steady & commanding
-  Skellige        → Arnold   (deep powerful male — viking warrior)
+  Skellige        → Freya    (American female — fierce shieldmaiden)
                     low stability, high style — wild & unpredictable
   Scoia'tael      → Charlotte (British female — lighter, elvish grace)
                     high stability, low style — calm & precise
@@ -24,7 +24,7 @@ from gwent.hal.tts.base import TTSProvider
 
 FACTION_VOICE_ID = {
     "Northern Realms": "ErXwobaYiN019PkySvjV",  # Antoni
-    "Skellige":        "VR6AewLTigWG4xSOukaG",  # Arnold
+    "Skellige":        "jsCqWAovK2LkecY7zXl4",  # Freya
     "Scoia'tael":      "XB0fDUnXU5powFXDhCwa",  # Charlotte
     "Monsters":        "onwK4e9ZLuTAKqWW03F9",  # Daniel
     "Nilfgaardian":    "N2lVS1w4EtoT3dr4eOWO",  # Ethan

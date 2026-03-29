@@ -1,0 +1,561 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-29T05:45:58.478436+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Monsters",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick any weather card from your deck and play it instantly",
+            "weather_ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ]
+          },
+          "name": "Eredin - King of the Wild Hunt",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 209511075183,
+          "content_id": "cd73b8116382eea6357a80c50c0ddf4a"
+        },
+        "PLAYER.TWO": {
+          "faction": "Scoia'tael",
+          "kind": "card",
+          "leader": {
+            "commander_ranges": [
+              "ranged"
+            ],
+            "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+          },
+          "name": "Francesca Findabair - The Beautiful",
+          "owner": "Declan Shanaghy",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 553478147534,
+          "owner_nickname": "dek",
+          "content_id": "6257c81673ecaa977fc489e132fb1015"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Monsters",
+        "PLAYER.TWO": "Scoia'tael"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Avallac'h",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 826074549561,
+            "content_id": "5d4666f4c88439b21874294f67f5c762"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 622264733154,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "7ed775330db34f9ef7a0669715ef8a27"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Crone: Brewess",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 895011802403,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "4529bcbbf9992d74a52a71a39b1852c3"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "rfid": 826761760036,
+            "content_id": "f949dc29991b2f67a67a4a9873ad85b1"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Geralt of Rivia",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "content_id": "c7ef6b45af052c323df09f673990a7ab",
+            "rfid": 346429869409,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Imlerith",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 964553100774,
+            "content_id": "c15e919497bcbc90b60fd2e00eb57285"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Kayran",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 8,
+            "rfid": 485093756187,
+            "content_id": "e67f7b6aca414f626fdb888df2f463af"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Draug",
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "specialty": "hero",
+            "owner_nickname": "dylan",
+            "rfid": 277023247789,
+            "content_id": "ce2d72b76e042decfd28b86c805e9185"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "content_id": "39a3952b47ecce7469538ab15eb0dc9a",
+            "rfid": 618623487232,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 7,
+            "content_id": "4b8802e6ca62696331eab733baf568d8",
+            "rfid": 964737453542,
+            "owner_nickname": "dek"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 3118157103,
+            "content_id": "de71c85b141e22bd62474e8ccbaf2898"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 2648329482,
+            "content_id": "f723fe9c26375855f5faececb7787dd5"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dol Blathanna Scout: 1",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 894978247969,
+            "content_id": "2c53dbc5bde0d28b9341b1aef48605e4"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dol Blathanna Scout: 2",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 416290655514,
+            "content_id": "bc41255b11c22532b26cef3964d0e9fe"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Vrihedd Brigade Veteran: 1",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 71333924115,
+            "content_id": "2a855d88fbf6c0700c314e518705c2ad"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Vrihedd Brigade Veteran: 2",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 894206037370,
+            "content_id": "b4e245919bfe05ac07e2fab4e09d9acd"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Geralt of Rivia",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 70999231800,
+            "content_id": "8b4298c6b9c834122fa743edbea35deb"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Iorveth",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 485060201733,
+            "content_id": "044f10c59e390a05181f8cff90d821e5"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy",
+            "specialty": "decoy",
+            "content_id": "44057f4aa633083da0f5d80f3af77267",
+            "rfid": 619110092078,
+            "owner_nickname": "dek"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Milva",
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "rfid": 619848945004,
+            "content_id": "bb1de6d0a9db47bd4c53f7ff6b259750"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 482409860530,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "88dbc07bb33ab1e09d33aff66b1ab563"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: Behemoth",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 345675550136,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "26263b263373beac2594f8375cd3437f"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Crone: Weavess",
+            "strength": 6,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "rfid": 964837985754,
+            "content_id": "071b44356e6484a84fa53b9733631dfa"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder: 2",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 1033944190438,
+            "content_id": "8d3c6f71d7872cab87bc31ea8f6f084d"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Vampire: Garkhain",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 552789757359,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "80f01ac87e9477a53eb75826f9c762ad"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 550911036754,
+            "content_id": "d7f66010823774a5f2ee2f6cb7aa1b17"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 299584903,
+            "content_id": "c313afc9a57e8a7017164e863ed2f470"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 2",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 414143106459,
+            "content_id": "77ae8c2f82e7adbc2f3215fa7e6fd501"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Havekar Healer",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 0,
+            "rfid": 1032534445315,
+            "content_id": "38c0bc7854b189c9458ff2e048cad36d"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "owner": "Declan Shanaghy",
+            "content_id": "2f0ab64e72672d094987b7b114043112",
+            "rfid": 553545190897,
+            "owner_nickname": "dek"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}

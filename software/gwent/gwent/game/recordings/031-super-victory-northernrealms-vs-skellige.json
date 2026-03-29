@@ -1,0 +1,528 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-29T05:45:58.501454+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "kind": "card",
+          "faction": "Northern Realms",
+          "name": "Foltest: the Siegemaster",
+          "leader": {
+            "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)",
+            "commander_ranges": [
+              "siege"
+            ]
+          },
+          "specialty": "leader",
+          "rfid": 413623274942,
+          "content_id": "efb14a00e8304d80e2d2de6048fefb56"
+        },
+        "PLAYER.TWO": {
+          "faction": "Skellige",
+          "kind": "card",
+          "leader": {
+            "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+            "reshuffle_graveyards": true
+          },
+          "name": "Crach an Craite",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 1033423375860,
+          "content_id": "21a685ee45ec12415a2df3e46a8db898"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Northern Realms",
+        "PLAYER.TWO": "Skellige"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Prince Stennis",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 71099895090,
+            "content_id": "374e0c5634a8878340532e1ffe29d5f6"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Sigismund Dijkstra",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 4,
+            "content_id": "0ab509474d3000a0332fcfc12b95fbd3",
+            "rfid": 986860965,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "morale"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Kaedweni Siege Expert: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 275025972694,
+            "content_id": "c80b8e073ec678bfe96cf719d8693c13"
+          },
+          {
+            "abilities": [
+              "morale"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Kaedweni Siege Expert: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 3151121700,
+            "content_id": "abf7117b33b690afc0a4ff4bca1be79d"
+          },
+          {
+            "abilities": [
+              "morale"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Kaedweni Siege Expert: 3",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 277676707193,
+            "content_id": "7baf81c7eb75fad243463ec2177a963b"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Geralt of Rivia",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 484825779458,
+            "content_id": "fbe2f02d51653f9cc122bcf3a268ce23"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Cirilla Fiona Elen Riannon",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 827567459838,
+            "content_id": "51f14181b9dc348c969f81ac757150e8"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Philippa Eilhart",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "strength": 10,
+            "content_id": "db78eb01a6ece16d37d850edb4872263",
+            "rfid": 208604843325,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Trebuchet: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 416022809877,
+            "content_id": "4e1dc535aa7c84f497a5d9e05b2fa7b5"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Trebuchet: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 966164499898,
+            "content_id": "91b241788a19d8bb023ff314ff8f414f"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414546414925,
+            "content_id": "d5c7fe1420801d00ee2277a5bb82e8f8"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414143761829,
+            "content_id": "2058e97889a4e448c572ad2c770cecde"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 275161304569,
+            "content_id": "27e02c7322fc6b8c4bca4090ab345912"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 550038883586,
+            "content_id": "9f889d20217e32da4c6818ea98469783"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 622231178716,
+            "content_id": "ad2cede0451f80479ec6692763508f92"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Cirilla Fiona Elen Riannon",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 206826655118,
+            "content_id": "b4951ddcc17fb9c0b9c696113d07019c"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Hemdall",
+            "strength": 11,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 1033054211567,
+            "content_id": "7041e8d7211e701b455e462125110134"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Hjalmar",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 2346863908,
+            "content_id": "9a713f1009a9acab3407173b7c7c6dc5"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Olaf",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "strength": 12,
+            "content_id": "b50a46f087ab48b9872dfc8b3e2ec6dc",
+            "rfid": 137587477951,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Commander's Horn",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "specialty": "commander",
+            "content_id": "5469b2ef150f851e6dbd9c37862f9cc3",
+            "rfid": 1031041404264,
+            "owner_nickname": "dek"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Yennefer of Vengerberg",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "90b9f1f0a9d4997410811cbb058a0cb5",
+            "rfid": 691167907280,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Ballista: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "content_id": "72ea9cfaea1eef37208028d3e624c748",
+            "rfid": 687410072884
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Ballista: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 415216454997,
+            "content_id": "c6180e6cba6f91d1bb42b8f174789074"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Siege Tower: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 482863238581,
+            "content_id": "d9ac317dd19a8e5f168d1323e832e540"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 70998314254,
+            "content_id": "64b9657a9673d87d198960454b59c9e7"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "b56974e82d48a0f9b67fa7bc7c792306",
+            "rfid": 553007992276,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "content_id": "7967447d060c6357ad981522e0dc71b7",
+            "rfid": 415434427718,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Birna Bran",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 622315523548,
+            "content_id": "d2b34b2a44b287c51c34f94813e3c911"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Decoy",
+            "specialty": "decoy",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 756767083802,
+            "content_id": "ffea651c17fb9864734ece2bc7c3fdb9"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 622214860262,
+            "content_id": "211e0ad8eabcc20ed27b570f18a90fd4"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}

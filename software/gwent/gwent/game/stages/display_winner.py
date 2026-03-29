@@ -27,6 +27,16 @@ _WIN_TEMPLATES = [
     "The White Wolf would be proud! Player {w_num} conquers with {w_gems} gems to {l_gems}!",
     "Dandelion's quill flies! Player {w_num}'s victory — {w_gems} gems to {l_gems} — will echo across the Continent!",
     "A match worthy of legend! Player {w_num} prevails with {w_gems} gems. Player {l_num} falls at {l_gems}.",
+    "By the Eternal Fire! Player {w_num} burns through with {w_gems} gems! Player {l_num} is left smoldering at {l_gems}.",
+    "Triss herself couldn't conjure a finer finish! Player {w_num} wins {w_gems} to {l_gems}!",
+    "Player {w_num} drinks from the cup of victory! {w_gems} gems to Player {l_num}'s bitter {l_gems}.",
+    "The cards have spoken! Player {w_num} seizes glory with {w_gems} gems. Player {l_num} retreats with {l_gems}.",
+    "Vesemir nods approvingly! Player {w_num} commands the table — {w_gems} gems to {l_gems}!",
+    "Player {w_num} plays like a Nilfgaardian general! {w_gems} gems crush Player {l_num}'s {l_gems}.",
+    "A decisive rout! Player {w_num} sweeps the field with {w_gems} gems. Player {l_num} manages only {l_gems}.",
+    "Even Dijkstra's spies couldn't have predicted it! Player {w_num} takes {w_gems} gems to {l_gems}!",
+    "Player {w_num} earns a toast at every inn on the Continent! {w_gems} gems to Player {l_num}'s {l_gems}.",
+    "Yennefer raises an eyebrow — impressive! Player {w_num} dominates with {w_gems} gems against {l_gems}.",
 ]
 
 _DRAW_TEMPLATES = [
@@ -36,6 +46,12 @@ _DRAW_TEMPLATES = [
     "Deadlocked at {gems} gems! The tavern argues all night about who really won.",
     "A draw most foul! {gems} gems each. Lambert storms off in disgust.",
     "Both armies bloodied, neither broken! {gems} gems remain on each side. Rematch?",
+    "The coin lands on its edge! {gems} gems each. Destiny itself cannot decide.",
+    "Triss and Yennefer would call this a tie — {gems} gems apiece. Neither sorceress blinks.",
+    "A draw at {gems} gems! The innkeeper pours another round while both players stare daggers.",
+    "Even the Lodge of Sorceresses couldn't break this deadlock! {gems} gems each.",
+    "Locked at {gems} gems! Somewhere, Zoltan flips a table and demands a rematch.",
+    "The Northern Realms and Nilfgaard sign an armistice! {gems} gems each — peace, for now.",
 ]
 
 

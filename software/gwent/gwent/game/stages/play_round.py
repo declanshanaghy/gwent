@@ -34,6 +34,242 @@ class PlayRound(gwent.game.stages.base.GameStage):
     AWAITING_LEADER_DISCARD_HAND = 'leader_discard_hand'
     AWAITING_LEADER_DRAW_DECK = 'leader_draw_deck'
 
+    # --- Simple-mode variations (short messages for --simple flag) ---
+
+    _SIMPLE_TURN = [
+        "{player}'s turn.",
+        "{player}, you're up.",
+        "{player} steps forward.",
+        "Your move, {player}.",
+        "{player}, make your play.",
+        "The board awaits {player}.",
+    ]
+
+    _SIMPLE_PASS = [
+        "{player} passed.",
+        "{player} stands down.",
+        "{player} yields the field.",
+        "{player} holds back.",
+        "{player} bides their time.",
+        "{player} folds their arms.",
+    ]
+
+    _SIMPLE_PLACEMENT = [
+        "{player}: {name} on {row}, strength {strength}.",
+        "{player} plays {name}. {row} row, {strength} strength.",
+        "{name} enters the {row}. {strength} strength for {player}.",
+        "{player} deploys {name} to {row}. {strength} power.",
+        "{name} to the {row} for {player}. {strength} strong.",
+        "{player} sends {name} into the {row}. Strength {strength}.",
+    ]
+
+    _SIMPLE_SPY = [
+        "{player}: {name}, spy. Draw 2.",
+        "{player} plants {name} as a spy! Drawing 2.",
+        "A spy for {player}! {name} infiltrates. Draw 2.",
+        "{player} sends {name} behind enemy lines. 2 cards drawn.",
+        "{name} the double agent! {player} draws 2.",
+        "Espionage! {player}'s {name} switches sides. Draw 2.",
+    ]
+
+    _SIMPLE_CHOOSE_ROW = [
+        "Choose row for {name}.",
+        "Where does {name} fight? Pick a row.",
+        "{name} is agile. Choose a row.",
+        "Place {name} — which row?",
+        "{name} awaits orders. Select a row.",
+        "Assign {name} to a row.",
+    ]
+
+    _SIMPLE_SPY_DRAW = [
+        "{msg} Scan 2 cards from your deck to draw.",
+        "{msg} Pick 2 from your deck.",
+        "{msg} Choose 2 deck cards to claim.",
+        "{msg} Select 2 cards from your draw pile.",
+        "{msg} Your deck awaits. Scan 2 cards.",
+        "{msg} Raid your deck for 2 cards.",
+    ]
+
+    _SIMPLE_DECOY_PROMPT = [
+        "{player}: Decoy! Scan a card on your board to return to hand.",
+        "{player}: Decoy deployed! Pick a card from your board to retrieve.",
+        "{player} plays Decoy. Which card comes back to hand?",
+        "{player}: Decoy swap! Scan a board card to reclaim.",
+        "Decoy in play! {player}, choose a card to pull back.",
+        "{player}: tactical retreat! Scan a card to return to hand.",
+    ]
+
+    _SIMPLE_NO_DECOY_TARGET = [
+        "No non-hero cards on your board to swap with Decoy.",
+        "Nothing to swap — no valid targets for Decoy.",
+        "Decoy finds no one to replace. No non-hero cards on board.",
+        "Your board has no swappable cards for Decoy.",
+        "Decoy looks around — no non-hero targets available.",
+        "Can't play Decoy. No eligible cards on your board.",
+    ]
+
+    _SIMPLE_HERO_DECOY = [
+        "Cannot swap a hero card with Decoy.",
+        "Heroes refuse the Decoy's call.",
+        "A hero cannot be recalled by Decoy.",
+        "That's a hero — Decoy won't work on them.",
+        "Heroes stand firm. Choose a non-hero card.",
+        "Decoy can't touch heroes. Try another card.",
+    ]
+
+    _SIMPLE_LEADER_USED = [
+        "Leader ability already used this game.",
+        "Your leader has already spoken.",
+        "That ability was already spent.",
+        "The leader's power is exhausted.",
+        "Once per game — already used.",
+        "Your leader already played their part.",
+    ]
+
+    _SIMPLE_CHOOSE_ROW_FIRST = [
+        "Choose a row from the menu first.",
+        "Pick a row before playing.",
+        "Select a row from the choices first.",
+        "Row selection needed first.",
+        "Choose where to place before scanning.",
+        "A row must be chosen first.",
+    ]
+
+    _SIMPLE_LEADER_WEATHER = [
+        "{player}: leader ability. Scan a weather card from your deck.",
+        "{player}'s leader commands the skies. Scan a weather card.",
+        "{player}: invoke the elements! Scan a weather card from deck.",
+        "By the leader's will! {player}, scan a weather card.",
+        "{player}'s leader stirs the heavens. Choose a weather card.",
+        "The leader commands weather! {player}, scan from deck.",
+    ]
+
+    _SIMPLE_LEADER_OPP_DISCARD = [
+        "{player}: leader ability. Scan a card from opponent's discard to take. {count} available.",
+        "{player}'s leader raids the enemy graveyard! {count} cards to plunder. Scan one.",
+        "{player}: claim a fallen foe! {count} in opponent's discard. Scan to take.",
+        "The leader picks through enemy remains. {count} cards, {player}. Scan one.",
+        "{player}'s leader loots the battlefield! {count} enemy cards await. Scan to claim.",
+        "Enemy discard lies open! {player}, scan one of {count} cards to seize.",
+    ]
+
+    _SIMPLE_LEADER_OWN_DISCARD = [
+        "{player}: leader ability. Scan a card from your discard to restore. {count} available.",
+        "{player}'s leader reaches into the grave! {count} cards to resurrect. Scan one.",
+        "{player}: reclaim a fallen ally! {count} in your discard. Scan to restore.",
+        "The leader calls to the dead. {count} cards, {player}. Scan one to revive.",
+        "{player}'s leader defies death! {count} cards in discard. Scan one.",
+        "From the ashes! {player}, scan one of {count} discarded cards to reclaim.",
+    ]
+
+    _SIMPLE_LEADER_DISCARD_HAND = [
+        "{player}: leader ability. Scan {count} card(s) from your hand to discard.",
+        "{player}'s leader demands sacrifice! Scan {count} card(s) to discard.",
+        "The leader requires tribute. {player}, discard {count} from hand.",
+        "{player}: surrender {count} card(s) from hand to the leader's will.",
+        "A price must be paid! {player}, scan {count} hand card(s) to discard.",
+        "{player}'s leader calls for offerings. Scan {count} from your hand.",
+    ]
+
+    _SIMPLE_MEDIC_PROMPT = [
+        "{player}: {name}, medic. Scan discard. {count} available.",
+        "{player}'s {name} arrives as medic! {count} in discard. Scan one.",
+        "Medic {name} for {player}! Choose from {count} fallen cards.",
+        "{name} the healer! {player}, scan 1 of {count} discarded cards.",
+        "{player}: {name} medic deployed. {count} cards to resurrect.",
+        "The medic cometh! {player}'s {name} eyes {count} fallen warriors.",
+    ]
+
+    _SIMPLE_MEDIC_RESURRECT = [
+        "{player}: {resurrected} resurrected.",
+        "{resurrected} rises again for {player}!",
+        "{player} brings back {resurrected} from the grave!",
+        "From death to glory! {resurrected} returns for {player}.",
+        "{player}'s medic saves {resurrected}!",
+        "{resurrected} cheats death! Back in {player}'s hand.",
+    ]
+
+    _SIMPLE_MEDIC_EMPTY = [
+        "{player}: {name}, medic. No targets.",
+        "{player}'s {name} finds no one to save.",
+        "The graveyard is bare. {name} finds no targets for {player}.",
+        "{name} looks for the fallen — nothing there for {player}.",
+        "Empty discard! {player}'s {name} heals the air.",
+        "No corpses to revive. {player}'s {name} stands idle.",
+    ]
+
+    _SIMPLE_MUSTER = [
+        "{player}: {name}, muster. {mustered}.",
+        "Muster! {player}'s {name} calls {mustered} to battle!",
+        "{name} rallies the troops! {mustered} join {player}'s ranks.",
+        "To arms! {player}'s {name} summons {mustered}.",
+        "{player} musters {mustered} with {name}!",
+        "The horde assembles! {name} brings {mustered} for {player}.",
+    ]
+
+    _SIMPLE_SCORCH = [
+        "{player}: {name}, scorch. {scorched}.",
+        "Flames! {player}'s {name} scorches {scorched}!",
+        "{name} burns {scorched} for {player}!",
+        "Fire and fury! {player}'s {name} incinerates {scorched}.",
+        "{player}'s {name} unleashes scorch on {scorched}!",
+        "Burn! {scorched} falls to {player}'s {name}.",
+    ]
+
+    _SIMPLE_SCORCH_NO_TARGETS = [
+        "{name}, scorch. No targets.",
+        "{name} scorches thin air. No targets!",
+        "The flames of {name} find nothing to burn.",
+        "{name}'s fire fizzles. No valid targets.",
+        "Wasted scorch! {name} hits nothing.",
+        "{name} breathes fire at an empty field.",
+    ]
+
+    _SIMPLE_DECOY = [
+        "{player}: Decoy on {row}. {target} returned to hand.",
+        "{player} swaps {target} with a Decoy! Back to hand.",
+        "Decoy deployed! {player} retrieves {target} from {row}.",
+        "{target} recalled by Decoy! {player} gets it back.",
+        "Tactical swap! {player}'s Decoy replaces {target} on {row}.",
+        "{player} pulls {target} off the {row}. Decoy takes its place.",
+    ]
+
+    _SIMPLE_MARDROEME = [
+        "{player}: {name}. Weather cleared.",
+        "{name} clears the skies for {player}!",
+        "Mardroeme! {player}'s {name} banishes the weather.",
+        "{player} plays {name}. All weather effects gone!",
+        "The storm passes! {player}'s {name} clears the field.",
+        "{name} restores clear skies. {player}'s board breathes easy.",
+    ]
+
+    _SIMPLE_SCORCH_SPECIALTY = [
+        "{player}: {name}, scorch. {scorched}.",
+        "{player} unleashes {name}! Scorch destroys {scorched}!",
+        "Total annihilation! {name} incinerates {scorched} for {player}.",
+        "{name} rains fire! {scorched} consumed for {player}.",
+        "Scorch card! {player}'s {name} burns {scorched} to ash.",
+        "{player} drops {name}. {scorched} scorched from existence!",
+    ]
+
+    _SIMPLE_SCORCH_SPECIALTY_EMPTY = [
+        "{player}: {name}, scorch. No targets.",
+        "{player}'s {name} scorch fizzles. Nothing to burn!",
+        "Wasted card! {player}'s {name} finds no worthy targets.",
+        "{name} lands for {player}, but the field is bare.",
+        "The great scorch of {name}... burns nothing. {player} shrugs.",
+        "No targets for {player}'s {name}. The flames die out.",
+    ]
+
+    _SIMPLE_COMMANDER = [
+        "{player}: {name}, horn on {row}.",
+        "{name} sounds the horn! {row} row doubles for {player}.",
+        "Commander's Horn! {player}'s {name} boosts the {row}.",
+        "{player} blasts {name} on {row}. Double power!",
+        "The horn roars! {player}'s {row} row surges with {name}.",
+        "{name} rallies the {row} for {player}! Strength doubled.",
+    ]
+
     @property
     def stage(self):
         return gwent.messaging.ctrl.STAGE_PLAY_ROUND
@@ -156,7 +392,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_turn_prompt(self, label, score, opp_score, margin, opp_passed):
         if self._simple:
-            return f"{label}'s turn."
+            return random.choice(self._SIMPLE_TURN).format(player=label)
         if opp_passed:
             quips = self._TURN_OPP_PASSED_AHEAD if margin > 0 else self._TURN_OPP_PASSED_BEHIND
         elif margin > 15:
@@ -174,7 +410,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_pass(self, label, score, opp_score, margin):
         if self._simple:
-            return f"{label} passed."
+            return random.choice(self._SIMPLE_PASS).format(player=label)
         if margin > 10:
             quips = self._PASS_DOMINATING
         elif margin > 0:
@@ -190,14 +426,16 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_placement(self, label, name, strength, row):
         if self._simple:
-            return f"{label}: {name} on {row}, strength {strength}."
+            return random.choice(self._SIMPLE_PLACEMENT).format(
+                player=label, name=name, strength=strength, row=row)
         row_phrases = self._ROW_PHRASES.get(row, self._CLOSE_PHRASES)
         return random.choice(row_phrases).format(
             player=label, name=name, strength=strength)
 
     def _msg_spy(self, label, name, strength):
         if self._simple:
-            return f"{label}: {name}, spy. Draw 2."
+            return random.choice(self._SIMPLE_SPY).format(
+                player=label, name=name, strength=strength)
         return random.choice(self._SPY_PHRASES).format(
             player=label, name=name, strength=strength)
 
@@ -212,13 +450,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_medic_prompt(self, label, name, count):
         if self._simple:
-            return f"{label}: {name}, medic. Scan discard. {count} available."
+            return random.choice(self._SIMPLE_MEDIC_PROMPT).format(
+                player=label, name=name, count=count)
         return random.choice(self._MEDIC_PROMPT_PHRASES).format(
             player=label, name=name, count=count)
 
     def _msg_medic_resurrect(self, label, resurrected):
         if self._simple:
-            return f"{label}: {resurrected} resurrected."
+            return random.choice(self._SIMPLE_MEDIC_RESURRECT).format(
+                player=label, resurrected=resurrected)
         return random.choice(self._MEDIC_PHRASES).format(
             player=label, name="the medic", resurrected=resurrected)
 
@@ -233,19 +473,22 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_medic_empty(self, label, name):
         if self._simple:
-            return f"{label}: {name}, medic. No targets."
+            return random.choice(self._SIMPLE_MEDIC_EMPTY).format(
+                player=label, name=name)
         return random.choice(self._MEDIC_EMPTY_PHRASES).format(
             player=label, name=name)
 
     def _msg_muster(self, label, name, count, mustered):
         if self._simple:
-            return f"{label}: {name}, muster. {mustered}."
+            return random.choice(self._SIMPLE_MUSTER).format(
+                player=label, name=name, count=count, mustered=mustered)
         return random.choice(self._MUSTER_PHRASES).format(
             player=label, name=name, count=count, mustered=mustered)
 
     def _msg_scorch(self, label, name, scorched):
         if self._simple:
-            return f"{label}: {name}, scorch. {scorched}."
+            return random.choice(self._SIMPLE_SCORCH).format(
+                player=label, name=name, scorched=scorched)
         return random.choice(self._SCORCH_ABILITY_PHRASES).format(
             player=label, name=name, scorched=scorched)
 
@@ -260,36 +503,41 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     def _msg_scorch_no_targets(self, name):
         if self._simple:
-            return f"{name}, scorch. No targets."
+            return random.choice(self._SIMPLE_SCORCH_NO_TARGETS).format(name=name)
         return random.choice(self._SCORCH_NO_TARGET_PHRASES).format(name=name)
 
     def _msg_decoy(self, label, target_name, row):
         if self._simple:
-            return f"{label}: Decoy on {row}. {target_name} returned to hand."
+            return random.choice(self._SIMPLE_DECOY).format(
+                player=label, target=target_name, row=row)
         return random.choice(self._DECOY_PHRASES).format(
             player=label, target=target_name, row=row)
 
     def _msg_mardroeme(self, label, name):
         if self._simple:
-            return f"{label}: {name}. Weather cleared."
+            return random.choice(self._SIMPLE_MARDROEME).format(
+                player=label, name=name)
         return random.choice(self._MARDROEME_PHRASES).format(
             player=label, name=name)
 
     def _msg_scorch_specialty(self, label, card_name, scorched_names):
         if self._simple:
-            return f"{label}: {card_name}, scorch. {scorched_names}."
+            return random.choice(self._SIMPLE_SCORCH_SPECIALTY).format(
+                player=label, name=card_name, scorched=scorched_names)
         return random.choice(self._SCORCH_SPECIALTY_PHRASES).format(
             player=label, name=card_name, scorched=scorched_names)
 
     def _msg_scorch_specialty_empty(self, label, card_name):
         if self._simple:
-            return f"{label}: {card_name}, scorch. No targets."
+            return random.choice(self._SIMPLE_SCORCH_SPECIALTY_EMPTY).format(
+                player=label, name=card_name)
         return random.choice(self._SCORCH_SPECIALTY_NO_TARGETS).format(
             player=label, name=card_name)
 
     def _msg_commander(self, label, name, faction, row):
         if self._simple:
-            return f"{label}: {name}, horn on {row}."
+            return random.choice(self._SIMPLE_COMMANDER).format(
+                player=label, name=name, row=row)
         return random.choice(self._COMMANDER_PHRASES).format(
             name=name, faction=faction, row=row)
 
@@ -361,7 +609,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         super().process_card(card)
 
         if self._awaiting == self.AWAITING_ROW_CHOICE:
-            self.publish_error("Choose a row from the menu first")
+            self.publish_error(random.choice(self._SIMPLE_CHOOSE_ROW_FIRST))
             return
         if self._awaiting == self.AWAITING_MEDIC_CHOICE:
             self._process_medic_scan(card)
@@ -1249,13 +1497,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 break
 
         if not has_target:
-            self.publish_error("No non-hero cards on your board to swap with Decoy")
+            self.publish_error(random.choice(self._SIMPLE_NO_DECOY_TARGET))
             return
 
         self._pending_card = card
         self._awaiting = self.AWAITING_DECOY_CHOICE
         self.publish_prompt(
-            f"{label}: Decoy! Scan a card on your board to return to hand.",
+            random.choice(self._SIMPLE_DECOY_PROMPT).format(player=label),
             ok=False, cancel=False, clear_choices=True,
             faction=self._current_faction())
 
@@ -1272,7 +1520,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             return
 
         if target.has_specialty and target.specialty == "hero":
-            self.publish_error("Cannot swap a hero card with Decoy")
+            self.publish_error(random.choice(self._SIMPLE_HERO_DECOY))
             return
 
         # Swap: remove target from board, place decoy on that row, return target to hand
@@ -1345,7 +1593,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         pb = self._board.players[cur]
 
         if pb.leader_used:
-            self.publish_error("Leader ability already used this game")
+            self.publish_error(random.choice(self._SIMPLE_LEADER_USED))
             return
 
         pb.leader_used = True
@@ -1424,7 +1672,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
             self.publish(gwent.game.CH_MFD_PRESENT, mfd)
             self.publish_prompt(
-                f"{label}: leader ability. Scan a weather card from your deck.",
+                random.choice(self._SIMPLE_LEADER_WEATHER).format(player=label),
                 faction=self._current_faction())
 
     def _process_leader_weather_scan(self, card):
@@ -1470,8 +1718,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if opp_discard:
             self._awaiting = self.AWAITING_LEADER_DISCARD
             self.publish_prompt(
-                f"{label}: leader ability. Scan a card from opponent's discard to take. "
-                f"{len(opp_discard)} available.",
+                random.choice(self._SIMPLE_LEADER_OPP_DISCARD).format(
+                    player=label, count=len(opp_discard)),
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
         else:
@@ -1530,8 +1778,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         if non_hero:
             self._awaiting = self.AWAITING_LEADER_OWN_DISCARD
             self.publish_prompt(
-                f"{label}: leader ability. Scan a card from your discard to restore. "
-                f"{len(non_hero)} available.",
+                random.choice(self._SIMPLE_LEADER_OWN_DISCARD).format(
+                    player=label, count=len(non_hero)),
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
         else:
@@ -1643,8 +1891,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         self._awaiting = self.AWAITING_LEADER_DISCARD_HAND
         self.publish_prompt(
-            f"{label}: leader ability. Scan {self._leader_discards_remaining} "
-            f"card(s) from your hand to discard.",
+            random.choice(self._SIMPLE_LEADER_DISCARD_HAND).format(
+                player=label, count=self._leader_discards_remaining),
             ok=False, cancel=False, clear_choices=True,
             faction=self._current_faction())
 
@@ -1843,7 +2091,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
                     gwent.messaging.choice.Message.from_properties(str(i), row.capitalize()))
             mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
             self.publish(gwent.game.CH_MFD_PRESENT, mfd)
-            self.publish_prompt(f"Choose row for {card.name}",
+            self.publish_prompt(random.choice(self._SIMPLE_CHOOSE_ROW).format(name=card.name),
                                ok=False, cancel=False, clear_choices=False,
                                faction=self._current_faction())
         else:
@@ -1882,7 +2130,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._awaiting = self.AWAITING_SPY_DRAW
             msg = self._msg_spy(label, card.name, card.strength or 0)
             self.publish_prompt(
-                f"{msg} Scan 2 cards from your deck to draw.",
+                random.choice(self._SIMPLE_SPY_DRAW).format(msg=msg),
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
             return
@@ -2006,15 +2254,33 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._announce_and_advance(
             self._msg_medic_resurrect(label, resurrected.name))
 
+    @staticmethod
+    def _muster_base_name(name):
+        """Extract muster base name: 'Arachas: 1' → 'Arachas', 'Arachas: Behemoth' → 'Arachas: Behemoth'.
+        Only strips ': N' suffix where N is a digit. Non-numeric suffixes are part of the base name."""
+        parts = name.rsplit(": ", 1)
+        if len(parts) == 2 and parts[1].strip().isdigit():
+            return parts[0].strip()
+        return name
+
+    @staticmethod
+    def _is_muster_match(muster_base, candidate_name):
+        """Check if candidate matches the muster base name.
+        'Arachas' matches 'Arachas: 2' but NOT 'Arachas: Behemoth'."""
+        candidate_base = PlayRound._muster_base_name(candidate_name)
+        return candidate_base == muster_base
+
     def _process_muster(self, card, row_name):
-        """Auto-play all cards with the same name from hand and deck."""
+        """Auto-play all cards with the same base name from hand and deck.
+        Base name matching: 'Name: N' (numeric suffix) strips to 'Name'.
+        'Name: Word' keeps full name as base (different card)."""
         cur = self._board.current_player
-        muster_name = card.name.split(":")[0].strip()  # "Arachas: 1" → "Arachas"
+        muster_name = self._muster_base_name(card.name)
         mustered = []
 
         # From hand
         for hc in list(self._board.hands[cur]):
-            if hc.rfid != card.rfid and hc.name.startswith(muster_name):
+            if hc.rfid != card.rfid and self._is_muster_match(muster_name, hc.name):
                 row = hc.ranges[0] if hc.ranges else row_name
                 self._board.place_card(cur, hc, row)
                 self._board.remove_from_hand(cur, hc)
@@ -2022,7 +2288,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         # From deck
         for dc in list(self._board.decks[cur]):
-            if dc.name.startswith(muster_name):
+            if self._is_muster_match(muster_name, dc.name):
                 row = dc.ranges[0] if dc.ranges else row_name
                 self._board.place_card(cur, dc, row)
                 self._board.decks[cur].remove(dc)

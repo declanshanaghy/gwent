@@ -1,0 +1,548 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-29T05:45:58.490015+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Nilfgaardian",
+          "kind": "card",
+          "leader": {
+            "draw_opponent_discard": true,
+            "instructions": "Draw a card from your opponents discard pile"
+          },
+          "name": "Emhyr var Emreis - The Relentless",
+          "owner": "Declan Shanaghy",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 413287665097,
+          "owner_nickname": "dek",
+          "content_id": "4d954d0ee26d478e1b69ef5d2cbeeaa3"
+        },
+        "PLAYER.TWO": {
+          "faction": "Scoia'tael",
+          "kind": "card",
+          "leader": {
+            "commander_ranges": [
+              "ranged"
+            ],
+            "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+          },
+          "name": "Francesca Findabair - The Beautiful",
+          "owner": "Declan Shanaghy",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 553478147534,
+          "owner_nickname": "dek",
+          "content_id": "6257c81673ecaa977fc489e132fb1015"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Nilfgaardian",
+        "PLAYER.TWO": "Scoia'tael"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Avallac'h",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 70931926273,
+            "content_id": "d5e94d3bdad8642bc3be4f180ac624fd"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Vattier de Rideaux",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 138040855982,
+            "content_id": "b44d473fd237a6c6bb71f20269eb728c"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Shilard Fitz-Oesterlen",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 7,
+            "rfid": 4024454466,
+            "content_id": "b1e1a3fc1f826a54171dff0120b4155f"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Stefan Skellen",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 9,
+            "rfid": 965291822578,
+            "content_id": "06a9c20c9431cee76553b12fcd7089fc"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 895314251018,
+            "content_id": "d4e7193707c0db1f942b6e1b3ff29463"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 824933830015,
+            "content_id": "e763ab1c1a29a4e459e1f5c8482961d6"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 414798007645,
+            "content_id": "7fe103bda26e469d0e03ef4691789197"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Tibor Eggebracht",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 414982688086,
+            "content_id": "5e24c583aec150ecdeb145d29eca2d02"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Morvran Voorhis",
+            "strength": 10,
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "hero",
+            "content_id": "c3e0ecc5e7d0b5c99bc2712567184d5e",
+            "rfid": 275059527124,
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy",
+            "specialty": "decoy",
+            "strength": 0,
+            "content_id": "db8c1b2921076280374a0726e7aac319",
+            "rfid": 2245217563,
+            "owner_nickname": "dek"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 3118157103,
+            "content_id": "de71c85b141e22bd62474e8ccbaf2898"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 2648329482,
+            "content_id": "f723fe9c26375855f5faececb7787dd5"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dol Blathanna Scout: 1",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 894978247969,
+            "content_id": "2c53dbc5bde0d28b9341b1aef48605e4"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dol Blathanna Scout: 2",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 416290655514,
+            "content_id": "bc41255b11c22532b26cef3964d0e9fe"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Vrihedd Brigade Veteran: 1",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 71333924115,
+            "content_id": "2a855d88fbf6c0700c314e518705c2ad"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Vrihedd Brigade Veteran: 2",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 894206037370,
+            "content_id": "b4e245919bfe05ac07e2fab4e09d9acd"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Geralt of Rivia",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 70999231800,
+            "content_id": "8b4298c6b9c834122fa743edbea35deb"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Iorveth",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 485060201733,
+            "content_id": "044f10c59e390a05181f8cff90d821e5"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy",
+            "specialty": "decoy",
+            "content_id": "44057f4aa633083da0f5d80f3af77267",
+            "rfid": 619110092078,
+            "owner_nickname": "dek"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Milva",
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "rfid": 619848945004,
+            "content_id": "bb1de6d0a9db47bd4c53f7ff6b259750"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Yennefer of Vengerberg",
+            "strength": 7,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "medic"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 278851702074,
+            "content_id": "f230a63682795dc71f7a37468f1a0cb3"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Etolian Auxillary Archers",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 345759829369,
+            "content_id": "93f8e093d9cbb19ab8e4e3670f48e671"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Villentretenmerth",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "scorch"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 966046797217,
+            "content_id": "044fa7937fe57ac7fae55ba06054d47e"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Commander's Horn: 1",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "specialty": "commander",
+            "content_id": "67df005a2b9c349bbe44f181985530cd",
+            "rfid": 621643189683,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impenetrable Fog: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 482762575295,
+            "content_id": "c9ec93563795417fa8c368cd7bb5ebfa"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 550911036754,
+            "content_id": "d7f66010823774a5f2ee2f6cb7aa1b17"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 299584903,
+            "content_id": "c313afc9a57e8a7017164e863ed2f470"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 2",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 414143106459,
+            "content_id": "77ae8c2f82e7adbc2f3215fa7e6fd501"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Havekar Healer",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 0,
+            "rfid": 1032534445315,
+            "content_id": "38c0bc7854b189c9458ff2e048cad36d"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "owner": "Declan Shanaghy",
+            "content_id": "2f0ab64e72672d094987b7b114043112",
+            "rfid": 553545190897,
+            "owner_nickname": "dek"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}

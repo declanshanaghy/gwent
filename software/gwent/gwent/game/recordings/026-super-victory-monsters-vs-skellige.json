@@ -1,0 +1,555 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-29T05:45:58.482338+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Monsters",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick any weather card from your deck and play it instantly",
+            "weather_ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ]
+          },
+          "name": "Eredin - King of the Wild Hunt",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 209511075183,
+          "content_id": "cd73b8116382eea6357a80c50c0ddf4a"
+        },
+        "PLAYER.TWO": {
+          "faction": "Skellige",
+          "kind": "card",
+          "leader": {
+            "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+            "reshuffle_graveyards": true
+          },
+          "name": "Crach an Craite",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 1033423375860,
+          "content_id": "21a685ee45ec12415a2df3e46a8db898"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Monsters",
+        "PLAYER.TWO": "Skellige"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Avallac'h",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 826074549561,
+            "content_id": "5d4666f4c88439b21874294f67f5c762"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 622264733154,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "7ed775330db34f9ef7a0669715ef8a27"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Crone: Brewess",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 895011802403,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "4529bcbbf9992d74a52a71a39b1852c3"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "rfid": 826761760036,
+            "content_id": "f949dc29991b2f67a67a4a9873ad85b1"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Geralt of Rivia",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "content_id": "c7ef6b45af052c323df09f673990a7ab",
+            "rfid": 346429869409,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Imlerith",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 964553100774,
+            "content_id": "c15e919497bcbc90b60fd2e00eb57285"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Kayran",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 8,
+            "rfid": 485093756187,
+            "content_id": "e67f7b6aca414f626fdb888df2f463af"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Draug",
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "specialty": "hero",
+            "owner_nickname": "dylan",
+            "rfid": 277023247789,
+            "content_id": "ce2d72b76e042decfd28b86c805e9185"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "content_id": "39a3952b47ecce7469538ab15eb0dc9a",
+            "rfid": 618623487232,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 7,
+            "content_id": "4b8802e6ca62696331eab733baf568d8",
+            "rfid": 964737453542,
+            "owner_nickname": "dek"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414546414925,
+            "content_id": "d5c7fe1420801d00ee2277a5bb82e8f8"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414143761829,
+            "content_id": "2058e97889a4e448c572ad2c770cecde"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 275161304569,
+            "content_id": "27e02c7322fc6b8c4bca4090ab345912"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 550038883586,
+            "content_id": "9f889d20217e32da4c6818ea98469783"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 622231178716,
+            "content_id": "ad2cede0451f80479ec6692763508f92"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Cirilla Fiona Elen Riannon",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 206826655118,
+            "content_id": "b4951ddcc17fb9c0b9c696113d07019c"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Hemdall",
+            "strength": 11,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 1033054211567,
+            "content_id": "7041e8d7211e701b455e462125110134"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Hjalmar",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 2346863908,
+            "content_id": "9a713f1009a9acab3407173b7c7c6dc5"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Olaf",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "strength": 12,
+            "content_id": "b50a46f087ab48b9872dfc8b3e2ec6dc",
+            "rfid": 137587477951,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Commander's Horn",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "specialty": "commander",
+            "content_id": "5469b2ef150f851e6dbd9c37862f9cc3",
+            "rfid": 1031041404264,
+            "owner_nickname": "dek"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 482409860530,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "88dbc07bb33ab1e09d33aff66b1ab563"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: Behemoth",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 345675550136,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "26263b263373beac2594f8375cd3437f"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Crone: Weavess",
+            "strength": 6,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "rfid": 964837985754,
+            "content_id": "071b44356e6484a84fa53b9733631dfa"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder: 2",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 1033944190438,
+            "content_id": "8d3c6f71d7872cab87bc31ea8f6f084d"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Vampire: Garkhain",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 552789757359,
+            "abilities": [
+              "muster"
+            ],
+            "content_id": "80f01ac87e9477a53eb75826f9c762ad"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "b56974e82d48a0f9b67fa7bc7c792306",
+            "rfid": 553007992276,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "content_id": "7967447d060c6357ad981522e0dc71b7",
+            "rfid": 415434427718,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Birna Bran",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 622315523548,
+            "content_id": "d2b34b2a44b287c51c34f94813e3c911"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Decoy",
+            "specialty": "decoy",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "rfid": 756767083802,
+            "content_id": "ffea651c17fb9864734ece2bc7c3fdb9"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 622214860262,
+            "content_id": "211e0ad8eabcc20ed27b570f18a90fd4"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}
