@@ -77,9 +77,18 @@ def normalize_name(name):
 
 
 def fs_safe(name):
-    """Convert a card name to a filesystem-safe filename."""
-    s = name.replace("'", "").replace(":", "").replace(",", "")
-    s = re.sub(r'[^a-zA-Z0-9]', '', s.title().replace(" ", ""))
+    """Convert a card name to a filesystem-safe PascalCase filename.
+
+    Capitalizes the first letter of each space-separated word (including 'of',
+    'the', 'de', etc.), then strips special characters and spaces. Uses word
+    splitting instead of .title() to avoid capitalizing after mid-word
+    apostrophes (e.g. Avallac'h stays Avallach, not AvallacH).
+    """
+    words = name.split()
+    words = [w[0].upper() + w[1:] for w in words if w]
+    s = " ".join(words)
+    s = s.replace("'", "").replace(":", "").replace(",", "")
+    s = re.sub(r'[^a-zA-Z0-9]', '', s.replace(" ", ""))
     return s
 
 

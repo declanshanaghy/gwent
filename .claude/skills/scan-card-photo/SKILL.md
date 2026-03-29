@@ -144,7 +144,7 @@ Skellige       → Skellige
 Neutral        → Neutral
 ```
 
-**Filename**: Remove spaces, apostrophes, colons, commas from name. TitleCase. Example: `DwarvenSkirmisher4.json`
+**Filename**: Remove apostrophes, colons, commas. Apply `.title()` to capitalize the first letter of EVERY word (including "of", "the", "and", "in", "an"). Then remove all spaces. ALL words must be capitalized — no exceptions. Examples: `YenneferOfVengerberg.json`, `GeraltOfRivia.json`, `EredinKingOfTheWildHunt.json`, `DwarvenSkirmisher4.json`
 
 **JSON structure:**
 ```json

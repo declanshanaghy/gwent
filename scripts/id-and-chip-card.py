@@ -539,8 +539,19 @@ def find_card_json(name, faction, owner=None):
 
 
 def card_filename_base(name):
-    """Convert card name to base filename: remove spaces, apostrophes, colons, commas."""
-    return name.replace(" ", "").replace("'", "").replace(":", "").replace(",", "")
+    """Convert card name to base filename: PascalCase with all words capitalized.
+
+    Capitalizes the first letter of each space-separated word, then strips
+    special characters. Uses word splitting instead of .title() to avoid
+    capitalizing after mid-word apostrophes (Avallac'h → Avallach, not AvallacH).
+    """
+    import re
+    words = name.split()
+    words = [w[0].upper() + w[1:] for w in words if w]
+    s = " ".join(words)
+    s = s.replace("'", "").replace(":", "").replace(",", "")
+    s = re.sub(r'[^a-zA-Z0-9]', '', s.replace(" ", ""))
+    return s
 
 
 def next_card_filename(name, faction):

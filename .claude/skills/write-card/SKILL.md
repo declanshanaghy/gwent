@@ -11,7 +11,7 @@ Write a Gwent card's data to a physical RFID tag. Takes a card JSON file path as
 /write-card <path-to-card-json>
 ```
 
-Example: `/write-card software/data/cards/NorthernRealms/FoltestKingofTemeria.json`
+Example: `/write-card software/data/cards/NorthernRealms/FoltestKingOfTemeria.json`
 
 ## Prerequisites
 
