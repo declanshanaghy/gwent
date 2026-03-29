@@ -1,6 +1,6 @@
 ---
 name: voice-explorer
-description: Audition TTS voices for Gwent factions across providers (gtts, elevenlabs, openai)
+description: Audition TTS voices for Gwent factions across providers (gtts, elevenlabs, openai, piper, say)
 user_invocable: true
 allowed-tools: Bash, AskUserQuestion, Edit, Read
 ---
@@ -9,14 +9,25 @@ Audition TTS voices for a specific faction and provider, then let the user pick 
 
 ## Usage
 
-`/voice-explorer <provider> [faction]`
+`/voice-explorer --tts <provider> [faction]`
 
-- **provider** (required): `elevenlabs` | `openai` | `gtts` | `google`
+- **provider** (required): `elevenlabs` | `openai` | `gtts` | `google` | `piper` | `say`
 - **faction** (optional): `monsters` | `northern-realms` | `skellige` | `scoiatael` | `nilfgaardian`
+
+Platform-local providers (no API keys):
+- `piper` — Linux only, neural TTS with ONNX models in `~/.local/share/piper-voices/`
+- `say` — macOS only, native `say` command with system voices
 
 If **faction is omitted**, run in **all-factions mode**: randomly assign one voice from the provider's catalog to each faction, update the provider file, clear the TTS cache, and confirm the mapping. No audition — just shuffle and apply.
 
 If **provider is missing**, use AskUserQuestion to ask.
+
+## Quick show (no audio)
+
+To just show the current mapping without playing audio:
+```bash
+tts-voice-explorer --tts <provider> --show
+```
 
 ## Environment
 
@@ -67,6 +78,39 @@ com.ph   Philippine English
 com.sg   Singaporean English
 com.hk   Hong Kong English
 ```
+
+### Piper voices (model name → description)
+```
+en_US-ryan-medium                    American male (default)
+en_GB-northern_english_male-medium   Northern English male (gruff)
+en_GB-alan-medium                    British male (noble)
+en_US-joe-medium                     American male (low)
+en_US-bryce-medium                   American male (commanding)
+```
+
+### macOS `say` voices
+```
+Daniel    British male (noble, authoritative)
+Moira     Irish female (Celtic)
+Samantha  American female (light, precise)
+Tom       American male (deep, ominous)
+Oliver    British male (imperial)
+```
+
+## Piper / say faction modes
+
+For `piper` and `say`, use the voice explorer script directly:
+```bash
+source ~/gwent-venv/bin/activate
+tts-voice-explorer --tts piper          # audition with audio
+tts-voice-explorer --tts piper --show   # show mapping only
+tts-voice-explorer --tts say            # macOS only
+tts-voice-explorer --tts say --show     # show mapping only
+```
+
+To update faction assignments, edit the `FACTION_VOICE` dict in the provider file:
+- Piper: `software/gwent/gwent/hal/tts/piper_provider.py`
+- Say: `software/gwent/gwent/hal/tts/say_provider.py`
 
 ## gTTS faction audition mode (provider is gtts or google)
 
