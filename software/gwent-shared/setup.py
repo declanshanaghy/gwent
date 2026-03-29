@@ -6,5 +6,9 @@ setup(
     description="Shared utilities for Gwent Companion (TTS, constants)",
     packages=find_packages(),
     python_requires=">=3.6",
-    install_requires=[],
+    install_requires=[
+        "gtts",
+        "elevenlabs",
+        "openai",
+    ],
 )

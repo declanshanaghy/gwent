@@ -9,8 +9,10 @@ source ${VENV_DIR}/bin/activate
 
 ROOT="${DIR}/../software"
 
-# Install MFRC522-python
-if ! pip3 show mfrc522 > /dev/null 2>&1; then
+# Install MFRC522-python (Raspberry Pi only — requires SPI hardware)
+if [ "$(uname)" = "Darwin" ]; then
+    echo "Skipping MFRC522-python (not needed on macOS)."
+elif ! pip3 show mfrc522 > /dev/null 2>&1; then
     echo "Installing MFRC522-python from local sources..."
     pip3 install -e $ROOT/MFRC522-python
 else

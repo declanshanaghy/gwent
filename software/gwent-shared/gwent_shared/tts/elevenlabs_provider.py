@@ -19,6 +19,9 @@ faction's personality.  Per-faction VoiceSettings tune delivery style:
 
 import os
 
+from elevenlabs import VoiceSettings
+from elevenlabs.client import ElevenLabs
+
 from gwent_shared.tts.base import TTSProvider
 
 
@@ -56,12 +59,9 @@ class ElevenLabsProvider(TTSProvider):
             raise RuntimeError(
                 "ELEVENLABS_API_KEY environment variable is not set"
             )
-        from elevenlabs.client import ElevenLabs
         self._client = ElevenLabs(api_key=api_key)
 
     def synthesize(self, text: str, faction: str | None, dest: str) -> None:
-        from elevenlabs import VoiceSettings
-
         voice_id = FACTION_VOICE_ID.get(faction, DEFAULT_VOICE_ID) if faction else DEFAULT_VOICE_ID
         stability, similarity, style = (
             FACTION_VOICE_SETTINGS.get(faction, DEFAULT_SETTINGS)

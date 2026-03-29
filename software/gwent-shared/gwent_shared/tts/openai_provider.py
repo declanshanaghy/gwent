@@ -14,6 +14,8 @@ tuning to reinforce personality:
 
 import os
 
+from openai import OpenAI
+
 from gwent_shared.tts.base import TTSProvider
 
 
@@ -39,7 +41,6 @@ class OpenAIProvider(TTSProvider):
             raise RuntimeError(
                 "OPENAI_API_KEY environment variable is not set"
             )
-        from openai import OpenAI
         self._client = OpenAI(api_key=api_key)
 
     def synthesize(self, text: str, faction: str | None, dest: str) -> None:
