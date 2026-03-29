@@ -6,6 +6,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import faction_emoji
 import gwent_tui.snapshot as snapshot_mod
+from gwent_tui import tts as tts_mod
 
 _CONN_ICON = {
     "off":        ("\u26aa", "grey50"),    # white circle
@@ -26,10 +27,19 @@ class FooterWidget(Static):
         http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))
         pt = snapshot_mod.POLL_TIMEOUT
         poll_label = f"{pt}s" if pt > 0 else "off"
+        # TTS provider labels
+        server_tts = state.server_tts or "?"
+        provider = tts_mod._get_provider()
+        client_tts = tts_mod._provider_name or "auto"
+        if provider and provider is not False:
+            client_tts = tts_mod._provider_name or type(provider).__name__.replace("Provider", "").lower()
+        elif provider is False:
+            client_tts = "off"
         parts.append(
             f"{mqtt_icon} [{mqtt_c}]MQTT {state.mqtt_status}[/{mqtt_c}]  "
             f"{http_icon} [{http_c}]HTTP {state.http_status}[/{http_c}]  "
-            f"\U0001f504 [dim]poll {poll_label}[/dim]"
+            f"\U0001f504 [dim]poll {poll_label}[/dim]  "
+            f"\U0001f50a [dim]S:{server_tts} C:{client_tts}[/dim]"
         )
 
         if state.last_prompt:

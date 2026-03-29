@@ -118,6 +118,7 @@ def snapshot_dict(controller):
         "version": STATE_VERSION,
         "saved_at": datetime.now(timezone.utc).isoformat(),
         "active_stage": stage_name,
+        "tts_provider": getattr(controller, '_tts_provider', None),
         "state": state,
     }
 

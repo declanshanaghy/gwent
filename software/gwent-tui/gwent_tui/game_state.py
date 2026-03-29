@@ -82,6 +82,7 @@ class GameState:
         self.event_log = deque(maxlen=20)
         self.mqtt_status = "off"    # off, polling, processing, error
         self.http_status = "off"    # off, polling, processing, error
+        self.server_tts = ""       # server TTS provider name (from snapshot)
 
         # Change highlights: {key: expire_time}
         # Keys: "board:{player}:{row}:{card_name}", "hand:{player}:{card_name}",
@@ -111,6 +112,7 @@ class GameState:
     def _load_snapshot_unlocked(self, snapshot):
         state = snapshot.get("state", {})
         self.stage = snapshot.get("active_stage", "—") or "—"
+        self.server_tts = snapshot.get("tts_provider", "") or ""
 
         board = state.get("board", {})
         if not board or self.stage not in self._GAME_STAGES:

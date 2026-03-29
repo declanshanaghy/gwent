@@ -285,6 +285,7 @@ class Gwent:
         self.components = []
         controller = gwent.game.controller.Controller(self.pubsub)
         controller._owner_filter = getattr(self, '_owner_filter', None)
+        controller._tts_provider = getattr(self, '_tts_provider', 'elevenlabs')
         if controller._owner_filter:
             self._log.info(f"Owner filter: {controller._owner_filter}")
         self.components.append(controller)
