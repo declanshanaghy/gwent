@@ -173,6 +173,46 @@ fi
 echo "Restarting mosquitto service..."
 sudo systemctl restart mosquitto
 
+# Install piper TTS and download voice models for gwent-tui announcements
+echo "Installing piper TTS voice models..."
+PIPER_VOICE_DIR="${HOME}/.local/share/piper-voices"
+mkdir -p "${PIPER_VOICE_DIR}"
+
+PIPER_BASE_URL="https://huggingface.co/rhasspy/piper-voices/resolve/main"
+PIPER_MODELS=(
+  "en_US-ryan-medium"
+  "en_GB-northern_english_male-medium"
+  "en_GB-alan-medium"
+  "en_US-joe-medium"
+  "en_US-bryce-medium"
+)
+
+for model in "${PIPER_MODELS[@]}"; do
+  onnx_file="${PIPER_VOICE_DIR}/${model}.onnx"
+  json_file="${PIPER_VOICE_DIR}/${model}.onnx.json"
+
+  if [ -f "${onnx_file}" ] && [ -f "${json_file}" ]; then
+    echo "  ${model}: already downloaded"
+    continue
+  fi
+
+  # Build the HuggingFace path from the model name
+  # e.g. en_US-ryan-medium -> en/en_US/ryan/medium/en_US-ryan-medium.onnx
+  lang_code="${model%%_*}"             # en
+  locale="${model%%-*}"                # en_US
+  rest="${model#*-}"                   # ryan-medium
+  voice_name="${rest%-*}"              # ryan
+  quality="${rest##*-}"                # medium
+  onnx_url="${PIPER_BASE_URL}/${lang_code}/${locale}/${voice_name}/${quality}/${model}.onnx"
+  json_url="${onnx_url}.json"
+
+  echo "  ${model}: downloading (~60MB)..."
+  curl -sL -o "${onnx_file}" "${onnx_url}" && \
+  curl -sL -o "${json_file}" "${json_url}" && \
+  echo "  ${model}: done" || \
+  echo "  ${model}: download failed (non-critical)"
+done
+
 echo "System installation complete."
 echo "  mosquitto: $(systemctl is-active mosquitto)"
 echo "  pigpiod:   $(systemctl is-active pigpiod)"

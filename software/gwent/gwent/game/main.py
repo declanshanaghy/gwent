@@ -395,8 +395,8 @@ def run():
     parser.add_argument("-o", "--owner", default=None,
                         help="Only use decks owned by this player (name or nickname)")
     parser.add_argument("-t", "--tts", default="elevenlabs",
-                        choices=["gtts", "elevenlabs", "openai"],
-                        help="TTS provider: elevenlabs (default), gtts, or openai")
+                        choices=["gtts", "elevenlabs", "openai", "piper", "say"],
+                        help="TTS provider (default: elevenlabs)")
     parser.add_argument("-s", "--simple", action="store_true",
                         help="Simple mode: gTTS with static messages for max caching, no API cost")
     args, _unknown = parser.parse_known_args()

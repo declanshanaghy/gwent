@@ -254,9 +254,16 @@ def main():
                         help="Gwent server hostname (used for both MQTT and HTTP)")
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
     parser.add_argument("--no-snapshot", action="store_true")
+    parser.add_argument("--tts", default=None,
+                        help="TTS provider (piper, say, elevenlabs, openai, gtts). "
+                             "Default: say on macOS, piper on Linux")
     parser.add_argument("--gwent-url", default=None,
                         help="Override HTTP state URL (default: http://<host>:8080/state)")
     args = parser.parse_args()
+
+    # Initialise TTS before app starts
+    from gwent_tui import tts as tts_mod
+    tts_mod.init(args.tts)
 
     gwent_url = args.gwent_url or f"http://{args.host}:8080/state"
     snapshot_mod.gwent_state_url = gwent_url

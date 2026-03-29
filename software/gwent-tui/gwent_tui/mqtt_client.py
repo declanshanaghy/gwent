@@ -88,7 +88,8 @@ class MqttSubscriber:
         elif topic == "gwent/sfx":
             self.state.on_sfx(data)
             if data.get("subkind") == "announcement":
-                tts.speak(data.get("announcement", ""))
+                tts.speak(data.get("announcement", ""),
+                          faction=data.get("faction"))
 
         elif topic == "gwent/cards/raw/read":
             self.state.on_raw_read(data)
