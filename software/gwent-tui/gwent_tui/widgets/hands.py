@@ -13,7 +13,7 @@ from gwent_tui.widgets.board import SPLIT_BOX
 
 class _HandsContent(Static):
     DEFAULT_CSS = """
-    _HandsContent { width: 1fr; min-height: 100%; }
+    _HandsContent { width: 1fr; }
     """
 
     def render(self):

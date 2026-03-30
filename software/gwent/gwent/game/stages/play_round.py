@@ -286,6 +286,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._leader_draws_remaining = 0
 
         if board is None:
+            # New game — generate fresh game_id
+            from gwent.game.state import new_game_id
+            gid = new_game_id()
+            self._log.info("New game started, game_id=%s", gid)
+
             # First round — extract leaders from decks
             leader1 = next((c for c in deck1 if c.is_leader), None)
             leader2 = next((c for c in deck2 if c.is_leader), None)

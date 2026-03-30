@@ -99,6 +99,9 @@ class GameState:
         # {("hand", player): [card_dict, ...], ("board", player, row): [...]}
         self.ghosts = {}
 
+        # Game identity — reset round history when game_id changes
+        self.game_id = ""
+
         # Round history: [{round, p1_score, p2_score, winner, p1_gems, p2_gems}, ...]
         self.round_results = []
         self._last_recorded_round = 0
@@ -119,6 +122,17 @@ class GameState:
     _GAME_STAGES = {"PlayRound", "RoundEnd", "GameOver", "DisplayWinner"}
 
     def _load_snapshot_unlocked(self, snapshot):
+        # Detect new game — reset round history when game_id changes
+        new_game_id = snapshot.get("game_id", "")
+        if new_game_id and new_game_id != self.game_id:
+            if self.game_id:
+                log.info("New game detected (id=%s → %s), resetting round history",
+                         self.game_id, new_game_id)
+            self.game_id = new_game_id
+            self.round_results = []
+            self._last_recorded_round = 0
+            self.move_times = {P1: [], P2: []}
+
         state = snapshot.get("state", {})
         self.stage = snapshot.get("active_stage", "—") or "—"
         self.server_tts = snapshot.get("tts_provider", "") or ""
@@ -409,7 +423,7 @@ class GameState:
 
         game_dir = Path("/tmp/gwent-tui")
         game_dir.mkdir(parents=True, exist_ok=True)
-        game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+        game_id = self.game_id or datetime.now().strftime("%Y%m%d-%H%M%S")
         path = game_dir / f"{game_id}.json"
 
         p1_gems = self.gems.get(P1, 0)

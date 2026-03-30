@@ -1,0 +1,772 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-30T08:13:14.047522+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Skellige",
+          "kind": "card",
+          "leader": {
+            "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+            "reshuffle_graveyards": true
+          },
+          "name": "Crach an Craite",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 1033423375860,
+          "last_updated": "2026-03-26T12:35:00",
+          "rfid_written_at": "2026-03-26T12:35:00",
+          "content_id": "16d26213a62e7ca6043a45a2b67b41d9"
+        },
+        "PLAYER.TWO": {
+          "faction": "Scoia'tael",
+          "kind": "card",
+          "leader": {
+            "commander_ranges": [
+              "ranged"
+            ],
+            "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+          },
+          "name": "Francesca Findabair - The Beautiful",
+          "owner": "Declan Shanaghy",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 553478147534,
+          "owner_nickname": "dek",
+          "last_updated": "2026-03-26T17:48:19",
+          "rfid_written_at": "2026-03-26T17:48:19",
+          "content_id": "46e91e4448e1e348546766597025fd1d"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Skellige",
+        "PLAYER.TWO": "Scoia'tael"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Avallac'h: 2",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:44:00",
+            "rfid": 481285852652,
+            "rfid_written_at": "2026-03-29T04:13:25",
+            "content_id": "4f41b247eaa9adf12fbaa2a41f100fce"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414546414925,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "7743b31b0005b3128b53f66b00b17ad5"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414143761829,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "39d5cb5bd235166cbe7a0552bc8908f5"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 275161304569,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "eea2563a4f9ec44e974c0c9c0f0bde87"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Transformed Young Vildkaarl",
+            "strength": 8,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "bond"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-29T04:08:12",
+            "rfid": 619059563820,
+            "rfid_written_at": "2026-03-29T04:17:28",
+            "content_id": "fecc755c08fcdc360a5142f06b7269a1"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Transformed Young Vildkaarl: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 8,
+            "rfid": 71703678259,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "b7da41433814b01c7cfdd4b66eb003e3"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Transformed Young Vildkaarl: 2",
+            "ranges": [
+              "ranged"
+            ],
+            "strength": 8,
+            "owner": "Declan Shanaghy",
+            "rfid": 619059563820,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "81d817a08ef3eef0b234daf9dd1d7a6c"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "rfid": 415434427718,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "f357e95201199b911265327f0169165a"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Cirilla Fiona Elen Riannon",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T15:30:26",
+            "rfid": 206826655118,
+            "rfid_written_at": "2026-03-29T04:22:50",
+            "content_id": "5ee7baeca7aeff1de7cca2985d65ec92"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Olaf",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "strength": 12,
+            "rfid": 137587477951,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "19800ea0cfaadb0ee1bcc3f6df34b9d3"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Geralt of Rivia",
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:39:00",
+            "rfid": 70999231800,
+            "rfid_written_at": "2026-03-29T04:36:29",
+            "content_id": "733446269d5608c4004ba3ff544aefde"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Cirilla Fiona Elen Riannon",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "rfid": 416307170583,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "83f92454529e04055eba77855288c32d"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Isengrim Faoiltiarna: 2",
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "medic"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:38:00",
+            "rfid": 893552643445,
+            "rfid_written_at": "2026-03-29T04:44:26",
+            "content_id": "7f23f06f66e3d76c31649dfccd5f175a"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 3118157103,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "80a5fe849742bf727a164e09a2136e36"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Milva",
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "last_updated": "2026-03-26T16:42:44",
+            "rfid": 619848945004,
+            "rfid_written_at": "2026-03-29T01:56:36",
+            "content_id": "d1ba2e155d3a3b2ece07695eab1ee6d7"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Iorveth",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 485060201733,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "07feffce28f90affb51b256314260160"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Elven Skirmisher",
+            "strength": 2,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:40:00",
+            "rfid": 618724805900,
+            "rfid_written_at": "2026-03-29T04:26:28",
+            "content_id": "359854061758540540d36b9b2300f586"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Dol Blathanna Scout",
+            "strength": 6,
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "abilities": [
+              "agile"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:39:00",
+            "rfid": 1032652541232,
+            "rfid_written_at": "2026-03-29T04:43:45",
+            "content_id": "f044c1a49adbab1b2cc8a4720a5940c5"
+          },
+          {
+            "abilities": [
+              "agile"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Filavandrel aen Fidhail",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 206340509101,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "bf8c2beaf41e643383938a2740094bb3"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Villentretenmerth",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "scorch"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:41:00",
+            "rfid": 690917101038,
+            "rfid_written_at": "2026-03-29T04:25:57",
+            "content_id": "46e7860d4c19f06667a2d620fc5087bc"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Hemdall",
+            "strength": 11,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:45:00",
+            "rfid": 1033054211567,
+            "rfid_written_at": "2026-03-29T04:22:19",
+            "content_id": "f8664afddc376af2593e2b02e84639da"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Hjalmar",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 2346863908,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "a0b7e63f872cb13beaed840774ad18c7"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "rfid": 553007992276,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "d208ff8d3bb47259ff3acb089741d287"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 550038883586,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "81b7f0be382c73ff575ae663bd67f1db"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 622231178716,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "b53871cbc893cb3f2b69705b522483ba"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Birna Bran",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 622315523548,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "25c17975cc7cfa55b973bf4d85487660"
+          },
+          {
+            "kind": "card",
+            "faction": "Skellige",
+            "name": "Villentretenmerth",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "scorch"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:43:00",
+            "rfid": 137519975869,
+            "rfid_written_at": "2026-03-29T04:23:23",
+            "content_id": "5af93e33ce7f90e1c898dd252e686ed3"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Commander's Horn",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "specialty": "commander",
+            "rfid": 1031041404264,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "d386750cf55ed7ffb90763a4e7e61453"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 622214860262,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "84d3b0c9a32c28b5b92fec75a6512fee"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clear Weather: 1",
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 895280696588,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "26773a439ab847f33bdd6fd5ba57e4a2"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Eithn\u00e9",
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:41:00",
+            "rfid": 277375372613,
+            "rfid_written_at": "2026-03-29T02:54:05",
+            "content_id": "1892f66c058e4990a49d493440403fea"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Saesenthessis: 2",
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:37:00",
+            "rfid": 966046928291,
+            "rfid_written_at": "2026-03-29T04:37:02",
+            "content_id": "6fb72096d1baba519f4ec7b74e0622c6"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Triss Merigold",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:39:00",
+            "rfid": 137990000021,
+            "rfid_written_at": "2026-03-29T03:53:21",
+            "content_id": "96269a5b5d33904fdd66001d2ba51378"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 550911036754,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "a15aae6342220b5d2be185dc4aba98db"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Dwarven Skirmisher: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 299584903,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "d8f82b8c33475a9b180c918d635d2b28"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 2648329482,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "4e6ca6632f1d235ed91f61b5d80fe8ab"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Elven Skirmisher: 2",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 414143106459,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "bd0ec72692c1937aa551cdf7ac55d0d3"
+          },
+          {
+            "kind": "card",
+            "faction": "Scoia'tael",
+            "name": "Decoy",
+            "specialty": "decoy",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:42:00",
+            "rfid": 1033793129936,
+            "rfid_written_at": "2026-03-29T02:31:48",
+            "content_id": "1aafd812f7cdd0c167330e43fc24e86a"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "owner": "Declan Shanaghy",
+            "rfid": 553545190897,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-27T23:30:41",
+            "rfid_written_at": "2026-03-27T23:30:41",
+            "content_id": "a61833381104156c1940771b96ea4b19"
+          },
+          {
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Clear Weather",
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 482040696283,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "27667b61712be5f9d31dbb5aadabd5b4"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}

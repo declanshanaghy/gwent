@@ -6,6 +6,7 @@ resumed at any point. State files are stored in the recordings/ directory.
 Format:
     {
         "version": 1,
+        "game_id": "20260330-001500",
         "saved_at": "2026-03-24T21:30:00Z",
         "active_stage": "DealCards",
         "state": {
@@ -27,6 +28,21 @@ import json
 import os
 import time
 from datetime import datetime, timezone
+
+# Unique ID for the current game — regenerated when a new game starts
+_game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+
+
+def new_game_id():
+    """Generate a new game_id from current time. Called when a new game starts."""
+    global _game_id
+    _game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+    return _game_id
+
+
+def get_game_id():
+    """Return the current game_id."""
+    return _game_id
 
 import jsonschema
 
@@ -118,6 +134,7 @@ def snapshot_dict(controller, player_names=None, client_tts=None):
 
     result = {
         "version": STATE_VERSION,
+        "game_id": _game_id,
         "saved_at": datetime.now(timezone.utc).isoformat(),
         "active_stage": stage_name,
         "tts_provider": getattr(controller, '_tts_provider', None),

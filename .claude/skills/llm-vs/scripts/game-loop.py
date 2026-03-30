@@ -1366,7 +1366,9 @@ def main():
         expected = set()
         if server_tts and server_tts != 'none':
             expected.add('gwent')
-        # Only wait for server TTS — clients don't publish MQTT completion signals
+        for cid, cprov in client_tts.items():
+            if cprov and cprov not in ('none', 'off', 'auto'):
+                expected.add(cid)
         if expected:
             sync.set_expected_sources(expected)
             log(f"Waiting for TTS sources: {expected}")

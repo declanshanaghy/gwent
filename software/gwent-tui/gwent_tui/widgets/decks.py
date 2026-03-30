@@ -14,7 +14,7 @@ from gwent_tui.widgets.board import SPLIT_BOX
 class _DecksContent(Static):
     """Inner content for decks — rendered by Textual."""
     DEFAULT_CSS = """
-    _DecksContent { width: 1fr; min-height: 100%; }
+    _DecksContent { width: 1fr; }
     """
 
     def render(self):

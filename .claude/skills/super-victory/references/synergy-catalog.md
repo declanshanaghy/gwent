@@ -1,179 +1,70 @@
+
 # Gwent Synergy Catalog
 
-Reference for building optimized faction decks. Only RFID-equipped cards are eligible.
+Only RFID-equipped cards are eligible. Card counts reflect actual RFID inventory.
 
 ## Muster Chains (play 1, auto-summon all same-named from hand + deck)
 
-| Faction | Chain | Cards | Total Str | Row |
-|---------|-------|-------|-----------|-----|
-| Monsters | Arachas | Arachas:1 (4), Arachas:2 (4) | 8 | close |
-| Monsters | Arachas: Behemoth | Behemoth (6) — standalone, does NOT muster with Arachas | 6 | siege |
-| Monsters | Crone: Brewess | standalone (6) — does NOT muster with Weavess (different suffix) | 6 | close |
-| Monsters | Crone: Weavess | standalone (6) — does NOT muster with Brewess (different suffix) | 6 | close |
-| Monsters | Vampire: Fleder | Fleder (4), Fleder: 2 (4) — numeric suffix matches | 8 | close |
-| Monsters | Vampire: Garkhain | standalone (4) — does NOT muster with Fleder (different name) | 4 | close |
-| Monsters | Ghoul | Ghoul:1 (1), Ghoul:2 (1) | 2 | close |
-| Monsters | Nekker | Nekker:1 (2), Nekker:2 (2) | 4 | close |
-| Monsters | Gaunter O'Dimm | Darkness 1 (4), Darkness 2 (4) | 8 | ranged |
-| Scoia'tael | Dwarven Skirmisher | 1 (3), 2 (3), 3 (3) | 9 | close |
-| Scoia'tael | Elven Skirmisher | 1 (2), 2 (2), + Elven Skirmisher (2) | 6 | ranged |
-| Scoia'tael | Havekar Smuggler | 1 (5) | 5 | close (only 1 RFID copy) |
-| Skellige | Light Longship | 1 (4), 2 (4) | 8 | ranged |
-| NR | Gaunter O'Dimm | Darkness 1 (4) | 4 | ranged (only 1 RFID copy) |
+- **Monsters**: Arachas x2 (4 ea, close=8), Behemoth (6, siege — standalone), Crone:Brewess (6) + Crone:Weavess (6) — standalone each, Vampire:Fleder x2 (4 ea, close=8), Vampire:Garkhain (4 — standalone), Ghoul x2 (1 ea=2), Nekker x2 (2 ea=4), Gaunter Darkness x2 (4 ea, ranged=8)
+- **Scoia'tael**: Dwarven Skirmisher x3 (3 ea, close=9), Elven Skirmisher x3 (2 ea, ranged=6), Havekar Smuggler x1 (5, close — no muster target), Gaunter Darkness x1 (4, ranged — only 1 copy)
+- **Skellige**: Light Longship x2 (4 ea, ranged=8), Gaunter Darkness x1 (4, ranged — only 1 copy)
+- **NR**: Gaunter Darkness x1 (4, ranged — only 1 copy)
 
-**Strategy**: Muster floods the board instantly. Best when combined with Commander Horn to double the row. Risk: depletes hand/deck quickly.
+Muster floods the board instantly. Best with Commander Horn to double the row. Risk: depletes hand/deck quickly.
 
 ## Bond Multipliers (strength x count of same-named in row)
 
-| Faction | Card | Copies | Individual Str | Bond Total |
-|---------|------|--------|---------------|------------|
-| Skellige | Clan an Craite Warrior | 3 | 6 | 6+12+18 = **36** |
-| Skellige | War Longship | 2 | 6 | 6+12 = **18** (siege) |
-| Skellige | Clan Drummond Shield Maiden | 2 | 4 | 4+8 = **12** |
-| Skellige | Transformed Young Vildkaarl | 3 | 8 | 8+16+24 = **48** (ranged) |
-| Nilfgaardian | Impera Brigade Guard | 3 | 3 | 3+6+9 = **18** |
-| Nilfgaardian | Nausicaa Cavalry Rider | 2 | 2 | 2+4 = **6** |
-| Nilfgaardian | Young Emissary | 2 | 5 | 5+10 = **15** |
-| NR | Poor Fucking Infantry | 2 | 1 | 1+2 = **3** (weak) |
-| NR | Blue Stripes Commando | 1 | 4 | 4 (only 1 RFID copy, bond useless) |
+- **Skellige**: Clan an Craite Warrior x3 (6 ea → 6+12+18=**36** close), War Longship x2 (6 ea → 6+12=**18** siege), Transformed Young Vildkaarl x3 (8 ea → 8+16+24=**48** ranged), Clan Drummond Shield Maiden x2 (4 ea → 4+8=**12** close)
+- **Nilfgaardian**: Impera Brigade Guard x3 (3 ea → 3+6+9=**18** close), Young Emissary x2 (5 ea → 5+10=**15** close), Nausicaa Cavalry Rider x2 (2 ea → 2+4=**6** close)
+- **NR**: Catapult x1 (8, siege — only 1 copy, bond useless), Blue Stripes Commando x1 (4 — only 1 copy), Poor Fucking Infantry x2 (1 ea → 1+2=**3** close — weak)
 
-**Strategy**: Bond is the highest damage multiplier. Stack all copies in one row, then Commander Horn to double. Counter: weather reduces bond base to 1 (multiply by 1 = nothing).
+Bond is the highest damage multiplier. Stack all copies + Commander Horn to double. Counter: weather reduces base to 1.
 
 ## Spy Draw Engine (play on opponent's board, draw 2 cards)
 
-| Faction | Card | Str Given | Hero? | Notes |
-|---------|------|-----------|-------|-------|
-| All factions | Avallac'h | 0 | Yes (most) | Free +2 cards, 0 cost |
-| Nilfgaardian | Vattier de Rideaux | 4 | No | +2 cards, gives 4 str |
-| Nilfgaardian | Shilard Fitz-Oesterlen | 7 | No | +2 cards, gives 7 str |
-| Nilfgaardian | Stefan Skellen | 9 | No | +2 cards, gives 9 str |
-| NR | Prince Stennis | 5 | No | +2 cards, gives 5 str |
-| NR | Sigismund Dijkstra | 4 | No | +2 cards, gives 4 str |
-| NR | Emiel Regis | 5 | No | +2 cards, gives 5 str |
-| Skellige | Avallac'h (non-hero) | 0 | No | +2 cards, 0 cost |
-
-**Strategy**: Spies trade board strength for card advantage. Best in round 1 (sacrifice points, gain hand size for rounds 2-3). Nilfgaard has the deepest spy pool.
+Avallac'h (0, hero spy) available in Monsters, NR, Skellige (hero versions); Skellige also has non-hero Avallac'h (0). Nilfgaardian has deepest spy pool: Vattier (4), Shilard (7), Stefan (9) + Avallac'h. NR has Prince Stennis (5), Dijkstra (4), Emiel Regis (5). Spies trade board strength for card advantage — best in round 1.
 
 ## Medic Recursion (resurrect non-hero from own discard)
 
-| Faction | Card | Str | Row | Notes |
-|---------|------|-----|-----|-------|
-| Nilfgaardian | Etolian Auxiliary Archers (x2) | 1 | ranged | 2 medics with RFID |
-| Nilfgaardian | Siege Technician | 0 | siege | |
-| Nilfgaardian | Yennefer of Vengerberg | 7 | ranged | Hero medic (immune to weather) |
-| NR | Dun Banner Medic | 5 | siege | |
-| NR | Yennefer of Vengerberg | 7 | ranged | Hero medic |
-| Scoia'tael | Havekar Healer | 0 | ranged | |
-| Scoia'tael | Isengrim Faoiltiarna: 2 | 10 | close | High-str medic |
-| Skellige | Birna Bran | 2 | close | |
+- **Nilfgaardian**: Etolian Archers x2 (1 ea, ranged), Siege Technician (0, siege), Yennefer x2 (7 ea, ranged hero), Menno Coehoorn (10, close — abilities field malformed as individual letters)
+- **NR**: Dun Banner Medic (5, siege), Yennefer (7, ranged hero)
+- **Scoia'tael**: Havekar Healer (0, ranged), Isengrim Faoiltiarna:2 (10, close)
+- **Skellige**: Birna Bran (2, close)
 
-**Strategy**: Medic + Decoy combo = play medic, resurrect card X, decoy the medic back to hand, replay medic for another resurrect. Nilfgaard spy+medic loop: spy round 1, medic the spy back, replay for more draws.
+Medic + Decoy = play medic, resurrect, decoy medic back, replay for another resurrect.
 
 ## Morale Boost (+1 to all other non-heroes in same row)
 
-| Faction | Card | Str | Row | Notes |
-|---------|------|-----|-----|-------|
-| Monsters | Kayran | 8 | close,ranged | Hero + morale (agile) |
-| NR | Kaedweni Siege Expert (x3) | 1 | siege | 3 morale = +3 to all siege units |
-| Scoia'tael | Milva | 10 | ranged | Non-hero, boosted by own morale |
-| Skellige | Olaf | 12 | close,ranged | Agile + morale |
-| Skellige | Transformed Vildkaarl | 14 | close | Highest morale unit in game |
-
-**Strategy**: Stack multiple morale units in one row. 3x Kaedweni = each gets +2, plus +3 to every other siege unit. Combined with Commander Horn = devastating.
+Kayran (8, Monsters hero agile), Olaf (12, Skellige agile), Transformed Vildkaarl (14, Skellige close), Milva (10, Scoia'tael ranged), Kaedweni Siege Expert x3 (1 ea, NR siege — 3 morale = +3 to all siege units).
 
 ## Commander Horn Doubling (doubles all non-hero strength in row)
 
-| Type | Faction | Card | Notes |
-|------|---------|------|-------|
-| Ability (unit) | Monsters | Dandelion (x2) | str 2, close, IS a unit on board |
-| Ability (unit) | Nilfgaardian | Dandelion | str 2, close |
-| Ability (unit) | Skellige | Dandelion | str 2, close |
-| Ability (unit) | Skellige | Draig Bon-Dhu | str 2, siege |
-| Specialty card | All factions | Commander's Horn | non-unit, discarded after use |
+Dandelion (2, close) available in Monsters x2, Nilfgaardian, Skellige. Draig Bon-Dhu (2, Skellige siege). Commander's Horn specialty card available in most factions. Best combos: Skellige CaC 3x (36) + Horn = **72**, TYV 3x (48) + Horn = **96**, NR Kaedweni morale stack + siege units + Horn.
 
-**Best combos**:
-- Skellige: Clan an Craite 3x (36) + Commander Horn = **72 close**
-- Skellige: Transformed Young Vildkaarl 3x (48) + Horn = **96 ranged**
-- NR: Kaedweni 3x morale + siege units + Horn = massive siege
+## Weather, Scorch, Decoy
 
-## Weather Attacks & Counters
+Weather (Frost/Fog/Rain) reduces all non-heroes in targeted row to 1. Heroes immune. Every faction has weather + Clear Weather cards. Scorch (specialty) hits ALL highest non-heroes on board (both players). Villentretenmerth (7, scorch ability) hits opponent's row only — safer. Decoys: Scoia'tael x3, Skellige x2, Nilfgaardian x1. Best targets: medic (re-resurrect), spy (re-spy +2 cards).
 
-| Weather | Affects | Counter |
-|---------|---------|---------|
-| Biting Frost | Close row → all non-heroes = 1 | Clear Weather, heroes immune |
-| Impenetrable Fog | Ranged row → all non-heroes = 1 | Clear Weather, heroes immune |
-| Torrential Rain | Siege row → all non-heroes = 1 | Clear Weather, heroes immune |
-| Clear Weather | Removes all active weather | — |
+## Faction Passives
 
-**Strategy**: Target opponent's strongest non-hero row. Heroes are immune. Weather + scorch = reduce to 1, then scorch the 1s if opponent has high cards elsewhere.
+- **Monsters**: Keep strongest non-hero on board between rounds
+- **Northern Realms**: Draw 1 extra card on round win
+- **Skellige**: Resurrect 2 random non-heroes from discard each round
+- **Nilfgaardian**: Win all tied rounds
+- **Scoia'tael**: Choose who goes first
 
-## Scorch
+## Implemented Leaders (have game-mechanical abilities)
 
-| Type | Scope | Target |
-|------|-------|--------|
-| Specialty card (Scorch) | Entire board, both players | ALL highest non-hero cards |
-| Ability (Villentretenmerth) | Opponent's same row only | Highest non-hero in that row |
+- **Monsters**: Eredin - King of the Wild Hunt (weather_ranges), Eredin: Commander of the Red Riders (commander_ranges)
+- **Nilfgaardian**: Emhyr - His Imperial Majesty (weather_ranges)
+- **NR**: Foltest - King of Temeria (weather_ranges), Foltest: the Siegemaster x2 (commander_ranges), Foltest: Son of Medell (conditional_scorch), Foltest: The Steel-Forged x2 (conditional_scorch)
+- **Scoia'tael**: Francesca - Pureblood Elf (weather_ranges), Francesca - The Beautiful (commander_ranges), Francesca: Queen of Dol Blathanna (conditional_scorch)
+- **Skellige**: Crach an Craite (unimplemented — only leader)
 
-**Warning**: Specialty Scorch hits YOUR cards too. Use only when opponent has higher cards than you. Villentretenmerth (ability) is safer — opponent-only, row-specific.
+## Archetype Recommendations
 
-## Decoy Replay
-
-| Faction | Decoy Cards (RFID) |
-|---------|-------------------|
-| Scoia'tael | 3 (Decoy, Decoy:1, Decoy:2) |
-| Skellige | 2 (Decoy, Decoy:1) |
-| Nilfgaardian | 1 (Decoy:1) |
-
-**Best targets**: Medic (re-resurrect), Spy (re-spy for +2 more cards), Commander ability unit (re-double).
-
-## Faction Passive Synergies
-
-| Faction | Passive | Deck Strategy |
-|---------|---------|---------------|
-| Monsters | Keep strongest non-hero on board between rounds | Play heroes + high-str units; the survivor carries over |
-| Northern Realms | Draw 1 extra card on round win | Win round 1 for card advantage; sacrifice strategically |
-| Skellige | Resurrect 2 random non-heroes from discard each round | Play aggressively, discard fuels next round |
-| Nilfgaardian | Win all tied rounds | Play conservatively to force ties; spy round 1 |
-| Scoia'tael | Choose who goes first | React to opponent; tempo control |
-
-## Per-Faction Archetype Recommendations
-
-### Monsters: "Muster Swarm"
-- **Leader**: Eredin - King of the Wild Hunt (pick any weather from deck)
-- **Core**: Arachas pair (2 cards, 8 str), Crone duo (2 cards, 12 str), Vampire trio (3 cards, 12 str)
-- **Heroes**: Geralt (15), Imlerith (10), Draug (10), Kayran (8, morale+agile)
-- **Support**: Dandelion (commander), weather cards, Villentretenmerth (scorch)
-- **Passive synergy**: Keep strongest hero between rounds
-
-### Nilfgaardian: "Spy Engine"
-- **Leader**: Emhyr var Emreis - The Relentless (steal from opponent's discard)
-- **Core**: 3 spies (Vattier 4, Shilard 7, Stefan 9) + Avallac'h (0 hero spy)
-- **Bond**: Impera Brigade Guard 3x (18 str) + Young Emissary 2x (15 str)
-- **Medics**: Etolian Archers (x2), Siege Technician, Yennefer hero medic
-- **Support**: Decoy (replay spies), Villentretenmerth (scorch)
-- **Passive synergy**: Win ties enables conservative play after spy advantage
-
-### Northern Realms: "Siege Fortress"
-- **Leader**: Foltest: the Siegemaster (commander horn on siege row)
-- **Core**: 3x Kaedweni Siege Expert (morale stack in siege), Ballista 2x, Trebuchet 2x, Siege Tower 2x
-- **Heroes**: Geralt (15), Cirilla (15), Philippa (10), Triss (7), Yennefer (7, medic)
-- **Spies**: Prince Stennis, Dijkstra, Emiel Regis (3 spies for card draw)
-- **Support**: Dun Banner Medic, Commander's Horn, weather
-- **Passive synergy**: Win round → draw extra → bigger hand for later rounds
-
-### Scoia'tael: "Guerrilla Flex"
-- **Leader**: Francesca Findabair - The Beautiful (commander horn on ranged)
-- **Core**: 5x Mahakaman Defender (5 str each, close), agile units (Dol Blathanna Scout x3, Vrihedd Veteran x2, Filavandrel, Ciaran)
-- **Muster**: Dwarven Skirmisher 3x (9 str close), Elven Skirmisher 3x (6 str ranged)
-- **Heroes**: Geralt (15), Cirilla (15), Iorveth (10), Eithné (10), Saesenthessis (10)
-- **Support**: 3 Decoys (replay medics/agile), Havekar Healer (medic), Scorch
-- **Passive synergy**: Choose first player for tempo control
-
-### Skellige: "Berserker Blitz"
-- **Leader**: Crach an Craite (reshuffle discards back to decks)
-- **Core**: Clan an Craite Warrior 3x (bond = 36 close), War Longship 2x (bond = 18 siege)
-- **Transform**: Transformed Young Vildkaarl 3x (bond = 48 ranged)
-- **Heroes**: Cirilla (15), Hemdall (11), Hjalmar (10), Triss (7)
-- **Morale**: Olaf (12, agile+morale), Transformed Vildkaarl (14, morale)
-- **Support**: Commander Horn, Dandelion (commander), 2 Decoys, Birna Bran (medic)
-- **Passive synergy**: Resurrect 2 per round = recycle bond cards
+- **Monsters "Muster Swarm"**: Eredin KotWH leader, Arachas/Crone/Vampire muster chains, heroes (Geralt 15, Imlerith 10, Draug 10, Kayran 8 morale), Dandelion commander. Passive keeps strongest hero between rounds.
+- **Nilfgaardian "Spy Engine"**: Emhyr HIM leader, 4 spies (Avallac'h+Vattier+Shilard+Stefan) for +8 cards, Impera 3x bond (18) + Young Emissary 2x bond (15), Dandelion commander to double close. Win ties enables conservative play after spy advantage.
+- **NR "Siege Fortress"**: Foltest Siegemaster leader (horn on siege), 3 spies + 3x Kaedweni morale in siege + Ballista/Trebuchet/Siege Tower units. Leader horn + morale stack = devastating siege row.
+- **Scoia'tael "Guerrilla Flex"**: Francesca Beautiful leader (horn on ranged), agile units (DBS x3, Filavandrel, Vrihedd x2) flex to ranged for horn, Dwarven Skirmisher x3 muster + Elven Skirmisher x3 muster, 3 Decoys for medic/spy replay.
+- **Skellige "Berserker Blitz"**: Crach an Craite leader, CaC Warrior 3x bond (36 close) + TYV 3x bond (48 ranged) + War Longship 2x bond (18 siege), Dandelion + Commander's Horn, Olaf agile morale. Passive resurrects 2 per round to recycle bond cards.

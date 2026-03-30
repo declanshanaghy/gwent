@@ -107,6 +107,19 @@ sudo apt-get install -y \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
   mosquitto
 
+# Default ALSA output to 3.5mm headphone jack instead of HDMI
+ASOUNDRC="${HOME}/.asoundrc"
+if [ ! -f "$ASOUNDRC" ]; then
+  echo "Configuring ALSA default to 3.5mm headphone jack..."
+  cat > "$ASOUNDRC" << 'EOF'
+# Default to 3.5mm headphone jack (card 2) instead of HDMI
+defaults.pcm.card 2
+defaults.ctl.card 2
+EOF
+else
+  echo "ALSA config already exists at ${ASOUNDRC}"
+fi
+
 echo "Installing GPIO libraries for rotary encoder support..."
 sudo apt-get install -y \
   pigpio-tools python3-pigpio \

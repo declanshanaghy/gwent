@@ -22,7 +22,6 @@ Builds optimized faction decks using card synergy analysis, generates game recor
 | Argument | Default | Description |
 |----------|---------|-------------|
 | `--factions F1,F2,...` | all 5 | Comma-separated faction subset |
-| `--size N` | 15 | Cards per deck (hand + deck) |
 | `--hand N` | 10 | Cards dealt to hand |
 | `--play` | false | After generating, launch `/llm-vs` for each matchup |
 
@@ -107,12 +106,32 @@ Leader: Eredin - King of the Wild Hunt
 
 For each pair of selected factions, generate a recording JSON file.
 
-#### 4a. Determine next file number
+#### 4a. Clean slate — delete old super-victory files and start fresh
+
+Every run deletes ALL existing `*-super-victory-*.json` files and creates new ones from scratch. This ensures exactly 20 files with varied matchups — no stale leftovers.
 
 ```bash
-ls software/gwent/gwent/game/recordings/*.json | sort | tail -1
-# Extract the number prefix, increment by 1
+# Remove all previous super-victory recordings
+rm -f software/gwent/gwent/game/recordings/*-super-victory-*.json
+
+# Determine the next available number prefix
+last=$(ls software/gwent/gwent/game/recordings/*.json 2>/dev/null | sort | tail -1)
+# Extract number, increment by 1 for the first new file
 ```
+
+#### 4a-ii. Generate 20 varied matchups
+
+With 5 factions there are 10 unique pairs. Generate **20 recordings** — each pair appears **twice** but with **P1/P2 swapped** the second time (different faction goes first = different game dynamics):
+
+```
+NNN-super-victory-monsters-vs-nilfgaardian.json        # Monsters P1
+NNN-super-victory-nilfgaardian-vs-monsters.json        # Nilfgaardian P1 (swapped)
+NNN-super-victory-monsters-vs-northernrealms.json
+NNN-super-victory-northernrealms-vs-monsters.json      # swapped
+... (all 10 pairs × 2 = 20 files)
+```
+
+This gives both sides a chance at going first, which matters for spy-heavy and tempo strategies.
 
 #### 4b. Build recording JSON
 
@@ -248,13 +267,13 @@ The game-loop.py script detects the game is already in PlayRound and starts play
 
 ## Deck Constraints
 
-- Exactly `--size` unit/special cards (default 15)
-- `--hand` in hand, remainder in deck (default 10 + 5)
+- Always 20 unit/special cards per deck
+- `--hand` in hand, remainder in deck (default 10 + 10)
 - 1 leader (separate, not counted in size)
 - Only cards with `rfid` field
 - Balance across rows (no more than 8 cards in any single row)
 - Include at least 1 weather + 1 clear weather
-- Target total base strength: 60-90 per deck
+- Target total base strength: 80-120 per deck
 
 ## Cross-reference
 
