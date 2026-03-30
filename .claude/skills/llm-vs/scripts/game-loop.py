@@ -254,14 +254,13 @@ COMMANDER_PREAMBLE = {
 
 
 def _toggle_pause(signum, frame):
-    """SIGUSR1: resume one turn (or pause if running)."""
+    """SIGUSR1: always resume (unpause)."""
     log_debug(f"SIGUSR1 received, _pause_event.is_set()={_pause_event.is_set()}")
-    if _pause_event.is_set():
-        _pause_event.clear()
-        log("\u23f8  PAUSED (SIGUSR1 to resume)")
-    else:
+    if not _pause_event.is_set():
         _pause_event.set()
         log("\u25b6  RESUMED")
+    else:
+        log_debug("SIGUSR1 received but already unpaused, ignoring")
 
 
 def _toggle_auto_pause(signum, frame):
@@ -1367,9 +1366,7 @@ def main():
         expected = set()
         if server_tts and server_tts != 'none':
             expected.add('gwent')
-        for cid, cprov in client_tts.items():
-            if cprov and cprov not in ('none', 'off', 'auto'):
-                expected.add(cid)
+        # Only wait for server TTS — clients don't publish MQTT completion signals
         if expected:
             sync.set_expected_sources(expected)
             log(f"Waiting for TTS sources: {expected}")

@@ -10,6 +10,7 @@ from textual.widgets import Static
 from gwent_tui.emoji import (
     card_display_short, gems_display, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
     FACTION_STYLE, faction_emoji,
+    BOND, MORALE, COMMANDER, HERO,
 )
 from gwent_tui.game_state import P1, P2
 
@@ -73,17 +74,24 @@ class ScoreboardWidget(Static):
         p2s_open = f"[{p2s_style}]" if p2s_style else ""
         p2s_close = f"[/{p2s_style}]" if p2s_style else ""
 
-        # Leader names with faction emoji — truncated to fit
+        # Leader names with faction emoji — chop middle if too long
         from gwent_tui.widgets.header import _leader_nick
-        max_name = 10
+        max_name = 20
         p1_leader = state.leaders.get(P1)
         p2_leader = state.leaders.get(P2)
         p1_nick = _leader_nick(p1_leader) if p1_leader else ""
         p2_nick = _leader_nick(p2_leader) if p2_leader else ""
-        if len(p1_nick) > max_name:
-            p1_nick = p1_nick[:max_name - 1] + "\u2026"
-        if len(p2_nick) > max_name:
-            p2_nick = p2_nick[:max_name - 1] + "\u2026"
+
+        def _mid_truncate(name, limit):
+            if len(name) <= limit:
+                return name
+            keep = limit - 1  # room for ellipsis char
+            left = (keep + 1) // 2
+            right = keep // 2
+            return name[:left] + "\u2026" + name[-right:]
+
+        p1_nick = _mid_truncate(p1_nick, max_name)
+        p2_nick = _mid_truncate(p2_nick, max_name)
         p1e = faction_emoji(state.factions.get(P1, ""))
         p2e = faction_emoji(state.factions.get(P2, ""))
         p1f = state.factions.get(P1, "")
@@ -102,10 +110,10 @@ class ScoreboardWidget(Static):
         )
         right = f"{p2_pass} {p2_gems_str}  {p2_leader_str}"
 
-        table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
-        table.add_column(ratio=2, justify="left", no_wrap=True)
-        table.add_column(ratio=1, justify="center")
-        table.add_column(ratio=2, justify="right", no_wrap=True)
+        table = Table(box=None, expand=True, show_header=False, padding=(0, 0))
+        table.add_column(ratio=4, justify="left", no_wrap=True)
+        table.add_column(ratio=2, justify="center")
+        table.add_column(ratio=4, justify="right", no_wrap=True)
         table.add_row(
             Text.from_markup(left),
             Text.from_markup(center),
@@ -118,14 +126,42 @@ class ScoreboardWidget(Static):
 class _BoardRows(Static):
     """The 3 combat rows (close, ranged, siege) for both players."""
     DEFAULT_CSS = """
-    _BoardRows { width: 1fr; height: 100%; }
+    _BoardRows { width: 1fr; height: 1fr; }
     """
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
                     row_score=0, weather_active=False, player=None,
                     min_lines=0, max_lines=0):
         rc = ROW_COLOR.get(row_name, "white")
-        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}  {ZAP} {row_score}[/bold {rc}]"
+
+        # Detect active abilities from cards on this row
+        abilities = []
+        has_bond = False
+        has_morale = False
+        has_hero = False
+        for c in cards:
+            card_abs = c.get("abilities", [])
+            card_ab = c.get("ability", "")
+            if "bond" in card_abs or card_ab == "bond":
+                has_bond = True
+            if "morale" in card_abs or card_ab == "morale":
+                has_morale = True
+            if c.get("specialty") == "hero":
+                has_hero = True
+        if has_bond:
+            abilities.append(f"{BOND}Bond")
+        if has_morale:
+            abilities.append(f"{MORALE}Morale")
+        if has_horn:
+            abilities.append(f"{COMMANDER}Horn\u00d72")
+        if weather_active:
+            abilities.append(f"{WEATHER_EMOJI.get(row_name, '')}Weather")
+
+        ability_str = " ".join(abilities)
+        if ability_str:
+            header = f"[bold {rc}]{row_emoji} {row_name.title()}: {row_score}[/bold {rc}]  {ability_str}"
+        else:
+            header = f"[bold {rc}]{row_emoji} {row_name.title()}: {row_score}[/bold {rc}]"
 
         state = self.app.state
         half_weather = state.half_weather_penalty.get(player, False) if player else False
@@ -158,14 +194,8 @@ class _BoardRows(Static):
     def render(self):
         state = self.app.state
 
-        # Calculate fixed lines per row so all 3 combat rows always fit.
-        # Overhead: panel border (2) + 3 row separators (3) + leader footer (2) = 7
-        # Be conservative with -8 to avoid any clipping.
-        try:
-            avail = self.size.height - 8
-        except Exception:
-            avail = 15
-        row_height = max(2, avail // 3)
+        # Minimum lines per row: header + 1 empty slot
+        min_row_lines = 2
 
         table = Table(
             box=SPLIT_BOX,
@@ -194,12 +224,10 @@ class _BoardRows(Static):
 
             p1_text = self._format_row(p1_cards, row_name, re, weather_tag, p1_horn,
                                        p1_row_score, weather_active=weather_active,
-                                       player=P1, min_lines=row_height,
-                                       max_lines=row_height)
+                                       player=P1, min_lines=min_row_lines)
             p2_text = self._format_row(p2_cards, row_name, re, weather_tag, p2_horn,
                                        p2_row_score, weather_active=weather_active,
-                                       player=P2, min_lines=row_height,
-                                       max_lines=row_height)
+                                       player=P2, min_lines=min_row_lines)
 
             table.add_row(p1_text, p2_text)
 
@@ -255,8 +283,7 @@ class BoardWidget(Vertical):
 
     DEFAULT_CSS = """
     BoardWidget {
-        height: 100%;
-        overflow: hidden;
+        height: 1fr;
     }
     """
 

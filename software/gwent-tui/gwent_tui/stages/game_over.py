@@ -1,4 +1,4 @@
-"""TUI stage: GameOver — showcase winning leader, remaining hands, and discards."""
+"""TUI stage: GameOver — rich consolidated game summary with Gwent flair."""
 
 from rich.panel import Panel
 from rich.table import Table
@@ -10,127 +10,33 @@ from textual.widgets import Static
 from gwent_tui.emoji import (
     card_display, leader_display, gems_display, faction_emoji, card_display_short,
     FACTION_COLOR, FACTION_STYLE, CROWN, GEM, SKULL, ROW_EMOJI, WEATHER_EMOJI, ZAP,
+    BOND, MORALE, COMMANDER, HERO,
 )
 from gwent_tui.game_state import P1, P2
-from gwent_tui.widgets.board import ScoreboardWidget
 from gwent_tui.widgets.header import _leader_nick
 
+# Faction-themed victory quotes
+VICTORY_QUOTES = {
+    "Monsters": "The Wild Hunt claims another soul!",
+    "Nilfgaardian": "The Empire's might is absolute.",
+    "Northern Realms": "For Temeria! The North remembers!",
+    "Scoia'tael": "The forest strikes swift and true!",
+    "Skellige": "Skaal! The seas belong to the Isles!",
+}
 
-class _WinnerBanner(Static):
-    """Large banner announcing the winner with leader and faction info."""
+DEFEAT_QUIPS = {
+    "Monsters": "Even monsters know when to retreat...",
+    "Nilfgaardian": "The Emperor will not be pleased.",
+    "Northern Realms": "Temeria has seen darker days.",
+    "Scoia'tael": "The forest will grow back stronger.",
+    "Skellige": "The sea gives, and the sea takes.",
+}
 
-    def render(self):
-        state = self.app.state
-        p1_gems = state.gems.get(P1, 0)
-        p2_gems = state.gems.get(P2, 0)
-
-        if p1_gems > p2_gems:
-            winner = P1
-        elif p2_gems > p1_gems:
-            winner = P2
-        else:
-            winner = None
-
-        # Always show P1 on left, P2 on right
-        p1_leader = state.leaders.get(P1) or {}
-        p2_leader = state.leaders.get(P2) or {}
-        p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
-        p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
-        p1f = state.factions.get(P1, "")
-        p2f = state.factions.get(P2, "")
-        p1e = faction_emoji(p1f)
-        p2e = faction_emoji(p2f)
-        p1_fc = FACTION_COLOR.get(p1f, "white")
-        p2_fc = FACTION_COLOR.get(p2f, "white")
-
-        if winner:
-            w_leader = state.leaders.get(winner) or {}
-            w_faction = state.factions.get(winner, "")
-            w_name = _leader_nick(w_leader) if w_leader else "Unknown"
-            w_fe = faction_emoji(w_faction)
-            _, w_bg, w_fg = FACTION_STYLE.get(w_faction, ("white", "grey30", "white"))
-            w_fc = FACTION_COLOR.get(w_faction, "white")
-
-            banner = (
-                f"{w_fe[0]} {CROWN} [bold {w_fg} on {w_bg}] {w_name} WINS! [/bold {w_fg} on {w_bg}] {CROWN} {w_fe[1]}\n"
-                f"[bold green]VICTORY![/bold green] {w_name} ({w_faction})\n"
-                f"{p1e[0]} [{p1_fc}]{p1_nick}[/{p1_fc}] {gems_display(p1_gems)}"
-                f"  vs  "
-                f"{gems_display(p2_gems)} [{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[1]}"
-            )
-            title = f"{w_fe[0]} GAME OVER {w_fe[1]}"
-            border = f"bold {w_fc}"
-        else:
-            banner = (
-                f"{SKULL} [bold yellow]DRAW![/bold yellow] {SKULL}\n"
-                f"Both leaders fall — no victor emerges\n"
-                f"{p1e[0]} [{p1_fc}]{p1_nick}[/{p1_fc}] {gems_display(p1_gems)}"
-                f"  vs  "
-                f"{gems_display(p2_gems)} [{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[1]}"
-            )
-            title = f"{SKULL} GAME OVER {SKULL}"
-            border = "bold yellow"
-
-        return Panel(
-            Text.from_markup(banner, justify="center"),
-            title=title,
-            border_style=border,
-        )
+ROUND_EMOJI = {1: "\u2776", 2: "\u2777", 3: "\u2778"}  # ❶ ❷ ❸
 
 
-class _FinalBoard(Static):
-    """Final board state showing all rows with scores."""
-    DEFAULT_CSS = "_FinalBoard { width: 1fr; min-height: 100%; }"
-
-    def _format_row(self, cards, row_name, row_score, weather_active, has_horn):
-        from gwent_tui.widgets.board import ROW_COLOR
-        rc = ROW_COLOR.get(row_name, "white")
-        re = ROW_EMOJI.get(row_name, "")
-        weather_tag = f" {WEATHER_EMOJI.get(row_name, '')}" if weather_active else ""
-        horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
-        header = f"[bold {rc}]{re} {row_name.title()}:{weather_tag}{horn_tag}  {ZAP} {row_score}[/bold {rc}]"
-
-        if not cards:
-            return header
-
-        lines = [header]
-        for c in cards:
-            lines.append(f"  {card_display_short(c, weather_active=weather_active)}")
-        return "\n".join(lines)
-
-    def render(self):
-        state = self.app.state
-
-        table = Table(
-            box=box.SIMPLE_HEAVY, expand=True, padding=(0, 1),
-            show_header=False, show_lines=True,
-        )
-        table.add_column(ratio=1)
-        table.add_column(ratio=1)
-
-        for row_name in ("close", "ranged", "siege"):
-            weather_active = row_name in state.weather_rows
-            for side in (P1, P2):
-                cards = state.board_rows[side].get(row_name, [])
-                horn = row_name in state.commander_horn_rows.get(side, set())
-                row_score = state.row_scores[side].get(row_name, 0)
-
-            p1_text = self._format_row(
-                state.board_rows[P1].get(row_name, []), row_name,
-                state.row_scores[P1].get(row_name, 0), weather_active,
-                row_name in state.commander_horn_rows.get(P1, set()))
-            p2_text = self._format_row(
-                state.board_rows[P2].get(row_name, []), row_name,
-                state.row_scores[P2].get(row_name, 0), weather_active,
-                row_name in state.commander_horn_rows.get(P2, set()))
-            table.add_row(p1_text, p2_text)
-
-        return Panel(table, title="\u2694 Final Board")
-
-
-class _HandsAndDiscards(Static):
-    """Combined view: leader + remaining hand + all discards for both players."""
-    DEFAULT_CSS = "_HandsAndDiscards { width: 1fr; min-height: 100%; }"
+class _GameSummary(Static):
+    """Full-screen consolidated game summary."""
 
     def render(self):
         state = self.app.state
@@ -142,98 +48,148 @@ class _HandsAndDiscards(Static):
         elif p2_gems > p1_gems:
             winner, loser = P2, P1
         else:
-            winner, loser = P1, P2  # arbitrary for draw
+            winner, loser = None, None
 
-        table = Table(
-            box=box.SIMPLE_HEAVY, expand=True, padding=(0, 1),
-            show_header=False,
-        )
-        table.add_column(ratio=1)
-        table.add_column(ratio=1)
+        # Player info
+        p1_leader = state.leaders.get(P1) or {}
+        p2_leader = state.leaders.get(P2) or {}
+        p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
+        p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
+        p1_name = state.player_names.get(P1, "Player 1")
+        p2_name = state.player_names.get(P2, "Player 2")
+        p1f = state.factions.get(P1, "")
+        p2f = state.factions.get(P2, "")
+        p1e = faction_emoji(p1f)
+        p2e = faction_emoji(p2f)
+        p1_fc = FACTION_COLOR.get(p1f, "white")
+        p2_fc = FACTION_COLOR.get(p2f, "white")
 
-        for player in (P1, P2):
-            pass  # build below
+        lines = []
 
-        # Build rows for each player
-        p1_rows = self._build_player_rows(state, P1, P1 == winner)
-        p2_rows = self._build_player_rows(state, P2, P2 == winner)
+        # === WINNER BANNER ===
+        if winner:
+            w_faction = state.factions.get(winner, "")
+            w_name = state.player_names.get(winner, "???")
+            w_nick = _leader_nick(state.leaders.get(winner) or {})
+            w_fe = faction_emoji(w_faction)
+            _, w_bg, w_fg = FACTION_STYLE.get(w_faction, ("white", "grey30", "white"))
+            quote = VICTORY_QUOTES.get(w_faction, "Victory is sweet!")
 
-        max_len = max(len(p1_rows), len(p2_rows))
-        p1_rows.extend([""] * (max_len - len(p1_rows)))
-        p2_rows.extend([""] * (max_len - len(p2_rows)))
+            lines.append(f"[bold {w_fg} on {w_bg}]  {CROWN} {CROWN} {CROWN}  {w_name} ({w_nick}) WINS!  {CROWN} {CROWN} {CROWN}  [/bold {w_fg} on {w_bg}]")
+            lines.append(f"[italic dim]{quote}[/italic dim]")
+        else:
+            lines.append(f"[bold yellow on grey23]  {SKULL} {SKULL} {SKULL}  DRAW — NO VICTOR  {SKULL} {SKULL} {SKULL}  [/bold yellow on grey23]")
+            lines.append("[italic dim]The cards fall silent... neither player claims the day.[/italic dim]")
+        lines.append("")
 
-        for p1, p2 in zip(p1_rows, p2_rows):
-            table.add_row(p1, p2)
+        # === MATCHUP ===
+        lines.append(f"{p1e[0]}{p1e[1]} [{p1_fc} bold]{p1_name}[/{p1_fc} bold] ([dim]{p1_nick}[/dim], {p1f})")
+        lines.append(f"    [dim]vs[/dim]")
+        lines.append(f"{p2e[0]}{p2e[1]} [{p2_fc} bold]{p2_name}[/{p2_fc} bold] ([dim]{p2_nick}[/dim], {p2f})")
+        lines.append("")
 
-        p1_hand_n = len(state.hands[P1])
-        p2_hand_n = len(state.hands[P2])
-        p1_disc_n = len(state.discard[P1])
-        p2_disc_n = len(state.discard[P2])
+        # === ROUND-BY-ROUND ===
+        lines.append("[bold underline]\u2694 Round-by-Round[/bold underline]")
+        lines.append("")
+
+        if state.round_results:
+            for rr in state.round_results:
+                rnum = rr["round"]
+                p1s = rr["p1_score"]
+                p2s = rr["p2_score"]
+                rw = rr.get("winner")
+                remoji = ROUND_EMOJI.get(rnum, f"R{rnum}")
+
+                if rw == P1:
+                    p1_tag = f"[bold green]{CROWN} {p1s}[/bold green]"
+                    p2_tag = f"[dim]{p2s}[/dim]"
+                    result = f"[{p1_fc}]{p1_name}[/{p1_fc}]"
+                elif rw == P2:
+                    p1_tag = f"[dim]{p1s}[/dim]"
+                    p2_tag = f"[bold green]{CROWN} {p2s}[/bold green]"
+                    result = f"[{p2_fc}]{p2_name}[/{p2_fc}]"
+                else:
+                    p1_tag = f"[yellow]{p1s}[/yellow]"
+                    p2_tag = f"[yellow]{p2s}[/yellow]"
+                    result = "[yellow]Draw[/yellow]"
+
+                lines.append(f"  {remoji} Round {rnum}:  {p1_tag}  —  {p2_tag}    {CROWN} {result}")
+        else:
+            lines.append("  [dim]No round data recorded[/dim]")
+        lines.append("")
+
+        # === FINAL GEMS ===
+        lines.append("[bold underline]\U0001f48e Final Standing[/bold underline]")
+        lines.append("")
+        lines.append(f"  {p1e[0]}{p1e[1]} [{p1_fc}]{p1_name}[/{p1_fc}]  {gems_display(p1_gems)}")
+        lines.append(f"  {p2e[0]}{p2e[1]} [{p2_fc}]{p2_name}[/{p2_fc}]  {gems_display(p2_gems)}")
+        lines.append("")
+
+        # === MOVE TIMING ===
+        p1_times = state.move_times.get(P1, [])
+        p2_times = state.move_times.get(P2, [])
+        if p1_times or p2_times:
+            lines.append("[bold underline]\u23f1 Timing[/bold underline]")
+            lines.append("")
+            for p, times, name, fc in [
+                (P1, p1_times, p1_name, p1_fc),
+                (P2, p2_times, p2_name, p2_fc),
+            ]:
+                if times:
+                    avg = sum(times) / len(times)
+                    total = sum(times)
+                    lines.append(
+                        f"  [{fc}]{name}[/{fc}]:  "
+                        f"{len(times)} moves, {avg:.1f}s avg, {total:.0f}s total"
+                    )
+            lines.append("")
+
+        # === REMAINING HANDS ===
+        p1_hand = state.hands.get(P1, [])
+        p2_hand = state.hands.get(P2, [])
+        if p1_hand or p2_hand:
+            lines.append("[bold underline]\U0001f0cf Cards Left in Hand[/bold underline]")
+            lines.append("")
+            for p, hand, name, fc in [
+                (P1, p1_hand, p1_name, p1_fc),
+                (P2, p2_hand, p2_name, p2_fc),
+            ]:
+                if hand:
+                    total_str = sum(c.get("strength", 0) for c in hand)
+                    lines.append(f"  [{fc}]{name}[/{fc}] ({len(hand)} cards, {total_str} str):")
+                    for c in hand:
+                        lines.append(f"    {card_display_short(c)}")
+            lines.append("")
+
+        # === LOSER QUIP ===
+        if loser:
+            l_faction = state.factions.get(loser, "")
+            quip = DEFEAT_QUIPS.get(l_faction, "Better luck next time.")
+            lines.append(f"[dim italic]{quip}[/dim italic]")
+
+        # Build the panel
+        if winner:
+            w_faction = state.factions.get(winner, "")
+            w_fc = FACTION_COLOR.get(w_faction, "white")
+            w_fe = faction_emoji(w_faction)
+            title = f"{w_fe[0]} {CROWN} GAME OVER {CROWN} {w_fe[1]}"
+            border = f"bold {w_fc}"
+        else:
+            title = f"{SKULL} GAME OVER {SKULL}"
+            border = "bold yellow"
 
         return Panel(
-            table,
-            title=(f"\U0001f451 Leaders, Hands ({p1_hand_n}|{p2_hand_n})"
-                   f" & Discards ({p1_disc_n}|{p2_disc_n})"),
+            Text.from_markup("\n".join(lines), justify="center"),
+            title=title,
+            border_style=border,
         )
-
-    def _build_player_rows(self, state, player, is_winner):
-        rows = []
-        gems = state.gems.get(player, 0)
-        faction = state.factions.get(player, "")
-        fe = faction_emoji(faction)
-        fc = FACTION_COLOR.get(faction, "white")
-        leader = state.leaders.get(player)
-        nick = _leader_nick(leader) if leader else ("P1" if player == P1 else "P2")
-
-        # Header with gems — winner gets highlight
-        if is_winner:
-            _, bg, fg = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
-            tag = f"[bold {fg} on {bg}] WINNER [/bold {fg} on {bg}] "
-        else:
-            tag = ""
-        rows.append(f"{tag}{fe[0]} [bold {fc}]{nick}[/bold {fc}] {gems_display(gems)} {fe[1]}")
-
-        # Leader
-        leader = state.leaders.get(player)
-        if leader:
-            rows.append(leader_display(leader, used=state.leader_used.get(player, False)))
-
-        rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
-
-        # Remaining hand
-        hand = state.hands.get(player, [])
-        if hand:
-            rows.append(f"[bold]\U0001f0cf Hand ({len(hand)}):[/bold]")
-            for c in hand:
-                rows.append(f"  {card_display(c)}")
-        else:
-            rows.append("[dim]Hand: empty[/dim]")
-
-        rows.append("[dim]" + "\u2500" * 30 + "[/dim]")
-
-        # Discards
-        disc = state.discard.get(player, [])
-        if disc:
-            rows.append(f"[bold]\U0001f5d1 Discard ({len(disc)}):[/bold]")
-            for c in disc:
-                rows.append(f"  {card_display(c)}")
-        else:
-            rows.append("[dim]Discard: empty[/dim]")
-
-        return rows
 
 
 class GameOverStage(Vertical):
     DEFAULT_CSS = """
     GameOverStage { height: 1fr; }
-    GameOverStage #winner-banner { height: auto; max-height: 7; }
-    GameOverStage #game-over-columns { height: 1fr; }
-    GameOverStage #final-board { width: 2fr; }
-    GameOverStage #hands-discards { width: 3fr; }
+    GameOverStage #game-summary { height: 1fr; }
     """
 
     def compose(self):
-        yield _WinnerBanner(id="winner-banner")
-        with Horizontal(id="game-over-columns"):
-            yield _FinalBoard(id="final-board")
-            yield _HandsAndDiscards(id="hands-discards")
+        yield _GameSummary(id="game-summary")

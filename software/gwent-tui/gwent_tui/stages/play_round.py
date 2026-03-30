@@ -13,11 +13,11 @@ class PlayRoundStage(Horizontal):
     PlayRoundStage { height: 1fr; }
     PlayRoundStage #left { width: 1fr; height: 1fr; overflow: hidden; }
     PlayRoundStage #right { width: 1fr; height: 1fr; overflow: hidden; }
-    PlayRoundStage #board-area { height: 3fr; }
-    PlayRoundStage #discard-area { height: 1fr; }
+    PlayRoundStage #board-area { height: 1fr; }
+    PlayRoundStage #discard-area { height: auto; }
     PlayRoundStage #scoreboard { height: auto; max-height: 6; }
-    PlayRoundStage #hands-area { height: 3fr; }
-    PlayRoundStage #decks-area { height: 1fr; }
+    PlayRoundStage #hands-area { height: auto; }
+    PlayRoundStage #decks-area { height: auto; }
     """
 
     def compose(self):

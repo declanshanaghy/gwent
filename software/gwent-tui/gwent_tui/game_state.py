@@ -99,6 +99,10 @@ class GameState:
         # {("hand", player): [card_dict, ...], ("board", player, row): [...]}
         self.ghosts = {}
 
+        # Round history: [{round, p1_score, p2_score, winner, p1_gems, p2_gems}, ...]
+        self.round_results = []
+        self._last_recorded_round = 0
+
         # Move timing
         self._turn_start = time.monotonic()
         self._prev_player = None
@@ -135,7 +139,16 @@ class GameState:
         # Detect changes before overwriting state
         self._detect_changes(board)
 
-        self.round_number = board.get("round_number", 1)
+        new_round = board.get("round_number", 1)
+
+        # Record round result when round advances or game ends
+        if new_round > self._last_recorded_round and self._last_recorded_round > 0:
+            self._record_round_result(self._last_recorded_round)
+        if self.stage in ("GameOver", "DisplayWinner") and self.round_number > self._last_recorded_round:
+            self._record_round_result(self.round_number)
+        self._last_recorded_round = new_round
+
+        self.round_number = new_round
         new_player = _normalize_player(board.get("current_player", P1))
 
         # Track move duration when the turn changes
@@ -365,6 +378,71 @@ class GameState:
             for row in new_weather.symmetric_difference(self.weather_rows):
                 self._highlight(f"weather:{row}")
 
+    def _record_round_result(self, round_num):
+        """Snapshot the current round's scores and winner into round_results."""
+        # Avoid duplicates
+        if any(r["round"] == round_num for r in self.round_results):
+            return
+        p1s = self.scores.get(P1, 0)
+        p2s = self.scores.get(P2, 0)
+        if p1s > p2s:
+            winner = P1
+        elif p2s > p1s:
+            winner = P2
+        else:
+            winner = None  # draw
+        self.round_results.append({
+            "round": round_num,
+            "p1_score": p1s,
+            "p2_score": p2s,
+            "winner": winner,
+            "p1_gems": self.gems.get(P1, 0),
+            "p2_gems": self.gems.get(P2, 0),
+        })
+        log.info("Round %d result: P1=%d P2=%d winner=%s", round_num, p1s, p2s, winner)
+
+    def save_game_recording(self):
+        """Save game recording to /tmp/gwent-tui/{game-id}.json."""
+        import json
+        from datetime import datetime
+        from pathlib import Path
+
+        game_dir = Path("/tmp/gwent-tui")
+        game_dir.mkdir(parents=True, exist_ok=True)
+        game_id = datetime.now().strftime("%Y%m%d-%H%M%S")
+        path = game_dir / f"{game_id}.json"
+
+        p1_gems = self.gems.get(P1, 0)
+        p2_gems = self.gems.get(P2, 0)
+        if p1_gems > p2_gems:
+            winner = P1
+        elif p2_gems > p1_gems:
+            winner = P2
+        else:
+            winner = None
+
+        recording = {
+            "game_id": game_id,
+            "timestamp": datetime.now().isoformat(),
+            "player_names": dict(self.player_names),
+            "factions": dict(self.factions),
+            "leaders": {
+                p: self.leaders.get(p, {}).get("name", "")
+                for p in (P1, P2)
+            },
+            "winner": winner,
+            "final_gems": {P1: p1_gems, P2: p2_gems},
+            "rounds": self.round_results,
+            "move_times": {
+                P1: self.move_times.get(P1, []),
+                P2: self.move_times.get(P2, []),
+            },
+        }
+        with open(path, "w") as f:
+            json.dump(recording, f, indent=2)
+        log.info("Game recording saved: %s", path)
+        return str(path)
+
     def _reset_board(self):
         """Reset all game board state to defaults."""
         self.round_number = 1
@@ -430,6 +508,14 @@ class GameState:
                     self.reg_deck2 = []
                 self.stage = stage
                 self._log_event(f"\U0001f3ad Stage: {stage}")
+                if stage in ("GameOver", "DisplayWinner"):
+                    # Record final round and save game
+                    if self.round_number > self._last_recorded_round:
+                        self._record_round_result(self.round_number)
+                    try:
+                        self.save_game_recording()
+                    except Exception as e:
+                        log.warning("Failed to save game recording: %s", e)
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""
@@ -438,7 +524,7 @@ class GameState:
             if subkind == "prompt":
                 self.last_prompt = data.get("prompt", "")
                 self.last_prompt_time = datetime.now().strftime("%H:%M:%S")
-                self._log_event(f"\U0001f4df {self.last_prompt}")
+                # Don't log prompts to events pane — too noisy
             elif subkind == "error":
                 self.last_error = data.get("error", "")
                 self.last_error_time = datetime.now().strftime("%H:%M:%S")

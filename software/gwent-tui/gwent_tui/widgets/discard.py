@@ -14,13 +14,21 @@ from gwent_tui.widgets.board import SPLIT_BOX
 
 class _DiscardContent(Static):
     DEFAULT_CSS = """
-    _DiscardContent { width: 1fr; min-height: 100%; }
+    _DiscardContent { width: 1fr; }
     """
 
     def render(self):
         state = self.app.state
         p1_disc = state.discard[P1]
         p2_disc = state.discard[P2]
+
+        # Hide entirely when both discard piles are empty
+        p1_ghosts = state.get_ghosts("discard", P1)
+        p2_ghosts = state.get_ghosts("discard", P2)
+        if not p1_disc and not p2_disc and not p1_ghosts and not p2_ghosts:
+            self.styles.display = "none"
+            return Text("")
+        self.styles.display = "block"
 
         table = Table(
             box=SPLIT_BOX,
@@ -57,24 +65,10 @@ class _DiscardContent(Static):
         if not p2_cards:
             p2_cards.append("")
 
-        # Pad to fill available height so the vertical separator runs full height,
-        # but cap so content never overflows past the panel border.
-        # Panel border = 2, table top/bottom padding = 1 → 3 lines of overhead
-        try:
-            max_rows = max(self.size.height - 3, 1)
-        except Exception:
-            max_rows = max(len(p1_cards), len(p2_cards), 1)
-        target = max(min(max_rows, max(len(p1_cards), len(p2_cards))), 1)
-        # Pad shorter column
+        # Pad shorter column so vertical separator runs full height
+        target = max(len(p1_cards), len(p2_cards), 1)
         p1_cards.extend([""] * (target - len(p1_cards)))
         p2_cards.extend([""] * (target - len(p2_cards)))
-        # Truncate if content exceeds available space
-        if len(p1_cards) > max_rows:
-            p1_hidden = len(p1_cards) - max_rows + 1
-            p1_cards = p1_cards[:max_rows - 1] + [f"[dim]… +{p1_hidden} more[/dim]"]
-        if len(p2_cards) > max_rows:
-            p2_hidden = len(p2_cards) - max_rows + 1
-            p2_cards = p2_cards[:max_rows - 1] + [f"[dim]… +{p2_hidden} more[/dim]"]
 
         for p1, p2 in zip(p1_cards, p2_cards):
             table.add_row(p1, p2)
@@ -86,7 +80,7 @@ class DiscardWidget(Vertical):
 
     DEFAULT_CSS = """
     DiscardWidget {
-        height: 1fr;
+        height: auto;
     }
     """
 
