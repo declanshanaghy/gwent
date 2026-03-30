@@ -60,13 +60,15 @@ def _dict_to_card(d):
     return gwent.messaging.card.Message.from_properties(d)
 
 
-def snapshot_dict(controller):
+def snapshot_dict(controller, player_names=None, client_tts=None):
     """Build the snapshot dict from current game state.
 
     Used by both save() and the HTTP /state endpoint.
 
     Args:
         controller: The game Controller instance.
+        player_names: Optional dict mapping PLAYER.ONE/PLAYER.TWO to display names.
+        client_tts: Optional dict of {client_id: provider_name} for connected clients.
 
     Returns:
         dict: The complete snapshot ready for JSON serialization.
@@ -114,13 +116,18 @@ def snapshot_dict(controller):
         if dc._player2_hand:
             state["player2_hand"] = _cards_to_dicts(dc._player2_hand)
 
-    return {
+    result = {
         "version": STATE_VERSION,
         "saved_at": datetime.now(timezone.utc).isoformat(),
         "active_stage": stage_name,
         "tts_provider": getattr(controller, '_tts_provider', None),
         "state": state,
     }
+    if player_names:
+        result["player_names"] = player_names
+    if client_tts:
+        result["client_tts"] = client_tts
+    return result
 
 
 def save(filepath, controller):

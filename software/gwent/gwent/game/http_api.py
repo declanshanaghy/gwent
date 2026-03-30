@@ -40,6 +40,16 @@ class _Handler(BaseHTTPRequestHandler):
         else:
             self.send_error(404)
 
+    def do_PUT(self):
+        path = urlparse(self.path).path
+        log.debug("do_PUT %s", path)
+        if path == "/players":
+            self._handle_set_players()
+        elif path == "/client-tts":
+            self._handle_set_client_tts()
+        else:
+            self.send_error(404)
+
     def do_POST(self):
         if self.path.startswith("/save"):
             self._handle_save()
@@ -71,7 +81,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         try:
             # Get current state and its ETag
-            snapshot = game_state.snapshot_dict(controller)
+            snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, client_tts=self.server.client_tts)
             etag = self._compute_etag(snapshot)
 
             if client_etag and client_etag == etag:
@@ -83,7 +93,7 @@ class _Handler(BaseHTTPRequestHandler):
                         cond.wait(timeout=timeout)
 
                 # Re-snapshot after wake
-                snapshot = game_state.snapshot_dict(controller)
+                snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, client_tts=self.server.client_tts)
                 new_etag = self._compute_etag(snapshot)
 
                 if new_etag == client_etag:
@@ -105,6 +115,45 @@ class _Handler(BaseHTTPRequestHandler):
         except Exception as e:
             log.error(f"Error in long-poll: {e}")
             self._send_json(503, {"error": str(e)})
+
+    def _handle_set_players(self):
+        """Set player display names."""
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+            data = json.loads(body)
+            for key in ("PLAYER.ONE", "PLAYER.TWO"):
+                if key in data:
+                    self.server.player_names[key] = str(data[key])
+            log.info("Player names updated: %s", self.server.player_names)
+            # Wake long-poll clients so they pick up the change
+            cond = self.server.state_condition
+            if cond:
+                with cond:
+                    cond.notify_all()
+            self._send_json(200, {"status": "ok", "player_names": self.server.player_names})
+        except Exception as e:
+            log.error("Error setting player names: %s", e)
+            self._send_json(400, {"error": str(e)})
+
+    def _handle_set_client_tts(self):
+        """Register a client's TTS provider."""
+        try:
+            content_length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(content_length)
+            data = json.loads(body)
+            client_id = data.get("client_id", "gwent-tui")
+            provider = data.get("provider", "none")
+            self.server.client_tts[client_id] = provider
+            log.info("Client TTS registered: %s=%s", client_id, provider)
+            cond = self.server.state_condition
+            if cond:
+                with cond:
+                    cond.notify_all()
+            self._send_json(200, {"status": "ok", "client_tts": self.server.client_tts})
+        except Exception as e:
+            log.error("Error setting client TTS: %s", e)
+            self._send_json(400, {"error": str(e)})
 
     def _handle_save(self):
         """Save game state to a file in the recordings directory."""
@@ -167,6 +216,8 @@ class _GwentHTTPServer(ThreadingMixIn, HTTPServer):
     def __init__(self, controller_getter, pubsub, port):
         self.get_controller = controller_getter
         self.state_condition = getattr(pubsub, 'state_condition', None) if pubsub else None
+        self.player_names = {"PLAYER.ONE": "Player 1", "PLAYER.TWO": "Player 2"}
+        self.client_tts = {}  # {client_id: provider_name}
         super().__init__(("", port), _Handler)
 
 

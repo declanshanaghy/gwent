@@ -8,6 +8,7 @@ from gwent_shared.tts.elevenlabs_provider import ElevenLabsProvider
 from gwent_shared.tts.openai_provider import OpenAIProvider
 from gwent_shared.tts.piper_provider import PiperProvider
 from gwent_shared.tts.say_provider import SayProvider
+from gwent_shared.tts.none_provider import NoneProvider
 
 PROVIDERS = {
     "gtts": GTTSProvider,
@@ -15,6 +16,7 @@ PROVIDERS = {
     "openai": OpenAIProvider,
     "piper": PiperProvider,
     "say": SayProvider,
+    "none": NoneProvider,
 }
 
 DEFAULT_PROVIDER = "elevenlabs"

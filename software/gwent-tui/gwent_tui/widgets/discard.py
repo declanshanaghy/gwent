@@ -33,12 +33,19 @@ class _DiscardContent(Static):
         table.add_column(ratio=1)
 
         p1_cards = []
+        # Show ghost (removed) cards first with red strikethrough (medic resurrect)
+        for c in state.get_ghosts("discard", P1):
+            text = card_display(c)
+            p1_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
         for c in p1_disc:
             text = card_display(c)
             if state.is_highlighted(f"discard:{P1}:{c.get('name', '')}"):
                 text = f"[on dark_green]{text}[/on dark_green]"
             p1_cards.append(text)
         p2_cards = []
+        for c in state.get_ghosts("discard", P2):
+            text = card_display(c)
+            p2_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
         for c in p2_disc:
             text = card_display(c)
             if state.is_highlighted(f"discard:{P2}:{c.get('name', '')}"):
@@ -46,9 +53,9 @@ class _DiscardContent(Static):
             p2_cards.append(text)
 
         if not p1_cards:
-            p1_cards.append("[dim]Empty[/dim]")
+            p1_cards.append("")
         if not p2_cards:
-            p2_cards.append("[dim]Empty[/dim]")
+            p2_cards.append("")
 
         # Pad to fill available height so the vertical separator runs full height,
         # but cap so content never overflows past the panel border.

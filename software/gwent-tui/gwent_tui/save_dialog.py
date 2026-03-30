@@ -99,10 +99,10 @@ class SaveScreen(ModalScreen[str]):
             filepath = result.get("filepath", name)
             log.info("State saved to %s", filepath)
             if self._state:
-                self._state.event_log.append(f"State saved: {name}")
+                self._state._log_event(f"State saved: {name}")
             self.dismiss(name)
         except Exception as e:
             log.error("Save failed: %s", e)
             self.query_one("#save-status").update(f"Error: {e}")
             if self._state:
-                self._state.event_log.append(f"Save failed: {e}")
+                self._state._log_event(f"Save failed: {e}")

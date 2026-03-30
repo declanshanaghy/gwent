@@ -6,10 +6,9 @@ from rich import box
 from textual.containers import Vertical
 from textual.widgets import Static
 
-from gwent_tui.emoji import card_display, leader_display, FACTION_STYLE
+from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
 from gwent_tui.widgets.board import SPLIT_BOX
-from gwent_tui.widgets.header import _leader_nick
 
 
 class _HandsContent(Static):
@@ -22,22 +21,15 @@ class _HandsContent(Static):
         p1_count = len(state.hands[P1])
         p2_count = len(state.hands[P2])
 
-        p1_nick = _leader_nick(state.leaders[P1]) if state.leaders[P1] else "P1"
-        p2_nick = _leader_nick(state.leaders[P2]) if state.leaders[P2] else "P2"
-        p1f = state.factions.get(P1, "")
-        p2f = state.factions.get(P2, "")
-        p1_fc = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))[0]
-        p2_fc = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))[0]
-
         table = Table(
             box=SPLIT_BOX,
             expand=True,
             padding=(0, 1),
-            show_header=True,
+            show_header=False,
             show_edge=False,
         )
-        table.add_column(f"\U0001f451 {p1_nick} ({p1_count})", ratio=1, header_style=p1_fc)
-        table.add_column(f"\U0001f451 {p2_nick} ({p2_count})", ratio=1, header_style=p2_fc)
+        table.add_column(ratio=1)
+        table.add_column(ratio=1)
 
         p1_rows = []
         p2_rows = []
@@ -68,7 +60,7 @@ class _HandsContent(Static):
         for p1, p2 in zip(p1_rows, p2_rows):
             table.add_row(p1, p2)
 
-        return Panel(table, title="\U0001f0cf Hands")
+        return Panel(table, title=f"\U0001f0cf Hands ({p1_count} | {p2_count})")
 
 
 class HandsWidget(Vertical):

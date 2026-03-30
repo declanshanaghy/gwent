@@ -7,11 +7,28 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import faction_emoji, FACTION_STYLE
 from gwent_tui.game_state import P1, P2
+import gwent_tui.snapshot as snapshot_mod
+from gwent_tui import tts as tts_mod
 
 # Kept here for other widgets that import it
 _STATUS_COLOR = {
     "polling": "green", "processing": "yellow",
     "error": "red", "off": "grey50", "offline": "red",
+}
+
+_CONN_ICON = {
+    "off":        ("\u26aa", "grey50"),
+    "alive":      ("\u2705", "green"),
+    "polling":    ("\u2705", "green"),
+    "processing": ("\u23f3", "yellow"),
+    "error":      ("\u274c", "red"),
+}
+
+_TTS_COLOR = {
+    "say": "bright_cyan", "piper": "bright_magenta",
+    "gtts": "bright_yellow", "elevenlabs": "orange1",
+    "openai": "bright_blue", "none": "grey50",
+    "off": "red", "?": "grey50", "auto": "grey50",
 }
 
 
@@ -79,8 +96,14 @@ class HeaderWidget(Static):
             p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
             p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
 
-            p1_label = f"{p1e[0]} [{p1_style}] {p1_nick} ({p1f}) [/{p1_style}] {p1e[1]}" if p1f else f"[{p1_style}] {p1_nick} [/{p1_style}]"
-            p2_label = f"{p2e[0]} [{p2_style}] {p2_nick} ({p2f}) [/{p2_style}] {p2e[1]}" if p2f else f"[{p2_style}] {p2_nick} [/{p2_style}]"
+            # Use custom player names when set, otherwise fall back to leader nick
+            p1_pname = state.player_names.get(P1, "Player 1")
+            p2_pname = state.player_names.get(P2, "Player 2")
+            p1_display = p1_pname if p1_pname not in ("Player 1", "") else p1_nick
+            p2_display = p2_pname if p2_pname not in ("Player 2", "") else p2_nick
+
+            p1_label = f"{p1e[0]} [{p1_style}] {p1_display} ({p1f}) [/{p1_style}] {p1e[1]}" if p1f else f"[{p1_style}] {p1_display} [/{p1_style}]"
+            p2_label = f"{p2e[0]} [{p2_style}] {p2_display} ({p2f}) [/{p2_style}] {p2e[1]}" if p2f else f"[{p2_style}] {p2_display} [/{p2_style}]"
 
             center = Text.from_markup(
                 f" {p1_label}  "
@@ -89,9 +112,31 @@ class HeaderWidget(Static):
             )
             center.justify = "center"
 
+        # Status indicators (right-aligned)
+        mqtt_icon, mqtt_c = _CONN_ICON.get(state.mqtt_status, ("\u2753", "grey50"))
+        http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))
+        server_tts = state.server_tts or "?"
+        provider = tts_mod._get_provider()
+        client_tts = tts_mod._provider_name or "auto"
+        if provider and provider is not False:
+            client_tts = tts_mod._provider_name or type(provider).__name__.replace("Provider", "").lower()
+        elif provider is False:
+            client_tts = "off"
+        s_color = _TTS_COLOR.get(server_tts, "grey50")
+        c_color = _TTS_COLOR.get(client_tts, "grey50")
+        pt = snapshot_mod.POLL_TIMEOUT
+        status = Text.from_markup(
+            f"{mqtt_icon} [{mqtt_c}]MQTT[/{mqtt_c}] | "
+            f"{http_icon} [{http_c}]HTTP[/{http_c}] | "
+            f"\U0001f50a [{s_color}]s:{server_tts}[/{s_color}] [{c_color}]c:{client_tts}[/{c_color}] "
+            f"\U0001f504 {pt}s"
+        )
+        status.justify = "right"
+
         table = Table(box=None, expand=True, show_header=False, padding=0)
         table.add_column(width=20, justify="left")
         table.add_column(ratio=1)
-        table.add_row(stage_label, center)
+        table.add_column(justify="right")
+        table.add_row(stage_label, center, status)
 
         return Panel(table, style="bold")

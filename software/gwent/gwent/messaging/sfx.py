@@ -26,8 +26,8 @@ class Message(gwent.messaging.base.Message):
         return Message(instance, subkind=ANNOUNCEMENT)
 
     @staticmethod
-    def with_announcement_complete(announcement):
-        instance = {ANNOUNCEMENT: announcement}
+    def with_announcement_complete(announcement, source="gwent"):
+        instance = {ANNOUNCEMENT: announcement, "source": source}
         return Message(instance, subkind=ANNOUNCEMENT_COMPLETE)
 
     @staticmethod

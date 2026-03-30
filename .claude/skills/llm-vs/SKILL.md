@@ -9,21 +9,87 @@ Orchestrate two LLM models playing Gwent against each other through the live gam
 
 ## Usage
 
-`/llm-vs [model] [--fresh]`
+`/llm-vs [--model-p1 MODEL] [--model-p2 MODEL]`
 
-- Models use a provider prefix: `anthropic/`, `openai/`, or none (Ollama)
+- Models use a provider prefix: `anthropic/`, `openai/`, or `ollama/`
 - Default model: `anthropic/claude-haiku-4-5-20251001`
+- P2 defaults to P1's model if `--model-p2` not specified
 - Default Ollama URL: `http://hal-9005.lan:11434`
 - API keys loaded from `.env` (OPENAI_API_KEY, ANTHROPIC_API_KEY)
 
+## Help (--help)
+
+When the user passes `--help`, display this help text verbatim and do NOT launch a game:
+
+````
+## /llm-vs — LLM vs LLM Gwent Match
+
+Two AI models play Gwent against each other through the live game server.
+
+### Usage
+
+  /llm-vs [--model-p1 MODEL] [--model-p2 MODEL] [options]
+
+### Prerequisites
+
+  The game server must be running and in PlayRound stage before launching.
+  Use /dev-server to start the server and deal cards first.
+
+### Quick Start
+
+  /llm-vs                                                   # claude-haiku vs claude-haiku
+  /llm-vs --model-p1 anthropic/claude-sonnet-4-6            # sonnet mirror match
+  /llm-vs --model-p1 openai/gpt-4o                          # GPT-4o mirror match
+  /llm-vs --model-p1 ollama/deepseek-r1:14b                 # Ollama local model
+  /llm-vs --model-p1 anthropic/claude-haiku-4-5-20251001 \
+          --model-p2 openai/gpt-4o                          # cross-provider matchup
+
+### Model Providers
+
+  anthropic/MODEL   Anthropic API (needs ANTHROPIC_API_KEY in .env)
+  openai/MODEL      OpenAI API (needs OPENAI_API_KEY in .env)
+  ollama/MODEL      Ollama local (default: http://hal-9005.lan:11434)
+
+### Options
+
+  --model-p1 MODEL   Model for P1 (default: claude-haiku)
+  --model-p2 MODEL   Model for P2 (default: same as --model-p1)
+  --no-commentary    Disable MQTT turn commentary announcements
+  --help             Show this help
+
+### Turn Control
+
+  The game pauses after each turn. You choose:
+  • Continue           Play one more turn
+  • Run uninterrupted  Let both AIs play freely until game over
+  • Order P1/P2        Inject strategic orders into the next AI move
+  • Stop               End the match (SIGTERM)
+
+### Examples — Mirror Matches
+
+  /llm-vs                                                       # haiku vs haiku (default)
+  /llm-vs --model-p1 anthropic/claude-sonnet-4-6                # sonnet vs sonnet
+  /llm-vs --model-p1 openai/gpt-4o                              # GPT-4o vs GPT-4o
+  /llm-vs --model-p1 ollama/deepseek-r1:14b                     # deepseek vs deepseek
+  /llm-vs --model-p1 ollama/llama3.2:3b                         # llama vs llama
+  /llm-vs --model-p1 ollama/qwen2.5:7b                           # qwen vs qwen
+
+### Examples — Cross-Model Matchups
+
+  /llm-vs --model-p1 anthropic/claude-haiku-4-5-20251001 --model-p2 openai/gpt-4o
+  /llm-vs --model-p1 anthropic/claude-sonnet-4-6 --model-p2 ollama/deepseek-r1:14b
+  /llm-vs --model-p1 openai/gpt-4o --model-p2 ollama/llama3.2:3b
+  /llm-vs --model-p1 ollama/deepseek-r1:14b --model-p2 ollama/qwen2.5:7b
+````
+
 ## Running
 
-The game-loop.py script handles everything: prerequisite checks, game startup, system prompt generation, and the full turn loop with audio-synced long-polling.
+The game-loop.py script handles everything: prerequisite checks, system prompt generation, and the full turn loop with audio-synced long-polling. The game server must already be running and in PlayRound.
 
 ```bash
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
-  --model MODEL \
-  [--fresh] \
+  --model-p1 MODEL \
+  [--model-p2 MODEL] \
   [--no-pause] \
   [--json] \
   [--ollama-url URL] \
@@ -35,22 +101,14 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--model` | `anthropic/claude-haiku-4-5-20251001` | Model with provider prefix |
-| `--fresh` | off | Restart game server and trigger random deal |
+| `--model-p1` | `anthropic/claude-haiku-4-5-20251001` | Model for P1 (and P2 if --model-p2 not set) |
+| `--model-p2` | same as `--model-p1` | Different model for P2 |
 | `--no-pause` | off | Run continuously without pausing between turns |
+| `--no-commentary` | off | Disable MQTT announcements for LLM turn commentary |
 | `--json` | off | Also emit structured JSON events per turn |
 | `--ollama-url` | `http://hal-9005.lan:11434` | Ollama API URL |
 | `--game-url` | `http://localhost:8080` | Game server URL |
 | `--max-turns` | 60 | Safety limit |
-
-### What `--fresh` does
-
-1. Restarts the gwent dev server via `scripts/dev-server.sh gwent restart`
-2. Waits for the server to reach MainMenu
-3. Sends a "Random Deal" choice via MQTT
-4. Waits for PlayRound stage
-
-Without `--fresh`, the script expects the game to already be in PlayRound.
 
 ### Pause behavior (DEFAULT — no flag needed)
 
@@ -76,20 +134,18 @@ Orders are wrapped in faction-themed language before injection (e.g., "The Jarl'
 
 ### Decision tree
 
-1. **Check if game-loop.py is already running**: `pgrep -f game-loop.py`
+1. **Check if game-loop.py is already running**: read PID from `/tmp/pids/game-loop.pid`
 2. **Validate the PID is actually alive**: `kill -0 <pid> 2>/dev/null`
-   - If `pgrep` returns a PID but `kill -0` fails, the process is dead/stale — treat as "not running"
-   - Also validate against `/tmp/llm-vs-status.json` PID if present — if status PID differs from pgrep PID, the status file is stale
+   - If PID file exists but `kill -0` fails, the process is dead/stale — treat as "not running"
 3. **If running** and user says "unpause", "continue", "next turn", "just unpause":
-   - Read PID: `pgrep -f game-loop.py` or from `/tmp/llm-vs-status.json`
+   - Read PID from `/tmp/pids/game-loop.pid`
    - Send `kill -USR1 <pid>` to unpause
    - Do NOT launch a new process
 4. **If NOT running**: check current game state via `curl -s http://localhost:8080/state | python3 -c "import json,sys; print(json.load(sys.stdin).get('active_stage',''))"`:
-   - If stage is `PlayRound` → game is active, launch WITHOUT `--fresh` to join it
-   - If stage is anything else, or server is down → launch WITH `--fresh` to start a new game
-5. **Model mapping**: `/llm-vs deepseek-r1:14b` → `--model deepseek-r1:14b`
-6. **Fresh game**: only pass `--fresh` when user says "new game", "fresh", "restart", OR when the server isn't in PlayRound
-7. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
+   - If stage is `PlayRound` → launch the game loop
+   - If stage is anything else, or server is down → tell the user to start the server and deal cards first (use `/dev-server`)
+5. **Model mapping**: `/llm-vs --model-p1 ollama/deepseek-r1:14b` → `--model-p1 ollama/deepseek-r1:14b`
+6. **Unattended**: only pass `--no-pause` when user says "auto-play", "run unattended"
 8. **IMPORTANT**: After launching, send `kill -USR1 <pid>` to start the first turn (script starts paused)
 
 ## Turn-by-Turn Orchestration
@@ -102,7 +158,7 @@ The script pauses by default (no flag needed). Use this loop:
 source ~/gwent-venv/bin/activate && \
 source <(grep -v '^#' .env | sed 's/^/export /') && \
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
-  --model MODEL [--fresh] --game-url http://localhost:8080 &
+  --model-p1 MODEL [--model-p2 MODEL] --game-url http://localhost:8080 &
 ```
 
 Capture the PID. The script starts **paused** — send `kill -USR1 <pid>` to begin the first turn. After each turn it pauses again.

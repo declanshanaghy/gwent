@@ -1,6 +1,7 @@
 """Gwent TUI — Textual-based live game dashboard."""
 
 import argparse
+import json
 import logging
 import logging.handlers
 import os
@@ -49,7 +50,7 @@ class GwentTUI(App):
     Screen { layout: vertical; }
     * { scrollbar-size: 0 0; }
     #header { height: 3; }
-    #stage-container { height: 1fr; overflow-y: auto; }
+    #stage-container { height: 1fr; overflow: hidden; }
     #bottom-bar { height: 7; }
     #footer { width: 3fr; height: 100%; }
     #timers { width: 1fr; height: 100%; }
@@ -97,6 +98,9 @@ class GwentTUI(App):
             self._poller = SnapshotPoller(state=self.state)
             self._poller.data_ready_callback = self._on_poller_data
             self._poller.start()
+
+        # Register client TTS provider with the server
+        self._register_client_tts()
 
         # Periodic refresh as fallback (1s)
         self.set_interval(1.0, self._check_updates)
@@ -237,6 +241,24 @@ class GwentTUI(App):
             snapshot_mod.POLL_TIMEOUT = self._POLL_PRESETS[0]
         log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
         await self._refresh_all()
+
+    def _register_client_tts(self):
+        """Register this client's TTS provider with the server."""
+        import urllib.request
+        from gwent_tui import tts as tts_mod
+        provider = tts_mod._provider_name or "auto"
+        try:
+            data = json.dumps({"client_id": "gwent-tui", "provider": provider}).encode()
+            req = urllib.request.Request(
+                f"{self._gwent_url}/client-tts",
+                data=data,
+                method="PUT",
+                headers={"Content-Type": "application/json"},
+            )
+            urllib.request.urlopen(req, timeout=5)
+            log.info("Registered client TTS: gwent-tui=%s", provider)
+        except Exception as e:
+            log.debug("Failed to register client TTS: %s", e)
 
     def on_unmount(self):
         if self._poller:

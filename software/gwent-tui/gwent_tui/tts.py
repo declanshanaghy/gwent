@@ -1,26 +1,34 @@
 """Text-to-speech for TUI announcements.
 
 Uses the shared gwent_shared TTS provider system.
-On macOS uses the `say` provider, on Linux uses `piper`.
-Falls back to no-op if provider is unavailable.
+Announcements are queued and played sequentially.
 """
 
 import logging
 import os
+import queue
 import subprocess
 import tempfile
 import threading
 
 log = logging.getLogger("gwent_tui.tts")
 
-_lock = threading.Lock()
 _provider = None
-_provider_name: str | None = None  # set via init() from CLI --tts flag
-_provider_error: str | None = None  # error message if provider init failed
+_provider_name: str | None = None
+_provider_error: str | None = None
 _player_proc: subprocess.Popen | None = None
+_play_lock = threading.Lock()
+
+# Sequential announcement queue
+_queue: queue.Queue = queue.Queue()
+_worker_thread: threading.Thread | None = None
+_running = False
 
 # Cache dir for synthesized audio
 _CACHE_DIR = os.path.join(tempfile.gettempdir(), "gwent-tui-tts")
+
+# Completion callback
+_on_complete_callback = None
 
 
 def init(provider_name: str | None = None):
@@ -30,11 +38,7 @@ def init(provider_name: str | None = None):
 
 
 def _get_provider():
-    """Lazy-init the TTS provider.
-
-    If the user explicitly requested a provider via --tts, failures are fatal.
-    Auto-detected providers fail gracefully to "off".
-    """
+    """Lazy-init the TTS provider."""
     global _provider, _provider_error
     if _provider is not None:
         return _provider
@@ -46,61 +50,86 @@ def _get_provider():
         log.info("TTS provider: %s", name)
     except Exception as e:
         if _provider_name:
-            # User explicitly requested this provider — fail hard
             raise SystemExit(f"TTS provider '{_provider_name}' failed: {e}")
         log.warning("TTS provider unavailable: %s", e)
         _provider_error = str(e)
-        _provider = False  # sentinel: tried and failed
+        _provider = False
     return _provider
 
 
+def set_on_complete(callback):
+    """Set callback(announcement_text) called after each playback finishes."""
+    global _on_complete_callback
+    _on_complete_callback = callback
+
+
 def speak(text: str, faction: str | None = None):
-    """Speak text asynchronously using the local platform TTS provider."""
-    if not text:
+    """Queue text for sequential playback."""
+    if not text or _provider_name == "none":
+        if _on_complete_callback:
+            _on_complete_callback(text)
         return
-    threading.Thread(
-        target=_speak_sync, args=(text, faction), daemon=True
-    ).start()
+    _ensure_worker()
+    _queue.put((text, faction))
 
 
-def _speak_sync(text: str, faction: str | None = None):
+def _ensure_worker():
+    """Start the worker thread if not already running."""
+    global _worker_thread, _running
+    if _running:
+        return
+    _running = True
+    _worker_thread = threading.Thread(target=_worker, daemon=True)
+    _worker_thread.start()
+
+
+def _worker():
+    """Process announcements sequentially from the queue."""
+    global _running
+    while _running:
+        try:
+            text, faction = _queue.get(timeout=1.0)
+        except queue.Empty:
+            continue
+        try:
+            _play_one(text, faction)
+        except Exception as e:
+            log.debug("TTS worker error: %s", e)
+        finally:
+            if _on_complete_callback:
+                _on_complete_callback(text)
+            _queue.task_done()
+
+
+def _play_one(text: str, faction: str | None = None):
+    """Synthesize and play a single announcement."""
     global _player_proc
     provider = _get_provider()
     if not provider:
         return
 
-    with _lock:
-        # Stop any in-progress playback
-        if _player_proc and _player_proc.poll() is None:
-            _player_proc.terminate()
-            try:
-                _player_proc.wait(timeout=2)
-            except subprocess.TimeoutExpired:
-                _player_proc.kill()
-
+    with _play_lock:
         try:
-            # Fast path: provider can speak directly (e.g. macOS say)
             if getattr(provider, 'can_speak_direct', False):
                 _player_proc = provider.speak_direct(text, faction)
-                _player_proc.wait()
-                return
+            else:
+                os.makedirs(_CACHE_DIR, exist_ok=True)
+                import hashlib
+                key = hashlib.md5(f"{faction}:{text}".encode()).hexdigest()
+                ext = ".wav" if provider.native_wav else ".mp3"
+                cached = os.path.join(_CACHE_DIR, f"{key}{ext}")
 
-            # File-based path: synthesize then play
-            os.makedirs(_CACHE_DIR, exist_ok=True)
-            import hashlib
-            key = hashlib.md5(f"{faction}:{text}".encode()).hexdigest()
-            ext = ".wav" if provider.native_wav else ".mp3"
-            cached = os.path.join(_CACHE_DIR, f"{key}{ext}")
+                if not os.path.exists(cached):
+                    provider.synthesize(text, faction, cached)
 
-            if not os.path.exists(cached):
-                provider.synthesize(text, faction, cached)
-
-            _player_proc = _play_audio(cached)
-            if _player_proc:
-                _player_proc.wait()
-
+                _player_proc = _play_audio(cached)
         except Exception as e:
             log.debug("TTS error: %s", e)
+            return
+
+    # Wait outside lock so stop() can terminate
+    if _player_proc:
+        _player_proc.wait()
 
 
 def _play_audio(path: str) -> subprocess.Popen | None:
@@ -126,8 +155,17 @@ def _play_audio(path: str) -> subprocess.Popen | None:
 
 
 def stop():
-    """Stop any in-progress speech."""
-    global _player_proc
-    with _lock:
+    """Stop any in-progress speech and clear the queue."""
+    global _player_proc, _running
+    _running = False
+    # Clear pending items
+    while not _queue.empty():
+        try:
+            _queue.get_nowait()
+            _queue.task_done()
+        except queue.Empty:
+            break
+    # Kill current playback
+    with _play_lock:
         if _player_proc and _player_proc.poll() is None:
             _player_proc.terminate()

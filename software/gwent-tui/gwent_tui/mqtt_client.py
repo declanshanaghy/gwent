@@ -18,6 +18,7 @@ BROKER_PASS = "gwent"
 TOPICS = [
     ("gwent/ctrl", 0),
     ("gwent/mfd/present", 0),
+    ("gwent/mfd/choose", 0),
     ("gwent/sfx", 0),
     ("gwent/sfx/complete", 0),
     ("gwent/cards/raw/read", 0),
@@ -45,9 +46,24 @@ class MqttSubscriber:
             log.info("Connecting to MQTT broker %s:%d", self.host, self.port)
             self.client.connect(self.host, self.port, keepalive=60)
             self.client.loop_start()
+            # Wire TTS completion to publish announcement_complete
+            tts.set_on_complete(self._publish_announcement_complete)
         except Exception as e:
             log.error("MQTT connect failed: %s", e)
             self.state.mqtt_status = "error"
+
+    def _publish_announcement_complete(self, announcement_text):
+        """Publish announcement_complete with source=gwent-tui."""
+        try:
+            payload = json.dumps({
+                "kind": "sfx",
+                "subkind": "announcement_complete",
+                "announcement": announcement_text,
+                "source": "gwent-tui",
+            })
+            self.client.publish("gwent/sfx/complete", payload)
+        except Exception as e:
+            log.debug("Failed to publish announcement_complete: %s", e)
 
     def disconnect(self):
         """Stop loop and disconnect."""
@@ -59,12 +75,12 @@ class MqttSubscriber:
         log.info("MQTT connected (rc=%s)", reason_code)
         self.state.mqtt_status = "alive"
         client.subscribe(TOPICS)
-        self.state.event_log.append("MQTT connected")
+        self.state._log_event("MQTT connected")
 
     def _on_disconnect(self, client, userdata, flags, reason_code, properties=None):
         log.warning("MQTT disconnected (rc=%s)", reason_code)
         self.state.mqtt_status = "error"
-        self.state.event_log.append("MQTT disconnected")
+        self.state._log_event("MQTT disconnected")
 
     def _on_message(self, client, userdata, msg):
         try:
@@ -84,6 +100,9 @@ class MqttSubscriber:
 
         elif topic == "gwent/mfd/present":
             self.state.on_mfd(data)
+
+        elif topic == "gwent/mfd/choose":
+            self.state.on_choice(data)
 
         elif topic == "gwent/sfx":
             self.state.on_sfx(data)

@@ -1,26 +1,18 @@
 #!/usr/bin/env python3
-"""LLM vs LLM game loop — self-contained launcher and game manager.
+"""LLM vs LLM game loop — connects to a running game server and plays.
+
+The game server must already be running and in PlayRound stage.
 
 Usage:
-  python3 game-loop.py [--model MODEL] [--ollama-url URL] [--game-url URL]
-                       [--fresh] [--max-turns N]
+  python3 game-loop.py [--model-p1 MODEL] [--model-p2 MODEL]
+                       [--ollama-url URL] [--game-url URL] [--max-turns N]
 
 Models (prefix determines provider):
   anthropic/claude-haiku-4-5-20251001   (default)
   anthropic/claude-sonnet-4-6
-  openai/gpt-4o-mini
   openai/gpt-4o
-  openai/gpt-4.1-mini
-  openai/gpt-4.1-nano
-  llama3.2:3b                           (Ollama, no prefix)
-  deepseek-r1:14b                       (Ollama)
-
-Flags:
-  --fresh       Restart the game server and trigger a random deal before playing.
-  --model       Model name with provider prefix (default: anthropic/claude-haiku-4-5-20251001).
-  --ollama-url  Ollama API base URL (default: http://hal-9005.lan:11434).
-  --game-url    Game HTTP API base URL (default: http://localhost:8080).
-  --max-turns   Max turns before auto-stopping (default: 60).
+  ollama/deepseek-r1:14b
+  ollama/llama3.2:3b
 """
 import argparse
 import json
@@ -76,7 +68,8 @@ You are playing Gwent, a card game from The Witcher III. You are a skilled playe
 GAME STRUCTURE:
 - Best of 3 rounds. Each player starts with 2 gems (lives). Lose a gem each round you lose.
 - Game ends when a player reaches 0 gems.
-- Each turn you may: play a card from your hand, pass, or use your leader ability (once per game).
+- Each turn you may: play a card from your hand (your_hand), pass, or use your leader ability (once per game).
+- IMPORTANT: You can ONLY play cards listed in your_hand. The deck is NOT playable — it is only used for spy draw selections.
 - Playing a card removes it from your hand and places it on the board.
 - Passing ends your turns for this round -- you cannot play more cards until next round.
 - Round ends when both players pass. Higher total score wins.
@@ -152,13 +145,18 @@ You MUST respond with ONLY a JSON object. No other text, no markdown, no explana
 # ---------------------------------------------------------------------------
 
 class AnnouncementSync:
-    """Subscribe to MQTT and block until all announcements finish."""
+    """Subscribe to MQTT and block until all TTS sources finish announcements.
+
+    Tracks which TTS sources (gwent, gwent-tui) are expected to publish
+    announcement_complete, and waits for all of them.
+    """
 
     def __init__(self):
-        self._count = 0
         self._lock = threading.Lock()
         self._event = threading.Event()
         self._last_announcement_time = 0.0
+        self._expected_sources = {"gwent"}  # server always expected
+        self._completed_sources = set()
         self._client = mqtt.Client(client_id='llm-vs-sync',
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
@@ -167,19 +165,28 @@ class AnnouncementSync:
         self._client.subscribe('gwent/sfx/complete')
         self._client.loop_start()
 
+    def set_expected_sources(self, sources):
+        """Set which TTS sources to wait for (e.g. {'gwent', 'gwent-tui'})."""
+        with self._lock:
+            self._expected_sources = set(sources)
+        log_debug(f"AnnouncementSync: expecting sources={self._expected_sources}")
+
     def _on_message(self, client, userdata, msg):
         try:
             d = json.loads(msg.payload)
             if d.get('subkind') == 'announcement_complete':
+                source = d.get('source', 'gwent')
                 with self._lock:
-                    self._count += 1
+                    self._completed_sources.add(source)
                     self._last_announcement_time = time.time()
-                self._event.set()
+                    # Only signal when all expected sources have completed
+                    if self._expected_sources.issubset(self._completed_sources):
+                        self._event.set()
         except Exception:
             pass
 
     def wait_all(self, timeout=60):
-        """Block until all queued announcements finish playing.
+        """Block until all expected TTS sources finish playing.
 
         First waits for at least one announcement_complete (long timeout
         to allow TTS generation/download), then drains any remaining
@@ -189,28 +196,28 @@ class AnnouncementSync:
         the long Phase 1 wait and go straight to draining.
         """
         deadline = time.time() + timeout
-        # Check if an announcement already arrived recently (e.g. during
-        # wait_for_turn_advance) — skip the long Phase 1 wait.
         with self._lock:
             recent = (time.time() - self._last_announcement_time) < 10.0
+            self._completed_sources.clear()
         if not recent:
-            # Phase 1: wait for first announcement (TTS generation can be slow)
             self._event.clear()
             got = self._event.wait(timeout=min(30, timeout))
             if not got:
-                return  # no announcement at all, move on
-        # Phase 2: drain remaining — wait until no announcement for 3s
+                return
+        # Drain remaining
         while time.time() < deadline:
+            with self._lock:
+                self._completed_sources.clear()
             self._event.clear()
             got = self._event.wait(timeout=3.0)
             if not got:
-                return  # queue drained
+                return
 
     def drain(self):
         """Consume any stale events without blocking."""
         self._event.clear()
         with self._lock:
-            self._count = 0
+            self._completed_sources.clear()
 
     def stop(self):
         self._client.loop_stop()
@@ -227,6 +234,7 @@ _auto_pause = True  # default: pause after every turn
 ORDERS_FILE_P1 = '/tmp/llm-vs-orders-p1.json'
 ORDERS_FILE_P2 = '/tmp/llm-vs-orders-p2.json'
 STATUS_FILE = '/tmp/llm-vs-status.json'
+PID_FILE = '/tmp/pids/game-loop.pid'
 
 # Faction-themed commander order preambles
 COMMANDER_PREAMBLE = {
@@ -357,10 +365,23 @@ def board_summary(board):
     return "\n".join(lines)
 
 
+_commentary_enabled = True
+
+
 def mqpub(topic, payload):
     subprocess.run(_mq_base() + ['-t', topic, '-m', payload],
                    check=True, capture_output=True)
     time.sleep(0.6)
+
+
+def announce(text, faction=None):
+    """Publish a TTS announcement to MQTT (if commentary enabled)."""
+    if not _commentary_enabled:
+        return
+    msg = {"kind": "sfx", "subkind": "announcement", "announcement": text}
+    if faction:
+        msg["faction"] = faction
+    mqpub('gwent/sfx', json.dumps(msg))
 
 
 def fetch(game_url):
@@ -399,59 +420,6 @@ def wait_for_turn_advance(game_url, etag, cur_player, timeout=30):
         if stage != 'PlayRound' or board.get('current_player') != cur_player:
             return stage, board, etag
     return fetch(game_url)
-
-
-# ---------------------------------------------------------------------------
-# Game setup: restart server, trigger random deal, wait for PlayRound
-# ---------------------------------------------------------------------------
-
-def ensure_game_ready(game_url, fresh=False, tts='gtts'):
-    """Ensure the game server is running and in PlayRound.
-
-    If --fresh, restart the server and trigger a random deal.
-    Returns (stage, board, etag) when ready, or raises on failure.
-    """
-    dev_script = os.path.join(REPO_ROOT, 'scripts', 'dev-server.sh')
-
-    if fresh:
-        log(f"Restarting game server (tts={tts})...")
-        cmd = ['bash', dev_script, 'gwent', 'restart', '--tts', tts]
-        subprocess.run(cmd, check=True, capture_output=True)
-        # Wait for server to come up
-        for _ in range(10):
-            time.sleep(1)
-            try:
-                stage, board, etag = fetch(game_url)
-                break
-            except Exception:
-                continue
-        else:
-            raise RuntimeError("Game server did not start")
-
-        log(f"Server ready (stage={stage})")
-
-        if stage == 'MainMenu':
-            log("Triggering random deal...")
-            mqpub('gwent/mfd/choose',
-                  json.dumps({"kind": "choice", "id": "1",
-                              "text": "Random Deal"}))
-            # Wait for PlayRound
-            for _ in range(30):
-                time.sleep(1)
-                stage, board, etag = fetch(game_url)
-                if stage == 'PlayRound':
-                    break
-            if stage != 'PlayRound':
-                raise RuntimeError(
-                    f"Expected PlayRound after deal, got {stage}")
-    else:
-        stage, board, etag = fetch(game_url)
-        if stage != 'PlayRound':
-            raise RuntimeError(
-                f"Game not in PlayRound (stage={stage}). "
-                f"Use --fresh to start a new game.")
-
-    return stage, board, etag
 
 
 # ---------------------------------------------------------------------------
@@ -642,7 +610,7 @@ def build_state(board, cur):
                 for c in board['decks'][cur]
                 if c.get('specialty') == 'weather'
                 and any(r in allowed for r in c.get('ranges', []))]
-    return {
+    result = {
         'round': board['round_number'],
         'your_gems': board['players'][cur]['gems'],
         'opponent_gems': board['players'][opp]['gems'],
@@ -657,10 +625,13 @@ def build_state(board, cur):
         'weather_active': board['weather_rows'],
         'your_leader': li,
         'your_deck_size': len(board['decks'][cur]),
-        'your_deck': [card_summary(c) for c in board['decks'][cur]],
         'opponent_hand_size': len(board['hands'][opp]),
         'opponent_passed': board['players'][opp]['passed'],
     }
+    # Only include deck contents when hand has spy cards (for spy_draws selection)
+    if any(c.get('specialty') == 'spy' for c in board['hands'][cur]):
+        result['your_deck'] = [card_summary(c) for c in board['decks'][cur]]
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -670,13 +641,34 @@ def build_state(board, cur):
 def _provider(model):
     """Return (provider, model_id) from a model string.
 
-    Prefixes: 'openai/' -> OpenAI, 'anthropic/' -> Anthropic, else Ollama.
+    Prefixes: 'openai/' -> OpenAI, 'anthropic/' -> Anthropic,
+    'ollama/' -> Ollama (explicit), else Ollama (implicit).
     """
     if model.startswith('openai/'):
         return 'openai', model[len('openai/'):]
     if model.startswith('anthropic/'):
         return 'anthropic', model[len('anthropic/'):]
+    if model.startswith('ollama/'):
+        return 'ollama', model[len('ollama/'):]
     return 'ollama', model
+
+
+def _short_model_name(model):
+    """Shorten a model string for display.
+
+    'anthropic/claude-haiku-4-5-20251001' → 'claude-haiku'
+    'openai/gpt-4o' → 'gpt-4o'
+    'deepseek-r1:14b' → 'deepseek-r1:14b'
+    """
+    name = model.split("/")[-1]  # drop provider prefix
+    # Trim long version suffixes (segments of 3+ digits)
+    parts = name.split("-")
+    short = []
+    for p in parts:
+        if p.isdigit() and len(p) > 2:
+            break
+        short.append(p)
+    return "-".join(short) or name
 
 
 def _load_env():
@@ -1055,11 +1047,56 @@ def game_loop(args, board, etag, sync):
         if orders_for_cur:
             log(f"  ORDERS: {order_text}")
 
+        # Announce turn start with varied phrasing
+        player_model = args.model_p1 if pnum == '1' else args.model_p2
+        short_model = _short_model_name(player_model)
+        if ps1 == ps2:
+            score_desc = f"Scores are tied at {ps1}"
+        elif (pnum == '1' and ps1 > ps2) or (pnum == '2' and ps2 > ps1):
+            score_desc = f"Leading {max(ps1,ps2)} to {min(ps1,ps2)}"
+        else:
+            score_desc = f"Trailing {min(ps1,ps2)} to {max(ps1,ps2)}"
+        import random
+        thinking_phrases = [
+            f"{short_model} considers their next move.",
+            f"{short_model} studies the board carefully.",
+            f"{short_model} weighs their options.",
+            f"{short_model} plots their strategy.",
+            f"{short_model} surveys the battlefield.",
+            f"{short_model} takes a moment to think.",
+            f"{short_model} deliberates.",
+            f"{short_model} eyes the cards intently.",
+            f"{short_model} calculates the odds.",
+            f"The crowd watches as {short_model} decides.",
+            f"All eyes on {short_model}.",
+            f"{short_model} reaches for a card.",
+            f"{short_model} strokes their chin thoughtfully.",
+            f"{short_model} narrows their eyes at the board.",
+            f"A hush falls as {short_model} contemplates.",
+            f"{short_model} taps the table, deep in thought.",
+            f"{short_model} scans the opponent's side of the board.",
+            f"{short_model} leans forward, studying their hand.",
+            f"The tension builds as {short_model} decides.",
+            f"{short_model} glances at their remaining cards.",
+            f"{short_model} pauses before making their move.",
+            f"What will {short_model} do next?",
+            f"{short_model} takes a deep breath.",
+            f"{short_model} mulls over the possibilities.",
+        ]
+        thinking = random.choice(thinking_phrases)
+        announce(
+            f"{thinking} {score_desc}, with {hand_size} cards remaining.",
+            faction=faction)
+
+        # Wait for "thinking" announcement to finish before LLM call
+        if _commentary_enabled:
+            sync.wait_all()
+
         ok = False
         for attempt in range(3):
             log_debug(f"LLM call attempt {attempt+1}/3 for {plab}")
             content, lat = call_llm(
-                args.ollama_url, args.model, pnum,
+                args.ollama_url, player_model, pnum,
                 state_json if attempt == 0 else json.dumps(state))
             log_debug(f"LLM response received: latency={lat:.1f}s, len={len(content) if content else 0}")
             try:
@@ -1077,10 +1114,23 @@ def game_loop(args, board, etag, sync):
                 log(f"  {plab}: bad JSON (attempt {attempt + 1})")
                 continue
 
-            # Drain stale announcements, then execute
+            # Announce the LLM's decision before executing
             act = action.get('action', '?')
             card_name = action.get('card_name', '')
             reasoning = action.get('reasoning', '')
+            if act == 'pass':
+                summary = f"{short_model} passes! {reasoning}"
+            elif act == 'play_leader':
+                summary = f"{short_model} uses their leader ability! {reasoning}"
+            else:
+                summary = f"{short_model} plays {card_name}! {reasoning}"
+            announce(summary, faction=faction)
+
+            # Wait for commentary announcement to finish before executing
+            if _commentary_enabled:
+                sync.wait_all()
+
+            # Drain stale announcements, then execute
             log_debug(f"Parsed action: {act} {card_name}")
             sync.drain()
             log_debug("Executing action...")
@@ -1135,6 +1185,7 @@ def game_loop(args, board, etag, sync):
 
         if not ok:
             log(f"  {plab}: FORCED PASS after 3 retries")
+            announce(f"{short_model} is confused and forced to pass!", faction=faction)
             sync.drain()
             mqpub('gwent/mfd/choose',
                   json.dumps({"kind": "choice", "id": "p",
@@ -1153,17 +1204,18 @@ def game_loop(args, board, etag, sync):
 def main():
     parser = argparse.ArgumentParser(
         description='LLM vs LLM Gwent game manager')
-    parser.add_argument('--model', default='anthropic/claude-haiku-4-5-20251001')
+    parser.add_argument('--model-p1', default='anthropic/claude-haiku-4-5-20251001',
+                        help='Model for P1')
+    parser.add_argument('--model-p2', default=None,
+                        help='Model for P2 (defaults to --model-p1)')
     parser.add_argument('--ollama-url', default='http://hal-9005.lan:11434')
     parser.add_argument('--host', default='localhost',
                         help='Gwent server hostname (used for both HTTP and MQTT)')
     parser.add_argument('--game-url', default=None,
                         help='Override HTTP game URL (default: http://<host>:8080)')
     parser.add_argument('--max-turns', type=int, default=60)
-    parser.add_argument('--tts', default='gtts',
-                        help='TTS provider: gtts (default, free), openai, elevenlabs')
-    parser.add_argument('--fresh', action='store_true',
-                        help='Restart server and trigger random deal')
+    parser.add_argument('--no-commentary', action='store_true',
+                        help='Disable MQTT announcements for LLM turn commentary')
     parser.add_argument('--json', action='store_true',
                         help='Also emit structured JSON events to stdout')
     parser.add_argument('--no-pause', action='store_true',
@@ -1177,10 +1229,26 @@ def main():
         args.game_url = f'http://{args.host}:8080'
 
     log_debug(f"=== game-loop.py starting === PID={os.getpid()}")
-    log_debug(f"Args: model={args.model}, fresh={args.fresh}, no_pause={args.no_pause}, game_url={args.game_url}")
+
+    # Write PID file
+    os.makedirs(os.path.dirname(PID_FILE), exist_ok=True)
+    with open(PID_FILE, 'w') as f:
+        f.write(str(os.getpid()))
+    import atexit
+    atexit.register(lambda: os.remove(PID_FILE) if os.path.exists(PID_FILE) else None)
+
+    # Default P2 model to P1 model if not specified
+    if not args.model_p2:
+        args.model_p2 = args.model_p1
+    log_debug(f"Args: model_p1={args.model_p1}, model_p2={args.model_p2}, no_pause={args.no_pause}, game_url={args.game_url}")
 
     global _json_output
     _json_output = args.json
+
+    global _commentary_enabled
+    if args.no_commentary:
+        _commentary_enabled = False
+        log_debug("Commentary disabled (--no-commentary)")
 
     global _auto_pause
     if args.no_pause:
@@ -1195,32 +1263,31 @@ def main():
     log_debug(f"ANTHROPIC_API_KEY set: {'yes' if os.environ.get('ANTHROPIC_API_KEY') else 'NO'}")
     log_debug(f"OPENAI_API_KEY set: {'yes' if os.environ.get('OPENAI_API_KEY') else 'NO'}")
 
-    # 1. Check model availability
-    provider, model_id = _provider(args.model)
-    log(f"Provider: {provider}, model: {model_id}")
+    # 1. Check model availability (both P1 and P2)
+    for label, model_str in [("P1", args.model_p1), ("P2", args.model_p2)]:
+        provider, model_id = _provider(model_str)
+        log(f"{label} provider: {provider}, model: {model_id}")
 
-    if provider == 'openai':
-        if not os.environ.get('OPENAI_API_KEY'):
-            log("ERROR: OPENAI_API_KEY not set (check .env)")
-            return 1
-        log(f"OpenAI model: {model_id}")
-    elif provider == 'anthropic':
-        if not os.environ.get('ANTHROPIC_API_KEY'):
-            log("ERROR: ANTHROPIC_API_KEY not set (check .env)")
-            return 1
-        log(f"Anthropic model: {model_id}")
-    else:
-        log(f"Checking Ollama model {model_id} on {args.ollama_url}...")
-        try:
-            r = requests.get(f'{args.ollama_url}/api/tags', timeout=10)
-            models = [m['name'] for m in r.json().get('models', [])]
-            if model_id not in models:
-                log(f"ERROR: Model '{model_id}' not found. "
-                    f"Available: {models}")
+        if provider == 'openai':
+            if not os.environ.get('OPENAI_API_KEY'):
+                log("ERROR: OPENAI_API_KEY not set (check .env)")
                 return 1
-        except Exception as e:
-            log(f"ERROR: Cannot reach Ollama at {args.ollama_url}: {e}")
-            return 1
+        elif provider == 'anthropic':
+            if not os.environ.get('ANTHROPIC_API_KEY'):
+                log("ERROR: ANTHROPIC_API_KEY not set (check .env)")
+                return 1
+        else:
+            log(f"Checking Ollama model {model_id} on {args.ollama_url}...")
+            try:
+                r = requests.get(f'{args.ollama_url}/api/tags', timeout=10)
+                models = [m['name'] for m in r.json().get('models', [])]
+                if model_id not in models:
+                    log(f"ERROR: Model '{model_id}' not found. "
+                        f"Available: {models}")
+                    return 1
+            except Exception as e:
+                log(f"ERROR: Cannot reach Ollama at {args.ollama_url}: {e}")
+                return 1
 
     # 2. Check MQTT
     log("Checking MQTT broker...")
@@ -1231,15 +1298,30 @@ def main():
         log(f"ERROR: MQTT broker not reachable: {e}")
         return 1
 
-    # 3. Ensure game is ready
+    # 3. Check game is in PlayRound
     try:
-        stage, board, etag = ensure_game_ready(args.game_url, fresh=args.fresh,
-                                                   tts=args.tts)
-    except RuntimeError as e:
-        log(f"ERROR: {e}")
+        stage, board, etag = fetch(args.game_url)
+    except Exception as e:
+        log(f"ERROR: Cannot reach game server at {args.game_url}: {e}")
+        return 1
+    if stage != 'PlayRound':
+        log(f"ERROR: Game not in PlayRound (stage={stage}). "
+            f"Start the server and deal cards first.")
         return 1
 
     log(f"Game ready: stage={stage}")
+
+    # 3b. Set player display names on the server
+    short_p1 = _short_model_name(args.model_p1)
+    short_p2 = _short_model_name(args.model_p2)
+    try:
+        requests.put(f'{args.game_url}/players',
+                     json={"PLAYER.ONE": short_p1,
+                           "PLAYER.TWO": short_p2},
+                     timeout=5)
+        log(f"Player names set: {short_p1} vs {short_p2}")
+    except Exception as e:
+        log_debug(f"Failed to set player names: {e}")
 
     # 4. Initialize conversation logs
     init_conversations(board)
@@ -1249,8 +1331,33 @@ def main():
     # Drain any announcements from the deal stage
     sync.drain()
 
-    # 6. Run the game loop
-    log(f"\nStarting game: {args.model} vs {args.model}")
+    # 5b. Determine active TTS sources from /state
+    try:
+        full_state = requests.get(f'{args.game_url}/state', timeout=10).json()
+        server_tts = full_state.get('tts_provider', 'none')
+        client_tts = full_state.get('client_tts', {})
+        expected = set()
+        if server_tts and server_tts != 'none':
+            expected.add('gwent')
+        for cid, cprov in client_tts.items():
+            if cprov and cprov not in ('none', 'off', 'auto'):
+                expected.add(cid)
+        if expected:
+            sync.set_expected_sources(expected)
+            log(f"Waiting for TTS sources: {expected}")
+        else:
+            log("No active TTS — announcements complete instantly")
+    except Exception as e:
+        log_debug(f"Failed to read TTS sources: {e}")
+
+    # 6. Announce player takeover
+    p1_faction = board.get('factions', {}).get('PLAYER.ONE', '')
+    p2_faction = board.get('factions', {}).get('PLAYER.TWO', '')
+    announce(f"{short_p1} takes command of {p1_faction}!", faction=p1_faction)
+    announce(f"{short_p2} takes command of {p2_faction}!", faction=p2_faction)
+
+    # 7. Run the game loop
+    log(f"\nStarting game: {args.model_p1} vs {args.model_p2}")
     log("=" * 60)
     try:
         game_loop(args, board, etag, sync)

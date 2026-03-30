@@ -9,7 +9,7 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import (
     card_display_short, gems_display, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
-    FACTION_STYLE,
+    FACTION_STYLE, faction_emoji,
 )
 from gwent_tui.game_state import P1, P2
 
@@ -73,21 +73,34 @@ class ScoreboardWidget(Static):
         p2s_open = f"[{p2s_style}]" if p2s_style else ""
         p2s_close = f"[/{p2s_style}]" if p2s_style else ""
 
-        # Build: P1 info | score | weather | score | P2 info
-        left = f"{p1_gems_str} {p1_pass}"
+        # Leader names with faction emoji
+        from gwent_tui.widgets.header import _leader_nick
+        p1_leader = state.leaders.get(P1)
+        p2_leader = state.leaders.get(P2)
+        p1_nick = _leader_nick(p1_leader).split()[0] if p1_leader else ""
+        p2_nick = _leader_nick(p2_leader).split()[0] if p2_leader else ""
+        p1e = faction_emoji(state.factions.get(P1, ""))
+        p2e = faction_emoji(state.factions.get(P2, ""))
+        p1f = state.factions.get(P1, "")
+        p2f = state.factions.get(P2, "")
+        p1_fc = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))[0]
+        p2_fc = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))[0]
+        p1_leader_str = f"{p1e[0]}{p1e[1]} [{p1_fc}]{p1_nick}[/{p1_fc}]" if p1_nick else ""
+        p2_leader_str = f"[{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[0]}{p2e[1]}" if p2_nick else ""
+
+        # Build: P1 info | score | P2 info
+        left = f"{p1_leader_str}  {p1_gems_str} {p1_pass}"
         center = (
             f"\U0001f5e1 {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
             f"  \u2694  "
             f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1"
         )
-        if weather:
-            center += f"  {weather}"
-        right = f"{p2_pass} {p2_gems_str}"
+        right = f"{p2_pass} {p2_gems_str}  {p2_leader_str}"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 1))
-        table.add_column(ratio=1, justify="left")
-        table.add_column(ratio=2, justify="center")
-        table.add_column(ratio=1, justify="right")
+        table.add_column(ratio=2, justify="left", no_wrap=True)
+        table.add_column(ratio=1, justify="center")
+        table.add_column(ratio=2, justify="right", no_wrap=True)
         table.add_row(
             Text.from_markup(left),
             Text.from_markup(center),
@@ -100,7 +113,7 @@ class ScoreboardWidget(Static):
 class _BoardRows(Static):
     """The 3 combat rows (close, ranged, siege) for both players."""
     DEFAULT_CSS = """
-    _BoardRows { width: 1fr; min-height: 100%; }
+    _BoardRows { width: 1fr; height: 100%; }
     """
 
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
@@ -205,6 +218,19 @@ class _BoardRows(Static):
                 p2_ability = text
         table.add_row(p1_ability, p2_ability)
 
+        # Weather summary at bottom
+        if state.weather_rows:
+            weather_items = []
+            for row in sorted(state.weather_rows):
+                emoji = WEATHER_EMOJI.get(row, "")
+                name = WEATHER_NAME.get(row, row)
+                weather_items.append(f"{emoji} {name}")
+            weather_str = "  ".join(weather_items)
+            table.add_row(
+                f"[bold red]{weather_str}[/bold red]",
+                f"[bold red]{weather_str}[/bold red]",
+            )
+
         return Panel(table, title="\u2694 Board")
 
 
@@ -212,7 +238,8 @@ class BoardWidget(Vertical):
 
     DEFAULT_CSS = """
     BoardWidget {
-        height: 1fr;
+        height: 100%;
+        overflow: hidden;
     }
     """
 

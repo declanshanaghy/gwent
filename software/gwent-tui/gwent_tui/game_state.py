@@ -4,6 +4,7 @@ import logging
 import threading
 import time
 from collections import deque
+from datetime import datetime
 
 log = logging.getLogger("gwent_tui.state")
 
@@ -75,14 +76,18 @@ class GameState:
 
         # Event log (recent events for footer)
         self.last_prompt = ""
+        self.last_prompt_time = ""
         self.last_error = ""
+        self.last_error_time = ""
         self.last_choices = []
         self.last_announcement = ""
         self.last_card_read = None
-        self.event_log = deque(maxlen=20)
+        self.last_card_read_time = ""
+        self._event_log = deque(maxlen=20)
         self.mqtt_status = "off"    # off, polling, processing, error
         self.http_status = "off"    # off, polling, processing, error
         self.server_tts = ""       # server TTS provider name (from snapshot)
+        self.player_names = {P1: "Player 1", P2: "Player 2"}
 
         # Change highlights: {key: expire_time}
         # Keys: "board:{player}:{row}:{card_name}", "hand:{player}:{card_name}",
@@ -113,6 +118,12 @@ class GameState:
         state = snapshot.get("state", {})
         self.stage = snapshot.get("active_stage", "—") or "—"
         self.server_tts = snapshot.get("tts_provider", "") or ""
+
+        # Player display names (set via PUT /players)
+        names = snapshot.get("player_names", {})
+        for key, name in names.items():
+            p = _normalize_player(key)
+            self.player_names[p] = name
 
         board = state.get("board", {})
         if not board or self.stage not in self._GAME_STAGES:
@@ -262,11 +273,24 @@ class GameState:
                     if c.get("name") not in old_names:
                         self._highlight(f"board:{p}:{row_name}:{c.get('name')}")
 
-            # Discard changed — detect new cards
+            # Discard changed — detect new and removed cards
             old_disc_names = {c.get("name") for c in self.discard.get(p, [])}
-            for c in pdata.get("discard", []):
+            new_disc = pdata.get("discard", [])
+            new_disc_names = {c.get("name") for c in new_disc}
+            for c in new_disc:
                 if c.get("name") not in old_disc_names:
                     self._highlight(f"discard:{p}:{c.get('name')}")
+            # Track removed discard cards as ghosts (medic resurrect)
+            removed_disc = old_disc_names - new_disc_names
+            if removed_disc:
+                ghost_key = ("discard", p)
+                ghosts = []
+                for c in self.discard.get(p, []):
+                    if c.get("name") in removed_disc:
+                        ghosts.append(c)
+                        self._highlight(f"removed:discard:{p}:{c.get('name')}")
+                if ghosts:
+                    self.ghosts[ghost_key] = (ghosts, time.monotonic() + self.HIGHLIGHT_TTL)
 
         # Hands — detect removed cards (played) and new cards (drawn)
         # Clear expired ghosts first
@@ -291,13 +315,28 @@ class GameState:
             if old_names != new_names:
                 self._highlight(f"hand_count:{p}")
 
-        # Decks — detect size change
+        # Decks — detect size change and removed cards (spy draws)
         for key, deck in decks.items():
             p = _normalize_player(key)
-            old_size = len(self.decks.get(p, []))
-            new_size = len([c for c in deck if c.get("specialty") != "leader"])
+            old_deck = [c for c in self.decks.get(p, [])]
+            new_filtered = [c for c in deck if c.get("specialty") != "leader"]
+            old_size = len(old_deck)
+            new_size = len(new_filtered)
             if old_size != new_size:
                 self._highlight(f"deck:{p}")
+            # Track removed deck cards as ghosts (drawn to hand)
+            old_deck_names = {c.get("name") for c in old_deck}
+            new_deck_names = {c.get("name") for c in new_filtered}
+            removed_deck = old_deck_names - new_deck_names
+            if removed_deck:
+                ghost_key = ("deck", p)
+                ghosts = []
+                for c in old_deck:
+                    if c.get("name") in removed_deck:
+                        ghosts.append(c)
+                        self._highlight(f"removed:deck:{p}:{c.get('name')}")
+                if ghosts:
+                    self.ghosts[ghost_key] = (ghosts, time.monotonic() + self.HIGHLIGHT_TTL)
 
         # Scores changed
         for key, p_scores in server_scores.items():
@@ -351,6 +390,16 @@ class GameState:
         """Number of completed moves for a player."""
         return len(self.move_times.get(player, []))
 
+    @property
+    def event_log(self):
+        """Read-only access to event log. Use log_event() to add entries."""
+        return self._event_log
+
+    def _log_event(self, msg):
+        """Append a timestamped event to the log."""
+        ts = datetime.now().strftime("%H:%M:%S")
+        self._event_log.append(f"{ts} {msg}")
+
     # --- MQTT event handlers ---
 
     def on_ctrl(self, data):
@@ -366,7 +415,7 @@ class GameState:
                     self.reg_deck1 = []
                     self.reg_deck2 = []
                 self.stage = stage
-                self.event_log.append(f"\U0001f3ad Stage: {stage}")
+                self._log_event(f"\U0001f3ad Stage: {stage}")
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""
@@ -374,12 +423,17 @@ class GameState:
             subkind = data.get("subkind", "")
             if subkind == "prompt":
                 self.last_prompt = data.get("prompt", "")
-                self.event_log.append(f"\U0001f4df {self.last_prompt}")
+                self.last_prompt_time = datetime.now().strftime("%H:%M:%S")
+                self._log_event(f"\U0001f4df {self.last_prompt}")
             elif subkind == "error":
                 self.last_error = data.get("error", "")
-                self.event_log.append(f"\u274c {self.last_error}")
+                self.last_error_time = datetime.now().strftime("%H:%M:%S")
+                self._log_event(f"\u274c {self.last_error}")
             elif subkind == "choices":
                 self.last_choices = data.get("choices", [])
+                labels = [c.get("text", "?") for c in self.last_choices]
+                if labels:
+                    self._log_event(f"\U0001f518 Choices: {' | '.join(labels)}")
 
     def on_sfx(self, data):
         """Handle gwent/sfx."""
@@ -387,7 +441,7 @@ class GameState:
             subkind = data.get("subkind", "")
             if subkind == "announcement":
                 self.last_announcement = data.get("announcement", "")
-                self.event_log.append(
+                self._log_event(
                     f"\U0001f4e2 {self.last_announcement}"
                 )
 
@@ -405,19 +459,30 @@ class GameState:
                     self.reg_leader1 = card
                 else:
                     self.reg_leader2 = card
-                self.event_log.append(f"\U0001f451 Leader: {name} \u2192 {p}")
+                self._log_event(f"\U0001f451 Leader: {name} \u2192 {p}")
             elif subkind == "deal_to_hand":
                 self.dealt_cards[p].append(card)
-                self.event_log.append(f"\U0001f0cf {name} \u2192 {p}")
+                self._log_event(f"\U0001f0cf {name} \u2192 {p}")
+            elif subkind in ("play_card", "place_card"):
+                row = card.get("ranges", [""])[0] if card.get("ranges") else ""
+                self._log_event(f"\u2694 {name} \u2192 {row or 'board'} ({p})")
             elif subkind == "add_to_deck":
                 if p == P1:
                     self.reg_deck1.append(card)
                 else:
                     self.reg_deck2.append(card)
 
+    def on_choice(self, data):
+        """Handle gwent/mfd/choose — a choice was made (rotary or LLM)."""
+        with self.lock:
+            text = data.get("text", "")
+            if text:
+                self._log_event(f"\u2714 Choice: {text}")
+
     def on_raw_read(self, data):
         """Handle gwent/cards/raw/read."""
         with self.lock:
             self.last_card_read = data
+            self.last_card_read_time = datetime.now().strftime("%H:%M:%S")
             name = data.get("name", "???")
-            self.event_log.append(f"\U0001f4f1 {name}")
+            self._log_event(f"\U0001f4f1 {name}")

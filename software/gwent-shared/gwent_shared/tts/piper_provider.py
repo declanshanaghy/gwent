@@ -14,7 +14,9 @@ Faction voices use different piper English models for personality:
 """
 
 import os
+import shutil
 import subprocess
+import sys
 
 from gwent_shared.tts.base import TTSProvider
 
@@ -32,6 +34,19 @@ FACTION_VOICE = {
 DEFAULT_VOICE = "en_US-ryan-medium"
 
 
+def _find_piper() -> str:
+    """Locate the piper binary — check the active venv first, then PATH."""
+    venv_bin = os.path.join(os.path.dirname(sys.executable), "piper")
+    if os.path.isfile(venv_bin):
+        return venv_bin
+    found = shutil.which("piper")
+    if found:
+        return found
+    raise FileNotFoundError(
+        "piper binary not found. Install with: pip install piper-tts"
+    )
+
+
 class PiperProvider(TTSProvider):
     native_wav = True
 
@@ -47,8 +62,9 @@ class PiperProvider(TTSProvider):
                 f"Run: bash scripts/install-system.sh"
             )
 
+        piper_bin = _find_piper()
         result = subprocess.run(
-            ["piper", "--model", model_path, "--output-file", dest],
+            [piper_bin, "--model", model_path, "--output-file", dest],
             input=text.encode(),
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,

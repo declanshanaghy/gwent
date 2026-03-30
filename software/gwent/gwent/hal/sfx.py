@@ -175,12 +175,12 @@ class _SFX(gwent.game.BaseComponent):
                 while ch.get_busy():
                     time.sleep(0.1)
                 time.sleep(ANNOUNCEMENT_DELAY)
-                # Notify that the announcement has finished
-                if on_complete:
-                    on_complete(msg)
             except Exception as e:
                 self._log.error(f"Error in announcement worker: {e}", exc_info=True)
             finally:
+                # Always fire on_complete so the game advances even if TTS fails
+                if on_complete:
+                    on_complete(msg)
                 self._announce_queue.task_done()
 
     def _play_announcement(self, msg: gwent.messaging.base.Message):
