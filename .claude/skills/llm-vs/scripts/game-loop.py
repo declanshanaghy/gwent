@@ -53,8 +53,11 @@ _file_logger.addHandler(_fh)
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SKILL_DIR)))
 
-MQ_BASE = ['mosquitto_pub', '-h', 'localhost', '-p', '1883',
-           '-u', 'geralt', '-P', 'gwent']
+_mqtt_host = 'localhost'
+
+def _mq_base():
+    return ['mosquitto_pub', '-h', _mqtt_host, '-p', '1883',
+            '-u', 'geralt', '-P', 'gwent']
 
 FACTION_PASSIVES = {
     "Skellige": "End of every round, resurrect 2 random non-hero cards from discard to hand.",
@@ -160,7 +163,7 @@ class AnnouncementSync:
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
         self._client.on_message = self._on_message
-        self._client.connect('localhost', 1883)
+        self._client.connect(_mqtt_host, 1883)
         self._client.subscribe('gwent/sfx/complete')
         self._client.loop_start()
 
@@ -355,7 +358,7 @@ def board_summary(board):
 
 
 def mqpub(topic, payload):
-    subprocess.run(MQ_BASE + ['-t', topic, '-m', payload],
+    subprocess.run(_mq_base() + ['-t', topic, '-m', payload],
                    check=True, capture_output=True)
     time.sleep(0.6)
 
@@ -1000,10 +1003,6 @@ def game_loop(args, board, etag, sync):
             poll_until_change(args.game_url, etag, timeout=5)
             continue
 
-        if (board['players']['PLAYER.ONE']['gems'] <= 0
-                or board['players']['PLAYER.TWO']['gems'] <= 0):
-            break
-
         if (board['players']['PLAYER.ONE']['passed']
                 and board['players']['PLAYER.TWO']['passed']):
             poll_until_change(args.game_url, etag, timeout=5)
@@ -1156,7 +1155,10 @@ def main():
         description='LLM vs LLM Gwent game manager')
     parser.add_argument('--model', default='anthropic/claude-haiku-4-5-20251001')
     parser.add_argument('--ollama-url', default='http://hal-9005.lan:11434')
-    parser.add_argument('--game-url', default='http://localhost:8080')
+    parser.add_argument('--host', default='localhost',
+                        help='Gwent server hostname (used for both HTTP and MQTT)')
+    parser.add_argument('--game-url', default=None,
+                        help='Override HTTP game URL (default: http://<host>:8080)')
     parser.add_argument('--max-turns', type=int, default=60)
     parser.add_argument('--tts', default='gtts',
                         help='TTS provider: gtts (default, free), openai, elevenlabs')
@@ -1167,6 +1169,12 @@ def main():
     parser.add_argument('--no-pause', action='store_true',
                         help='Run continuously without pausing between turns')
     args = parser.parse_args()
+
+    # Derive game_url and mqtt host from --host
+    global _mqtt_host
+    _mqtt_host = args.host
+    if not args.game_url:
+        args.game_url = f'http://{args.host}:8080'
 
     log_debug(f"=== game-loop.py starting === PID={os.getpid()}")
     log_debug(f"Args: model={args.model}, fresh={args.fresh}, no_pause={args.no_pause}, game_url={args.game_url}")
@@ -1217,7 +1225,7 @@ def main():
     # 2. Check MQTT
     log("Checking MQTT broker...")
     try:
-        subprocess.run(MQ_BASE + ['-t', 'test/ping', '-m', '{"kind":"test"}'],
+        subprocess.run(_mq_base() + ['-t', 'test/ping', '-m', '{"kind":"test"}'],
                        check=True, capture_output=True, timeout=5)
     except Exception as e:
         log(f"ERROR: MQTT broker not reachable: {e}")

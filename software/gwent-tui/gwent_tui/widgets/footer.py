@@ -12,6 +12,7 @@ from gwent_tui import tts as tts_mod
 _CONN_ICON = {
     "off":        ("\u26aa", "grey50"),    # white circle
     "alive":      ("\u2705", "green"),      # check mark
+    "polling":    ("\u2705", "green"),      # check mark (actively polling)
     "processing": ("\u23f3", "yellow"),     # hourglass
     "error":      ("\u274c", "red"),        # red X
 }

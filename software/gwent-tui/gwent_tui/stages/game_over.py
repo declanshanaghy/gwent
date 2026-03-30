@@ -227,8 +227,9 @@ class GameOverStage(Vertical):
     DEFAULT_CSS = """
     GameOverStage { height: 1fr; }
     GameOverStage #winner-banner { height: auto; max-height: 7; }
-    GameOverStage #final-board { height: 2fr; }
-    GameOverStage #hands-discards { height: 3fr; }
+    GameOverStage #game-over-columns { height: 1fr; }
+    GameOverStage #final-board { width: 2fr; }
+    GameOverStage #hands-discards { width: 3fr; }
     """
 
     def compose(self):
