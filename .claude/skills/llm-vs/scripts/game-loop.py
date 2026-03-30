@@ -1378,11 +1378,93 @@ def main():
     except Exception as e:
         log_debug(f"Failed to read TTS sources: {e}")
 
-    # 6. Announce player takeover
+    # 6. Announce game start with varied commentary
+    import random
     p1_faction = board.get('factions', {}).get('PLAYER.ONE', '')
     p2_faction = board.get('factions', {}).get('PLAYER.TWO', '')
-    announce(f"{short_p1} takes command of {p1_faction}!", faction=p1_faction)
-    announce(f"{short_p2} takes command of {p2_faction}!", faction=p2_faction)
+    game_start_phrases = [
+        (f"{short_p1} takes command of {p1_faction}!", f"{short_p2} takes command of {p2_faction}!"),
+        (f"{short_p1} steps up to the table as {p1_faction}.", f"{short_p2} accepts the challenge as {p2_faction}."),
+        (f"The {p1_faction} banner rises for {short_p1}!", f"And {p2_faction} rallies behind {short_p2}!"),
+        (f"{short_p1} draws their {p1_faction} deck with confidence.", f"{short_p2} shuffles their {p2_faction} cards and grins."),
+        (f"Fighting for {p1_faction}, {short_p1} enters the arena!", f"Representing {p2_faction}, {short_p2} takes their seat!"),
+        (f"{short_p1} pledges their sword to {p1_faction}.", f"{short_p2} swears allegiance to {p2_faction}."),
+        (f"The crowd roars as {short_p1} reveals {p1_faction}!", f"And {short_p2} unveils {p2_faction} to thunderous applause!"),
+        (f"{short_p1} commands the forces of {p1_faction}.", f"{short_p2} marshals the armies of {p2_faction}."),
+        (f"For glory and {p1_faction}, {short_p1} takes the field!", f"For honor and {p2_faction}, {short_p2} stands ready!"),
+        (f"{short_p1} slams their {p1_faction} cards on the table!", f"{short_p2} calmly lays out their {p2_faction} hand."),
+        (f"The {p1_faction} standard flies high for {short_p1}!", f"The {p2_faction} colors wave proudly for {short_p2}!"),
+        (f"{short_p1} arrives as champion of {p1_faction}.", f"{short_p2} answers as champion of {p2_faction}."),
+        (f"With fire in their eyes, {short_p1} plays for {p1_faction}!", f"Cool as ice, {short_p2} plays for {p2_faction}."),
+        (f"{short_p1} raises a toast to {p1_faction} and draws!", f"{short_p2} nods to {p2_faction} and prepares for battle."),
+        (f"The tavern quiets as {short_p1} represents {p1_faction}.", f"All eyes turn to {short_p2}, champion of {p2_faction}."),
+        (f"{short_p1} lays claim to the {p1_faction} throne!", f"{short_p2} challenges with the might of {p2_faction}!"),
+        (f"A new challenger approaches! {short_p1} plays {p1_faction}.", f"The defender awaits! {short_p2} plays {p2_faction}."),
+        (f"From the halls of {p1_faction}, {short_p1} enters!", f"From the lands of {p2_faction}, {short_p2} emerges!"),
+        (f"{short_p1} carries the hopes of {p1_faction}.", f"{short_p2} bears the pride of {p2_faction}."),
+        (f"In the name of {p1_faction}, {short_p1} plays!", f"For the glory of {p2_faction}, {short_p2} plays!"),
+        (f"The dice are cast! {short_p1} fights for {p1_faction}!", f"The gauntlet is thrown! {short_p2} fights for {p2_faction}!"),
+        (f"{short_p1} unsheathes the {p1_faction} strategy.", f"{short_p2} unveils the {p2_faction} battle plan."),
+        (f"Ale flows as {short_p1} sits down for {p1_faction}!", f"Coins clink as {short_p2} wagers on {p2_faction}!"),
+        (f"A worthy contender! {short_p1} champions {p1_faction}.", f"An equally worthy foe! {short_p2} champions {p2_faction}."),
+        (f"The bards will sing of {short_p1}'s {p1_faction}!", f"And they'll sing of {short_p2}'s {p2_faction}!"),
+        (f"Thunder rolls as {short_p1} deploys {p1_faction}!", f"Lightning strikes as {short_p2} deploys {p2_faction}!"),
+        (f"{short_p1} rolls up their sleeves for {p1_faction}.", f"{short_p2} cracks their knuckles for {p2_faction}."),
+        (f"The Witcher watches as {short_p1} picks {p1_faction}.", f"Geralt nods as {short_p2} selects {p2_faction}."),
+        (f"By order of {p1_faction}, {short_p1} plays!", f"By decree of {p2_faction}, {short_p2} plays!"),
+        (f"{short_p1} has been preparing {p1_faction} all day.", f"{short_p2} has been sharpening {p2_faction} all night."),
+        (f"The war horn sounds! {short_p1} leads {p1_faction}!", f"The battle drums beat! {short_p2} leads {p2_faction}!"),
+        (f"{short_p1} smirks confidently with {p1_faction}.", f"{short_p2} raises an eyebrow with {p2_faction}."),
+        (f"Fate has chosen {short_p1} for {p1_faction}.", f"Destiny has called {short_p2} for {p2_faction}."),
+        (f"The {p1_faction} forces mobilize under {short_p1}!", f"The {p2_faction} legions assemble under {short_p2}!"),
+        (f"With cunning and guile, {short_p1} fields {p1_faction}.", f"With strength and wisdom, {short_p2} fields {p2_faction}."),
+        (f"{short_p1} opens their {p1_faction} grimoire.", f"{short_p2} consults their {p2_faction} war tome."),
+        (f"A match for the ages! {short_p1} brings {p1_faction}!", f"History in the making! {short_p2} brings {p2_faction}!"),
+        (f"The stakes are high. {short_p1} trusts in {p1_faction}.", f"The reward is glory. {short_p2} trusts in {p2_faction}."),
+        (f"Steel meets silver! {short_p1} wields {p1_faction}!", f"Magic meets might! {short_p2} wields {p2_faction}!"),
+        (f"{short_p1} places their faith in {p1_faction}.", f"{short_p2} places their faith in {p2_faction}."),
+        (f"A cold wind blows as {short_p1} readies {p1_faction}.", f"The fire crackles as {short_p2} readies {p2_faction}."),
+        (f"Let the games begin! {short_p1} commands {p1_faction}!", f"May the best player win! {short_p2} commands {p2_faction}!"),
+        (f"{short_p1} squares off with {p1_faction} at the ready.", f"{short_p2} faces them with {p2_faction} in hand."),
+        (f"The Northern wind carries {short_p1}'s {p1_faction} banner!", f"The Southern sun shines on {short_p2}'s {p2_faction} colors!"),
+        (f"An old rivalry renewed! {short_p1} plays {p1_faction}.", f"Ancient grudges resurface! {short_p2} plays {p2_faction}."),
+        (f"{short_p1} channels the spirit of {p1_faction}!", f"{short_p2} invokes the power of {p2_faction}!"),
+        (f"The cards are dealt. {short_p1} leads with {p1_faction}.", f"The stage is set. {short_p2} counters with {p2_faction}."),
+        (f"No quarter asked! {short_p1} plays for {p1_faction}.", f"None given! {short_p2} plays for {p2_faction}."),
+        (f"{short_p1} enters the fray as {p1_faction}'s champion!", f"{short_p2} stands tall as {p2_faction}'s defender!"),
+        (f"Tonight we feast on victory! {short_p1} leads {p1_faction}.", f"Or drown in defeat! {short_p2} leads {p2_faction}."),
+        (f"Yennefer watches from the shadows, lilac and gooseberries filling the air, as {short_p1} plays {p1_faction}.", f"Triss leans in close, her perfume intoxicating, as {short_p2} plays {p2_faction}."),
+        (f"Even Yennefer's divination couldn't predict {short_p1}'s {p1_faction} moves!", f"Triss whispers an enchantment, her lips brushing the cards, for {short_p2}'s {p2_faction}."),
+        (f"Triss deals the cards with a sultry wink toward {short_p1}'s {p1_faction}.", f"Yennefer arches a perfect eyebrow at {short_p2}'s {p2_faction}, unimpressed. For now."),
+        (f"Dandelion composes a ballad for {short_p1}'s {p1_faction}!", f"Zoltan bets his last crown on {short_p2}'s {p2_faction}!"),
+        (f"Vesemir would be proud of {short_p1}'s {p1_faction} strategy.", f"Lambert would mock {short_p2}'s {p2_faction} picks. But what does he know?"),
+        (f"Ciri teleports in to watch {short_p1} play {p1_faction}!", f"Even the Wild Hunt pauses to see {short_p2}'s {p2_faction} in action."),
+        (f"Dijkstra places a secret wager on {short_p1}'s {p1_faction}.", f"Roche scouts {short_p2}'s {p2_faction} formation from the corner."),
+        (f"The Lodge of Sorceresses debates {short_p1}'s {p1_faction} odds.", f"Philippa Eilhart smirks at {short_p2}'s {p2_faction} chances."),
+        (f"Geralt puts down his silver sword to watch {short_p1} play {p1_faction}.", f"Even a witcher can't resist {short_p2}'s {p2_faction} showdown."),
+        (f"Keira Metz conjures a viewing crystal for {short_p1}'s {p1_faction}.", f"Fringilla casts augury on {short_p2}'s {p2_faction} fortune."),
+        (f"The Bloody Baron raises his goblet to {short_p1}'s {p1_faction}!", f"Olgierd von Everec toasts {short_p2}'s {p2_faction} with immortal wine!"),
+        (f"Emhyr himself requested this {p1_faction} match by {short_p1}.", f"Foltest sent a royal decree for {short_p2}'s {p2_faction} showing."),
+        (f"Yennefer's violet eyes smolder as {short_p1} reveals {p1_faction}. She crosses her legs and waits.", f"Triss tosses her auburn curls and bites her lip as {short_p2} draws {p2_faction}."),
+        (f"Shani patches up the losers while {short_p1} fights for {p1_faction}.", f"Priscilla sings a battle hymn for {short_p2}'s {p2_faction}."),
+        (f"The White Wolf approves of {short_p1}'s {p1_faction} selection.", f"The Kingslayer nods at {short_p2}'s {p2_faction} choice."),
+        (f"Gaunter O'Dimm watches with amusement as {short_p1} plays {p1_faction}.", f"Not even the Master Mirror knows how {short_p2}'s {p2_faction} will fare."),
+        (f"Eredin sends frost across the table but {short_p1}'s {p1_faction} stands firm!", f"Imlerith pounds his fist but {short_p2}'s {p2_faction} doesn't flinch!"),
+        (f"By Melitele's grace, {short_p1} fields {p1_faction}!", f"By the Eternal Fire, {short_p2} answers with {p2_faction}!"),
+        (f"The dwarves of Mahakam cheer for {short_p1}'s {p1_faction}!", f"The elves of Dol Blathanna rally for {short_p2}'s {p2_faction}!"),
+        (f"Regis pours blood-red wine as {short_p1} opens with {p1_faction}.", f"Detlaff bares his fangs as {short_p2} counters with {p2_faction}."),
+        (f"The Nilfgaardian Empire trembles at {short_p1}'s {p1_faction}!", f"The Northern Realms brace for {short_p2}'s {p2_faction}!"),
+        (f"Yennefer purrs 'how deliciously interesting' as {short_p1} lays down {p1_faction}.", f"Triss flushes crimson with excitement at {short_p2}'s bold {p2_faction} opening."),
+        (f"Yennefer drapes herself across the chair, watching {short_p1}'s {p1_faction} with dangerous curiosity.", f"Triss traces a finger along the table edge, captivated by {short_p2}'s {p2_faction}."),
+        (f"The scent of lilac and gooseberries intensifies as Yennefer focuses on {short_p1}'s {p1_faction}.", f"Triss's emerald eyes sparkle with mischief as {short_p2} reveals {p2_faction}."),
+        (f"Yennefer conjures a glass of Toussaint wine and settles in to watch {short_p1}'s {p1_faction}.", f"Triss tucks a curl behind her ear and smiles at {short_p2}'s {p2_faction} opening gambit."),
+        (f"Even Yennefer can't hide her intrigue at {short_p1}'s {p1_faction} hand.", f"Triss leans forward, her breath catching at {short_p2}'s gorgeous {p2_faction} lineup."),
+        (f"This match will echo through the halls of Kaer Morhen! {short_p1} plays {p1_faction}.", f"Oxenfurt scholars will study this game! {short_p2} plays {p2_faction}."),
+        (f"Roach whinnies approval of {short_p1}'s {p1_faction}.", f"A portal shimmers as {short_p2}'s {p2_faction} arrives in style."),
+    ]
+    p1_msg, p2_msg = random.choice(game_start_phrases)
+    announce(p1_msg, faction=p1_faction)
+    announce(p2_msg, faction=p2_faction)
 
     # 7. Run the game loop
     log(f"\nStarting game: {args.model_p1} vs {args.model_p2}")
