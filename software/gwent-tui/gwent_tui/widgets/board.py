@@ -73,12 +73,17 @@ class ScoreboardWidget(Static):
         p2s_open = f"[{p2s_style}]" if p2s_style else ""
         p2s_close = f"[/{p2s_style}]" if p2s_style else ""
 
-        # Leader names with faction emoji
+        # Leader names with faction emoji — truncated to fit
         from gwent_tui.widgets.header import _leader_nick
+        max_name = 10
         p1_leader = state.leaders.get(P1)
         p2_leader = state.leaders.get(P2)
-        p1_nick = _leader_nick(p1_leader).split()[0] if p1_leader else ""
-        p2_nick = _leader_nick(p2_leader).split()[0] if p2_leader else ""
+        p1_nick = _leader_nick(p1_leader) if p1_leader else ""
+        p2_nick = _leader_nick(p2_leader) if p2_leader else ""
+        if len(p1_nick) > max_name:
+            p1_nick = p1_nick[:max_name - 1] + "\u2026"
+        if len(p2_nick) > max_name:
+            p2_nick = p2_nick[:max_name - 1] + "\u2026"
         p1e = faction_emoji(state.factions.get(P1, ""))
         p2e = faction_emoji(state.factions.get(P2, ""))
         p1f = state.factions.get(P1, "")

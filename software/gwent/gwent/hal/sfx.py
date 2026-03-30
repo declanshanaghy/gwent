@@ -189,6 +189,10 @@ class _SFX(gwent.game.BaseComponent):
                 'action': 'announce',
                 'speech': msg.announcement,
             })
+            # Skip synthesis and playback entirely for none provider
+            from gwent_shared.tts.none_provider import NoneProvider
+            if isinstance(self._tts_provider, NoneProvider):
+                return 0
             start = time.time()
             native_wav = self._tts_provider.native_wav
             fwav = self.tts_filename(msg, extn='wav')

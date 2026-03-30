@@ -49,7 +49,7 @@ class GwentTUI(App):
     CSS = """
     Screen { layout: vertical; }
     * { scrollbar-size: 0 0; }
-    #header { height: 3; }
+    #header { height: 4; }
     #stage-container { height: 1fr; overflow: hidden; }
     #bottom-bar { height: 7; }
     #footer { width: 3fr; height: 100%; }

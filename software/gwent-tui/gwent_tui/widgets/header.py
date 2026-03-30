@@ -63,56 +63,10 @@ class HeaderWidget(Static):
         state = self.app.state
 
         stage_icon = _STAGE_ICON.get(state.stage, "\u2753")
-        stage_label = Text.from_markup(
-            f" {stage_icon} [dim]{state.stage}[/dim]"
-        )
+        stage_label = f" {stage_icon} [dim]{state.stage}[/dim]"
+        round_label = f"\u2694 Round {state.round_number} \u2694"
 
-        # Offline mode — no player data to show
-        if state.http_status == "error" or state.stage == "Offline":
-            center = Text.from_markup(
-                " \u26a0 [bold red]Server Offline[/bold red] — waiting for connection"
-            )
-            center.justify = "center"
-        else:
-            is_p1_turn = state.current_player == P1
-
-            p1f = state.factions.get(P1, "")
-            p2f = state.factions.get(P2, "")
-            p1e = faction_emoji(p1f)
-            p2e = faction_emoji(p2f)
-
-            p1_tc, p1_bg, p1_fg = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))
-            p2_tc, p2_bg, p2_fg = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))
-
-            if is_p1_turn:
-                p1_style = f"bold {p1_fg} on {p1_bg}"
-                p2_style = p2_tc
-            else:
-                p1_style = p1_tc
-                p2_style = f"bold {p2_fg} on {p2_bg}"
-
-            p1_leader = state.leaders.get(P1)
-            p2_leader = state.leaders.get(P2)
-            p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
-            p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
-
-            # Use custom player names when set, otherwise fall back to leader nick
-            p1_pname = state.player_names.get(P1, "Player 1")
-            p2_pname = state.player_names.get(P2, "Player 2")
-            p1_display = p1_pname if p1_pname not in ("Player 1", "") else p1_nick
-            p2_display = p2_pname if p2_pname not in ("Player 2", "") else p2_nick
-
-            p1_label = f"{p1e[0]} [{p1_style}] {p1_display} ({p1f}) [/{p1_style}] {p1e[1]}" if p1f else f"[{p1_style}] {p1_display} [/{p1_style}]"
-            p2_label = f"{p2e[0]} [{p2_style}] {p2_display} ({p2f}) [/{p2_style}] {p2e[1]}" if p2f else f"[{p2_style}] {p2_display} [/{p2_style}]"
-
-            center = Text.from_markup(
-                f" {p1_label}  "
-                f"\u2694 Round {state.round_number} \u2694"
-                f"  {p2_label} "
-            )
-            center.justify = "center"
-
-        # Status indicators (right-aligned)
+        # Status indicators
         mqtt_icon, mqtt_c = _CONN_ICON.get(state.mqtt_status, ("\u2753", "grey50"))
         http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))
         server_tts = state.server_tts or "?"
@@ -125,18 +79,67 @@ class HeaderWidget(Static):
         s_color = _TTS_COLOR.get(server_tts, "grey50")
         c_color = _TTS_COLOR.get(client_tts, "grey50")
         pt = snapshot_mod.POLL_TIMEOUT
-        status = Text.from_markup(
+        status_str = (
             f"{mqtt_icon} [{mqtt_c}]MQTT[/{mqtt_c}] | "
             f"{http_icon} [{http_c}]HTTP[/{http_c}] | "
             f"\U0001f50a [{s_color}]s:{server_tts}[/{s_color}] [{c_color}]c:{client_tts}[/{c_color}] "
             f"\U0001f504 {pt}s"
         )
-        status.justify = "right"
 
         table = Table(box=None, expand=True, show_header=False, padding=0)
-        table.add_column(width=20, justify="left")
-        table.add_column(ratio=1)
-        table.add_column(justify="right")
-        table.add_row(stage_label, center, status)
+        table.add_column(justify="left", ratio=1)
+        table.add_column(justify="center", ratio=1)
+        table.add_column(justify="right", ratio=1)
+
+        # Row 1: stage | round | status
+        table.add_row(
+            Text.from_markup(stage_label),
+            Text.from_markup(round_label),
+            Text.from_markup(status_str),
+        )
+
+        # Row 2: player labels with full leader names
+        if state.http_status == "error" or state.stage == "Offline":
+            table.add_row(
+                Text(""),
+                Text.from_markup(" \u26a0 [bold red]Server Offline[/bold red]"),
+                Text(""),
+            )
+        else:
+            is_p1_turn = state.current_player == P1
+            p1f = state.factions.get(P1, "")
+            p2f = state.factions.get(P2, "")
+            p1e = faction_emoji(p1f)
+            p2e = faction_emoji(p2f)
+            p1_tc, p1_bg, p1_fg = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))
+            p2_tc, p2_bg, p2_fg = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))
+
+            if is_p1_turn:
+                p1_style = f"bold {p1_fg} on {p1_bg}"
+                p2_style = p2_tc
+            else:
+                p1_style = p1_tc
+                p2_style = f"bold {p2_fg} on {p2_bg}"
+
+            # Full leader names (with title) for the header
+            p1_leader = state.leaders.get(P1)
+            p2_leader = state.leaders.get(P2)
+            p1_full = p1_leader.get("name", "P1") if p1_leader else "P1"
+            p2_full = p2_leader.get("name", "P2") if p2_leader else "P2"
+
+            # Use player names if custom, otherwise full leader name
+            p1_pname = state.player_names.get(P1, "Player 1")
+            p2_pname = state.player_names.get(P2, "Player 2")
+            p1_display = f"{p1_pname}: {p1_full}" if p1_pname not in ("Player 1", "") else p1_full
+            p2_display = f"{p2_pname}: {p2_full}" if p2_pname not in ("Player 2", "") else p2_full
+
+            p1_label = f"{p1e[0]} [{p1_style}] {p1_display} ({p1f}) [/{p1_style}] {p1e[1]}" if p1f else f"[{p1_style}] {p1_display} [/{p1_style}]"
+            p2_label = f"{p2e[0]} [{p2_style}] {p2_display} ({p2f}) [/{p2_style}] {p2e[1]}" if p2f else f"[{p2_style}] {p2_display} [/{p2_style}]"
+
+            table.add_row(
+                Text.from_markup(p1_label),
+                Text(""),
+                Text.from_markup(p2_label),
+            )
 
         return Panel(table, style="bold")
