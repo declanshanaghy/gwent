@@ -86,22 +86,24 @@ class HeaderWidget(Static):
             f"\U0001f504 {pt}s"
         )
 
-        table = Table(box=None, expand=True, show_header=False, padding=0)
-        table.add_column(justify="left", ratio=1)
-        table.add_column(justify="center", ratio=1)
-        table.add_column(justify="right", ratio=1)
-
         # Row 1: stage | round | status
-        table.add_row(
+        row1 = Table(box=None, expand=True, show_header=False, padding=0)
+        row1.add_column(justify="left", ratio=1)
+        row1.add_column(justify="center", ratio=1)
+        row1.add_column(justify="right", ratio=1)
+        row1.add_row(
             Text.from_markup(stage_label),
             Text.from_markup(round_label),
             Text.from_markup(status_str),
         )
 
-        # Row 2: player labels with full leader names
+        # Row 2: player labels — 50/50 split
+        row2 = Table(box=None, expand=True, show_header=False, padding=0)
+        row2.add_column(justify="left", ratio=1)
+        row2.add_column(justify="right", ratio=1)
+
         if state.http_status == "error" or state.stage == "Offline":
-            table.add_row(
-                Text(""),
+            row2.add_row(
                 Text.from_markup(" \u26a0 [bold red]Server Offline[/bold red]"),
                 Text(""),
             )
@@ -127,19 +129,26 @@ class HeaderWidget(Static):
             p1_full = p1_leader.get("name", "P1") if p1_leader else "P1"
             p2_full = p2_leader.get("name", "P2") if p2_leader else "P2"
 
-            # Use player names if custom, otherwise full leader name
+            # Use player names if custom, otherwise leader name only
             p1_pname = state.player_names.get(P1, "Player 1")
             p2_pname = state.player_names.get(P2, "Player 2")
             p1_display = f"{p1_pname}: {p1_full}" if p1_pname not in ("Player 1", "") else p1_full
             p2_display = f"{p2_pname}: {p2_full}" if p2_pname not in ("Player 2", "") else p2_full
 
-            p1_label = f"{p1e[0]} [{p1_style}] {p1_display} ({p1f}) [/{p1_style}] {p1e[1]}" if p1f else f"[{p1_style}] {p1_display} [/{p1_style}]"
-            p2_label = f"{p2e[0]} [{p2_style}] {p2_display} ({p2f}) [/{p2_style}] {p2e[1]}" if p2f else f"[{p2_style}] {p2_display} [/{p2_style}]"
+            # Truncate to fit ~35 chars per side (panel border + emoji overhead)
+            max_label = 35
+            if len(p1_display) > max_label:
+                p1_display = p1_display[:max_label - 1] + "\u2026"
+            if len(p2_display) > max_label:
+                p2_display = p2_display[:max_label - 1] + "\u2026"
 
-            table.add_row(
+            p1_label = f"{p1e[0]}{p1e[1]} [{p1_style}]{p1_display} ({p1f})[/{p1_style}]"
+            p2_label = f"[{p2_style}]{p2_display} ({p2f})[/{p2_style}] {p2e[0]}{p2e[1]}"
+
+            row2.add_row(
                 Text.from_markup(p1_label),
-                Text(""),
                 Text.from_markup(p2_label),
             )
 
-        return Panel(table, style="bold")
+        from rich.console import Group
+        return Panel(Group(row1, row2), style="bold")
