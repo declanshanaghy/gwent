@@ -63,76 +63,75 @@ FACTION_PASSIVES = {
 # System prompt template (sections 1-6, shared by both players)
 # ---------------------------------------------------------------------------
 SYSTEM_PROMPT_SHARED = """\
-You are playing Gwent, a card game from The Witcher III. You are a skilled player.
+You are playing Gwent, a card game from The Witcher III.
 
-CARD ZONES (understand these — they are different!):
-- your_hand: cards you can PLAY on your turn. Play cards come from HERE.
-- your_deck: draw pile. Cards move from deck to hand via spy draws or abilities. You CANNOT play directly from deck.
-- your_discard: cards that were played and removed. Some leaders/medics can resurrect from here.
-- opponent_discard: opponent's used cards. Some leaders can steal from here.
+CARD ZONES:
+- your_hand: cards available to play. Cards are played from here.
+- your_deck: draw pile. Cards move from deck to hand via spy draws or abilities.
+- your_discard: played/destroyed cards. Medics and some leaders can resurrect from here.
+- opponent_discard: opponent's graveyard. Some leaders can steal from here.
 
 GAME STRUCTURE:
-- Best of 3 rounds. Each player starts with 2 gems (lives). Lose a gem each round you lose.
-- Game ends when a player reaches 0 gems.
-- Each turn you may: play a card from your_hand, pass, or use your leader ability (once per game).
-- IMPORTANT: You can ONLY play cards from your_hand. NOT from your_deck or your_discard.
-- When playing a spy, you draw 2 cards from your_deck to your_hand. Specify spy_draws from your_deck.
-- Playing a card removes it from your hand and places it on the board.
-- Passing ends your turns for this round -- you cannot play more cards until next round.
-- Round ends when both players pass. Higher total score wins.
-- No cards are re-dealt between rounds. You keep whatever cards remain in your hand.
+- Best of 3 rounds. Each player has 2 gems (lives). Losing a round costs 1 gem. 0 gems = game over.
+- Each turn: play a card from your_hand, pass, or use your leader ability (once per game).
+- Cards can only be played from your_hand.
+- Playing a spy places it on the opponent's board and draws 2 cards from your_deck. Specify spy_draws from your_deck.
+- Passing ends your participation in the current round. You cannot play more cards until next round.
+- A round ends when both players have passed. The higher total score wins the round.
+- Cards are not re-dealt between rounds. Remaining hand cards carry over.
 
-SCORING (per row, in this order):
-1. Base strength. Weather reduces ALL non-hero cards in affected row to strength 1.
-2. Tight Bond: same-name bond cards multiply their strength by the count of matching cards.
-3. Morale: each morale card gives +1 to every OTHER non-hero card in the same row.
+SCORING (applied per row, in order):
+1. Base strength. Weather reduces all non-hero cards in the affected row to strength 1.
+2. Tight Bond: same-name cards in a row multiply their strength by the count of matching cards.
+3. Morale: each morale card adds +1 to every other non-hero card in the same row. Stacks.
 4. Commander Horn: doubles all non-hero strength in the row.
-Hero cards are IMMUNE to all modifiers -- they always keep their base strength.
+Heroes are immune to all modifiers and always retain their base strength.
 
 COMBAT ROWS:
-- Close (melee): affected by Biting Frost
-- Ranged (archers): affected by Impenetrable Fog
-- Siege (war machines): affected by Torrential Rain
+- Close: affected by Biting Frost weather.
+- Ranged: affected by Impenetrable Fog weather.
+- Siege: affected by Torrential Rain weather.
 
-CARD SPECIALTIES (determines what the card IS):
-- hero: immune to ALL effects (weather, scorch, decoy, horn). Always keeps base strength.
-- weather: not a unit. Reduces non-heroes in affected row(s) to strength 1. Clear Weather removes all weather.
-- scorch (SPECIALTY): not a unit. Destroys the highest-strength non-hero card(s) across the ENTIRE board (BOTH players, ALL rows).
-- decoy: not a unit. Swap with a non-hero card on YOUR board -- that card returns to your hand.
+CARD SPECIALTIES (what the card IS):
+- hero: immune to all effects. Always keeps base strength.
+- weather: reduces non-heroes in affected row(s) to strength 1. Clear Weather removes all weather.
+- scorch (SPECIALTY): destroys the highest-strength non-hero card(s) across the entire board, both players, all rows.
+- decoy: swaps with a non-hero card on your board, returning that card to your hand.
 - mardroeme: clears all weather effects.
-- commander (SPECIALTY): standalone horn item. Doubles non-hero strength in chosen row(s).
-- leader: one-time ability, played by scanning leader card. Not part of hand.
+- commander (SPECIALTY): standalone horn. Doubles non-hero strength in chosen row(s).
+- leader: one-time ability. Not part of hand.
 
-CARD ABILITIES (effects that unit cards HAVE):
-- spy: placed on OPPONENT's board (gives them the strength). You then draw 2 cards from your DECK (not hand). You MUST include "spy_draws" listing exact card names from your_deck. Play spies EARLY.
-- medic: after placing on board, resurrect 1 non-hero card from your discard to your hand. You must specify medic_target.
-- bond (tight bond): same-name bond cards in a row multiply strength by count.
-- morale: +1 to every OTHER non-hero in the same row. Stacks.
-- commander (ABILITY): unit card that also doubles all non-hero strength in its row.
-- agile: can be placed on multiple rows -- you MUST specify which row in your response.
-- scorch (ABILITY): unit card that destroys strongest non-hero in OPPONENT's SAME ROW only.
-- muster: auto-summons ALL cards with the same base name from hand AND deck.
+CARD ABILITIES (effects that unit cards have):
+- spy: placed on opponent's board, giving them its strength as points. You draw 2 cards from your deck. spy_draws must list exact card names from your_deck.
+- medic: after placement, resurrect 1 non-hero card from your discard. Specify medic_target.
+- bond (tight bond): same-name cards in a row multiply strength by count.
+- morale: +1 to every other non-hero in the same row. Stacks.
+- commander (ABILITY): unit that also doubles all non-hero strength in its row.
+- agile: can be placed on multiple rows. Specify which row.
+- scorch (ABILITY): destroys the strongest non-hero in the opponent's same row only.
+- muster: auto-summons all cards with the same base name from hand and deck.
 
-SPECIALTY vs ABILITY SCORCH:
-- Scorch SPECIALTY card: destroys strongest across ALL rows of BOTH players
-- Scorch ABILITY on a unit: destroys strongest in opponent's SAME ROW only
+SCORCH DISTINCTION:
+- Scorch specialty card: destroys strongest across all rows of both players.
+- Scorch ability on a unit: destroys strongest in opponent's same row only.
 
-FACTION PASSIVE ABILITIES (automatic):
-- Monsters: end of every round, keep the strongest non-hero card on board for next round.
-- Northern Realms: if you WIN the round, draw 1 extra card from deck.
-- Skellige: end of every round, resurrect 2 random non-hero cards from discard to hand.
-- Nilfgaardian: WIN ALL TIED ROUNDS. Ties are wins for you.
-- Scoia'tael: coin toss for first player in round 1.
+FACTION PASSIVES (automatic, no action required):
+- Monsters: at round end, the strongest non-hero card stays on the board for the next round.
+- Northern Realms: winning a round draws 1 extra card from deck.
+- Skellige: at round end, 2 random non-hero cards are resurrected from discard to hand.
+- Nilfgaardian: tied rounds count as wins.
+- Scoia'tael: coin toss determines first player in round 1.
 
-STRATEGY:
-- Play spies EARLY in round 1 for card advantage.
-- If you're Nilfgaardian, ties are WINS. You can pass at equal score and win.
-- Consider deliberately losing round 1 to save cards if you have card advantage.
-- Bond cards are devastating together -- save them for the same round.
-- Weather counters rows with many non-hero units. Clear Weather counters weather.
-- Heroes are your safest points -- immune to everything.
-- When opponent passes, you only need to barely beat their score. Don't waste cards.
-- Save your leader ability for when it matters most.
+GAME DYNAMICS:
+- Spies draw 2 cards but their strength becomes free points for your opponent.
+- Nilfgaardian wins tied rounds. A tie is equivalent to a win.
+- Losing a round costs 1 gem. Running out of cards means losing remaining rounds.
+- Bond cards multiply when played together in the same row during the same round.
+- Weather reduces all non-hero cards in a row to strength 1.
+- Heroes are immune to weather, scorch, and all modifiers.
+- Cards played beyond the opponent's score after they pass provide no additional benefit.
+- Leader abilities are single-use for the entire game.
+- Winning requires taking 2 of 3 rounds.
 
 You MUST respond with ONLY a JSON object. No other text, no markdown, no explanation outside the JSON.
 
@@ -877,10 +876,11 @@ def execute(board, cur, action, sync=None, game_url=None):
                         mqpub('gwent/cards/raw/read', json.dumps(c))
                         break
 
-        if 'spy' in card.get('abilities', []) and board['decks'][cur]:
-            # Spy draws: wait for server to transition, then re-fetch
-            # fresh deck state for each draw to avoid RFID mismatches.
-            num_draws = min(2, len(board['decks'][cur]))
+        if 'spy' in card.get('abilities', []):
+            # Re-fetch to get current deck size (previous spy draws may have emptied it)
+            _, fresh_check = fetch(game_url) if game_url else (None, board)
+            cur_deck = (fresh_check or board)['decks'][cur]
+            num_draws = min(2, len(cur_deck)) if cur_deck else 0
             for draw_idx in range(num_draws):
                 if sync:
                     sync.wait_all()
@@ -1085,6 +1085,30 @@ def game_loop(args, board, sync):
             f"What will {short_model} do next?",
             f"{short_model} takes a deep breath.",
             f"{short_model} mulls over the possibilities.",
+            f"{short_model} drums their fingers on the table.",
+            f"The crowd holds its breath as {short_model} thinks.",
+            f"{short_model} reviews the state of play.",
+            f"A flicker of recognition crosses {short_model}'s face.",
+            f"{short_model} considers a bold gambit.",
+            f"{short_model} sizes up the competition.",
+            f"The wind shifts as {short_model} ponders.",
+            f"{short_model} weighs risk against reward.",
+            f"Will {short_model} play it safe or go all in?",
+            f"{short_model} shuffles through their options.",
+            f"The fate of the continent rests on {short_model}'s choice.",
+            f"{short_model} recalls the lessons of past rounds.",
+            f"A knowing smile crosses {short_model}'s face.",
+            f"{short_model} steels their resolve.",
+            f"The tavern grows quiet as {short_model} thinks.",
+            f"{short_model} traces a finger across the board.",
+            f"{short_model} checks the score one more time.",
+            f"Is {short_model} about to make a game-changing play?",
+            f"{short_model} furrows their brow in concentration.",
+            f"The cards tremble as {short_model} decides their fate.",
+            f"{short_model} counts the cards remaining.",
+            f"Every move matters now. {short_model} knows it.",
+            f"{short_model} stares down their opponent.",
+            f"The moment of truth approaches for {short_model}.",
         ]
         thinking = random.choice(thinking_phrases)
         announce(

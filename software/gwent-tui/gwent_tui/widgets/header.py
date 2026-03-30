@@ -123,27 +123,20 @@ class HeaderWidget(Static):
                 p1_style = p1_tc
                 p2_style = f"bold {p2_fg} on {p2_bg}"
 
-            # Full leader names (with title) for the header
+            # Leader names for header — use _leader_nick for medium length
             p1_leader = state.leaders.get(P1)
             p2_leader = state.leaders.get(P2)
-            p1_full = p1_leader.get("name", "P1") if p1_leader else "P1"
-            p2_full = p2_leader.get("name", "P2") if p2_leader else "P2"
+            p1_nick = _leader_nick(p1_leader) if p1_leader else "P1"
+            p2_nick = _leader_nick(p2_leader) if p2_leader else "P2"
 
-            # Use player names if custom, otherwise leader name only
+            # Player name prefix if custom
             p1_pname = state.player_names.get(P1, "Player 1")
             p2_pname = state.player_names.get(P2, "Player 2")
-            p1_display = f"{p1_pname}: {p1_full}" if p1_pname not in ("Player 1", "") else p1_full
-            p2_display = f"{p2_pname}: {p2_full}" if p2_pname not in ("Player 2", "") else p2_full
+            p1_display = f"{p1_pname}: {p1_nick}" if p1_pname not in ("Player 1", "") else p1_nick
+            p2_display = f"{p2_pname}: {p2_nick}" if p2_pname not in ("Player 2", "") else p2_nick
 
-            # Truncate to fit ~35 chars per side (panel border + emoji overhead)
-            max_label = 35
-            if len(p1_display) > max_label:
-                p1_display = p1_display[:max_label - 1] + "\u2026"
-            if len(p2_display) > max_label:
-                p2_display = p2_display[:max_label - 1] + "\u2026"
-
-            p1_label = f"{p1e[0]}{p1e[1]} [{p1_style}]{p1_display} ({p1f})[/{p1_style}]"
-            p2_label = f"[{p2_style}]{p2_display} ({p2f})[/{p2_style}] {p2e[0]}{p2e[1]}"
+            p1_label = f"{p1e[0]}{p1e[1]} [{p1_style}]{p1_display}[/{p1_style}]"
+            p2_label = f"[{p2_style}]{p2_display}[/{p2_style}] {p2e[0]}{p2e[1]}"
 
             row2.add_row(
                 Text.from_markup(p1_label),
