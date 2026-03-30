@@ -2126,7 +2126,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         # Process abilities
         if is_spy:
-            self._spy_draws_remaining = 2
+            deck_size = len(self._board.decks[cur])
+            if deck_size == 0:
+                # No cards to draw — skip spy draw phase entirely
+                msg = self._msg_spy(label, card.name, card.strength or 0)
+                self._announce_and_advance(
+                    f"{msg} Deck empty — no cards to draw!")
+                return
+            self._spy_draws_remaining = min(2, deck_size)
             self._awaiting = self.AWAITING_SPY_DRAW
             msg = self._msg_spy(label, card.name, card.strength or 0)
             self.publish_prompt(
