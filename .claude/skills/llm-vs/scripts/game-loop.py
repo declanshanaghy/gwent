@@ -65,11 +65,18 @@ FACTION_PASSIVES = {
 SYSTEM_PROMPT_SHARED = """\
 You are playing Gwent, a card game from The Witcher III. You are a skilled player.
 
+CARD ZONES (understand these — they are different!):
+- your_hand: cards you can PLAY on your turn. Play cards come from HERE.
+- your_deck: draw pile. Cards move from deck to hand via spy draws or abilities. You CANNOT play directly from deck.
+- your_discard: cards that were played and removed. Some leaders/medics can resurrect from here.
+- opponent_discard: opponent's used cards. Some leaders can steal from here.
+
 GAME STRUCTURE:
 - Best of 3 rounds. Each player starts with 2 gems (lives). Lose a gem each round you lose.
 - Game ends when a player reaches 0 gems.
-- Each turn you may: play a card from your hand (your_hand), pass, or use your leader ability (once per game).
-- IMPORTANT: You can ONLY play cards listed in your_hand. The deck is NOT playable — it is only used for spy draw selections.
+- Each turn you may: play a card from your_hand, pass, or use your leader ability (once per game).
+- IMPORTANT: You can ONLY play cards from your_hand. NOT from your_deck or your_discard.
+- When playing a spy, you draw 2 cards from your_deck to your_hand. Specify spy_draws from your_deck.
 - Playing a card removes it from your hand and places it on the board.
 - Passing ends your turns for this round -- you cannot play more cards until next round.
 - Round ends when both players pass. Higher total score wins.
@@ -97,7 +104,7 @@ CARD SPECIALTIES (determines what the card IS):
 - leader: one-time ability, played by scanning leader card. Not part of hand.
 
 CARD ABILITIES (effects that unit cards HAVE):
-- spy: placed on OPPONENT's board (gives them the strength). You CHOOSE and draw 2 cards from your deck. You MUST include "spy_draws" in your response listing the exact card names to draw. Play spies EARLY.
+- spy: placed on OPPONENT's board (gives them the strength). You then draw 2 cards from your DECK (not hand). You MUST include "spy_draws" listing exact card names from your_deck. Play spies EARLY.
 - medic: after placing on board, resurrect 1 non-hero card from your discard to your hand. You must specify medic_target.
 - bond (tight bond): same-name bond cards in a row multiply strength by count.
 - morale: +1 to every OTHER non-hero in the same row. Stacks.
@@ -133,7 +140,7 @@ You MUST respond with ONLY a JSON object. No other text, no markdown, no explana
   "action": "play_card" or "pass" or "play_leader",
   "card_name": "exact card name from your hand (required for play_card)",
   "row": "close" or "ranged" or "siege" (required ONLY for agile cards with multiple rows)",
-  "spy_draws": ["card name 1", "card name 2"] (REQUIRED when playing a spy card — choose up to 2 cards from your_deck),
+  "spy_draws": ["card name 1", "card name 2"] (REQUIRED when playing a spy — choose exactly from your_deck, NOT your_hand),
   "medic_target": "card name from your discard to resurrect (only if card has medic ability)",
   "decoy_target": "card name on your board to swap back to hand (only if playing a decoy card)",
   "reasoning": "brief explanation of your strategy"
@@ -614,20 +621,16 @@ def build_state(board, cur):
         'your_score': board['scores'][cur]['total'],
         'opponent_score': board['scores'][opp]['total'],
         'your_hand': [card_summary(c) for c in board['hands'][cur]],
+        'your_deck': [card_summary(c) for c in board['decks'][cur]],
+        'your_discard': [card_summary(c) for c in board['players'][cur]['discard']],
+        'opponent_discard': [card_summary(c) for c in board['players'][opp]['discard']],
         'your_board': rows_summary(board, cur),
         'opponent_board': rows_summary(board, opp),
-        'your_discard': [
-            {'name': c['name'], 'strength': c.get('strength', 0)}
-            for c in board['players'][cur]['discard']],
         'weather_active': board['weather_rows'],
         'your_leader': li,
-        'your_deck_size': len(board['decks'][cur]),
         'opponent_hand_size': len(board['hands'][opp]),
         'opponent_passed': board['players'][opp]['passed'],
     }
-    # Only include deck contents when hand has spy cards (for spy_draws selection)
-    if any(c.get('specialty') == 'spy' for c in board['hands'][cur]):
-        result['your_deck'] = [card_summary(c) for c in board['decks'][cur]]
     return result
 
 
@@ -893,13 +896,13 @@ def execute(board, cur, action, sync=None, game_url=None):
                     break
                 if not fresh_deck:
                     break
-                # Pick from LLM's requested draws, or top of deck
+                # Pick from LLM's spy_draws (must be deck cards), fallback to top
                 spy_draws = action.get('spy_draws', [])
                 tgt = None
                 if draw_idx < len(spy_draws):
                     tgt = find_card(fresh_deck, spy_draws[draw_idx])
                 if not tgt:
-                    tgt = fresh_deck[0] if fresh_deck else None
+                    tgt = fresh_deck[0]
                 if not tgt:
                     break
                 mqpub('gwent/cards/raw/read', json.dumps(tgt))

@@ -137,6 +137,7 @@ class GwentTUI(App):
         if self._poller:
             count = self._poller.drain(self.state)
             if count > 0:
+                self._register_client_tts()
                 await self._refresh_all()
 
     async def _switch_stage(self, stage_name):
