@@ -385,40 +385,37 @@ def announce(text, faction=None):
 
 
 def fetch(game_url):
+    """Fetch fresh game state — no ETag caching."""
     r = requests.get(f'{game_url}/state', timeout=10)
-    etag = r.headers.get('ETag', '')
     d = r.json()
-    return d.get('active_stage', '?'), d.get('state', {}).get('board', {}), etag
+    return d.get('active_stage', '?'), d.get('state', {}).get('board', {})
 
 
-def poll_until_change(game_url, etag, timeout=10):
-    """Long-poll the game server, blocking until state changes or timeout."""
-    try:
-        r = requests.get(
-            f'{game_url}/state?timeout={timeout}',
-            headers={'If-None-Match': etag} if etag else {},
-            timeout=timeout + 5)
-        if r.status_code == 304:
-            return None, None, etag
-        d = r.json()
-        new_etag = r.headers.get('ETag', '')
-        return (d.get('active_stage', '?'),
-                d.get('state', {}).get('board', {}), new_etag)
-    except requests.Timeout:
-        return None, None, etag
+def poll_until_change(game_url, prev_stage, prev_player, timeout=10):
+    """Poll the game server until state changes or timeout."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        time.sleep(0.5)
+        try:
+            stage, board = fetch(game_url)
+            if stage != prev_stage or board.get('current_player') != prev_player:
+                return stage, board
+        except Exception:
+            pass
+    return None, None
 
 
-def wait_for_turn_advance(game_url, etag, cur_player, timeout=30):
+def wait_for_turn_advance(game_url, cur_player, timeout=30):
     """Poll until current_player changes or stage transitions away from PlayRound."""
     deadline = time.time() + timeout
     while time.time() < deadline:
-        remaining = max(1, int(deadline - time.time()))
-        stage, board, etag = poll_until_change(
-            game_url, etag, timeout=min(remaining, 10))
-        if stage is None:
-            stage, board, etag = fetch(game_url)
-        if stage != 'PlayRound' or board.get('current_player') != cur_player:
-            return stage, board, etag
+        time.sleep(0.5)
+        try:
+            stage, board = fetch(game_url)
+            if stage != 'PlayRound' or board.get('current_player') != cur_player:
+                return stage, board
+        except Exception:
+            pass
     return fetch(game_url)
 
 
@@ -878,39 +875,41 @@ def execute(board, cur, action, sync=None, game_url=None):
                         break
 
         if 'spy' in card.get('abilities', []):
-            deck = board['decks'][cur]
-            # Build ordered draw list: LLM picks first, then top-of-deck
-            draws = []
-            for draw_name in action.get('spy_draws', [])[:2]:
-                tgt = find_card(deck, draw_name)
-                if tgt and tgt not in draws:
-                    draws.append(tgt)
-            # Fill remaining from top of deck (skip already-chosen)
-            for d in deck:
-                if len(draws) >= 2:
-                    break
-                if d not in draws:
-                    draws.append(d)
-            prev_deck_size = len(deck)
-            for tgt in draws[:min(2, len(deck))]:
-                # Wait for ALL pending announcements (placement + draw prompt)
+            # Spy draws: wait for server to transition, then re-fetch
+            # fresh deck state for each draw to avoid RFID mismatches.
+            for draw_idx in range(2):
                 if sync:
                     sync.wait_all()
                     sync.drain()
-                # Extra settle time — server needs to fully transition to
-                # AWAITING_SPY_DRAW after announcement completes.
                 time.sleep(2.0)
-                mqpub('gwent/cards/raw/read', json.dumps(tgt))
-                # Poll until the server actually processes the draw
-                # (deck shrinks) before sending the next card.
+                # Re-fetch fresh state so we have current deck contents
                 if game_url:
-                    for _ in range(30):
-                        time.sleep(0.5)
-                        _, fresh, _ = fetch(game_url)
-                        new_size = len(fresh['decks'][cur]) if fresh else prev_deck_size
-                        if new_size < prev_deck_size:
-                            prev_deck_size = new_size
-                            break
+                    _, fresh_board = fetch(game_url)
+                    if fresh_board:
+                        fresh_deck = fresh_board['decks'][cur]
+                    else:
+                        break
+                else:
+                    break
+                if not fresh_deck:
+                    break
+                # Pick from LLM's requested draws, or top of deck
+                spy_draws = action.get('spy_draws', [])
+                tgt = None
+                if draw_idx < len(spy_draws):
+                    tgt = find_card(fresh_deck, spy_draws[draw_idx])
+                if not tgt:
+                    tgt = fresh_deck[0] if fresh_deck else None
+                if not tgt:
+                    break
+                mqpub('gwent/cards/raw/read', json.dumps(tgt))
+                # Wait for server to process the draw
+                prev_size = len(fresh_deck)
+                for _ in range(30):
+                    time.sleep(0.5)
+                    _, poll_board = fetch(game_url)
+                    if poll_board and len(poll_board['decks'][cur]) < prev_size:
+                        break
 
         if 'medic' in card.get('abilities', []):
             nh = [c for c in board['players'][cur]['discard']
@@ -930,7 +929,7 @@ def execute(board, cur, action, sync=None, game_url=None):
 # Main game loop
 # ---------------------------------------------------------------------------
 
-def game_loop(args, board, etag, sync):
+def game_loop(args, board, sync):
     """Run the turn-by-turn game loop until game over or max turns."""
     turn = 0
     current_round = board.get('round_number', 1)
@@ -938,7 +937,7 @@ def game_loop(args, board, etag, sync):
 
     log_debug(f"Entering game_loop, max_turns={args.max_turns}")
     while turn < args.max_turns:
-        stage, board, etag = fetch(args.game_url)
+        stage, board = fetch(args.game_url)
         log_debug(f"Loop iteration: turn={turn}, stage={stage}")
 
         if stage in ('GameOver', 'DisplayWinner'):
@@ -972,15 +971,15 @@ def game_loop(args, board, etag, sync):
 
             # Wait for server to leave RoundEnd
             for _ in range(30):
-                s, b, etag = poll_until_change(
-                    args.game_url, etag, timeout=5)
+                s, b = poll_until_change(
+                    args.game_url, stage, board.get('current_player', ''), timeout=5)
                 if s is not None and s != 'RoundEnd':
                     break
             # Wait for round-end announcements to finish
             sync.wait_all()
 
             # Fresh fetch to get definitive post-round state
-            stage, board, etag = fetch(args.game_url)
+            stage, board = fetch(args.game_url)
 
             # If new round started, reset conversations with round summary
             if stage == 'PlayRound':
@@ -992,17 +991,17 @@ def game_loop(args, board, etag, sync):
             continue
 
         if stage != 'PlayRound':
-            poll_until_change(args.game_url, etag, timeout=5)
+            time.sleep(2)
             continue
 
         if (board['players']['PLAYER.ONE']['passed']
                 and board['players']['PLAYER.TWO']['passed']):
-            poll_until_change(args.game_url, etag, timeout=5)
+            time.sleep(2)
             continue
 
         cur = board['current_player']
         if board['players'][cur]['passed']:
-            poll_until_change(args.game_url, etag, timeout=5)
+            time.sleep(2)
             continue
 
         pnum = '1' if cur == 'PLAYER.ONE' else '2'
@@ -1143,15 +1142,15 @@ def game_loop(args, board, etag, sync):
                 turn += 1
                 # 1. Confirm state changed (turn advanced or stage changed)
                 log_debug("Waiting for turn advance...")
-                stage, board, etag = wait_for_turn_advance(
-                    args.game_url, etag, cur)
+                stage, board = wait_for_turn_advance(
+                    args.game_url, cur)
                 log_debug(f"Turn advanced: stage={stage}")
                 # 2. Wait for ALL queued announcements to finish playing
                 log_debug("Waiting for announcements...")
                 sync.wait_all()
                 log_debug("Announcements done")
                 # 3. Fetch final state for accurate scores
-                stage, board, etag = fetch(args.game_url)
+                stage, board = fetch(args.game_url)
                 if board and 'scores' in board:
                     ps1 = board['scores']['PLAYER.ONE']['total']
                     ps2 = board['scores']['PLAYER.TWO']['total']
@@ -1190,7 +1189,7 @@ def game_loop(args, board, etag, sync):
             mqpub('gwent/mfd/choose',
                   json.dumps({"kind": "choice", "id": "p",
                               "text": "Pass"}))
-            wait_for_turn_advance(args.game_url, etag, cur)
+            wait_for_turn_advance(args.game_url, cur)
             sync.wait_all()
 
     log(f"\n{turn} turns played.")
@@ -1300,10 +1299,11 @@ def main():
 
     # 3. Check game is in PlayRound
     try:
-        stage, board, etag = fetch(args.game_url)
+        stage, board = fetch(args.game_url)
     except Exception as e:
         log(f"ERROR: Cannot reach game server at {args.game_url}: {e}")
         return 1
+
     if stage != 'PlayRound':
         log(f"ERROR: Game not in PlayRound (stage={stage}). "
             f"Start the server and deal cards first.")
@@ -1360,7 +1360,7 @@ def main():
     log(f"\nStarting game: {args.model_p1} vs {args.model_p2}")
     log("=" * 60)
     try:
-        game_loop(args, board, etag, sync)
+        game_loop(args, board, sync)
     finally:
         sync.stop()
     return 0

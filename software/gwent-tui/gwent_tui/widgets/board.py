@@ -125,12 +125,17 @@ class _BoardRows(Static):
                     row_score=0, weather_active=False, player=None,
                     min_lines=0, max_lines=0):
         rc = ROW_COLOR.get(row_name, "white")
-        horn_tag = " \U0001f4ef\U0001f50a" if has_horn else ""
-        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}{horn_tag}  {ZAP} {row_score}[/bold {rc}]"
+        header = f"[bold {rc}]{row_emoji} {row_name.title()}:{weather_tag}  {ZAP} {row_score}[/bold {rc}]"
 
         state = self.app.state
         half_weather = state.half_weather_penalty.get(player, False) if player else False
         lines = [header]
+        # Show ghost (removed) cards first with red strikethrough
+        if player:
+            for c in state.get_ghosts("board", player, row_name):
+                text = card_display_short(c, weather_active=weather_active,
+                                          half_weather=half_weather)
+                lines.append(f"  [on dark_red strike]{text}[/on dark_red strike]")
         for c in cards:
             name = c.get("name", "")
             hl_key = f"board:{player}:{row_name}:{name}" if player else ""
@@ -197,6 +202,13 @@ class _BoardRows(Static):
                                        max_lines=row_height)
 
             table.add_row(p1_text, p2_text)
+
+            # Horn indicator between rows — only when active
+            if p1_horn or p2_horn:
+                HORN = "\U0001f4ef"
+                p1_horn_str = f"[bold yellow]{HORN} HORN \u00d72 {HORN}[/bold yellow]" if p1_horn else ""
+                p2_horn_str = f"[bold yellow]{HORN} HORN \u00d72 {HORN}[/bold yellow]" if p2_horn else ""
+                table.add_row(p1_horn_str, p2_horn_str)
 
         # Leader ability footer row — short nickname, faction colored
         from gwent_tui.widgets.header import _leader_nick

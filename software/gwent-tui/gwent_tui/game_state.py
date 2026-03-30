@@ -264,14 +264,28 @@ class GameState:
             if new_gems != self.gems.get(p, 2):
                 self._highlight(f"gems:{p}")
 
-            # Board rows changed — detect new cards
+            # Board rows changed — detect new and removed cards
             rows = pdata.get("rows", {})
             for row_name in ("close", "ranged", "siege"):
-                old_names = {c.get("name") for c in self.board_rows[p].get(row_name, [])}
+                old_cards = self.board_rows[p].get(row_name, [])
+                old_names = {c.get("name") for c in old_cards}
                 new_cards = rows.get(row_name, [])
+                new_names = {c.get("name") for c in new_cards}
+                # New cards — green highlight
                 for c in new_cards:
                     if c.get("name") not in old_names:
                         self._highlight(f"board:{p}:{row_name}:{c.get('name')}")
+                # Removed cards — red ghost (scorch, decoy, round end)
+                removed_board = old_names - new_names
+                if removed_board:
+                    ghost_key = ("board", p, row_name)
+                    ghosts = []
+                    for c in old_cards:
+                        if c.get("name") in removed_board:
+                            ghosts.append(c)
+                            self._highlight(f"removed:board:{p}:{row_name}:{c.get('name')}")
+                    if ghosts:
+                        self.ghosts[ghost_key] = (ghosts, time.monotonic() + self.HIGHLIGHT_TTL)
 
             # Discard changed — detect new and removed cards
             old_disc_names = {c.get("name") for c in self.discard.get(p, [])}
