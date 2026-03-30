@@ -877,10 +877,11 @@ def execute(board, cur, action, sync=None, game_url=None):
                         mqpub('gwent/cards/raw/read', json.dumps(c))
                         break
 
-        if 'spy' in card.get('abilities', []):
+        if 'spy' in card.get('abilities', []) and board['decks'][cur]:
             # Spy draws: wait for server to transition, then re-fetch
             # fresh deck state for each draw to avoid RFID mismatches.
-            for draw_idx in range(2):
+            num_draws = min(2, len(board['decks'][cur]))
+            for draw_idx in range(num_draws):
                 if sync:
                     sync.wait_all()
                     sync.drain()
