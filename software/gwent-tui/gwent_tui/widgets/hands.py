@@ -16,10 +16,16 @@ class _HandsContent(Static):
     _HandsContent { width: 1fr; }
     """
 
+    def _max_name(self):
+        """Compute max card name length based on pane width."""
+        col_width = max(10, (self.size.width - 4) // 2)
+        return max(8, col_width - 12)
+
     def render(self):
         state = self.app.state
         p1_count = len(state.hands[P1])
         p2_count = len(state.hands[P2])
+        mn = self._max_name()
 
         table = Table(
             box=SPLIT_BOX,
@@ -36,19 +42,19 @@ class _HandsContent(Static):
 
         # Show ghost (removed) cards first with red strikethrough
         for c in state.get_ghosts("hand", P1):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p1_rows.append(f"[on dark_red strike]{text}[/on dark_red strike]")
         for c in state.get_ghosts("hand", P2):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p2_rows.append(f"[on dark_red strike]{text}[/on dark_red strike]")
 
         for c in state.hands[P1]:
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             if state.is_highlighted(f"hand:{P1}:{c.get('name', '')}"):
                 text = f"[on dark_green]{text}[/on dark_green]"
             p1_rows.append(text)
         for c in state.hands[P2]:
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             if state.is_highlighted(f"hand:{P2}:{c.get('name', '')}"):
                 text = f"[on dark_green]{text}[/on dark_green]"
             p2_rows.append(text)

@@ -210,7 +210,9 @@ def _display_name(card):
 def card_display(card, max_name=None):
     """Format a card for display: emoji + full name + (strength) + ownership."""
     prefix = card_prefix(card)
-    name = card.get("name", "???")
+    name = _display_name(card)
+    if max_name:
+        name = _truncate_name(name, max_name)
     strength = card.get("strength")
     owner = card.get("owner", "")
     starter = card.get("starter", False)
@@ -238,7 +240,9 @@ def card_display_short(card, max_name=None, weather_active=False,
     strength (1, or half with half_weather) instead of their base strength.
     """
     prefix = card_prefix(card)
-    name = card.get("name", "???")
+    name = _display_name(card)
+    if max_name:
+        name = _truncate_name(name, max_name)
     strength = card.get("strength")
     is_hero = card.get("specialty") == "hero"
 

@@ -17,6 +17,11 @@ class _DecksContent(Static):
     _DecksContent { width: 1fr; }
     """
 
+    def _max_name(self):
+        """Compute max card name length based on pane width."""
+        col_width = max(10, (self.size.width - 4) // 2)
+        return max(8, col_width - 12)
+
     def render(self):
         state = self.app.state
         p1_count = len(state.decks[P1])
@@ -34,17 +39,18 @@ class _DecksContent(Static):
         table.add_column(ratio=1)
         table.add_column(ratio=1)
 
+        mn = self._max_name()
         p1_cards = []
         # Show ghost (removed) cards first with red strikethrough (drawn to hand)
         for c in state.get_ghosts("deck", P1):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p1_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
-        p1_cards.extend(card_display(c) for c in state.decks[P1])
+        p1_cards.extend(card_display(c, max_name=mn) for c in state.decks[P1])
         p2_cards = []
         for c in state.get_ghosts("deck", P2):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p2_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
-        p2_cards.extend(card_display(c) for c in state.decks[P2])
+        p2_cards.extend(card_display(c, max_name=mn) for c in state.decks[P2])
 
         max_len = max(len(p1_cards), len(p2_cards), 1)
         p1_cards.extend([""] * (max_len - len(p1_cards)))

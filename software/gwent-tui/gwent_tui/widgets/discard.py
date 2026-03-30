@@ -17,6 +17,11 @@ class _DiscardContent(Static):
     _DiscardContent { width: 1fr; }
     """
 
+    def _max_name(self):
+        """Compute max card name length based on pane width."""
+        col_width = max(10, (self.size.width - 4) // 2)
+        return max(8, col_width - 12)
+
     def render(self):
         state = self.app.state
         p1_disc = state.discard[P1]
@@ -40,22 +45,23 @@ class _DiscardContent(Static):
         table.add_column(ratio=1)
         table.add_column(ratio=1)
 
+        mn = self._max_name()
         p1_cards = []
         # Show ghost (removed) cards first with red strikethrough (medic resurrect)
         for c in state.get_ghosts("discard", P1):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p1_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
         for c in p1_disc:
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             if state.is_highlighted(f"discard:{P1}:{c.get('name', '')}"):
                 text = f"[on dark_green]{text}[/on dark_green]"
             p1_cards.append(text)
         p2_cards = []
         for c in state.get_ghosts("discard", P2):
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             p2_cards.append(f"[on dark_red strike]{text}[/on dark_red strike]")
         for c in p2_disc:
-            text = card_display(c)
+            text = card_display(c, max_name=mn)
             if state.is_highlighted(f"discard:{P2}:{c.get('name', '')}"):
                 text = f"[on dark_green]{text}[/on dark_green]"
             p2_cards.append(text)

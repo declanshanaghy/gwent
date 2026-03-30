@@ -129,6 +129,11 @@ class _BoardRows(Static):
     _BoardRows { width: 1fr; height: 1fr; }
     """
 
+    def _max_name(self):
+        """Compute max card name length based on pane width."""
+        col_width = max(10, (self.size.width - 4) // 2)
+        return max(8, col_width - 10)
+
     def _format_row(self, cards, row_name, row_emoji, weather_tag, has_horn,
                     row_score=0, weather_active=False, player=None,
                     min_lines=0, max_lines=0):
@@ -164,18 +169,19 @@ class _BoardRows(Static):
             header = f"[bold {rc}]{row_emoji} {row_name.title()}: {row_score}[/bold {rc}]"
 
         state = self.app.state
+        mn = self._max_name()
         half_weather = state.half_weather_penalty.get(player, False) if player else False
         lines = [header]
         # Show ghost (removed) cards first with red strikethrough
         if player:
             for c in state.get_ghosts("board", player, row_name):
-                text = card_display_short(c, weather_active=weather_active,
+                text = card_display_short(c, max_name=mn, weather_active=weather_active,
                                           half_weather=half_weather)
                 lines.append(f"  [on dark_red strike]{text}[/on dark_red strike]")
         for c in cards:
             name = c.get("name", "")
             hl_key = f"board:{player}:{row_name}:{name}" if player else ""
-            text = card_display_short(c, weather_active=weather_active,
+            text = card_display_short(c, max_name=mn, weather_active=weather_active,
                                       half_weather=half_weather)
             if player and state.is_highlighted(hl_key):
                 lines.append(f"  [on dark_green]{text}[/on dark_green]")

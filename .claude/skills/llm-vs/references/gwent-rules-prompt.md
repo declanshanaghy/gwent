@@ -56,8 +56,9 @@ CARD ABILITIES (effects that unit cards HAVE):
 - scorch (ABILITY): unit card that destroys strongest non-hero in OPPONENT's SAME ROW only. Different from scorch specialty which hits entire board.
 
 SPECIALTY vs ABILITY SCORCH — IMPORTANT DIFFERENCE:
-- Scorch SPECIALTY card: destroys strongest across ALL rows of BOTH players
-- Scorch ABILITY on a unit: destroys strongest in opponent's SAME ROW only
+- Scorch SPECIALTY card: destroys strongest non-hero across ALL rows of BOTH players
+- Scorch ABILITY on a unit: destroys strongest non-hero in opponent's SAME ROW only
+- Hero cards are IMMUNE to scorch — they can NEVER be destroyed by any scorch effect
 ```
 
 ## Section 4: Faction Passives

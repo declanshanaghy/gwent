@@ -183,9 +183,6 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         # Publish gem updates to player displays
         self._publish_gems()
 
-        # Apply faction end-of-round abilities
-        self._apply_faction_abilities(winner)
-
         # Check game over
         p1_gems = self._board.players[PLAYER.ONE].gems
         p2_gems = self._board.players[PLAYER.TWO].gems
@@ -226,22 +223,23 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             pb = self._board.players[player]
 
             if faction == "Monsters":
-                # Keep the strongest non-hero card on the board
+                # Keep the strongest non-hero card on the board.
+                # After clear_round, all cards are in discard — find the
+                # strongest non-hero and move it back to its original row.
                 strongest = None
-                strongest_row = None
                 strongest_val = 0
-                for row_name in ROWS:
-                    for card in pb.rows[row_name]:
-                        if card.has_specialty and card.specialty == "hero":
-                            continue
-                        s = card.strength or 0
-                        if s > strongest_val:
-                            strongest = card
-                            strongest_row = row_name
-                            strongest_val = s
-                # All other cards go to discard — the kept card stays
+                for card in pb.discard:
+                    if card.has_specialty and card.specialty == "hero":
+                        continue
+                    s = card.strength or 0
+                    if s > strongest_val:
+                        strongest = card
+                        strongest_val = s
                 if strongest:
-                    self._log.info(f"Monsters keep {strongest.name} on board")
+                    row_name = (strongest.ranges or ["close"])[0]
+                    pb.discard.remove(strongest)
+                    pb.rows[row_name].append(strongest)
+                    self._log.info(f"Monsters keep {strongest.name} on {row_name}")
 
             elif faction == "Northern Realms" and player == winner:
                 # Winner draws 1 extra card from deck
@@ -272,7 +270,11 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             else:
                 self._board.current_player = random.choice([PLAYER.ONE, PLAYER.TWO])
 
+            # Clear board first (moves cards to discard), then apply faction
+            # abilities so Skellige can resurrect from the populated discard
+            # pile and Monsters' kept card can be restored to the board.
             self._board.clear_round()
+            self._apply_faction_abilities(self._winner)
             self.complete(self._board, False)
 
     def process_choice(self, choice: gwent.messaging.choice.Message):
