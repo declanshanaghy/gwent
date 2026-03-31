@@ -10,5 +10,8 @@
     "abilities": [
         "morale"
     ],
-    "last_updated": "2026-03-26T16:42:44"
+    "last_updated": "2026-03-26T16:42:44",
+    "image": "../../images/Scoiatael/IsengrimFaoiltiarna.jpg",
+    "image_verified": true,
+    "card_text": "It dawns on them once they notice my scar: a realization of imminent death."
 }

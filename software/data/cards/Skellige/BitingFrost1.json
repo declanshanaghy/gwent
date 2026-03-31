@@ -10,6 +10,7 @@
     "rfid": 622214860262,
     "last_updated": "2026-03-26T16:05:21",
     "rfid_written_at": "2026-03-26T16:05:21",
-    "image": "../../images/Skellige/BitingFrost2.jpg",
-    "card_text": "Best part about frost... bodies of the fallen don't rot so quickly."
+    "image": "../../images/Skellige/BitingFrost.jpg",
+    "card_text": "Best part about frost... bodies of the fallen don't rot so quickly.",
+    "image_verified": true
 }

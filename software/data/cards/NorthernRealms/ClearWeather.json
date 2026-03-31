@@ -8,6 +8,7 @@
     "last_updated": "2026-03-28T16:36:00",
     "rfid": 412633484768,
     "rfid_written_at": "2026-03-29T02:32:11",
-    "image": "../../images/NorthernRealms/ClearWeather3.jpg",
-    "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all..."
+    "image": "../../images/NorthernRealms/ClearWeather.jpg",
+    "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all...",
+    "image_verified": true
 }

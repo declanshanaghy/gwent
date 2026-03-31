@@ -11,6 +11,7 @@
     "rfid": 485060201733,
     "last_updated": "2026-03-26T16:05:21",
     "rfid_written_at": "2026-03-26T16:05:21",
-    "image": "../../images/Scoiatael/Iorveth2.jpg",
-    "card_text": "King or beggar, what's the difference? One dh'oine less."
+    "image": "../../images/Scoiatael/Iorveth.jpg",
+    "card_text": "King or beggar, what's the difference? One dh'oine less.",
+    "image_verified": true
 }

@@ -11,5 +11,8 @@
     "rfid": 553545190897,
     "owner_nickname": "dek",
     "last_updated": "2026-03-27T23:30:41",
-    "rfid_written_at": "2026-03-27T23:30:41"
+    "rfid_written_at": "2026-03-27T23:30:41",
+    "image": "../../images/Scoiatael/BitingFrost.jpg",
+    "image_verified": true,
+    "card_text": "Best part about frost... bodies of the fallen don't rot so quickly."
 }

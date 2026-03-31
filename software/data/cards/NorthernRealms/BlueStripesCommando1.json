@@ -12,5 +12,8 @@
     "starter": true,
     "rfid": 274958929373,
     "last_updated": "2026-03-27T23:30:41",
-    "rfid_written_at": "2026-03-27T23:30:41"
+    "rfid_written_at": "2026-03-27T23:30:41",
+    "image": "../../images/NorthernRealms/BlueStripesCommando.jpg",
+    "image_verified": true,
+    "card_text": "I'd do anything for Temeria. Mostly, though, I kill for her..."
 }

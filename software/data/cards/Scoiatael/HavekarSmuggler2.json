@@ -9,5 +9,8 @@
     "abilities": [
         "muster"
     ],
-    "last_updated": "2026-03-26T16:42:44"
+    "last_updated": "2026-03-26T16:42:44",
+    "image": "../../images/Scoiatael/HavekarSmuggler.jpg",
+    "image_verified": false,
+    "card_text": "I fight for whoever's paying the best. Or whoever's easiest to rob."
 }

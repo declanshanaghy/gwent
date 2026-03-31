@@ -8,5 +8,8 @@
     "rfid": 964334538234,
     "owner_nickname": "dek",
     "last_updated": "2026-03-27T23:30:41",
-    "rfid_written_at": "2026-03-27T23:30:41"
+    "rfid_written_at": "2026-03-27T23:30:41",
+    "image": "../../images/NorthernRealms/ClearWeather2.jpg",
+    "image_verified": true,
+    "card_text": "The sun's shinin'. Promise! The sun's shinin'! Maybe there's hope left after all."
 }

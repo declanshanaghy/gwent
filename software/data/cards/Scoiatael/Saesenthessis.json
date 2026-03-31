@@ -7,5 +7,8 @@
         "ranged"
     ],
     "specialty": "hero",
-    "last_updated": "2026-03-28T16:37:00"
+    "last_updated": "2026-03-28T16:37:00",
+    "image": "../../images/Scoiatael/Saesenthessis.jpg",
+    "image_verified": true,
+    "card_text": "Beautiful, pure, fierce - the perfect icon for a rebellion."
 }

@@ -13,5 +13,6 @@
     "rfid": 206693223810,
     "rfid_written_at": "2026-03-29T04:28:01",
     "image": "../../images/Monsters/Leshen.jpg",
-    "card_text": "We never hunt in these woods. Not even if it means the whole village starves."
+    "card_text": "We never hunt in these woods. Not even if it means the whole village starves.",
+    "image_verified": true
 }

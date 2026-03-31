@@ -13,6 +13,7 @@
     "rfid": 414798007645,
     "last_updated": "2026-03-26T16:05:21",
     "rfid_written_at": "2026-03-26T16:05:21",
-    "image": "../../images/Nilfgaardian/ImperaBrigadeGuard2.jpg",
-    "card_text": "The Impera Brigade never surrenders. Ever."
+    "image": "../../images/Nilfgaardian/ImperaBrigadeGuard.jpg",
+    "card_text": "The Impera Brigade never surrenders. Ever.",
+    "image_verified": false
 }

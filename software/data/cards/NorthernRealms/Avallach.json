@@ -16,5 +16,6 @@
     "rfid": 72038567245,
     "rfid_written_at": "2026-03-29T04:07:54",
     "image": "../../images/NorthernRealms/Avallach.jpg",
-    "card_text": "You humans have...unusual tastes."
+    "card_text": "You humans have...unusual tastes.",
+    "image_verified": true
 }

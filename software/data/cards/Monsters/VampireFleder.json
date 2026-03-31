@@ -15,5 +15,6 @@
     "rfid": 826761760036,
     "rfid_written_at": "2026-03-29T03:57:50",
     "image": "../../images/Monsters/VampireFleder.jpg",
-    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds."
+    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds.",
+    "image_verified": true
 }

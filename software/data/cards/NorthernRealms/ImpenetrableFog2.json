@@ -9,5 +9,8 @@
     "starter": true,
     "rfid": 277643152763,
     "last_updated": "2026-03-27T23:30:41",
-    "rfid_written_at": "2026-03-27T23:30:41"
+    "rfid_written_at": "2026-03-27T23:30:41",
+    "image": "../../images/NorthernRealms/ImpenetrableFog2.jpg",
+    "image_verified": true,
+    "card_text": "A good commander's dream... a bad one's horror."
 }

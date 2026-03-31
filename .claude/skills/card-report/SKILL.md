@@ -51,10 +51,14 @@ Generate a comprehensive Markdown report (without using a script) analyzing the 
      a. Leaders section first - Table showing all leader cards with their owners
      b. Regular cards section without leaders - Table with all cards showing Name, Strength, Range, Specialty, Ability, Owner, RFID
 
-5. Anomalies
+5. Image Coverage
+  - Image statistics (with/without images, verification status)
+  - Cards with RFID but no image (physical cards needing photos)
+  - All cards without images
+
+6. Anomalies
   - The following tables all cards showing Name, Faction, Owner, RFID
     - Cards that have an owner but no RFID
-    - Cards that have an RFID but no owner
 -->
 ```
 
@@ -87,9 +91,17 @@ For each faction, create:
 
 **IMPORTANT**: Do NOT abbreviate with placeholder text like "Due to the large number of cards...". List every single card in the tables.
 
-### 5. Anomalies
+### 5. Image Coverage
 
-Three tables, each with columns Name, Faction, Owner, RFID:
+Include these subsections:
+
+- **Image Statistics**: Total cards with images, total without, percentage coverage
+- **Image Verification**: Count of `image_verified: true` vs `image_verified: false`
+- **Cards with RFID but No Image**: Table with columns Name, Faction, Owner, RFID — list all cards that have an `rfid` field but no `image` field. These are physical cards that need photos taken.
+- **Cards without Images**: Table with columns Name, Faction, Owner — list all cards with no `image` field
+
+### 6. Anomalies
+
+Two tables, each with columns Name, Faction, Owner, RFID:
 1. **Cards with Owner but No RFID**
-2. **Cards with RFID but No Owner**
-3. **Misconfigured Starter Cards** — starter cards that have owner set (including leaders)
+2. **Misconfigured Starter Cards** — starter cards that have owner set (including leaders)

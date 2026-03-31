@@ -12,5 +12,8 @@
         "muster"
     ],
     "last_updated": "2026-03-27T17:15:32",
-    "rfid_written_at": "2026-03-27T17:15:32"
+    "rfid_written_at": "2026-03-27T17:15:32",
+    "image": "../../images/Monsters/Ghoul.jpg",
+    "image_verified": true,
+    "card_text": "If ghouls are part of the Circle of Life... then it's a damn vicious circle."
 }

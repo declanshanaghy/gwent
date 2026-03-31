@@ -12,5 +12,6 @@
     "rfid": 72643267924,
     "rfid_written_at": "2026-03-29T04:30:56",
     "image": "../../images/Monsters/Vesemir.jpg",
-    "card_text": "If you're to be hanged, ask for water. Anything can happen before they fetch it."
+    "card_text": "If you're to be hanged, ask for water. Anything can happen before they fetch it.",
+    "image_verified": true
 }

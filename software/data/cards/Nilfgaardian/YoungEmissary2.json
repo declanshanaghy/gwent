@@ -14,5 +14,8 @@
     "rfid": 206273007023,
     "owner_nickname": "dek",
     "last_updated": "2026-03-26T17:48:19",
-    "rfid_written_at": "2026-03-26T17:48:19"
+    "rfid_written_at": "2026-03-26T17:48:19",
+    "image": "../../images/Nilfgaardian/YoungEmissary2.jpg",
+    "image_verified": true,
+    "card_text": "If I acquit myself well, perhaps next they'll post me somewhere civilized."
 }

@@ -12,5 +12,6 @@
     "last_updated": "2026-03-26T12:35:00",
     "rfid_written_at": "2026-03-26T12:35:00",
     "image": "../../images/Skellige/CrachAnCraite.jpg",
-    "card_text": "Shuffle all cards from each player's graveyard back into their decks."
+    "card_text": "Shuffle all cards from each player's graveyard back into their decks.",
+    "image_verified": true
 }

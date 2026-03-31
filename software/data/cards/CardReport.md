@@ -2,782 +2,608 @@
 To regenerate this report, use: /card-report
 -->
 
-# Gwent Card Database Report
-
-*Generated: 2026-03-28*
-*Total cards in database: 341*
+# Gwent Card Collection Report
 
 ## 1. Card Distribution by Faction
 
 | Faction | Card Count | Percentage |
 |---------|-----------|------------|
-| Monsters | 66 | 19% |
-| Neutral | 10 | 3% |
-| Nilfgaardian | 63 | 18% |
-| Northern Realms | 67 | 20% |
-| Scoia'tael | 68 | 20% |
-| Skellige | 67 | 20% |
+| Monsters | 68 | 19.9% |
+| Nilfgaardian | 65 | 19.1% |
+| Northern Realms | 71 | 20.8% |
+| Scoia'tael | 68 | 19.9% |
+| Skellige | 69 | 20.2% |
 | **Total** | **341** | **100%** |
 
 ## 2. Card Ownership Summary
 
-| Faction | Owned Cards | Total Cards | % Owned |
-|---------|------------|-------------|---------|
-| Monsters | 25 | 66 | 38% |
-| Neutral | 0 | 10 | 0% |
-| Nilfgaardian | 22 | 63 | 35% |
-| Northern Realms | 27 | 67 | 40% |
-| Scoia'tael | 22 | 68 | 32% |
-| Skellige | 28 | 67 | 42% |
-| **Total** | **124** | **341** | **36%** |
+| Faction | Owned Cards | Total Cards | Percentage Owned |
+|---------|------------|-------------|-----------------|
+| Monsters | 27 | 68 | 39.7% |
+| Nilfgaardian | 24 | 65 | 36.9% |
+| Northern Realms | 31 | 71 | 43.7% |
+| Scoia'tael | 22 | 68 | 32.4% |
+| Skellige | 30 | 69 | 43.5% |
+| **Total** | **134** | **341** | **39.3%** |
 
 ## 3. Card Statistics
 
 ### Overall Statistics
+
 - **Total cards**: 341
-- **Owned**: 124 (36%)
-- **Unowned**: 217 (64%)
+- **Owned**: 134 (39.3%)
+- **Not owned**: 207 (60.7%)
 
 ### Card Types
-- **Unit cards**: 258
+
+- **Unit cards**: 255
+- **Weather cards**: 43
 - **Leader cards**: 24
-- **Hero cards**: 48
-- **Weather cards**: 41
-- **Scorch cards**: 6
-- **Decoy cards**: 6
-- **Commander's Horn cards**: 6
+- **Hero cards**: 46
+- **Special cards** (scorch/decoy/commander/mardroeme): 19
 
 ### Leader Cards Analysis
-- **Total leaders**: 24
-- By faction: Monsters: 5, Nilfgaardian: 5, Northern Realms: 7, Scoia'tael: 5, Skellige: 2
-- **Owned leaders**: 5
-- **Leaders with RFID**: 21
 
-| Name | Faction | Owner | RFID |
-|------|---------|-------|------|
-| Eredin - King of the Wild Hunt | Monsters | — | Yes |
-| Eredin Bréacc Glas: the Treacherous | Monsters | — | Yes |
-| Eredin: Bringer of Death | Monsters | — | Yes |
-| Eredin: Commander of the Red Riders | Monsters | — | Yes |
-| Eredin: Destroyer of Worlds | Monsters | — | Yes |
-| Emhyr var Emreis - His Imperial Majesty | Nilfgaardian | — | Yes |
-| Emhyr var Emreis - The Relentless | Nilfgaardian | Declan Shanaghy | Yes |
-| Emhyr var Emreis: Emperor of Nilfgaard | Nilfgaardian | — | Yes |
-| Emhyr var Emreis: Invader of the North | Nilfgaardian | — | Yes |
-| Emhyr var Emreis: The White Flame | Nilfgaardian | — | Yes |
-| Foltest - King of Temeria | Northern Realms | — | Yes |
-| Foltest: Lord Commander of the North | Northern Realms | Dylan Shanaghy | Yes |
-| Foltest: Son of Medell | Northern Realms | — | Yes |
-| Foltest: The Steel-Forged | Northern Realms | — | Yes |
-| Foltest: The Steel-Forged: 2 | Northern Realms | Dylan Shanaghy | No |
-| Foltest: the Siegemaster | Northern Realms | — | Yes |
-| Foltest: the Siegemaster: 2 | Northern Realms | Dylan Shanaghy | No |
-| Francesca Findabair - Pureblood Elf | Scoia'tael | — | Yes |
-| Francesca Findabair - The Beautiful | Scoia'tael | Declan Shanaghy | Yes |
-| Francesca Findabair: Daisy of the Valley | Scoia'tael | — | Yes |
-| Francesca Findabair: Hope of the aen Seidhe | Scoia'tael | — | Yes |
-| Francesca Findabair: Queen of Dol Blathanna | Scoia'tael | — | Yes |
-| Crach an Craite | Skellige | — | Yes |
-| King Bran | Skellige | — | No |
+- **Total leaders**: 24
+  - Monsters: 5
+  - Nilfgaardian: 5
+  - Northern Realms: 7
+  - Scoia'tael: 5
+  - Skellige: 2
+- **Owned leaders**: 5
+  - Emhyr var Emreis - The Relentless (Nilfgaardian)
+  - Foltest: Lord Commander of the North (Northern Realms)
+  - Foltest: The Steel-Forged: 2 (Northern Realms)
+  - Foltest: the Siegemaster: 2 (Northern Realms)
+  - Francesca Findabair - The Beautiful (Scoia'tael)
+- **Leaders with RFID**: 23
 
 ### Hero Cards Analysis
-- **Total heroes**: 48
-- By faction: Monsters: 9, Neutral: 1, Nilfgaardian: 7, Northern Realms: 11, Scoia'tael: 10, Skellige: 10
+
+- **Total heroes**: 46
+  - Monsters: 9
+  - Nilfgaardian: 7
+  - Northern Realms: 12
+  - Scoia'tael: 9
+  - Skellige: 9
 
 ### Weather Cards Breakdown
-- **Total weather cards**: 41
-- By faction: Monsters: 6, Neutral: 1, Nilfgaardian: 8, Northern Realms: 10, Scoia'tael: 7, Skellige: 9
 
-### RFID Registered Cards
-- **Total with RFID**: 224 (66%)
-- By faction: Monsters: 44, Nilfgaardian: 44, Northern Realms: 47, Scoia'tael: 42, Skellige: 47
+- **Total weather cards**: 43
+  - Monsters: 7
+  - Nilfgaardian: 9
+  - Northern Realms: 10
+  - Scoia'tael: 7
+  - Skellige: 10
 
-### Starter Cards
-- **Total starters**: 157
-- By faction: Monsters: 30, Nilfgaardian: 30, Northern Realms: 32, Scoia'tael: 31, Skellige: 34
+### RFID Registered Cards Analysis
+
+- **Total with RFID**: 286
+  - Monsters: 58
+  - Nilfgaardian: 54
+  - Northern Realms: 62
+  - Scoia'tael: 56
+  - Skellige: 56
 
 ### Card Abilities Distribution
 
-| Ability | Count |
-|---------|-------|
-| muster | 38 |
-| bond | 24 |
-| agile | 16 |
-| spy | 15 |
-| medic | 11 |
-| morale | 10 |
-| scorch | 10 |
-| commander | 5 |
-| berserker | 2 |
+- **agile**: 17
+- **berserker**: 2
+- **bond**: 26
+- **commander**: 5
+- **medic**: 13
+- **morale**: 9
+- **muster**: 35
+- **scorch**: 11
+- **spy**: 13
+
+### Starter Cards Analysis
+
+- **Total starters**: 157
+  - Monsters: 30
+  - Nilfgaardian: 30
+  - Northern Realms: 32
+  - Scoia'tael: 31
+  - Skellige: 34
 
 ### Interesting Observations
-- Dylan Shanaghy's 64-card collection spans all 5 playable factions
-- 224 of 341 cards (66%) have RFID chips programmed
-- 157 cards are marked as starter cards (shared pool)
-- Avallac'h appears in all 5 factions (NR, Scoia'tael, Skellige, Nilfgaardian, Monsters)
-- Villentretenmerth appears in 4 factions with scorch ability
-- Neutral faction has 10 cards but none are owned or have RFID
-- Two owners: Declan Shanaghy (dek) and Dylan Shanaghy (dylan)
+
+- 308 of 341 cards (90.3%) have photos taken
+- 286 of 341 cards (83.9%) have RFID chips programmed
+- 9 cards have RFID but still need photos
+- 22 cards have unverified image matches (suffixed cards using base image)
 
 ## 4. Cards by Faction
 
 ### Monsters
 
-#### Leaders (5)
+#### Leader Cards
 
 | Name | Owner | RFID |
 |------|-------|------|
-| Eredin - King of the Wild Hunt | — | Yes |
-| Eredin Bréacc Glas: the Treacherous | — | Yes |
-| Eredin: Bringer of Death | — | Yes |
-| Eredin: Commander of the Red Riders | — | Yes |
-| Eredin: Destroyer of Worlds | — | Yes |
+| Eredin - King of the Wild Hunt |  | 209511075183 |
+| Eredin Bréacc Glas: the Treacherous |  | 552136297891 |
+| Eredin: Bringer of Death |  | 897327517074 |
+| Eredin: Commander of the Red Riders |  | 552320978352 |
+| Eredin: Destroyer of Worlds |  | 481219071443 |
 
-#### Cards (61)
+#### Regular Cards
 
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Arachas: 1 | 4 | close | — | muster | — | Yes |
-| Arachas: 2 | 4 | close | — | muster | — | Yes |
-| Arachas: 3 | 4 | close | — | muster | — | No |
-| Arachas: Behemoth | 6 | siege | — | muster | — | Yes |
-| Avallac'h | 0 | close | hero | spy | dylan | No |
-| Biting Frost: 1 | — | close | weather | — | — | Yes |
-| Biting Frost: 2 | — | close | weather | — | — | Yes |
-| Botchling | 4 | close | — | — | dek | Yes |
-| Bovine Defense Force | 8 | close | — | — | dek | Yes |
-| Celaeno Harpy | 2 | close, ranged | — | agile | — | Yes |
-| Clear Weather: 1 | — | — | weather | — | — | Yes |
-| Cockatrice | 2 | ranged | — | — | — | Yes |
-| Commander's Horn | — | — | commander | — | dylan | No |
-| Crone: Brewess | 6 | close | — | muster | — | Yes |
-| Crone: Weavess | 6 | close | — | muster | dylan | No |
-| Crone: Whispess | 6 | close | — | muster | — | No |
-| Dandelion | 2 | close | — | commander | dek | Yes |
-| Dandelion: 2 | 2 | close | — | commander | dylan | No |
-| Draug | 10 | close | hero | — | dylan | No |
-| Earth Elemental | 6 | siege | — | — | dylan | No |
-| Endrega | 2 | ranged | — | — | — | Yes |
-| Fiend | 6 | close | — | — | dek | Yes |
-| Fire Elemental | 6 | siege | — | — | — | Yes |
-| Foglet | 2 | close | — | — | dek | Yes |
-| Forktail | 5 | close | — | — | — | Yes |
-| Frightener | 5 | close | — | — | — | Yes |
-| Gargoyle | 2 | ranged | — | — | — | Yes |
-| Gaunter O'Dimm: Darkness 1 | 4 | ranged | — | muster | dek | Yes |
-| Gaunter O'Dimm: Darkness 2 | 4 | ranged | — | muster | dek | Yes |
-| Geralt of Rivia | 15 | close | hero | — | dek | Yes |
-| Ghoul: 1 | 1 | close | — | muster | — | Yes |
-| Ghoul: 2 | 1 | close | — | muster | — | Yes |
-| Grave Hag | 5 | ranged | — | — | — | Yes |
-| Griffin | 5 | close | — | — | — | Yes |
-| Harpy | 2 | close, ranged | — | agile | — | No |
-| Ice Giant | 5 | siege | — | — | — | Yes |
-| Imlerith | 10 | close | hero | — | — | Yes |
-| Impenetrable Fog: 1 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 2 | — | ranged | weather | — | — | Yes |
-| Kayran | 8 | close, ranged | hero | agile, morale | — | Yes |
-| Leshen | 10 | ranged | hero | — | dylan | No |
-| Nekker: 1 | 2 | close | — | muster | — | Yes |
-| Nekker: 2 | 2 | close | — | muster | dek | Yes |
-| Plague Maiden | 5 | close | — | — | — | Yes |
-| Scorch | — | — | scorch | — | dylan | No |
-| Toad | 7 | ranged | — | scorch | — | No |
-| Torrential Rain | — | siege | weather | — | — | Yes |
-| Triss Merigold | 7 | close | hero | — | dylan | No |
-| Triss Merigold: 2 | 7 | close | hero | — | dylan | No |
-| Vampire: Bruxa | 4 | close | — | muster | — | No |
-| Vampire: Ekimmara | 4 | close | — | muster | — | No |
-| Vampire: Fleder | 4 | close | — | muster | dylan | No |
-| Vampire: Garkain | 4 | close | — | muster | — | No |
-| Vampire: Garkhain | 4 | close | — | muster | — | Yes |
-| Vampire: Katakan | 5 | close | — | muster | dylan | No |
-| Vesemir | 6 | close | — | — | dylan | No |
-| Villentretenmerth | 7 | close | — | scorch | dek | Yes |
-| Werewolf | 5 | close | — | — | — | Yes |
-| Wyvern | 2 | ranged | — | — | — | Yes |
-| Yennefer of Vengerberg | 7 | ranged | hero | medic | dylan | No |
-| Zoltan Chivay | 5 | close | — | — | dylan | No |
-
-### Neutral
-
-#### Cards (10)
-
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Cow | 0 | ranged | — | — | — | No |
-| Emiel Regis Rohellec Terzieff-Godefroy | 5 | close | — | — | — | No |
-| Gaunter O'Dimm | 2 | siege | — | muster | — | No |
-| Gaunter O'Dimm: Darkness: 1 | 4 | ranged | — | muster | — | No |
-| Gaunter O'Dimm: Darkness: 2 | 4 | ranged | — | muster | — | No |
-| Gaunter O'Dimm: Darkness: 3 | 4 | ranged | — | muster | — | No |
-| Mysterious Elf (Avallach) | 0 | close | hero | spy | — | No |
-| Olgierd von Everec | 6 | close, ranged | — | agile | — | No |
-| Skellige Storm | — | ranged, siege | weather | — | — | No |
-| Vesemir | 6 | close | — | — | — | No |
+| Name | Strength | Range | Specialty | Ability | Owner | RFID |
+|------|----------|-------|-----------|---------|-------|------|
+| Arachas: 1 | 4 | close |  | muster |  | 622264733154 |
+| Arachas: 2 | 4 | close |  | muster |  | 482409860530 |
+| Arachas: 3 | 4 | close |  | muster |  |  |
+| Arachas: Behemoth | 6 | siege |  | muster |  | 345675550136 |
+| Avallac'h | 0 | close | hero | spy | Dylan Shanaghy | 826074549561 |
+| Biting Frost: 1 |  | close | weather |  |  | 965039967680 |
+| Biting Frost: 2 |  | close | weather |  |  | 553578745331 |
+| Botchling | 4 | close |  |  | Declan Shanaghy | 206172343721 |
+| Bovine Defense Force | 8 | close |  |  | Declan Shanaghy | 275479023098 |
+| Celaeno Harpy | 2 | close, ranged |  | agile |  | 482074250717 |
+| Clear Weather: 1 |  |  | weather |  |  | 206340705706 |
+| Cockatrice | 2 | ranged |  |  |  | 346128403799 |
+| Commander's Horn |  | close, ranged, siege | commander |  | Dylan Shanaghy | 962355481958 |
+| Crone: Brewess | 6 | close |  | muster |  | 895011802403 |
+| Crone: Weavess | 6 | close |  | muster | Dylan Shanaghy | 964837985754 |
+| Crone: Whispess | 6 | close |  | muster |  |  |
+| Dandelion | 2 | close |  | commander | Declan Shanaghy | 618623487232 |
+| Dandelion: 2 | 2 | close |  | commander | Dylan Shanaghy | 964267560444 |
+| Dimeritium Bomb |  |  | weather |  | Dylan Shanaghy |  |
+| Draug | 10 | close | hero |  | Dylan Shanaghy | 277023247789 |
+| Earth Elemental | 6 | siege |  |  | Dylan Shanaghy | 70898502973 |
+| Endrega | 2 | ranged |  |  |  | 416324209944 |
+| Fiend | 6 | close |  |  | Declan Shanaghy | 1032953482734 |
+| Fire Elemental | 6 | siege |  |  |  | 3151711533 |
+| Foglet | 2 | close |  |  | Declan Shanaghy | 71434456367 |
+| Forktail | 5 | close |  |  |  | 550944591184 |
+| Frightener | 5 | close |  |  |  | 333139333 |
+| Gargoyle | 2 | ranged |  |  |  | 2681883912 |
+| Gaunter O'Dimm: Darkness 1 | 4 | ranged |  | muster | Declan Shanaghy | 550004673814 |
+| Gaunter O'Dimm: Darkness 2 | 4 | ranged |  | muster | Declan Shanaghy | 2211728666 |
+| Geralt of Rivia | 15 | close | hero |  | Declan Shanaghy | 346429869409 |
+| Ghoul: 1 | 1 | close |  | muster |  | 206374063531 |
+| Ghoul: 2 | 1 | close |  | muster |  | 414176660889 |
+| Grave Hag | 5 | ranged |  |  |  | 141160959337 |
+| Griffin | 5 | close |  |  |  | 1032567999757 |
+| Harpy | 2 | close, ranged |  | agile |  |  |
+| Ice Giant | 5 | siege |  |  |  | 550692801827 |
+| Imlerith | 10 | close | hero |  |  | 964553100774 |
+| Impenetrable Fog: 1 |  | ranged | weather |  |  | 275462508023 |
+| Impenetrable Fog: 2 |  | ranged | weather |  |  | 621794577856 |
+| Kayran | 8 | close, ranged | hero | agile, morale |  | 485093756187 |
+| Leshen | 10 | ranged | hero |  | Dylan Shanaghy | 206693223810 |
+| Nekker: 1 | 2 | close |  | muster |  | 964234268154 |
+| Nekker: 2 | 2 | close |  | muster | Declan Shanaghy | 825553669486 |
+| Plague Maiden | 5 | close |  |  |  | 482409401787 |
+| Scorch |  | close, ranged, siege | scorch |  | Dylan Shanaghy | 619848945004 |
+| Toad | 7 | ranged |  | scorch |  |  |
+| Torrential Rain |  | siege | weather |  |  | 278683602233 |
+| Triss Merigold | 7 | close | hero |  | Dylan Shanaghy | 825940266272 |
+| Triss Merigold: 2 | 7 | close | hero |  | Dylan Shanaghy | 622432701911 |
+| Vampire: Bruxa | 4 | close |  | muster |  |  |
+| Vampire: Ekimmara | 4 | close |  | muster |  |  |
+| Vampire: Fleder | 4 | close |  | muster | Dylan Shanaghy | 826761760036 |
+| Vampire: Fleder: 2 | 4 | close |  | muster | Dylan Shanaghy | 1033944190438 |
+| Vampire: Garkain | 4 | close |  | muster |  |  |
+| Vampire: Garkhain | 4 | close |  | muster |  | 552789757359 |
+| Vampire: Katakan | 5 | close |  | muster | Dylan Shanaghy |  |
+| Vesemir | 6 | close |  |  | Dylan Shanaghy | 72643267924 |
+| Villentretenmerth | 7 | close |  | scorch | Declan Shanaghy | 964737453542 |
+| Werewolf | 5 | close |  |  |  | 69958258114 |
+| Wyvern | 2 | ranged |  |  |  | 962673921368 |
+| Yennefer of Vengerberg | 7 | ranged | hero | medic | Dylan Shanaghy |  |
+| Zoltan Chivay | 5 | close |  |  | Dylan Shanaghy | 140389600541 |
 
 ### Nilfgaardian
 
-#### Leaders (5)
+#### Leader Cards
 
 | Name | Owner | RFID |
 |------|-------|------|
-| Emhyr var Emreis - His Imperial Majesty | — | Yes |
-| Emhyr var Emreis - The Relentless | Declan Shanaghy | Yes |
-| Emhyr var Emreis: Emperor of Nilfgaard | — | Yes |
-| Emhyr var Emreis: Invader of the North | — | Yes |
-| Emhyr var Emreis: The White Flame | — | Yes |
+| Emhyr var Emreis - His Imperial Majesty |  | 137554120118 |
+| Emhyr var Emreis - The Relentless | Declan Shanaghy | 413287665097 |
+| Emhyr var Emreis: Emperor of Nilfgaard |  | 414479306057 |
+| Emhyr var Emreis: Invader of the North |  | 208186265051 |
+| Emhyr var Emreis: The White Flame |  | 551482051919 |
 
-#### Cards (58)
+#### Regular Cards
 
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Albrich | 2 | ranged | — | — | — | No |
-| Assire var Anahid | 6 | ranged | — | — | — | Yes |
-| Avallac'h | 0 | close | hero | spy | dylan | No |
-| Biting Frost: 1 | — | close | weather | — | — | Yes |
-| Biting Frost: 2 | — | close | weather | — | — | Yes |
-| Black Infantry Archer | 10 | ranged | — | — | — | No |
-| Cahir Mawr Dyffryn aep Ceallach | 6 | close | — | — | — | Yes |
-| Cirilla Fiona Elen Riannon | 15 | close | hero | — | dylan | No |
-| Clear Weather: 1 | — | — | weather | — | — | Yes |
-| Clear Weather: 2 | — | — | weather | — | dek | Yes |
-| Commander's Horn: 1 | — | close, ranged, siege | commander | — | dek | Yes |
-| Cynthia | 4 | ranged | — | — | — | Yes |
-| Dandelion | 2 | close | — | commander | dek | Yes |
-| Decoy: 1 | 0 | — | decoy | — | dek | Yes |
-| Emiel Regis Rohellec Terzieff: Human | 5 | close | — | — | dek | Yes |
-| Emiel Regis Rohellec Terzieff: Vampire | 5 | close | — | — | dek | Yes |
-| Etolian Auxiliary Archers | 1 | ranged | — | medic | — | No |
-| Etolian Auxiliary Archers: 2 | 1 | ranged | — | medic | dylan | No |
-| Etolian Auxillary Archers | 1 | ranged | — | medic | — | Yes |
-| Fringilla Vigo | 6 | ranged | — | — | dek | Yes |
-| Heavy Zerrikanian Fire Scorpion | 10 | siege | — | — | — | No |
-| Impenetrable Fog: 1 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 2 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 3 | — | ranged | weather | — | dek | Yes |
-| Impera Brigade Guard: 1 | 3 | close | — | bond | — | Yes |
-| Impera Brigade Guard: 2 | 3 | close | — | bond | — | Yes |
-| Impera Brigade Guard: 3 | 3 | close | — | bond | — | Yes |
-| Letho of Gulet | 10 | close | hero | — | — | No |
-| Menno Coehoorn | 10 | close | — | — | dek | Yes |
-| Morteisen | 3 | close | — | — | — | No |
-| Morteisen: 2 | 3 | close | — | — | dylan | No |
-| Morvran Voorhis | 10 | siege | hero | — | dek | Yes |
-| Nausicaa Cavalry Rider | 2 | close | — | bond | dylan | No |
-| Nausicaa Cavalry Rider: 1 | 2 | close | — | bond | — | Yes |
-| Nausicaa Cavalry Rider: 2 | 2 | close | — | bond | — | Yes |
-| Puttkamer | 3 | ranged | — | — | — | No |
-| Rainfarn | 4 | close | — | — | — | Yes |
-| Renauld aep Matsen | 5 | ranged | — | — | — | Yes |
-| Renuald aep Matsen | 5 | ranged | — | — | — | No |
-| Rotten Mangonel | 3 | siege | — | — | — | Yes |
-| Scorch | — | — | scorch | — | dylan | No |
-| Shilard Fitz-Oesterlen | 7 | close | — | spy | — | Yes |
-| Siege Engineer | 6 | siege | — | — | — | Yes |
-| Siege Technician | 0 | siege | — | medic | — | Yes |
-| Stefan Skellen | 9 | close | — | spy | — | Yes |
-| Sweers | 2 | ranged | — | — | — | No |
-| Tibor Eggebracht | 10 | ranged | hero | — | — | Yes |
-| Torrential Rain | — | siege | weather | — | — | Yes |
-| Vanhemar | 4 | ranged | — | — | — | Yes |
-| Vattier de Rideaux | 4 | close | — | spy | — | Yes |
-| Villentretenmerth | 7 | close | — | scorch | dylan | No |
-| Villentretenmerth: 2 | 7 | close | — | scorch | dylan | No |
-| Vreemde | 2 | close | — | — | — | Yes |
-| Yennefer of Vengerberg | 7 | ranged | hero | medic | dylan | No |
-| Yennefer of Vengerberg: 2 | 7 | ranged | hero | medic | dylan | No |
-| Young Emissary: 1 | 5 | close | — | bond | — | Yes |
-| Young Emissary: 2 | 5 | close | — | bond | dek | Yes |
-| Zerrikanian Fire Scorpion | 5 | siege | — | — | — | Yes |
+| Name | Strength | Range | Specialty | Ability | Owner | RFID |
+|------|----------|-------|-----------|---------|-------|------|
+| Albrich | 2 | ranged |  |  |  |  |
+| Assire var Anahid | 6 | ranged |  |  |  | 414915579218 |
+| Avallac'h | 0 | close | hero | spy | Dylan Shanaghy | 70931926273 |
+| Biting Frost: 1 |  | close | weather |  |  | 2430946616 |
+| Biting Frost: 2 |  | close | weather |  |  | 1032149355784 |
+| Black Infantry Archer | 10 | ranged |  |  |  |  |
+| Cahir Mawr Dyffryn aep Ceallach | 6 | close |  |  |  | 963194998026 |
+| Cirilla Fiona Elen Riannon | 15 | close | hero |  | Dylan Shanaghy |  |
+| Clear Weather: 1 |  |  | weather |  |  | 347420839195 |
+| Clear Weather: 2 |  |  | weather |  | Declan Shanaghy | 415250009431 |
+| Commander's Horn: 1 |  | close, ranged, siege | commander |  | Declan Shanaghy | 621643189683 |
+| Cynthia | 4 | ranged |  |  |  | 278651030792 |
+| Dandelion | 2 | close |  | commander | Declan Shanaghy | 620267982189 |
+| Decoy: 1 | 0 |  | decoy |  | Declan Shanaghy | 2245217563 |
+| Emiel Regis Rohellec Terzieff: Human | 5 | close |  |  | Declan Shanaghy | 2782088507 |
+| Emiel Regis Rohellec Terzieff: Vampire | 5 | close |  |  | Declan Shanaghy | 344299163104 |
+| Etolian Auxiliary Archers | 1 | ranged |  | medic |  |  |
+| Etolian Auxiliary Archers: 2 | 1 | ranged |  | medic | Dylan Shanaghy | 827852869074 |
+| Etolian Auxillary Archers | 1 | ranged |  | medic |  | 345759829369 |
+| Fringilla Vigo | 6 | ranged |  |  | Declan Shanaghy | 2312391952 |
+| Heavy Zerrikanian Fire Scorpion | 10 | siege |  |  |  |  |
+| Impenetrable Fog: 1 |  | ranged | weather |  |  | 482762575295 |
+| Impenetrable Fog: 2 |  | ranged | weather |  |  | 412499594691 |
+| Impenetrable Fog: 3 |  | ranged | weather |  | Declan Shanaghy | 618690596100 |
+| Impera Brigade Guard: 1 | 3 | close |  | bond |  | 895314251018 |
+| Impera Brigade Guard: 2 | 3 | close |  | bond |  | 824933830015 |
+| Impera Brigade Guard: 3 | 3 | close |  | bond |  | 414798007645 |
+| Letho of Gulet | 10 | close | hero |  |  |  |
+| Menno Coehoorn | 10 | close |  | medic | Declan Shanaghy | 687846149400 |
+| Morteisen | 3 | close |  |  |  |  |
+| Morteisen: 2 | 3 | close |  |  | Dylan Shanaghy | 3688451407 |
+| Morvran Voorhis | 10 | siege | hero |  | Declan Shanaghy | 275059527124 |
+| Nausicaa Cavalry Rider | 2 | close |  | bond | Dylan Shanaghy |  |
+| Nausicaa Cavalry Rider: 1 | 2 | close |  | bond |  | 897428114829 |
+| Nausicaa Cavalry Rider: 2 | 2 | close |  | bond |  | 2380418338 |
+| Puttkamer | 3 | ranged |  |  |  |  |
+| Rainfarn | 4 | close |  |  |  | 414227516862 |
+| Renauld aep Matsen | 5 | ranged |  |  |  | 893804236133 |
+| Renuald aep Matsen | 5 | ranged |  |  |  |  |
+| Rotten Mangonel | 3 | siege |  |  |  | 553813888477 |
+| Scorch |  | close, ranged, siege | scorch |  | Dylan Shanaghy | 276704153019 |
+| Shilard Fitz-Oesterlen | 7 | close |  | spy |  | 4024454466 |
+| Siege Engineer | 6 | siege |  |  |  | 1033055063514 |
+| Siege Technician | 0 | siege |  | medic |  | 688736259415 |
+| Stefan Skellen | 9 | close |  | spy |  | 965291822578 |
+| Sweers | 2 | ranged |  |  |  |  |
+| Tibor Eggebracht | 10 | ranged | hero |  |  | 414982688086 |
+| Torrential Rain |  |  | weather |  | Dylan Shanaghy | 962423049563 |
+| Torrential Rain |  | siege | weather |  |  | 71217532204 |
+| Vanhemar | 4 | ranged |  |  |  | 757287898444 |
+| Vattier de Rideaux | 4 | close |  | spy |  | 138040855982 |
+| Vesemir | 6 | close |  |  | Dylan Shanaghy | 965174054350 |
+| Villentretenmerth | 7 | close |  | scorch | Dylan Shanaghy | 966046797217 |
+| Villentretenmerth: 2 | 7 | close |  | scorch | Dylan Shanaghy | 964704226795 |
+| Vreemde | 2 | close |  |  |  | 71737232689 |
+| Yennefer of Vengerberg | 7 | ranged | hero | medic | Dylan Shanaghy | 68901555597 |
+| Yennefer of Vengerberg: 2 | 7 | ranged | hero | medic | Dylan Shanaghy | 757539294529 |
+| Young Emissary: 1 | 5 | close |  | bond |  | 208370879777 |
+| Young Emissary: 2 | 5 | close |  | bond | Declan Shanaghy | 206273007023 |
+| Zerrikanian Fire Scorpion | 5 | siege |  |  |  | 550072438016 |
 
 ### Northern Realms
 
-#### Leaders (7)
+#### Leader Cards
 
 | Name | Owner | RFID |
 |------|-------|------|
-| Foltest - King of Temeria | — | Yes |
-| Foltest: Lord Commander of the North | Dylan Shanaghy | Yes |
-| Foltest: Son of Medell | — | Yes |
-| Foltest: The Steel-Forged | — | Yes |
-| Foltest: The Steel-Forged: 2 | Dylan Shanaghy | No |
-| Foltest: the Siegemaster | — | Yes |
-| Foltest: the Siegemaster: 2 | Dylan Shanaghy | No |
+| Foltest - King of Temeria |  | 894239591804 |
+| Foltest: Lord Commander of the North | Dylan Shanaghy | 896253382124 |
+| Foltest: Son of Medell |  | 208555822358 |
+| Foltest: The Steel-Forged |  | 70059904503 |
+| Foltest: The Steel-Forged: 2 | Dylan Shanaghy | 413623274942 |
+| Foltest: the Siegemaster |  | 413623274942 |
+| Foltest: the Siegemaster: 2 | Dylan Shanaghy | 70059904503 |
 
-#### Cards (60)
+#### Regular Cards
 
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Avallac'h | 0 | close | hero | spy | dylan | No |
-| Ballista: 1 | 6 | siege | — | — | — | Yes |
-| Ballista: 2 | 6 | siege | — | — | — | Yes |
-| Biting Frost | — | close | weather | — | dylan | No |
-| Biting Frost: 1 | — | close | weather | — | — | Yes |
-| Biting Frost: 2 | — | close | weather | — | — | Yes |
-| Blue Stripes Commando: 1 | 4 | close | — | bond | — | Yes |
-| Blue Stripes Commando: 2 | 4 | close | — | bond | — | No |
-| Catapult | 8 | siege | — | bond | dek | Yes |
-| Cirilla Fiona Elen Riannon | 15 | close | hero | — | dylan | No |
-| Clear Weather | — | — | weather | — | dylan | No |
-| Clear Weather: 1 | — | — | weather | — | — | Yes |
-| Clear Weather: 2 | — | — | weather | — | dek | Yes |
-| Commander's Horn | — | — | commander | — | dylan | No |
-| Commander's Horn: 1 | — | close, ranged, siege | commander | — | dek | Yes |
-| Crinfrid Reavers Dragon Hunter | 5 | ranged | — | bond | — | No |
-| Dethmold | 6 | ranged | — | — | — | Yes |
-| Dun Banner Medic | 5 | siege | — | medic | — | Yes |
-| Emiel Regis Rohellec Terzieff | 5 | close | — | — | dylan | No |
-| Esterad Thyssen | 10 | close | hero | — | — | No |
-| Gaunter O'Dimm: Darkness 1 | 4 | ranged | — | muster | dek | Yes |
-| Geralt of Rivia | 15 | close | hero | — | dylan | No |
-| Impenetrable Fog: 1 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 2 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 3 | — | ranged | weather | — | dek | Yes |
-| John Natalis | 10 | close | hero | — | — | No |
-| John Natalis: 2 | 10 | close | hero | — | dylan | No |
-| Kaedweni Siege Expert: 1 | 1 | siege | — | morale | — | Yes |
-| Kaedweni Siege Expert: 2 | 1 | siege | — | morale | — | Yes |
-| Kaedweni Siege Expert: 3 | 1 | siege | — | morale | — | Yes |
-| Keira Metz | 5 | ranged | — | — | — | No |
-| Kiera Metz | 5 | ranged | — | — | — | Yes |
-| Philippa Eilhart | 10 | ranged | hero | — | dek | Yes |
-| Poor Fucking Infantry: 1 | 1 | close | — | bond | — | Yes |
-| Poor Fucking Infantry: 2 | 1 | close | — | bond | — | Yes |
-| Prince Stennis | 5 | close | — | spy | — | Yes |
-| Redanian Foot Soldier: 1 | 1 | close | — | — | — | Yes |
-| Redanian Foot Soldier: 2 | 1 | close | — | — | — | Yes |
-| Sabrina Glevissig | 4 | ranged | — | — | — | Yes |
-| Scorch | — | close, ranged, siege | scorch | — | dek | Yes |
-| Sheldon Skaggs | 4 | ranged | — | — | — | Yes |
-| Siege Tower: 1 | 6 | siege | — | — | — | Yes |
-| Siege Tower: 2 | 6 | siege | — | — | dek | Yes |
-| Siegfried of Denesle | 5 | close | — | — | — | Yes |
-| Sigismund Dijkstra | 4 | close | — | spy | dek | Yes |
-| Síle de Tansarville | 5 | ranged | — | — | — | Yes |
-| Thaler | 1 | siege | — | spy | — | No |
-| Torrential Rain | — | siege | weather | — | — | Yes |
-| Trebuchet: 1 | 6 | siege | — | — | — | Yes |
-| Trebuchet: 2 | 6 | siege | — | — | — | Yes |
-| Triss Merigold | 7 | close | hero | — | dek | Yes |
-| Triss Merigold: 2 | 7 | close | hero | — | dylan | No |
-| Vernon Roche | 10 | close | hero | — | — | No |
-| Ves | 5 | close | — | — | — | Yes |
-| Villentretenmerth | 7 | close | — | scorch | dek | Yes |
-| Villentretenmerth: 2 | 7 | close | — | scorch | dylan | No |
-| Yarpen Zigrin | 2 | close | — | — | — | Yes |
-| Yennefer of Vengerberg | 7 | ranged | hero | medic | dek | Yes |
-| Zoltan Chivay | 5 | close | — | — | dek | Yes |
-| Zoltan Chivay: 2 | 5 | close | — | — | dylan | No |
+| Name | Strength | Range | Specialty | Ability | Owner | RFID |
+|------|----------|-------|-----------|---------|-------|------|
+| Avallac'h | 0 | close | hero | spy | Dylan Shanaghy | 72038567245 |
+| Ballista: 1 | 6 | siege |  |  |  | 687410072884 |
+| Ballista: 2 | 6 | siege |  |  |  | 415216454997 |
+| Biting Frost |  | close | weather |  | Dylan Shanaghy | 344937352588 |
+| Biting Frost: 1 |  | close | weather |  |  | 70998314254 |
+| Biting Frost: 2 |  | close | weather |  |  | 344265608686 |
+| Blue Stripes Commando: 1 | 4 | close |  | bond |  | 274958929373 |
+| Blue Stripes Commando: 2 | 4 | close |  | bond |  |  |
+| Catapult | 8 | siege |  | bond | Declan Shanaghy | 278582611200 |
+| Cirilla Fiona Elen Riannon | 15 | close | hero |  | Dylan Shanaghy | 827567459838 |
+| Cirilla Fiona Elen Riannon: 2 | 15 | close | hero |  | Dylan Shanaghy | 344936893829 |
+| Clear Weather |  |  | weather |  | Dylan Shanaghy | 412633484768 |
+| Clear Weather: 1 |  |  | weather |  |  | 2748534077 |
+| Clear Weather: 2 |  |  | weather |  | Declan Shanaghy | 964334538234 |
+| Commander's Horn |  | close, ranged, siege | commander |  | Dylan Shanaghy | 347621248293 |
+| Commander's Horn: 1 |  | close, ranged, siege | commander |  | Declan Shanaghy | 620696986138 |
+| Crinfrid Reavers Dragon Hunter | 5 | ranged |  | bond |  |  |
+| Dethmold | 6 | ranged |  |  |  | 2211663133 |
+| Dun Banner Medic | 5 | siege |  | medic |  | 687812594970 |
+| Emiel Regis | 5 | close |  | spy | Dylan Shanaghy | 141211094363 |
+| Emiel Regis Rohellec Terzieff | 5 | close |  |  | Dylan Shanaghy |  |
+| Esterad Thyssen | 10 | close | hero |  |  |  |
+| Gaunter O'Dimm: Darkness 1 | 4 | ranged |  | muster | Declan Shanaghy | 826006457614 |
+| Geralt of Rivia | 15 | close | hero |  | Dylan Shanaghy | 484825779458 |
+| Impenetrable Fog: 1 |  | ranged | weather |  |  | 2279689515 |
+| Impenetrable Fog: 2 |  | ranged | weather |  |  | 277643152763 |
+| Impenetrable Fog: 3 |  | ranged | weather |  | Declan Shanaghy | 277643152763 |
+| John Natalis | 10 | close | hero |  |  |  |
+| John Natalis: 2 | 10 | close | hero |  | Dylan Shanaghy | 1031980600621 |
+| Kaedweni Siege Expert: 1 | 1 | siege |  | morale |  | 275025972694 |
+| Kaedweni Siege Expert: 2 | 1 | siege |  | morale |  | 3151121700 |
+| Kaedweni Siege Expert: 3 | 1 | siege |  | morale |  | 277676707193 |
+| Keira Metz | 5 | ranged |  |  |  |  |
+| Kiera Metz | 5 | ranged |  |  |  | 757455736135 |
+| Nausicaa Cavalry Rider | 2 | close |  | bond | Dylan Shanaghy | 416106237201 |
+| Philippa Eilhart | 10 | ranged | hero |  | Declan Shanaghy | 208604843325 |
+| Poor Fucking Infantry: 1 | 1 | close |  | bond |  | 962523712853 |
+| Poor Fucking Infantry: 2 | 1 | close |  | bond |  | 482946993582 |
+| Prince Stennis | 5 | close |  | spy |  | 71099895090 |
+| Redanian Foot Soldier: 1 | 1 | close |  |  |  | 966147591613 |
+| Redanian Foot Soldier: 2 | 1 | close |  |  |  | 893653306735 |
+| Sabrina Glevissig | 4 | ranged |  |  |  | 964033727802 |
+| Scorch |  | close, ranged, siege | scorch |  | Declan Shanaghy | 552051232148 |
+| Sheldon Skaggs | 4 | ranged |  |  |  | 483517484365 |
+| Siege Tower: 1 | 6 | siege |  |  |  | 482863238581 |
+| Siege Tower: 2 | 6 | siege |  |  | Declan Shanaghy | 894658825474 |
+| Siegfried of Denesle | 5 | close |  |  |  | 483265891677 |
+| Sigismund Dijkstra | 4 | close |  | spy | Declan Shanaghy | 986860965 |
+| Síle de Tansarville | 5 | ranged |  |  |  | 828708703644 |
+| Thaler | 1 | siege |  | spy |  |  |
+| Torrential Rain |  | siege | weather |  |  | 343880781289 |
+| Trebuchet: 1 | 6 | siege |  |  |  | 416022809877 |
+| Trebuchet: 2 | 6 | siege |  |  |  | 966164499898 |
+| Triss Merigold | 7 | close | hero |  | Declan Shanaghy | 828539751860 |
+| Triss Merigold: 2 | 7 | close | hero |  | Dylan Shanaghy | 484322069798 |
+| Vernon Roche | 10 | close | hero |  |  |  |
+| Ves | 5 | close |  |  |  | 1031981583646 |
+| Villentretenmerth | 7 | close |  | scorch | Declan Shanaghy | 209829580150 |
+| Villentretenmerth: 2 | 7 | close |  | scorch | Dylan Shanaghy | 601902478 |
+| Villentretenmerth: 3 | 7 | close |  | scorch | Dylan Shanaghy |  |
+| Yarpen Zigrin | 2 | close |  |  |  | 138863267292 |
+| Yennefer of Vengerberg | 7 | ranged | hero | medic | Declan Shanaghy | 691167907280 |
+| Zoltan Chivay | 5 | close |  |  | Declan Shanaghy | 620730540568 |
+| Zoltan Chivay: 2 | 5 | close |  |  | Dylan Shanaghy | 415317249353 |
 
 ### Scoia'tael
 
-#### Leaders (5)
+#### Leader Cards
 
 | Name | Owner | RFID |
 |------|-------|------|
-| Francesca Findabair - Pureblood Elf | — | Yes |
-| Francesca Findabair - The Beautiful | Declan Shanaghy | Yes |
-| Francesca Findabair: Daisy of the Valley | — | Yes |
-| Francesca Findabair: Hope of the aen Seidhe | — | Yes |
-| Francesca Findabair: Queen of Dol Blathanna | — | Yes |
+| Francesca Findabair - Pureblood Elf |  | 141127404911 |
+| Francesca Findabair - The Beautiful | Declan Shanaghy | 553478147534 |
+| Francesca Findabair: Daisy of the Valley |  | 347336887591 |
+| Francesca Findabair: Hope of the aen Seidhe |  | 483299446111 |
+| Francesca Findabair: Queen of Dol Blathanna |  | 1031880920344 |
 
-#### Cards (63)
+#### Regular Cards
 
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Barclay Els | 6 | close, ranged | — | agile | — | No |
-| Biting Frost: 1 | — | close | weather | — | dek | Yes |
-| Biting Frost: 2 | — | close | weather | — | — | Yes |
-| Biting Frost: 3 | — | close | weather | — | — | Yes |
-| Ciaran aep Easnilie | 3 | close, ranged | — | agile | — | Yes |
-| Ciaran aep Easnillien | 3 | close, ranged | — | agile | — | No |
-| Cirilla Fiona Elen Riannon | 15 | close | hero | — | dek | Yes |
-| Clear Weather | — | — | weather | — | — | Yes |
-| Decoy | — | — | decoy | — | dylan | No |
-| Decoy: 1 | — | — | decoy | — | dek | Yes |
-| Decoy: 2 | — | — | decoy | — | dek | Yes |
-| Dennis Cranmer | 6 | close | — | — | — | Yes |
-| Dol Blathanna Archer: 1 | 4 | ranged | — | — | — | Yes |
-| Dol Blathanna Scout | 6 | close | — | spy | dylan | No |
-| Dol Blathanna Scout: 1 | 6 | close, ranged | — | agile | — | Yes |
-| Dol Blathanna Scout: 2 | 6 | close, ranged | — | agile | — | Yes |
-| Dwarven Skirmisher: 1 | 3 | close | — | muster | — | Yes |
-| Dwarven Skirmisher: 2 | 3 | close | — | muster | — | Yes |
-| Dwarven Skirmisher: 3 | 3 | close | — | muster | — | Yes |
-| Eithné | 10 | ranged | hero | — | — | No |
-| Eithné | 10 | ranged | hero | — | dylan | No |
-| Elven Skirmisher | 2 | ranged | — | muster | dylan | No |
-| Elven Skirmisher: 1 | 2 | ranged | — | muster | — | Yes |
-| Elven Skirmisher: 2 | 2 | ranged | — | muster | — | Yes |
-| Filavandrel aen Fidhail | 6 | close, ranged | — | agile | — | Yes |
-| Filavandrel aén Fidháil | 2 | close, ranged | — | agile | — | No |
-| Gaunter O'Dimm: Darkness | 4 | ranged | — | muster | dylan | No |
-| Gaunter O'Dimm: Darkness 1 | 4 | ranged | — | — | dek | Yes |
-| Geralt of Rivia | 15 | close | hero | — | dylan | No |
-| Havekar Healer | 0 | ranged | — | medic | — | Yes |
-| Havekar Smuggler: 1 | 5 | close | — | muster | — | Yes |
-| Havekar Smuggler: 2 | 5 | close | — | muster | — | No |
-| Havekar Smuggler: 3 | 5 | close | — | muster | — | No |
-| Ida Emean aep Sivney | 6 | ranged | — | — | — | Yes |
-| Impenetrable Fog: 1 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 2 | — | ranged | weather | — | — | Yes |
-| Iorveth | 10 | ranged | hero | — | — | Yes |
-| Isengrim Faoiltiarna | 10 | close | hero | morale | — | No |
-| Isengrim Faoiltiarna: 2 | 10 | close | hero | morale | dylan | No |
-| Mahakaman Defender: 1 | 5 | close | — | — | — | Yes |
-| Mahakaman Defender: 2 | 5 | close | — | — | — | Yes |
-| Mahakaman Defender: 3 | 5 | close | — | — | — | Yes |
-| Mahakaman Defender: 4 | 5 | close | — | — | dek | Yes |
-| Mahakaman Defender: 5 | 5 | close | — | — | dek | Yes |
-| Mahakaman Defender: 6 | 5 | close | — | muster | — | No |
-| Milva | 10 | ranged | — | morale | — | No |
-| Riordain | 1 | ranged | — | — | — | No |
-| Riordan | 1 | ranged | — | — | — | Yes |
-| Saesenthessis | 10 | ranged | hero | — | — | No |
-| Saesenthessis: 2 | 10 | ranged | hero | — | dylan | No |
-| Schirrú | 8 | siege | — | scorch | — | No |
-| Scorch | — | close, ranged, siege | scorch | — | dek | Yes |
-| Torrential Rain | — | siege | weather | — | — | Yes |
-| Toruviel | 2 | ranged | — | — | — | Yes |
-| Triss Merigold | 7 | close | hero | — | dylan | No |
-| Vesemir | 6 | close | — | — | dylan | No |
-| Villentretenmerth | 7 | close | — | scorch | dylan | No |
-| Vrihedd Brigade Recruit | 4 | ranged | — | — | — | Yes |
-| Vrihedd Brigade Veteran: 1 | 5 | close, ranged | — | agile | — | Yes |
-| Vrihedd Brigade Veteran: 2 | 5 | close, ranged | — | agile | — | Yes |
-| Yaevinn | 10 | close, ranged | — | agile | — | No |
-| Yaevinn: 2 | 6 | close | — | spy | dylan | No |
-| Zoltan Chivay | 5 | close | — | — | dylan | No |
+| Name | Strength | Range | Specialty | Ability | Owner | RFID |
+|------|----------|-------|-----------|---------|-------|------|
+| Barclay Els | 6 | close, ranged |  | agile |  |  |
+| Biting Frost: 1 |  | close | weather |  | Declan Shanaghy | 553545190897 |
+| Biting Frost: 2 |  | close | weather |  |  | 482376306092 |
+| Biting Frost: 3 |  | close | weather |  |  | 141278203231 |
+| Ciaran aep Easnilie | 3 | close, ranged |  | agile |  | 965006413278 |
+| Ciaran aep Easnillien | 3 | close, ranged |  | agile |  |  |
+| Cirilla Fiona Elen Riannon | 15 | close | hero |  | Declan Shanaghy | 416307170583 |
+| Clear Weather |  |  | weather |  |  | 482040696283 |
+| Decoy |  |  | decoy |  | Dylan Shanaghy | 1033793129936 |
+| Decoy: 1 |  |  | decoy |  | Declan Shanaghy | 619110092078 |
+| Decoy: 2 |  |  | decoy |  | Declan Shanaghy | 140825152881 |
+| Dennis Cranmer | 6 | close |  |  |  | 206307151272 |
+| Dol Blathanna Archer: 1 | 4 | ranged |  |  |  | 414814326117 |
+| Dol Blathanna Scout | 6 | close, ranged |  | agile | Dylan Shanaghy | 1032652541232 |
+| Dol Blathanna Scout: 1 | 6 | close, ranged |  | agile |  | 894978247969 |
+| Dol Blathanna Scout: 2 | 6 | close, ranged |  | agile |  | 416290655514 |
+| Dwarven Skirmisher: 1 | 3 | close |  | muster |  | 3118157103 |
+| Dwarven Skirmisher: 2 | 3 | close |  | muster |  | 550911036754 |
+| Dwarven Skirmisher: 3 | 3 | close |  | muster |  | 299584903 |
+| Eithné | 10 | ranged | hero |  |  |  |
+| Eithné | 10 | ranged | hero |  | Dylan Shanaghy | 277375372613 |
+| Elven Skirmisher | 2 | ranged |  | muster | Dylan Shanaghy | 618724805900 |
+| Elven Skirmisher: 1 | 2 | ranged |  | muster |  | 2648329482 |
+| Elven Skirmisher: 2 | 2 | ranged |  | muster |  | 414143106459 |
+| Filavandrel aen Fidhail | 6 | close, ranged |  | agile |  | 206340509101 |
+| Filavandrel aén Fidháil | 2 | close, ranged |  | agile |  |  |
+| Gaunter O'Dimm: Darkness | 4 | ranged |  | muster | Dylan Shanaghy | 69303946665 |
+| Gaunter O'Dimm: Darkness 1 | 4 | ranged |  |  | Declan Shanaghy | 1272335824 |
+| Geralt of Rivia | 15 | close | hero |  | Dylan Shanaghy | 70999231800 |
+| Havekar Healer | 0 | ranged |  | medic |  | 1032534445315 |
+| Havekar Smuggler: 1 | 5 | close |  | muster |  | 619378724145 |
+| Havekar Smuggler: 2 | 5 | close |  | muster |  |  |
+| Havekar Smuggler: 3 | 5 | close |  | muster |  |  |
+| Ida Emean aep Sivney | 6 | ranged |  |  |  | 621761023430 |
+| Impenetrable Fog: 1 |  | ranged | weather |  |  | 964519546340 |
+| Impenetrable Fog: 2 |  | ranged | weather |  |  | 275428953589 |
+| Iorveth | 10 | ranged | hero |  |  | 485060201733 |
+| Isengrim Faoiltiarna | 10 | close | hero | morale |  |  |
+| Isengrim Faoiltiarna: 2 | 10 | close |  | medic | Dylan Shanaghy | 893552643445 |
+| Mahakaman Defender: 1 | 5 | close |  |  |  | 964200713476 |
+| Mahakaman Defender: 2 | 5 | close |  |  |  | 482375847333 |
+| Mahakaman Defender: 3 | 5 | close |  |  |  | 278650047803 |
+| Mahakaman Defender: 4 | 5 | close |  |  | Declan Shanaghy | 484103834973 |
+| Mahakaman Defender: 5 | 5 | close |  |  | Declan Shanaghy | 206675922363 |
+| Mahakaman Defender: 6 | 5 | close |  | muster |  |  |
+| Milva | 10 | ranged |  | morale |  | 619848945004 |
+| Riordain | 1 | ranged |  |  |  |  |
+| Riordan | 1 | ranged |  |  |  | 552756202921 |
+| Saesenthessis | 10 | ranged | hero |  |  |  |
+| Saesenthessis: 2 | 10 | ranged | hero |  | Dylan Shanaghy | 966046928291 |
+| Schirrú | 8 | siege |  | scorch |  |  |
+| Scorch |  | close, ranged, siege | scorch |  | Declan Shanaghy | 895447682358 |
+| Torrential Rain |  | siege | weather |  |  | 69924703692 |
+| Toruviel | 2 | ranged |  |  |  | 206742900105 |
+| Triss Merigold | 7 | close | hero |  | Dylan Shanaghy | 137990000021 |
+| Vesemir | 6 | close |  |  | Dylan Shanaghy | 757958856026 |
+| Villentretenmerth | 7 | close |  | scorch | Dylan Shanaghy | 690917101038 |
+| Vrihedd Brigade Recruit | 4 | ranged |  |  |  | 209477520749 |
+| Vrihedd Brigade Veteran: 1 | 5 | close, ranged |  | agile |  | 71333924115 |
+| Vrihedd Brigade Veteran: 2 | 5 | close, ranged |  | agile |  | 894206037370 |
+| Yaevinn | 10 | close, ranged |  | agile |  |  |
+| Yaevinn: 2 | 6 | close, ranged |  | agile | Dylan Shanaghy | 207985200627 |
+| Zoltan Chivay | 5 | close |  |  | Dylan Shanaghy | 344601742843 |
 
 ### Skellige
 
-#### Leaders (2)
+#### Leader Cards
 
 | Name | Owner | RFID |
 |------|-------|------|
-| Crach an Craite | — | Yes |
-| King Bran | — | No |
+| Crach an Craite |  | 1033423375860 |
+| King Bran |  |  |
 
-#### Cards (65)
+#### Regular Cards
 
-| Name | Str | Range | Specialty | Ability | Owner | RFID |
-|------|-----|-------|-----------|---------|-------|------|
-| Avallac'h | 0 | close | — | spy | dylan | Yes |
-| Avallac'h: 2 | 0 | close | hero | spy | dylan | No |
-| Avallac'h: 3 | 0 | close | hero | spy | dylan | No |
-| Berserker | 4 | close | — | berserker | — | Yes |
-| Birna Bran | 2 | close | — | medic | — | Yes |
-| Biting Frost: 1 | — | close | weather | — | — | Yes |
-| Biting Frost: 2 | — | close | weather | — | — | Yes |
-| Blueboy Lugos | 6 | close | — | — | — | Yes |
-| Cerys | 4 | close | hero | — | — | No |
-| Cirilla Fiona Elen Riannon | 15 | close | hero | — | dylan | No |
-| Clan Brokvar Archer: 1 | 6 | ranged | — | — | — | Yes |
-| Clan Brokvar Archer: 2 | 6 | ranged | — | — | — | Yes |
-| Clan Dimun Pirate | 6 | ranged | — | scorch | — | No |
-| Clan Drummond Shield Maiden: 1 | 4 | close | — | bond | — | Yes |
-| Clan Drummond Shield Maiden: 2 | 4 | close | — | bond | dek | Yes |
-| Clan Heymaey Skald | 4 | close | — | — | — | No |
-| Clan Heymaey Skals | 4 | close | — | — | — | Yes |
-| Clan Tordarroch Armorsmith | 4 | close | — | — | — | Yes |
-| Clan an Craite Warrior: 1 | 6 | close | — | bond | — | Yes |
-| Clan an Craite Warrior: 2 | 6 | close | — | bond | — | Yes |
-| Clan an Craite Warrior: 3 | 6 | close | — | bond | — | Yes |
-| Clear Weather: 1 | — | — | weather | — | — | Yes |
-| Clear Weather: 2 | — | — | weather | — | dek | Yes |
-| Commander's Horn | — | close, ranged, siege | commander | — | dek | Yes |
-| Commander's Horn: 2 | — | — | commander | — | dylan | No |
-| Dandelion | 2 | close | — | commander | dek | Yes |
-| Decoy | — | — | decoy | — | dylan | No |
-| Decoy: 1 | — | — | decoy | — | dek | Yes |
-| Donar an Hindar | 4 | close | — | — | — | Yes |
-| Draig Bon-Dhu | 2 | siege | — | commander | dek | Yes |
-| Ermion | 8 | ranged | hero | — | — | No |
-| Gaunter O'Dimm: Darkness 1 | 4 | ranged | — | muster | dek | Yes |
-| Geralt of Rivia | 15 | close | hero | — | dylan | No |
-| Hemdall | 11 | close | hero | — | dylan | No |
-| Hjalmar | 10 | ranged | hero | — | — | Yes |
-| Holger Blackhand | 4 | siege | — | — | — | Yes |
-| Impenetrable Fog: 1 | — | ranged | weather | — | — | Yes |
-| Impenetrable Fog: 2 | — | ranged | weather | — | — | Yes |
-| Kambi | 12 | close, ranged | — | morale, agile | — | No |
-| Light Longship: 1 | 4 | ranged | — | muster | — | Yes |
-| Light Longship: 2 | 4 | ranged | — | muster | — | Yes |
-| Madman Lugos | 6 | close | — | — | — | Yes |
-| Mardroeme: 1 | — | — | mardroeme | — | — | Yes |
-| Olaf | 12 | close, ranged | — | agile, morale | dek | Yes |
-| Scorch: 1 | — | close, ranged, siege | scorch | — | dek | Yes |
-| Scorch: 2 | — | close, ranged, siege | scorch | — | dek | Yes |
-| Svanrige | 4 | close | — | — | — | Yes |
-| Torrential Rain | — | siege | weather | — | dylan | No |
-| Torrential Rain: 1 | — | siege | weather | — | — | Yes |
-| Torrential Rain: 2 | — | siege | weather | — | dek | Yes |
-| Transformed Vildkaarl | 14 | close | — | morale | — | Yes |
-| Transformed Young Vidkaarl | 8 | ranged | hero | bond | dylan | No |
-| Transformed Young Vildkaarl: 1 | 8 | ranged | — | bond | — | Yes |
-| Transformed Young Vildkaarl: 2 | 8 | ranged | — | bond | dek | Yes |
-| Triss Merigold | 7 | close | hero | — | dek | Yes |
-| Udalryk | 4 | close | — | — | — | No |
-| Udalyrk | 4 | close | — | — | — | Yes |
-| Vesemir | 6 | close | — | — | dylan | No |
-| Vesemir: 2 | 6 | close | — | — | dylan | No |
-| Villentretenmerth | 7 | close | — | scorch | dylan | No |
-| War Longship: 1 | 6 | siege | — | bond | — | Yes |
-| War Longship: 2 | 6 | siege | — | bond | — | Yes |
-| Young Berserker | 2 | ranged | — | berserker | — | Yes |
-| Zoltan Chivay | 5 | close | — | — | dek | Yes |
-| Zoltan Chivay: 2 | 5 | close | — | — | dylan | No |
+| Name | Strength | Range | Specialty | Ability | Owner | RFID |
+|------|----------|-------|-----------|---------|-------|------|
+| Avallac'h | 0 | close |  | spy | Dylan Shanaghy | 481285852652 |
+| Avallac'h: 2 | 0 | close | hero | spy | Dylan Shanaghy | 481285852652 |
+| Avallac'h: 3 | 0 | close | hero | spy | Dylan Shanaghy |  |
+| Berserker | 4 | close |  | berserker |  | 690934336982 |
+| Birna Bran | 2 | close |  | medic |  | 622315523548 |
+| Biting Frost: 1 |  | close | weather |  |  | 622214860262 |
+| Biting Frost: 2 |  | close | weather |  |  | 483601501504 |
+| Blueboy Lugos | 6 | close |  |  |  | 139836345606 |
+| Cerys | 4 | close | hero |  |  |  |
+| Cirilla Fiona Elen Riannon | 15 | close | hero |  | Dylan Shanaghy | 206826655118 |
+| Clan Brokvar Archer: 1 | 6 | ranged |  |  |  | 1340427751 |
+| Clan Brokvar Archer: 2 | 6 | ranged |  |  |  | 963161443592 |
+| Clan Dimun Pirate | 6 | ranged |  | scorch |  |  |
+| Clan Drummond Shield Maiden: 1 | 4 | close |  | bond |  | 347303333157 |
+| Clan Drummond Shield Maiden: 2 | 4 | close |  | bond | Declan Shanaghy | 72374373725 |
+| Clan Heymaey Skald | 4 | close |  |  |  |  |
+| Clan Heymaey Skals | 4 | close |  |  |  | 759989226988 |
+| Clan Tordarroch Armorsmith | 4 | close |  |  |  | 483483929935 |
+| Clan an Craite Warrior: 1 | 6 | close |  | bond |  | 414546414925 |
+| Clan an Craite Warrior: 2 | 6 | close |  | bond |  | 414143761829 |
+| Clan an Craite Warrior: 3 | 6 | close |  | bond |  | 275161304569 |
+| Clear Weather: 1 |  |  | weather |  |  | 895280696588 |
+| Clear Weather: 2 |  |  | weather |  | Declan Shanaghy | 139584294349 |
+| Commander's Horn |  | close, ranged, siege | commander |  | Declan Shanaghy | 1031041404264 |
+| Commander's Horn: 2 |  | close, ranged, siege | commander |  | Dylan Shanaghy | 1033389821426 |
+| Dandelion | 2 | close |  | commander | Declan Shanaghy | 415434427718 |
+| Decoy |  |  | decoy |  | Dylan Shanaghy | 756767083802 |
+| Decoy: 1 |  |  | decoy |  | Declan Shanaghy | 1033859976656 |
+| Donar an Hindar | 4 | close |  |  |  | 824900275553 |
+| Draig Bon-Dhu | 2 | siege |  | commander | Declan Shanaghy | 1033390149117 |
+| Ermion | 8 | ranged | hero |  |  |  |
+| Gaunter O'Dimm: Darkness 1 | 4 | ranged |  | muster | Declan Shanaghy | 347537624364 |
+| Geralt of Rivia | 15 | close | hero |  | Dylan Shanaghy |  |
+| Hemdall | 11 | close | hero |  | Dylan Shanaghy | 1033054211567 |
+| Hjalmar | 10 | ranged | hero |  |  | 2346863908 |
+| Holger Blackhand | 4 | siege |  |  |  | 897394560399 |
+| Impenetrable Fog: 1 |  | ranged | weather |  |  | 689071869280 |
+| Impenetrable Fog: 2 |  | ranged | weather |  |  | 893770681703 |
+| Kambi | 12 | close, ranged |  | morale, agile |  |  |
+| Light Longship: 1 | 4 | ranged |  | muster |  | 1033021509080 |
+| Light Longship: 2 | 4 | ranged |  | muster |  | 688702704981 |
+| Madman Lugos | 6 | close |  |  |  | 3990900032 |
+| Mardroeme: 1 |  |  | mardroeme |  |  | 965258268144 |
+| Olaf | 12 | close, ranged |  | agile, morale | Declan Shanaghy | 137587477951 |
+| Scorch: 1 |  | close, ranged, siege | scorch |  | Declan Shanaghy | 550625692967 |
+| Scorch: 2 |  | close, ranged, siege | scorch |  | Declan Shanaghy | 826225216783 |
+| Svanrige | 4 | close |  |  |  | 757254344018 |
+| Torrential Rain |  | siege | weather |  | Dylan Shanaghy |  |
+| Torrential Rain: 1 |  | siege | weather |  |  | 553780334019 |
+| Torrential Rain: 2 |  | siege | weather |  | Declan Shanaghy | 346061294931 |
+| Transformed Vildkaarl | 14 | close |  | morale |  | 138007301548 |
+| Transformed Young Vildkaarl | 8 | ranged |  | bond | Dylan Shanaghy | 619059563820 |
+| Transformed Young Vildkaarl: 1 | 8 | ranged |  | bond |  | 71703678259 |
+| Transformed Young Vildkaarl: 2 | 8 | ranged |  | bond | Declan Shanaghy | 619059563820 |
+| Transformed Young Vildkaarl: 3 | 8 | ranged |  | bond | Dylan Shanaghy |  |
+| Triss Merigold | 7 | close | hero |  | Declan Shanaghy | 553007992276 |
+| Udalryk | 4 | close |  |  |  |  |
+| Udalyrk | 4 | close |  |  |  | 208337325347 |
+| Vesemir | 6 | close |  |  | Dylan Shanaghy |  |
+| Vesemir: 2 | 6 | close |  |  | Dylan Shanaghy | 551263751541 |
+| Villentretenmerth | 7 | close |  | scorch | Dylan Shanaghy | 137519975869 |
+| War Longship: 1 | 6 | siege |  | bond |  | 550038883586 |
+| War Longship: 2 | 6 | siege |  | bond |  | 622231178716 |
+| Warcry |  |  | weather |  | Dylan Shanaghy |  |
+| Young Berserker | 2 | ranged |  | berserker |  | 895397809466 |
+| Zoltan Chivay | 5 | close |  |  | Declan Shanaghy | 482158005668 |
+| Zoltan Chivay: 2 | 5 | close |  |  | Dylan Shanaghy | 277777501557 |
 
-## 5. Anomalies
+## 5. Image Coverage
+
+### Image Statistics
+
+- **Cards with images**: 308 (90.3%)
+- **Cards without images**: 33 (9.7%)
+
+### Image Verification
+
+- **Verified** (`image_verified: true`): 274
+- **Unverified** (`image_verified: false`): 22
+- **No image**: 33
+
+### Cards with RFID but No Image
+
+| Name | Faction | Owner | RFID |
+|------|---------|-------|------|
+| Eredin: Commander of the Red Riders | Monsters |  | 552320978352 |
+| Vampire: Garkhain | Monsters |  | 552789757359 |
+| Etolian Auxillary Archers | Nilfgaardian |  | 345759829369 |
+| Fringilla Vigo | Nilfgaardian | Declan Shanaghy | 2312391952 |
+| Nausicaa Cavalry Rider | Northern Realms | Dylan Shanaghy | 416106237201 |
+| Ciaran aep Easnilie | Scoia'tael |  | 965006413278 |
+| Milva | Scoia'tael |  | 619848945004 |
+| Riordan | Scoia'tael |  | 552756202921 |
+| Udalyrk | Skellige |  | 208337325347 |
+
+### Cards without Images
+
+| Name | Faction | Owner |
+|------|---------|-------|
+| Crone: Whispess | Monsters |  |
+| Dimeritium Bomb | Monsters | Dylan Shanaghy |
+| Eredin: Commander of the Red Riders | Monsters |  |
+| Harpy | Monsters |  |
+| Toad | Monsters |  |
+| Vampire: Bruxa | Monsters |  |
+| Vampire: Ekimmara | Monsters |  |
+| Vampire: Garkhain | Monsters |  |
+| Albrich | Nilfgaardian |  |
+| Black Infantry Archer | Nilfgaardian |  |
+| Etolian Auxillary Archers | Nilfgaardian |  |
+| Fringilla Vigo | Nilfgaardian | Declan Shanaghy |
+| Heavy Zerrikanian Fire Scorpion | Nilfgaardian |  |
+| Letho of Gulet | Nilfgaardian |  |
+| Puttkamer | Nilfgaardian |  |
+| Sweers | Nilfgaardian |  |
+| Crinfrid Reavers Dragon Hunter | Northern Realms |  |
+| Esterad Thyssen | Northern Realms |  |
+| Nausicaa Cavalry Rider | Northern Realms | Dylan Shanaghy |
+| Thaler | Northern Realms |  |
+| Vernon Roche | Northern Realms |  |
+| Barclay Els | Scoia'tael |  |
+| Ciaran aep Easnilie | Scoia'tael |  |
+| Milva | Scoia'tael |  |
+| Riordan | Scoia'tael |  |
+| Schirrú | Scoia'tael |  |
+| Cerys | Skellige |  |
+| Clan Dimun Pirate | Skellige |  |
+| Ermion | Skellige |  |
+| Kambi | Skellige |  |
+| King Bran | Skellige |  |
+| Udalyrk | Skellige |  |
+| Warcry | Skellige | Dylan Shanaghy |
+
+## 6. Anomalies
 
 ### Cards with Owner but No RFID
 
-*64 cards*
-
 | Name | Faction | Owner | RFID |
 |------|---------|-------|------|
-| Avallac'h | Monsters | Dylan Shanaghy | No |
-| Commander's Horn | Monsters | Dylan Shanaghy | No |
-| Crone: Weavess | Monsters | Dylan Shanaghy | No |
-| Dandelion: 2 | Monsters | Dylan Shanaghy | No |
-| Draug | Monsters | Dylan Shanaghy | No |
-| Earth Elemental | Monsters | Dylan Shanaghy | No |
-| Leshen | Monsters | Dylan Shanaghy | No |
-| Scorch | Monsters | Dylan Shanaghy | No |
-| Triss Merigold | Monsters | Dylan Shanaghy | No |
-| Triss Merigold: 2 | Monsters | Dylan Shanaghy | No |
-| Vampire: Fleder | Monsters | Dylan Shanaghy | No |
-| Vampire: Katakan | Monsters | Dylan Shanaghy | No |
-| Vesemir | Monsters | Dylan Shanaghy | No |
-| Yennefer of Vengerberg | Monsters | Dylan Shanaghy | No |
-| Zoltan Chivay | Monsters | Dylan Shanaghy | No |
-| Avallac'h | Nilfgaardian | Dylan Shanaghy | No |
-| Cirilla Fiona Elen Riannon | Nilfgaardian | Dylan Shanaghy | No |
-| Etolian Auxiliary Archers: 2 | Nilfgaardian | Dylan Shanaghy | No |
-| Morteisen: 2 | Nilfgaardian | Dylan Shanaghy | No |
-| Nausicaa Cavalry Rider | Nilfgaardian | Dylan Shanaghy | No |
-| Scorch | Nilfgaardian | Dylan Shanaghy | No |
-| Villentretenmerth | Nilfgaardian | Dylan Shanaghy | No |
-| Villentretenmerth: 2 | Nilfgaardian | Dylan Shanaghy | No |
-| Yennefer of Vengerberg | Nilfgaardian | Dylan Shanaghy | No |
-| Yennefer of Vengerberg: 2 | Nilfgaardian | Dylan Shanaghy | No |
-| Avallac'h | Northern Realms | Dylan Shanaghy | No |
-| Biting Frost | Northern Realms | Dylan Shanaghy | No |
-| Cirilla Fiona Elen Riannon | Northern Realms | Dylan Shanaghy | No |
-| Clear Weather | Northern Realms | Dylan Shanaghy | No |
-| Commander's Horn | Northern Realms | Dylan Shanaghy | No |
-| Emiel Regis Rohellec Terzieff | Northern Realms | Dylan Shanaghy | No |
-| Foltest: The Steel-Forged: 2 | Northern Realms | Dylan Shanaghy | No |
-| Foltest: the Siegemaster: 2 | Northern Realms | Dylan Shanaghy | No |
-| Geralt of Rivia | Northern Realms | Dylan Shanaghy | No |
-| John Natalis: 2 | Northern Realms | Dylan Shanaghy | No |
-| Triss Merigold: 2 | Northern Realms | Dylan Shanaghy | No |
-| Villentretenmerth: 2 | Northern Realms | Dylan Shanaghy | No |
-| Zoltan Chivay: 2 | Northern Realms | Dylan Shanaghy | No |
-| Decoy | Scoia'tael | Dylan Shanaghy | No |
-| Dol Blathanna Scout | Scoia'tael | Dylan Shanaghy | No |
-| Eithné | Scoia'tael | Dylan Shanaghy | No |
-| Elven Skirmisher | Scoia'tael | Dylan Shanaghy | No |
-| Gaunter O'Dimm: Darkness | Scoia'tael | Dylan Shanaghy | No |
-| Geralt of Rivia | Scoia'tael | Dylan Shanaghy | No |
-| Isengrim Faoiltiarna: 2 | Scoia'tael | Dylan Shanaghy | No |
-| Saesenthessis: 2 | Scoia'tael | Dylan Shanaghy | No |
-| Triss Merigold | Scoia'tael | Dylan Shanaghy | No |
-| Vesemir | Scoia'tael | Dylan Shanaghy | No |
-| Villentretenmerth | Scoia'tael | Dylan Shanaghy | No |
-| Yaevinn: 2 | Scoia'tael | Dylan Shanaghy | No |
-| Zoltan Chivay | Scoia'tael | Dylan Shanaghy | No |
-| Avallac'h: 2 | Skellige | Dylan Shanaghy | No |
-| Avallac'h: 3 | Skellige | Dylan Shanaghy | No |
-| Cirilla Fiona Elen Riannon | Skellige | Dylan Shanaghy | No |
-| Commander's Horn: 2 | Skellige | Dylan Shanaghy | No |
-| Decoy | Skellige | Dylan Shanaghy | No |
-| Geralt of Rivia | Skellige | Dylan Shanaghy | No |
-| Hemdall | Skellige | Dylan Shanaghy | No |
-| Torrential Rain | Skellige | Dylan Shanaghy | No |
-| Transformed Young Vidkaarl | Skellige | Dylan Shanaghy | No |
-| Vesemir | Skellige | Dylan Shanaghy | No |
-| Vesemir: 2 | Skellige | Dylan Shanaghy | No |
-| Villentretenmerth | Skellige | Dylan Shanaghy | No |
-| Zoltan Chivay: 2 | Skellige | Dylan Shanaghy | No |
-
-### Cards with RFID but No Owner
-
-*164 cards*
-
-| Name | Faction | Owner | RFID |
-|------|---------|-------|------|
-| Arachas: 1 | Monsters | — | Yes |
-| Arachas: 2 | Monsters | — | Yes |
-| Arachas: Behemoth | Monsters | — | Yes |
-| Biting Frost: 1 | Monsters | — | Yes |
-| Biting Frost: 2 | Monsters | — | Yes |
-| Celaeno Harpy | Monsters | — | Yes |
-| Clear Weather: 1 | Monsters | — | Yes |
-| Cockatrice | Monsters | — | Yes |
-| Crone: Brewess | Monsters | — | Yes |
-| Endrega | Monsters | — | Yes |
-| Eredin - King of the Wild Hunt | Monsters | — | Yes |
-| Eredin Bréacc Glas: the Treacherous | Monsters | — | Yes |
-| Eredin: Bringer of Death | Monsters | — | Yes |
-| Eredin: Commander of the Red Riders | Monsters | — | Yes |
-| Eredin: Destroyer of Worlds | Monsters | — | Yes |
-| Fire Elemental | Monsters | — | Yes |
-| Forktail | Monsters | — | Yes |
-| Frightener | Monsters | — | Yes |
-| Gargoyle | Monsters | — | Yes |
-| Ghoul: 1 | Monsters | — | Yes |
-| Ghoul: 2 | Monsters | — | Yes |
-| Grave Hag | Monsters | — | Yes |
-| Griffin | Monsters | — | Yes |
-| Ice Giant | Monsters | — | Yes |
-| Imlerith | Monsters | — | Yes |
-| Impenetrable Fog: 1 | Monsters | — | Yes |
-| Impenetrable Fog: 2 | Monsters | — | Yes |
-| Kayran | Monsters | — | Yes |
-| Nekker: 1 | Monsters | — | Yes |
-| Plague Maiden | Monsters | — | Yes |
-| Torrential Rain | Monsters | — | Yes |
-| Vampire: Garkhain | Monsters | — | Yes |
-| Werewolf | Monsters | — | Yes |
-| Wyvern | Monsters | — | Yes |
-| Assire var Anahid | Nilfgaardian | — | Yes |
-| Biting Frost: 1 | Nilfgaardian | — | Yes |
-| Biting Frost: 2 | Nilfgaardian | — | Yes |
-| Cahir Mawr Dyffryn aep Ceallach | Nilfgaardian | — | Yes |
-| Clear Weather: 1 | Nilfgaardian | — | Yes |
-| Cynthia | Nilfgaardian | — | Yes |
-| Emhyr var Emreis - His Imperial Majesty | Nilfgaardian | — | Yes |
-| Emhyr var Emreis: Emperor of Nilfgaard | Nilfgaardian | — | Yes |
-| Emhyr var Emreis: Invader of the North | Nilfgaardian | — | Yes |
-| Emhyr var Emreis: The White Flame | Nilfgaardian | — | Yes |
-| Etolian Auxillary Archers | Nilfgaardian | — | Yes |
-| Impenetrable Fog: 1 | Nilfgaardian | — | Yes |
-| Impenetrable Fog: 2 | Nilfgaardian | — | Yes |
-| Impera Brigade Guard: 1 | Nilfgaardian | — | Yes |
-| Impera Brigade Guard: 2 | Nilfgaardian | — | Yes |
-| Impera Brigade Guard: 3 | Nilfgaardian | — | Yes |
-| Nausicaa Cavalry Rider: 1 | Nilfgaardian | — | Yes |
-| Nausicaa Cavalry Rider: 2 | Nilfgaardian | — | Yes |
-| Rainfarn | Nilfgaardian | — | Yes |
-| Renauld aep Matsen | Nilfgaardian | — | Yes |
-| Rotten Mangonel | Nilfgaardian | — | Yes |
-| Shilard Fitz-Oesterlen | Nilfgaardian | — | Yes |
-| Siege Engineer | Nilfgaardian | — | Yes |
-| Siege Technician | Nilfgaardian | — | Yes |
-| Stefan Skellen | Nilfgaardian | — | Yes |
-| Tibor Eggebracht | Nilfgaardian | — | Yes |
-| Torrential Rain | Nilfgaardian | — | Yes |
-| Vanhemar | Nilfgaardian | — | Yes |
-| Vattier de Rideaux | Nilfgaardian | — | Yes |
-| Vreemde | Nilfgaardian | — | Yes |
-| Young Emissary: 1 | Nilfgaardian | — | Yes |
-| Zerrikanian Fire Scorpion | Nilfgaardian | — | Yes |
-| Ballista: 1 | Northern Realms | — | Yes |
-| Ballista: 2 | Northern Realms | — | Yes |
-| Biting Frost: 1 | Northern Realms | — | Yes |
-| Biting Frost: 2 | Northern Realms | — | Yes |
-| Blue Stripes Commando: 1 | Northern Realms | — | Yes |
-| Clear Weather: 1 | Northern Realms | — | Yes |
-| Dethmold | Northern Realms | — | Yes |
-| Dun Banner Medic | Northern Realms | — | Yes |
-| Foltest - King of Temeria | Northern Realms | — | Yes |
-| Foltest: Son of Medell | Northern Realms | — | Yes |
-| Foltest: The Steel-Forged | Northern Realms | — | Yes |
-| Foltest: the Siegemaster | Northern Realms | — | Yes |
-| Impenetrable Fog: 1 | Northern Realms | — | Yes |
-| Impenetrable Fog: 2 | Northern Realms | — | Yes |
-| Kaedweni Siege Expert: 1 | Northern Realms | — | Yes |
-| Kaedweni Siege Expert: 2 | Northern Realms | — | Yes |
-| Kaedweni Siege Expert: 3 | Northern Realms | — | Yes |
-| Kiera Metz | Northern Realms | — | Yes |
-| Poor Fucking Infantry: 1 | Northern Realms | — | Yes |
-| Poor Fucking Infantry: 2 | Northern Realms | — | Yes |
-| Prince Stennis | Northern Realms | — | Yes |
-| Redanian Foot Soldier: 1 | Northern Realms | — | Yes |
-| Redanian Foot Soldier: 2 | Northern Realms | — | Yes |
-| Sabrina Glevissig | Northern Realms | — | Yes |
-| Sheldon Skaggs | Northern Realms | — | Yes |
-| Siege Tower: 1 | Northern Realms | — | Yes |
-| Siegfried of Denesle | Northern Realms | — | Yes |
-| Síle de Tansarville | Northern Realms | — | Yes |
-| Torrential Rain | Northern Realms | — | Yes |
-| Trebuchet: 1 | Northern Realms | — | Yes |
-| Trebuchet: 2 | Northern Realms | — | Yes |
-| Ves | Northern Realms | — | Yes |
-| Yarpen Zigrin | Northern Realms | — | Yes |
-| Biting Frost: 2 | Scoia'tael | — | Yes |
-| Biting Frost: 3 | Scoia'tael | — | Yes |
-| Ciaran aep Easnilie | Scoia'tael | — | Yes |
-| Clear Weather | Scoia'tael | — | Yes |
-| Dennis Cranmer | Scoia'tael | — | Yes |
-| Dol Blathanna Archer: 1 | Scoia'tael | — | Yes |
-| Dol Blathanna Scout: 1 | Scoia'tael | — | Yes |
-| Dol Blathanna Scout: 2 | Scoia'tael | — | Yes |
-| Dwarven Skirmisher: 1 | Scoia'tael | — | Yes |
-| Dwarven Skirmisher: 2 | Scoia'tael | — | Yes |
-| Dwarven Skirmisher: 3 | Scoia'tael | — | Yes |
-| Elven Skirmisher: 1 | Scoia'tael | — | Yes |
-| Elven Skirmisher: 2 | Scoia'tael | — | Yes |
-| Filavandrel aen Fidhail | Scoia'tael | — | Yes |
-| Francesca Findabair - Pureblood Elf | Scoia'tael | — | Yes |
-| Francesca Findabair: Daisy of the Valley | Scoia'tael | — | Yes |
-| Francesca Findabair: Hope of the aen Seidhe | Scoia'tael | — | Yes |
-| Francesca Findabair: Queen of Dol Blathanna | Scoia'tael | — | Yes |
-| Havekar Healer | Scoia'tael | — | Yes |
-| Havekar Smuggler: 1 | Scoia'tael | — | Yes |
-| Ida Emean aep Sivney | Scoia'tael | — | Yes |
-| Impenetrable Fog: 1 | Scoia'tael | — | Yes |
-| Impenetrable Fog: 2 | Scoia'tael | — | Yes |
-| Iorveth | Scoia'tael | — | Yes |
-| Mahakaman Defender: 1 | Scoia'tael | — | Yes |
-| Mahakaman Defender: 2 | Scoia'tael | — | Yes |
-| Mahakaman Defender: 3 | Scoia'tael | — | Yes |
-| Riordan | Scoia'tael | — | Yes |
-| Torrential Rain | Scoia'tael | — | Yes |
-| Toruviel | Scoia'tael | — | Yes |
-| Vrihedd Brigade Recruit | Scoia'tael | — | Yes |
-| Vrihedd Brigade Veteran: 1 | Scoia'tael | — | Yes |
-| Vrihedd Brigade Veteran: 2 | Scoia'tael | — | Yes |
-| Berserker | Skellige | — | Yes |
-| Birna Bran | Skellige | — | Yes |
-| Biting Frost: 1 | Skellige | — | Yes |
-| Biting Frost: 2 | Skellige | — | Yes |
-| Blueboy Lugos | Skellige | — | Yes |
-| Clan Brokvar Archer: 1 | Skellige | — | Yes |
-| Clan Brokvar Archer: 2 | Skellige | — | Yes |
-| Clan Drummond Shield Maiden: 1 | Skellige | — | Yes |
-| Clan Heymaey Skals | Skellige | — | Yes |
-| Clan Tordarroch Armorsmith | Skellige | — | Yes |
-| Clan an Craite Warrior: 1 | Skellige | — | Yes |
-| Clan an Craite Warrior: 2 | Skellige | — | Yes |
-| Clan an Craite Warrior: 3 | Skellige | — | Yes |
-| Clear Weather: 1 | Skellige | — | Yes |
-| Crach an Craite | Skellige | — | Yes |
-| Donar an Hindar | Skellige | — | Yes |
-| Hjalmar | Skellige | — | Yes |
-| Holger Blackhand | Skellige | — | Yes |
-| Impenetrable Fog: 1 | Skellige | — | Yes |
-| Impenetrable Fog: 2 | Skellige | — | Yes |
-| Light Longship: 1 | Skellige | — | Yes |
-| Light Longship: 2 | Skellige | — | Yes |
-| Madman Lugos | Skellige | — | Yes |
-| Mardroeme: 1 | Skellige | — | Yes |
-| Svanrige | Skellige | — | Yes |
-| Torrential Rain: 1 | Skellige | — | Yes |
-| Transformed Vildkaarl | Skellige | — | Yes |
-| Transformed Young Vildkaarl: 1 | Skellige | — | Yes |
-| Udalyrk | Skellige | — | Yes |
-| War Longship: 1 | Skellige | — | Yes |
-| War Longship: 2 | Skellige | — | Yes |
-| Young Berserker | Skellige | — | Yes |
+| Dimeritium Bomb | Monsters | Dylan Shanaghy | |
+| Vampire: Katakan | Monsters | Dylan Shanaghy | |
+| Yennefer of Vengerberg | Monsters | Dylan Shanaghy | |
+| Cirilla Fiona Elen Riannon | Nilfgaardian | Dylan Shanaghy | |
+| Nausicaa Cavalry Rider | Nilfgaardian | Dylan Shanaghy | |
+| Emiel Regis Rohellec Terzieff | Northern Realms | Dylan Shanaghy | |
+| Villentretenmerth: 3 | Northern Realms | Dylan Shanaghy | |
+| Avallac'h: 3 | Skellige | Dylan Shanaghy | |
+| Geralt of Rivia | Skellige | Dylan Shanaghy | |
+| Torrential Rain | Skellige | Dylan Shanaghy | |
+| Transformed Young Vildkaarl: 3 | Skellige | Dylan Shanaghy | |
+| Vesemir | Skellige | Dylan Shanaghy | |
+| Warcry | Skellige | Dylan Shanaghy | |
 
 ### Misconfigured Starter Cards
 
-*2 cards — starter cards that have owner set (including leaders)*
-
 | Name | Faction | Owner | RFID |
 |------|---------|-------|------|
-| Emhyr var Emreis - The Relentless | Nilfgaardian | Declan Shanaghy | Yes |
-| Francesca Findabair - The Beautiful | Scoia'tael | Declan Shanaghy | Yes |
+| Emhyr var Emreis - The Relentless | Nilfgaardian | Declan Shanaghy | 413287665097 |
+| Francesca Findabair - The Beautiful | Scoia'tael | Declan Shanaghy | 553478147534 |

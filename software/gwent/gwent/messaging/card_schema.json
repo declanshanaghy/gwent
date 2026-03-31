@@ -44,6 +44,10 @@
       "description": "Flavour or ability text printed on the physical card",
       "type": "string"
     },
+    "image_verified": {
+      "description": "Whether the image field has been verified as the correct match for this specific card. false if a best-guess match was used (e.g. suffixed card using base image)",
+      "type": "boolean"
+    },
     "ranges": {
       "description": "Determines which row(s) the card applies to. Cards with agile ability can have more than one range and are placed in a row upon playing. The row chosen cannot change after placing.",
       "type": "array",

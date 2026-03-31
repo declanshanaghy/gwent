@@ -16,5 +16,6 @@
     "rfid": 481285852652,
     "rfid_written_at": "2026-03-29T04:13:25",
     "image": "../../images/Skellige/Avallach2.jpg",
-    "card_text": "You humans have unusual tastes."
+    "card_text": "You humans have unusual tastes.",
+    "image_verified": true
 }

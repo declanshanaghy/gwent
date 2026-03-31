@@ -9,5 +9,8 @@
     "starter": true,
     "rfid": 70998314254,
     "last_updated": "2026-03-27T23:30:41",
-    "rfid_written_at": "2026-03-27T23:30:41"
+    "rfid_written_at": "2026-03-27T23:30:41",
+    "image": "../../images/NorthernRealms/BitingFrost.jpg",
+    "image_verified": true,
+    "card_text": "Best part about frost \u2014 bodies of the fallen don't rot so quickly."
 }
