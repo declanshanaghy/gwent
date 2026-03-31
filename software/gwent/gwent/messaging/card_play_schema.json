@@ -16,12 +16,22 @@
         "deal_leader",
         "deal_to_hand",
         "update_score",
-        "update_gems"
+        "update_gems",
+        "play_card",
+        "remove_card",
+        "weather_change",
+        "commander_horn",
+        "muster",
+        "spy_draw",
+        "medic_resurrect",
+        "decoy_swap",
+        "transform",
+        "round_clear"
       ]
     },
     "player": {
       "type": "string",
-      "description": "The player this event is associated with",
+      "description": "The player who initiated this event",
       "enum": [
         "PLAYER.ONE",
         "PLAYER.TWO"
@@ -30,6 +40,40 @@
     "card": {
       "type": "object",
       "description": "The card associated with this event (See card_schema.json)",
+      "additionalProperties": true
+    },
+    "row": {
+      "type": "string",
+      "description": "The board row affected (close, ranged, siege)",
+      "enum": ["close", "ranged", "siege"]
+    },
+    "target_player": {
+      "type": "string",
+      "description": "The player whose board the card was placed on (for spy cards)",
+      "enum": ["PLAYER.ONE", "PLAYER.TWO"]
+    },
+    "reason": {
+      "type": "string",
+      "description": "Why a card was removed (scorch, scorch_ability, decoy, round_end)"
+    },
+    "weather_rows": {
+      "type": "array",
+      "description": "Current active weather rows after change",
+      "items": {"type": "string"}
+    },
+    "returned_card": {
+      "type": "object",
+      "description": "Card returned to hand by decoy swap",
+      "additionalProperties": true
+    },
+    "old_card": {
+      "type": "object",
+      "description": "Card before transformation (berserker)",
+      "additionalProperties": true
+    },
+    "new_card": {
+      "type": "object",
+      "description": "Card after transformation (berserker)",
       "additionalProperties": true
     },
     "score": {

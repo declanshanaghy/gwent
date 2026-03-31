@@ -19,7 +19,7 @@ PROVIDERS = {
     "none": NoneProvider,
 }
 
-DEFAULT_PROVIDER = "elevenlabs"
+DEFAULT_PROVIDER = "gtts"
 
 # Platform-local provider (no API key, no network)
 LOCAL_PROVIDER = "say" if platform.system() == "Darwin" else "piper"

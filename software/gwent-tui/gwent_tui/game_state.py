@@ -74,6 +74,10 @@ class GameState:
         # Deal tracking (cards dealt in real-time via MQTT)
         self.dealt_cards = {P1: [], P2: []}
 
+        # Last played card for image overlay
+        self.last_played_card = None
+        self.last_played_time = 0.0
+
         # Event log (recent events for footer)
         self.last_prompt = ""
         self.last_prompt_time = ""
@@ -83,7 +87,7 @@ class GameState:
         self.last_announcement = ""
         self.last_card_read = None
         self.last_card_read_time = ""
-        self._event_log = deque(maxlen=20)
+        self._event_log = deque(maxlen=50)
         self.mqtt_status = "off"    # off, polling, processing, error
         self.http_status = "off"    # off, polling, processing, error
         self.server_tts = ""       # server TTS provider name (from snapshot)
@@ -252,9 +256,9 @@ class GameState:
             return False
         return True
 
-    def _highlight(self, key):
+    def _highlight(self, key, ttl=None):
         """Mark a key as highlighted."""
-        self.highlights[key] = time.monotonic() + self.HIGHLIGHT_TTL
+        self.highlights[key] = time.monotonic() + (ttl or self.HIGHLIGHT_TTL)
 
     def _expire_ghosts(self):
         """Remove expired ghost entries."""
@@ -502,9 +506,15 @@ class GameState:
         return self._event_log
 
     def _log_event(self, msg):
-        """Append a timestamped event to the log."""
+        """Append a timestamped event to the log and write to file."""
         ts = datetime.now().strftime("%H:%M:%S")
-        self._event_log.append(f"{ts} {msg}")
+        entry = f"{ts} {msg}"
+        self._event_log.append(entry)
+        try:
+            with open("/tmp/logs/gwent-tui-events.log", "a") as f:
+                f.write(entry + "\n")
+        except Exception:
+            pass
 
     # --- MQTT event handlers ---
 
@@ -578,8 +588,34 @@ class GameState:
                 self.dealt_cards[p].append(card)
                 self._log_event(f"\U0001f0cf {name} \u2192 {p}")
             elif subkind in ("play_card", "place_card"):
-                row = card.get("ranges", [""])[0] if card.get("ranges") else ""
+                row = data.get("row", "")
+                if not row:
+                    row = card.get("ranges", [""])[0] if card.get("ranges") else ""
                 self._log_event(f"\u2694 {name} \u2192 {row or 'board'} ({p})")
+                self.last_played_card = card
+                self.last_played_time = time.time()
+            elif subkind == "muster":
+                row = data.get("row", "")
+                self._log_event(f"\U0001f4e3 Muster: {name} \u2192 {row} ({p})")
+                self.last_played_card = card
+                self.last_played_time = time.time()
+            elif subkind == "remove_card":
+                reason = data.get("reason", "")
+                self._log_event(f"\U0001f525 {name} destroyed ({reason}) ({p})")
+            elif subkind == "weather_change":
+                rows = data.get("weather_rows", [])
+                if rows:
+                    self._log_event(f"\u2601 Weather: {', '.join(rows)}")
+                else:
+                    self._log_event(f"\u2600 Weather cleared")
+            elif subkind == "commander_horn":
+                row = data.get("row", "")
+                self._log_event(f"\U0001f4ef Horn on {row} ({p})")
+            elif subkind == "decoy_swap":
+                returned = data.get("returned_card", {})
+                self._log_event(f"\U0001f3ad Decoy: {returned.get('name', '?')} returned ({p})")
+            elif subkind == "round_clear":
+                self._log_event(f"\U0001f3c1 Round cleared")
             elif subkind == "add_to_deck":
                 if p == P1:
                     self.reg_deck1.append(card)

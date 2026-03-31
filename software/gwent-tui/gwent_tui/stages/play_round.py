@@ -14,7 +14,7 @@ class PlayRoundStage(Horizontal):
     PlayRoundStage #left { width: 1fr; height: 1fr; overflow: hidden; }
     PlayRoundStage #right { width: 1fr; height: 1fr; overflow: hidden; }
     PlayRoundStage #board-area { height: 1fr; }
-    PlayRoundStage #discard-area { height: auto; }
+    PlayRoundStage #discard-area { height: auto; min-height: 3; }
     PlayRoundStage #scoreboard { height: auto; max-height: 6; }
     PlayRoundStage #hands-area { height: auto; }
     PlayRoundStage #decks-area { height: auto; }

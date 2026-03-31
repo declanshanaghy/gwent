@@ -1408,6 +1408,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
 
+            # Publish weather cleared
+            weather_msg = gwent.messaging.card_play.Message.with_weather_change(
+                str(cur), list(self._board.weather_rows))
+            self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), weather_msg)
+
             if recovered > 0:
                 commentary = random.choice(self._CLEAR_COMMENTARY).format(
                     recovered=recovered)
@@ -1425,6 +1430,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
             for row in card.ranges:
                 if row in ROWS:
                     self._board.weather_rows.add(row)
+
+            # Publish weather applied
+            weather_msg = gwent.messaging.card_play.Message.with_weather_change(
+                str(cur), list(self._board.weather_rows))
+            self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), weather_msg)
 
             score_after = sum(
                 self._board.calculate_player_score(p)
@@ -1534,6 +1544,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.remove_from_hand(cur, decoy)
         self._board.hands[cur].append(target)
 
+        # Publish decoy swap event
+        swap_msg = gwent.messaging.card_play.Message.with_decoy_swap(str(cur), decoy, target, row_name)
+        self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), swap_msg)
+
         self._pending_card = None
         self._announce_and_advance(
             self._msg_decoy(label, target.name, row_name))
@@ -1564,6 +1578,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._board.players[player].rows[rn].remove(c)
             self._board.players[player].discard.append(c)
             destroyed.append(c)
+            # Publish remove_card for each scorched card
+            rm_msg = gwent.messaging.card_play.Message.with_remove_card(str(player), c, rn, "scorch")
+            self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player)), rm_msg)
 
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
@@ -1584,6 +1601,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         for row in card.ranges:
             if row in ROWS:
                 self._board.commander_horn_rows[cur].add(row)
+                # Publish commander horn event
+                horn_msg = gwent.messaging.card_play.Message.with_commander_horn(str(cur), row)
+                self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), horn_msg)
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
         label = self._player_label(cur)
@@ -2116,6 +2136,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.place_card(target, card, row_name)
         self._board.remove_from_hand(cur, card)
 
+        # Publish play_card event with full card data
+        play_msg = gwent.messaging.card_play.Message.with_play_card(
+            str(cur), card, row_name,
+            target_player=str(target) if is_spy else None)
+        topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur))
+        self.publish(topic, play_msg)
+
         self._log.info({
             'action': 'card_placed',
             'player': str(cur),
@@ -2180,6 +2207,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
             opp = self._board.opponent(cur)
             destroyed = self._board.destroy_strongest(opp, row_name)
             if destroyed:
+                for dc in destroyed:
+                    rm_msg = gwent.messaging.card_play.Message.with_remove_card(
+                        str(opp), dc, row_name, "scorch_ability")
+                    self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(opp)), rm_msg)
                 scorched = ", ".join(c.name for c in destroyed)
                 self._announce_and_advance(
                     self._msg_scorch(label, card.name, scorched))
@@ -2268,17 +2299,21 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     @staticmethod
     def _muster_base_name(name):
-        """Extract muster base name: 'Arachas: 1' → 'Arachas', 'Arachas: Behemoth' → 'Arachas: Behemoth'.
-        Only strips ': N' suffix where N is a digit. Non-numeric suffixes are part of the base name."""
+        """Extract muster base name by stripping ': suffix'.
+        'Arachas: 1' → 'Arachas', 'Crone: Brewess' → 'Crone',
+        'Vampire: Fleder' → 'Vampire', 'Geralt of Rivia' → 'Geralt of Rivia'.
+        All ': X' suffixes are stripped for muster matching."""
         parts = name.rsplit(": ", 1)
-        if len(parts) == 2 and parts[1].strip().isdigit():
+        if len(parts) == 2:
             return parts[0].strip()
         return name
 
     @staticmethod
     def _is_muster_match(muster_base, candidate_name):
-        """Check if candidate matches the muster base name.
-        'Arachas' matches 'Arachas: 2' but NOT 'Arachas: Behemoth'."""
+        """Check if candidate shares the same muster base name.
+        'Crone' matches 'Crone: Weavess', 'Crone: Whispess', 'Crone: Brewess'.
+        'Arachas' matches 'Arachas: 1', 'Arachas: 2'.
+        'Vampire' matches 'Vampire: Fleder', 'Vampire: Katakan'."""
         candidate_base = PlayRound._muster_base_name(candidate_name)
         return candidate_base == muster_base
 
@@ -2297,6 +2332,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._board.place_card(cur, hc, row)
                 self._board.remove_from_hand(cur, hc)
                 mustered.append(hc)
+                muster_msg = gwent.messaging.card_play.Message.with_muster(str(cur), hc, row)
+                self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), muster_msg)
 
         # From deck
         for dc in list(self._board.decks[cur]):
@@ -2305,6 +2342,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._board.place_card(cur, dc, row)
                 self._board.decks[cur].remove(dc)
                 mustered.append(dc)
+                muster_msg = gwent.messaging.card_play.Message.with_muster(str(cur), dc, row)
+                self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), muster_msg)
 
         label = self._player_label(cur)
         if mustered:

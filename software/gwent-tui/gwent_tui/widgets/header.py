@@ -31,18 +31,17 @@ _TTS_COLOR = {
     "off": "red", "?": "grey50", "auto": "grey50",
 }
 
-
 _STAGE_ICON = {
-    "MainMenu":        "\U0001f3e0",  # house
-    "RegisterLeaders": "\U0001f451",  # crown
-    "RegisterDecks":   "\U0001f0cf",  # playing card
-    "DealCards":       "\U0001f3b4",  # flower playing card
-    "PlayRound":       "\u2694",  # crossed swords
-    "RoundEnd":        "\U0001f3c1",  # chequered flag
-    "GameOver":        "\U0001f3c6",  # trophy
-    "DisplayWinner":   "\U0001f3c6",  # trophy
-    "Offline":         "\u26a0",  # warning
-    "—":               "\u23f3",      # hourglass
+    "MainMenu":        "\U0001f3e0",
+    "RegisterLeaders": "\U0001f451",
+    "RegisterDecks":   "\U0001f0cf",
+    "DealCards":       "\U0001f3b4",
+    "PlayRound":       "\u2694",
+    "RoundEnd":        "\U0001f3c1",
+    "GameOver":        "\U0001f3c6",
+    "DisplayWinner":   "\U0001f3c6",
+    "Offline":         "\u26a0",
+    "\u2014":          "\u23f3",
 }
 
 
@@ -62,11 +61,10 @@ class HeaderWidget(Static):
     def render(self):
         state = self.app.state
 
+        # --- Row 1: status bar ---
         stage_icon = _STAGE_ICON.get(state.stage, "\u2753")
         stage_label = f" {stage_icon} [dim]{state.stage}[/dim]"
-        round_label = f"\u2694 Round {state.round_number} \u2694"
 
-        # Status indicators
         mqtt_icon, mqtt_c = _CONN_ICON.get(state.mqtt_status, ("\u2753", "grey50"))
         http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))
         server_tts = state.server_tts or "?"
@@ -80,34 +78,35 @@ class HeaderWidget(Static):
         c_color = _TTS_COLOR.get(client_tts, "grey50")
         pt = snapshot_mod.POLL_TIMEOUT
         status_str = (
-            f"{mqtt_icon} [{mqtt_c}]MQTT[/{mqtt_c}] | "
-            f"{http_icon} [{http_c}]HTTP[/{http_c}] | "
+            f"{mqtt_icon} [{mqtt_c}]MQTT[/{mqtt_c}] "
+            f"{http_icon} [{http_c}]HTTP[/{http_c}] "
             f"\U0001f50a [{s_color}]s:{server_tts}[/{s_color}] [{c_color}]c:{client_tts}[/{c_color}] "
             f"\U0001f504 {pt}s"
         )
 
-        # Row 1: stage | round | status
         row1 = Table(box=None, expand=True, show_header=False, padding=0)
         row1.add_column(justify="left", ratio=1)
-        row1.add_column(justify="center", ratio=1)
         row1.add_column(justify="right", ratio=1)
         row1.add_row(
             Text.from_markup(stage_label),
-            Text.from_markup(round_label),
             Text.from_markup(status_str),
         )
 
-        # Row 2: player labels — 50/50 split
+        # --- Row 2: P1 label | Round | P2 label ---
         row2 = Table(box=None, expand=True, show_header=False, padding=0)
-        row2.add_column(justify="left", ratio=1)
-        row2.add_column(justify="right", ratio=1)
+        row2.add_column(justify="left", ratio=2)
+        row2.add_column(justify="center", ratio=1)
+        row2.add_column(justify="right", ratio=2)
 
         if state.http_status == "error" or state.stage == "Offline":
             row2.add_row(
                 Text.from_markup(" \u26a0 [bold red]Server Offline[/bold red]"),
                 Text(""),
+                Text(""),
             )
         else:
+            round_label = f"\u2694 Round {state.round_number} \u2694"
+
             is_p1_turn = state.current_player == P1
             p1f = state.factions.get(P1, "")
             p2f = state.factions.get(P2, "")
@@ -123,23 +122,45 @@ class HeaderWidget(Static):
                 p1_style = p1_tc
                 p2_style = f"bold {p2_fg} on {p2_bg}"
 
-            # Full leader names — no shortening
+            # Player name (model name or "Player 1")
+            p1_pname = state.player_names.get(P1, "")
+            p2_pname = state.player_names.get(P2, "")
+
+            # Leader name (short)
             p1_leader = state.leaders.get(P1)
             p2_leader = state.leaders.get(P2)
-            p1_full = p1_leader.get("name", "P1") if p1_leader else "P1"
-            p2_full = p2_leader.get("name", "P2") if p2_leader else "P2"
+            p1_lname = (p1_leader.get("name", "") if p1_leader else "").split(":")[0].split(" - ")[0].strip()
+            p2_lname = (p2_leader.get("name", "") if p2_leader else "").split(":")[0].split(" - ")[0].strip()
 
-            # Player name prefix if custom
-            p1_pname = state.player_names.get(P1, "Player 1")
-            p2_pname = state.player_names.get(P2, "Player 2")
-            p1_display = f"{p1_pname}: {p1_full}" if p1_pname not in ("Player 1", "") else p1_full
-            p2_display = f"{p2_pname}: {p2_full}" if p2_pname not in ("Player 2", "") else p2_full
+            # Build display: "emoji Name (Leader) emoji" or just "emoji Faction emoji"
+            if p1_pname and p1_pname not in ("Player 1",):
+                p1_text = f"{p1_pname}"
+                if p1_lname:
+                    p1_text += f" ({p1_lname})"
+            elif p1_lname:
+                p1_text = p1_lname
+            else:
+                p1_text = p1f or "P1"
 
-            p1_label = f"{p1e[0]}{p1e[1]} [{p1_style}]{p1_display}[/{p1_style}]"
-            p2_label = f"[{p2_style}]{p2_display}[/{p2_style}] {p2e[0]}{p2e[1]}"
+            if p2_pname and p2_pname not in ("Player 2",):
+                p2_text = f"{p2_pname}"
+                if p2_lname:
+                    p2_text += f" ({p2_lname})"
+            elif p2_lname:
+                p2_text = p2_lname
+            else:
+                p2_text = p2f or "P2"
+
+            # Gems
+            p1_gems = self._gems(state.gems.get(P1, 2))
+            p2_gems = self._gems(state.gems.get(P2, 2))
+
+            p1_label = f" {p1e[0]}{p1e[1]} [{p1_style}]{p1_text}[/{p1_style}] {p1_gems}"
+            p2_label = f"{p2_gems} [{p2_style}]{p2_text}[/{p2_style}] {p2e[0]}{p2e[1]} "
 
             row2.add_row(
                 Text.from_markup(p1_label),
+                Text.from_markup(round_label),
                 Text.from_markup(p2_label),
             )
 

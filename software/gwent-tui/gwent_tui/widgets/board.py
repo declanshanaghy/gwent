@@ -76,7 +76,7 @@ class ScoreboardWidget(Static):
 
         # Leader names with faction emoji — chop middle if too long
         from gwent_tui.widgets.header import _leader_nick
-        max_name = 20
+        max_name = 14
         p1_leader = state.leaders.get(P1)
         p2_leader = state.leaders.get(P2)
         p1_nick = _leader_nick(p1_leader) if p1_leader else ""
@@ -101,14 +101,14 @@ class ScoreboardWidget(Static):
         p1_leader_str = f"{p1e[0]}{p1e[1]} [{p1_fc}]{p1_nick}[/{p1_fc}]" if p1_nick else ""
         p2_leader_str = f"[{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[0]}{p2e[1]}" if p2_nick else ""
 
-        # Build: P1 info | score | P2 info
-        left = f"{p1_leader_str}  {p1_gems_str} {p1_pass}"
+        # Build: P1 info | score | P2 info (gems first so they don't get clipped)
+        left = f"{p1_gems_str} {p1_pass} {p1_leader_str}"
         center = (
             f"\U0001f5e1 {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
             f"  \u2694  "
             f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1"
         )
-        right = f"{p2_pass} {p2_gems_str}  {p2_leader_str}"
+        right = f"{p2_leader_str} {p2_pass} {p2_gems_str}"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 0))
         table.add_column(ratio=4, justify="left", no_wrap=True)
@@ -160,7 +160,7 @@ class _BoardRows(Static):
         if has_horn:
             abilities.append(f"{COMMANDER}Horn\u00d72")
         if weather_active:
-            abilities.append(f"{WEATHER_EMOJI.get(row_name, '')}Weather")
+            abilities.append(f"{WEATHER_EMOJI.get(row_name, '')}{WEATHER_NAME.get(row_name, 'Weather')}")
 
         ability_str = " ".join(abilities)
         if ability_str:
@@ -169,6 +169,12 @@ class _BoardRows(Static):
             header = f"[bold {rc}]{row_emoji} {row_name.title()}: {row_score}[/bold {rc}]"
 
         state = self.app.state
+
+        # Flash highlight when a card has just landed on this row
+        flash_key = f"flash:{player}:{row_name}" if player else ""
+        if flash_key and state.is_highlighted(flash_key):
+            header = f"[on dark_green]{header}[/on dark_green]"
+
         mn = self._max_name()
         half_weather = state.half_weather_penalty.get(player, False) if player else False
         lines = [header]

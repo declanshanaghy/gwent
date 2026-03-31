@@ -59,17 +59,12 @@ class _DecksContent(Static):
         for p1, p2 in zip(p1_cards, p2_cards):
             table.add_row(p1, p2)
 
-        p1_init = state.initial_deck_sizes[P1]
-        p2_init = state.initial_deck_sizes[P2]
-        p1_drawn = p1_init - p1_count if p1_init else 0
-        p2_drawn = p2_init - p2_count if p2_init else 0
-
-        def fmt(count, drawn, hl):
-            txt = f"{count}" if not drawn else f"{count} (-{drawn})"
+        def fmt(count, hl):
+            txt = str(count)
             return f"[on dark_green]{txt}[/on dark_green]" if hl else txt
 
-        p1_tag = fmt(p1_count, p1_drawn, p1_hl)
-        p2_tag = fmt(p2_count, p2_drawn, p2_hl)
+        p1_tag = fmt(p1_count, p1_hl)
+        p2_tag = fmt(p2_count, p2_hl)
         return Panel(table, title=f"\U0001f4e6 Deck ({p1_tag} | {p2_tag})")
 
 

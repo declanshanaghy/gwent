@@ -19,6 +19,7 @@ from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
 from gwent_tui.widgets.timers import TimersWidget
 from gwent_tui.stages import STAGE_WIDGETS, UnknownStage, OfflineStage
+from gwent_tui.widgets.card_overlay import CardImageOverlay
 import gwent_tui.snapshot as snapshot_mod
 
 log = logging.getLogger("gwent_tui.app")
@@ -37,8 +38,6 @@ def _configure_logging():
     )
     fh.setFormatter(fmt)
     root.addHandler(fh)
-    if os.path.exists(log_file) and os.path.getsize(log_file) > 0:
-        fh.doRollover()
 
 
 class GwentTUI(App):
@@ -47,13 +46,14 @@ class GwentTUI(App):
     TITLE = "Gwent TUI"
 
     CSS = """
-    Screen { layout: vertical; }
+    Screen { layout: vertical; layers: default overlay; }
     * { scrollbar-size: 0 0; }
     #header { height: 4; }
     #stage-container { height: 1fr; overflow: hidden; }
-    #bottom-bar { height: 7; }
+    #bottom-bar { height: 8; }
     #footer { width: 3fr; height: 100%; }
     #timers { width: 1fr; height: 100%; }
+    #card-overlay { layer: overlay; }
     """
 
     ENABLE_COMMAND_PALETTE = False
@@ -84,6 +84,7 @@ class GwentTUI(App):
         with Horizontal(id="bottom-bar"):
             yield FooterWidget(id="footer")
             yield TimersWidget(id="timers")
+        yield CardImageOverlay(id="card-overlay")
 
     def on_mount(self):
         log.info("gwent-tui starting (url=%s)", self._gwent_url)
@@ -131,6 +132,11 @@ class GwentTUI(App):
                 widget.refresh()
         except Exception:
             pass
+        # Update card image overlay (separate try to avoid swallowing errors)
+        try:
+            self.query_one("#card-overlay", CardImageOverlay).check_and_update()
+        except Exception as e:
+            log.debug("Card overlay error: %s", e)
 
     async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
@@ -250,8 +256,9 @@ class GwentTUI(App):
         provider = tts_mod._provider_name or "auto"
         try:
             data = json.dumps({"client_id": "gwent-tui", "provider": provider}).encode()
+            base_url = self._gwent_url.rsplit("/state", 1)[0]
             req = urllib.request.Request(
-                f"{self._gwent_url}/client-tts",
+                f"{base_url}/client-tts",
                 data=data,
                 method="PUT",
                 headers={"Content-Type": "application/json"},

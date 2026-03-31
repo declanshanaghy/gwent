@@ -194,23 +194,34 @@ class AnnouncementSync:
     def wait_all(self, timeout=60):
         """Block until all expected TTS sources finish playing.
 
-        First waits for at least one announcement_complete (long timeout
-        to allow TTS generation/download), then drains any remaining
-        announcements using a shorter gap timer.
-
-        If an announcement already arrived recently (within 10s), skip
-        the long Phase 1 wait and go straight to draining.
+        Waits for announcement_complete from all expected sources,
+        then drains any remaining announcements with a gap timer.
         """
         deadline = time.time() + timeout
         with self._lock:
-            recent = (time.time() - self._last_announcement_time) < 10.0
-            self._completed_sources.clear()
-        if not recent:
+            waiting_for = self._expected_sources - self._completed_sources
+        if waiting_for:
+            log(f"  \u23f3 Waiting for TTS: {waiting_for}")
+        else:
+            log_debug("  TTS: all sources already completed")
+
+        # Phase 1: wait for all expected sources to complete
+        while time.time() < deadline:
+            with self._lock:
+                if self._expected_sources.issubset(self._completed_sources):
+                    self._completed_sources.clear()
+                    log_debug("  TTS: all sources completed")
+                    break
             self._event.clear()
-            got = self._event.wait(timeout=min(30, timeout))
+            got = self._event.wait(timeout=min(30, deadline - time.time()))
             if not got:
+                with self._lock:
+                    still_waiting = self._expected_sources - self._completed_sources
+                    self._completed_sources.clear()
+                log(f"  \u26a0 TTS wait timed out (missing: {still_waiting})")
                 return
-        # Drain remaining
+
+        # Phase 2: drain any trailing announcements (gap timer)
         while time.time() < deadline:
             with self._lock:
                 self._completed_sources.clear()
@@ -640,12 +651,15 @@ def _provider(model):
     """Return (provider, model_id) from a model string.
 
     Prefixes: 'openai/' -> OpenAI, 'anthropic/' -> Anthropic,
-    'ollama/' -> Ollama (explicit), else Ollama (implicit).
+    'gemini/' -> Google Gemini, 'ollama/' -> Ollama (explicit),
+    else Ollama (implicit).
     """
     if model.startswith('openai/'):
         return 'openai', model[len('openai/'):]
     if model.startswith('anthropic/'):
         return 'anthropic', model[len('anthropic/'):]
+    if model.startswith('gemini/'):
+        return 'gemini', model[len('gemini/'):]
     if model.startswith('ollama/'):
         return 'ollama', model[len('ollama/'):]
     return 'ollama', model
@@ -743,6 +757,25 @@ def _call_ollama(ollama_url, model_id, messages):
     return resp.json()['choices'][0]['message']['content']
 
 
+def _call_gemini(model_id, messages):
+    """Call Google Gemini API via the OpenAI-compatible endpoint."""
+    log_debug(f"Calling Gemini: model={model_id}, messages={len(messages)}")
+    api_key = os.environ.get('GEMINI_API_KEY', '')
+    if not api_key:
+        raise RuntimeError("GEMINI_API_KEY not set")
+    # Gemini supports OpenAI-compatible chat completions
+    resp = requests.post(
+        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+        headers={'Authorization': f'Bearer {api_key}',
+                 'Content-Type': 'application/json'},
+        json={'model': model_id, 'messages': messages,
+              'temperature': 0.7,
+              'response_mime_type': 'application/json'},
+        timeout=120)
+    resp.raise_for_status()
+    return resp.json()['choices'][0]['message']['content']
+
+
 def call_llm(ollama_url, model, pnum, state_json):
     fp = f'/tmp/logs/llm-vs-p{pnum}.jsonl'
     with open(fp) as f:
@@ -762,6 +795,8 @@ def call_llm(ollama_url, model, pnum, state_json):
         content = _call_openai(model_id, msgs)
     elif provider == 'anthropic':
         content = _call_anthropic(model_id, msgs)
+    elif provider == 'gemini':
+        content = _call_gemini(model_id, msgs)
     else:
         content = _call_ollama(ollama_url, model_id, msgs)
     lat = int((time.time() - t0) * 1000)
@@ -1144,12 +1179,15 @@ def game_loop(args, board, sync):
             act = action.get('action', '?')
             card_name = action.get('card_name', '')
             reasoning = action.get('reasoning', '')
+            # Trim reasoning to first sentence for TTS
+            sentences = reasoning.replace('!', '.').replace('?', '.').split('.')
+            short_reasoning = sentences[0].strip() + '.' if sentences and sentences[0].strip() else ''
             if act == 'pass':
-                summary = f"{short_model} passes! {reasoning}"
+                summary = f"{short_model} passes! {short_reasoning}"
             elif act == 'play_leader':
-                summary = f"{short_model} uses their leader ability! {reasoning}"
+                summary = f"{short_model} uses their leader ability! {short_reasoning}"
             else:
-                summary = f"{short_model} plays {card_name}! {reasoning}"
+                summary = f"{short_model} plays {card_name}! {short_reasoning}"
             announce(summary, faction=faction)
 
             # Wait for commentary announcement to finish before executing
@@ -1230,7 +1268,7 @@ def game_loop(args, board, sync):
 def main():
     parser = argparse.ArgumentParser(
         description='LLM vs LLM Gwent game manager')
-    parser.add_argument('--model-p1', default='anthropic/claude-haiku-4-5-20251001',
+    parser.add_argument('--model-p1', default='anthropic/claude-sonnet-4-20250514',
                         help='Model for P1')
     parser.add_argument('--model-p2', default=None,
                         help='Model for P2 (defaults to --model-p1)')

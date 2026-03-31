@@ -169,13 +169,13 @@ def card_prefix(card):
 # - bg_color: used for highlighted backgrounds (header, active player)
 # - fg_on_bg: contrasting text when bg_color is the background
 FACTION_STYLE = {
-    "Monsters":        ("red",         "dark_red",       "white"),
-    "Nilfgaardian":    ("grey74",      "grey50",         "white"),
-    "Northern Realms": ("dodger_blue2", "dodger_blue2",     "white"),
-    "Scoia'tael":      ("green",       "dark_green",     "white"),
-    "Scoiatael":       ("green",       "dark_green",     "white"),
-    "Skellige":        ("medium_purple1", "blue",          "white"),
-    "Neutral":         ("white",       "grey30",         "white"),
+    "Monsters":        ("#ff0000",     "#8b0000",        "white"),
+    "Nilfgaardian":    ("#bdbdbd",     "#808080",        "white"),
+    "Northern Realms": ("#1e90ff",     "#1e90ff",        "white"),
+    "Scoia'tael":      ("#00ff00",     "#006400",        "white"),
+    "Scoiatael":       ("#00ff00",     "#006400",        "white"),
+    "Skellige":        ("#9370db",     "#0000ff",        "white"),
+    "Neutral":         ("#ffffff",     "#4d4d4d",        "white"),
 }
 
 # Convenience: just the text color (backwards compat)

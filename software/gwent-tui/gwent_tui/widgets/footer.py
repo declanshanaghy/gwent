@@ -1,4 +1,4 @@
-"""Footer widget: event log."""
+"""Footer widget: event log — auto-scrolls to show newest events."""
 
 from rich.panel import Panel
 from rich.text import Text
@@ -9,21 +9,15 @@ class FooterWidget(Static):
 
     def render(self):
         state = self.app.state
-        parts = []
+
+        # Calculate how many lines fit (widget height minus panel border)
+        available = max(1, self.size.height - 2)
 
         if state.event_log:
-            recent = list(state.event_log)[-8:]
-            for e in recent:
-                parts.append(f"[dim]{e}[/dim]")
-
-        if not parts:
-            parts.append("[dim]Waiting for events...[/dim]")
+            recent = list(state.event_log)[-available:]
+            parts = [Text.from_markup(f"[dim]{e}[/dim]") for e in recent]
+        else:
+            parts = [Text.from_markup("[dim]Waiting for events...[/dim]")]
 
         from rich.console import Group
-        renderables = []
-        for p in parts:
-            if isinstance(p, str):
-                renderables.append(Text.from_markup(p))
-            else:
-                renderables.append(p)
-        return Panel(Group(*renderables), title="Events", style="dim")
+        return Panel(Group(*parts), title="Events", style="dim")
