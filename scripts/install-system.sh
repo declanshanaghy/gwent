@@ -92,7 +92,8 @@ fi
 
 echo "Installing Python and development packages..."
 sudo apt-get install -y \
-  python3-dev python3-pip python3-venv python3-pil python3-wheel
+  python3-dev python3-pip python3-venv python3-pil python3-wheel \
+  python3-opencv
 
 echo "Installing build tools for native Python extensions..."
 sudo apt-get install -y \

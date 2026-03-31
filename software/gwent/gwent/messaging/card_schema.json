@@ -37,7 +37,11 @@
       "type": "string"
     },
     "image": {
-      "description": "URL for image of the card",
+      "description": "Relative file path or URL for the card's photo image",
+      "type": "string"
+    },
+    "card_text": {
+      "description": "Flavour or ability text printed on the physical card",
       "type": "string"
     },
     "ranges": {

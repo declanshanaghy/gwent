@@ -3,9 +3,12 @@
     "faction": "Skellige",
     "name": "Geralt of Rivia",
     "strength": 15,
-    "ranges": ["close"],
+    "ranges": [
+        "close"
+    ],
     "specialty": "hero",
     "owner": "Dylan Shanaghy",
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:44:00"
+    "last_updated": "2026-03-28T16:44:00",
+    "image": "../../images/Skellige/GeraltOfRivia-cropped.jpg"
 }
