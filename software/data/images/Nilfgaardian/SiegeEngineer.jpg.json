@@ -1,0 +1,12 @@
+{
+    "name": "Siege Engineer",
+    "faction": "Nilfgaardian",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "Wielded correctly, a protractor can be a deadly weapon.",
+    "processed_at": "2026-03-31T03:29:12",
+    "source_image": "SiegeEngineer.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/SiegeEngineer.json"
+}

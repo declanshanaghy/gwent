@@ -1,0 +1,9 @@
+{
+    "name": "Impenetrable Fog",
+    "faction": "Nilfgaardian",
+    "specialty": "weather",
+    "card_text": "A good commander's dream, a bad one's horror.",
+    "processed_at": "2026-03-31T03:26:38",
+    "source_image": "ImpenetrableFog2.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/ImpenetrableFog1.json"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Eredin Breacc Glas: The Treacherous",
+    "faction": "Monsters",
+    "specialty": "leader",
+    "card_text": "Passive - doubles the strength of all spy cards (affects both players). I'm enjoying this. You are my toy.",
+    "processed_at": "2026-03-31T03:41:16",
+    "source_image": "EredinBreaccGlasTheTreacherous.jpg",
+    "card_json_path": "software/data/cards/Monsters/EredinBraccGlasTheTreacherous.json"
+}

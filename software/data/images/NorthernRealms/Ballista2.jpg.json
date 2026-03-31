@@ -1,0 +1,15 @@
+{
+    "name": "Ballista",
+    "faction": "Northern Realms",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Usually we give 'em female names. Like Jenny? More like Bertha.",
+    "processed_at": "2026-03-31T03:15:19",
+    "source_image": "Ballista2.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Ballista2.json"
+}

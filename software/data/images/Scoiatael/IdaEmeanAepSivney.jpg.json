@@ -1,0 +1,12 @@
+{
+    "name": "Ida Emean aep Sivney",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "I am a Sage. My power lies in possessing knowledge. Not sharing it.",
+    "processed_at": "2026-03-31T03:02:51",
+    "source_image": "IdaEmeanAepSivney.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/IdaEmeanAepSivney.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Nausicaa Cavalry Rider",
+    "faction": "Nilfgaardian",
+    "strength": 2,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "The Emperor will teach the North discipline.",
+    "processed_at": "2026-03-31T03:25:44",
+    "source_image": "NausicaaCavalryRider3.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/NausicaaCavalryRider2.json"
+}

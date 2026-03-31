@@ -1,0 +1,12 @@
+{
+    "name": "Fiend",
+    "faction": "Monsters",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "A fiend looks a bit like a deer. An enormous, evil deer.",
+    "card_json_path": "software/data/cards/Monsters/Fiend.json",
+    "processed_at": "2026-03-31T01:30:54",
+    "source_image": "Fiend.jpg"
+}

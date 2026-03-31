@@ -1,0 +1,15 @@
+{
+    "name": "Menno Coehoorn",
+    "faction": "Nilfgaardian",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "I'll take an attentive reconnaissance unit over a line cavalry brigade any day.",
+    "card_json_path": "software/data/cards/Nilfgaardian/MennoCoehoorn.json",
+    "processed_at": "2026-03-31T01:56:43",
+    "source_image": "MennoCoehoorn.jpg"
+}

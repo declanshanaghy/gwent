@@ -1,0 +1,13 @@
+{
+    "name": "Cirilla Fiona Elen Riannon",
+    "faction": "Skellige",
+    "strength": 15,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "card_text": "Know when fairy tales cease to be tales. When people start believing in them.",
+    "processed_at": "2026-03-31T02:36:04",
+    "source_image": "CirillaFionaElenRiannon.jpg",
+    "card_json_path": "software/data/cards/Skellige/CirillaFionaElenRiannon.json"
+}

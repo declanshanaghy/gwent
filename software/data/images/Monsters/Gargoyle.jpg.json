@@ -1,0 +1,15 @@
+{
+    "name": "Gargoyle",
+    "faction": "Monsters",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Ancient sculptors nightmarish fantasies brought to life by bored mages.",
+    "processed_at": "2026-03-31T03:36:51",
+    "source_image": "Gargoyle.jpg",
+    "card_json_path": "software/data/cards/Monsters/Gargoyle.json"
+}

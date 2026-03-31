@@ -1,0 +1,12 @@
+{
+    "name": "Dol Blathanna Scout",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "They track like hounds, run like deer and kill like cold hearted bastards.",
+    "processed_at": "2026-03-31T02:53:43",
+    "source_image": "DolBlathannaScout3.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/DolBlathannaScout2.json"
+}

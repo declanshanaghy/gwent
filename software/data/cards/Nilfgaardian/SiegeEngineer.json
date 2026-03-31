@@ -9,5 +9,7 @@
     "strength": 6,
     "rfid": 1033055063514,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "image": "../../images/Nilfgaardian/SiegeEngineer.jpg",
+    "card_text": "Wielded correctly, a protractor can be a deadly weapon."
 }

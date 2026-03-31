@@ -1,0 +1,15 @@
+{
+    "name": "Vesemir",
+    "faction": "Monsters",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "If you're to be hanged, ask for water. Anything can happen before they fetch it.",
+    "processed_at": "2026-03-31T02:25:44",
+    "source_image": "Vesemir.jpg",
+    "card_json_path": "software/data/cards/Monsters/Vesemir.json"
+}

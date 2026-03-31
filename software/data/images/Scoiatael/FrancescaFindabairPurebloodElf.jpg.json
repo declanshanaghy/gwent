@@ -1,0 +1,9 @@
+{
+    "name": "Francesca Findabair: Pureblood Elf",
+    "faction": "Scoia'tael",
+    "specialty": "leader",
+    "card_text": "Pick a Biting Frost card from your deck and play it instantly. Ash shall fertilize the soil. By spring the valley shall bloom once more.",
+    "processed_at": "2026-03-31T03:03:41",
+    "source_image": "FrancescaFindabairPurebloodElf.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/FrancescaFindabairPurebloodElf.json"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Decoy",
+    "faction": "Skellige",
+    "specialty": "decoy",
+    "card_text": "When you run out of peasants, decoys also make decent arrow fodder.",
+    "card_json_path": "software/data/cards/Skellige/Decoy.json",
+    "processed_at": "2026-03-31T01:59:01",
+    "source_image": "Decoy.jpg"
+}

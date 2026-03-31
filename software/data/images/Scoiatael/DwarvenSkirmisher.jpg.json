@@ -1,0 +1,15 @@
+{
+    "name": "Dwarven Skirmisher",
+    "faction": "Scoia'tael",
+    "strength": 3,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Worked a pickaxe all me life. Battleaxe won't be any trouble.",
+    "processed_at": "2026-03-31T02:57:32",
+    "source_image": "DwarvenSkirmisher.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/DwarvenSkirmisher2.json"
+}

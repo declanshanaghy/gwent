@@ -1,0 +1,12 @@
+{
+    "name": "Blueboy Lugos",
+    "faction": "Skellige",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "I'm damn near ready to puke from boredom.",
+    "processed_at": "2026-03-31T03:12:54",
+    "source_image": "BlueboyLugos.jpg",
+    "card_json_path": "software/data/cards/Skellige/BlueboyLugos.json"
+}

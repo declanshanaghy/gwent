@@ -1,0 +1,12 @@
+{
+    "name": "Udalryk",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Haaaargh! After me, if ye've the bollocks!",
+    "processed_at": "2026-03-31T03:07:38",
+    "source_image": "Udalryk.jpg",
+    "card_json_path": "software/data/cards/Skellige/Udalryk.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Grave Hag",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Their long tongues're for slurping marrow and whipping prey.",
+    "processed_at": "2026-03-31T03:39:04",
+    "source_image": "GraveHag.jpg",
+    "card_json_path": "software/data/cards/Monsters/GraveHag.json"
+}

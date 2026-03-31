@@ -1,0 +1,12 @@
+{
+    "name": "Earth Elemental",
+    "faction": "Monsters",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "How do you fight an Earth Elemental? You don't. You run. Fast as you can.",
+    "processed_at": "2026-03-31T02:26:11",
+    "source_image": "EarthElemental.jpg",
+    "card_json_path": "software/data/cards/Monsters/EarthElemental.json"
+}

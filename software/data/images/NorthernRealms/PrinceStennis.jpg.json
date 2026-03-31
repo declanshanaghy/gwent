@@ -1,0 +1,15 @@
+{
+    "name": "Prince Stennis",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "He ploughin' wears golden armor. 'Course he's an arsehole.",
+    "processed_at": "2026-03-31T03:19:24",
+    "source_image": "PrinceStennis.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/PrinceStennis.json"
+}

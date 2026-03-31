@@ -12,5 +12,7 @@
     "specialty": "leader",
     "rfid": 208555822358,
     "last_updated": "2026-03-27T14:35:07",
-    "rfid_written_at": "2026-03-27T14:35:07"
+    "rfid_written_at": "2026-03-27T14:35:07",
+    "image": "../../images/NorthernRealms/FoltestSonOfMedell.jpg",
+    "card_text": "Destroy your enemy's strongest Ranged Combat unit(s) if the combined strength of that row is 10 or more."
 }

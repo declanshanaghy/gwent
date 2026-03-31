@@ -11,5 +11,7 @@
     "specialty": "leader",
     "rfid": 896253382124,
     "last_updated": "2026-03-27T14:35:07",
-    "rfid_written_at": "2026-03-27T14:35:07"
+    "rfid_written_at": "2026-03-27T14:35:07",
+    "image": "../../images/NorthernRealms/FoltestLordCommanderOfTheNorth.jpg",
+    "card_text": "Clear any weather effects in play."
 }

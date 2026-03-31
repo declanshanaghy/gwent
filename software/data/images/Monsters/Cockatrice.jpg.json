@@ -1,0 +1,12 @@
+{
+    "name": "Cockatrice",
+    "faction": "Monsters",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Born of an egg laid by a cockerel...if you believe such peasant drivel.",
+    "processed_at": "2026-03-31T03:38:18",
+    "source_image": "Cockatrice.jpg",
+    "card_json_path": "software/data/cards/Monsters/Cockatrice.json"
+}

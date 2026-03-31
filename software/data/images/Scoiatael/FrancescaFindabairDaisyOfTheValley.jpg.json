@@ -1,0 +1,9 @@
+{
+    "name": "Francesca Findabair: Daisy of the Valley",
+    "faction": "Scoia'tael",
+    "specialty": "leader",
+    "card_text": "Draw an extra card at the beginning of the battle.",
+    "processed_at": "2026-03-31T03:02:26",
+    "source_image": "FrancescaFindabairDaisyOfTheValley.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/FrancescaFindabairDaisyOfTheValley.json"
+}

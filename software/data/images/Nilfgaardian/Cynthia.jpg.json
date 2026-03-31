@@ -1,0 +1,12 @@
+{
+    "name": "Cynthia",
+    "faction": "Nilfgaardian",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Cynthia's talents can be deadly. She needs a tight leash.",
+    "processed_at": "2026-03-31T03:26:48",
+    "source_image": "Cynthia.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/Cynthia.json"
+}

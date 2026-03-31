@@ -1,0 +1,12 @@
+{
+    "name": "Philippa Eilhart",
+    "faction": "Northern Realms",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Soon the power of kings will wither, and the Lodge shall seize its rightful place",
+    "card_json_path": "software/data/cards/NorthernRealms/PhilippaEilhart.json",
+    "processed_at": "2026-03-31T01:11:54",
+    "source_image": "PhilippaEilhart.jpg"
+}

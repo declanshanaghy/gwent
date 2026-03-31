@@ -1,0 +1,9 @@
+{
+    "name": "Clear Weather",
+    "faction": "Scoia'tael",
+    "specialty": "weather",
+    "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all...",
+    "processed_at": "2026-03-31T02:57:10",
+    "source_image": "ClearWeather2.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/ClearWeather1.json"
+}

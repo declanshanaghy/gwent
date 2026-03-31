@@ -1,0 +1,12 @@
+{
+    "name": "Ice Giant",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "Fled one time in my life. From the Ice Giant. And I'm not a bit ashamed.",
+    "processed_at": "2026-03-31T03:38:37",
+    "source_image": "IceGiant.jpg",
+    "card_json_path": "software/data/cards/Monsters/IceGiant.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Rotten Mangonel",
+    "faction": "Nilfgaardian",
+    "strength": 3,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "morale"
+    ],
+    "card_text": "The rotten smell brings back childhood memories.",
+    "processed_at": "2026-03-31T03:29:36",
+    "source_image": "RottenMangonel.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/RottenMangonel.json"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Torrential Rain",
+    "faction": "Monsters",
+    "specialty": "weather",
+    "card_text": "Even the rain in this land smells like piss.",
+    "processed_at": "2026-03-31T03:36:29",
+    "source_image": "TorrentialRain.jpg",
+    "card_json_path": "software/data/cards/Monsters/TorrentialRain1.json"
+}

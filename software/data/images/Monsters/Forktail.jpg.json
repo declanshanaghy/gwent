@@ -1,0 +1,12 @@
+{
+    "name": "Forktail",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Forktails. Bah! Fuckers' tails're more like cleavers.",
+    "processed_at": "2026-03-31T03:35:34",
+    "source_image": "Forktail.jpg",
+    "card_json_path": "software/data/cards/Monsters/Forktail.json"
+}

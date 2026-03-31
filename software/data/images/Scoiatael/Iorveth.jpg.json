@@ -1,0 +1,12 @@
+{
+    "name": "Iorveth",
+    "faction": "Scoia'tael",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "King or beggar, what's the difference? One dh'oine less.",
+    "card_json_path": "software/data/cards/Scoiatael/Iorveth.json",
+    "processed_at": "2026-03-31T02:52:10",
+    "source_image": "Iorveth.jpg"
+}

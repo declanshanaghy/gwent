@@ -1,0 +1,9 @@
+{
+    "name": "Clear Weather",
+    "faction": "Nilfgaardian",
+    "specialty": "weather",
+    "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all.",
+    "card_json_path": "software/data/cards/Nilfgaardian/ClearWeather2.json",
+    "processed_at": "2026-03-31T01:51:36",
+    "source_image": "ClearWeather.jpg"
+}

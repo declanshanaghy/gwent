@@ -1,0 +1,15 @@
+{
+    "name": "Sigismund Dijkstra",
+    "faction": "Northern Realms",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "Gwent's like politics, just more honest...",
+    "card_json_path": "software/data/cards/NorthernRealms/SigismundDijkstra.json",
+    "processed_at": "2026-03-31T01:12:12",
+    "source_image": "SigismundDijkstra.jpg"
+}

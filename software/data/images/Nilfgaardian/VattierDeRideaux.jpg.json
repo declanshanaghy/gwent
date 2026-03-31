@@ -1,0 +1,15 @@
+{
+    "name": "Vattier de Rideaux",
+    "faction": "Nilfgaardian",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "There's never been a problem a well-planned assassination couldn't solve.",
+    "processed_at": "2026-03-31T03:22:36",
+    "source_image": "VattierDeRideaux.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/VattierDeRideaux.json"
+}

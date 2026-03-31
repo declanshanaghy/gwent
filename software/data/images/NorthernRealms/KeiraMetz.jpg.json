@@ -1,0 +1,12 @@
+{
+    "name": "Keira Metz",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "If I'm to die today, I wish to look smashing for the occasion.",
+    "processed_at": "2026-03-31T03:17:17",
+    "source_image": "KeiraMetz.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/KieraMetz.json"
+}

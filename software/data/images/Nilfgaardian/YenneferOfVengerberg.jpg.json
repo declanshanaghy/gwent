@@ -1,0 +1,15 @@
+{
+    "name": "Yennefer of Vengerberg",
+    "faction": "Nilfgaardian",
+    "strength": 7,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression.",
+    "processed_at": "2026-03-31T02:46:20",
+    "source_image": "YenneferOfVengerberg.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/YenneferOfVengerberg2.json"
+}

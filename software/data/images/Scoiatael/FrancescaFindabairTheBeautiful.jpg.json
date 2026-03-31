@@ -1,0 +1,12 @@
+{
+    "name": "Francesca Findabair The Beautiful",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Do not let my beauty distract your aim.",
+    "processed_at": "2026-03-31T01:36:18",
+    "source_image": "FrancescaFindabairTheBeautiful.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/FrancescaFindabairTheBeautiful.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Morvran Voorhis",
+    "faction": "Nilfgaardian",
+    "strength": 10,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "Summer sun reflecting in the quiet waters of the Alba... that's Nilfgaard to me.",
+    "processed_at": "2026-03-31T01:53:21",
+    "source_image": "MorvranVoorhis.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/MorvranVoorhis.json"
+}

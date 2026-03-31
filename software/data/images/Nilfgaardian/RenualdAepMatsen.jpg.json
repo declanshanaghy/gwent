@@ -1,0 +1,12 @@
+{
+    "name": "Renuald aep Matsen",
+    "faction": "Nilfgaardian",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "They say the Impera fear nothing. Untrue. Renuald scares them shitless.",
+    "processed_at": "2026-03-31T03:24:26",
+    "source_image": "RenualdAepMatsen.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/RenauldAepMatsen.json"
+}

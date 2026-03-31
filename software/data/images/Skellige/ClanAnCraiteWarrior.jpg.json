@@ -1,0 +1,15 @@
+{
+    "name": "Clan an Craite Warrior",
+    "faction": "Skellige",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "I'll bring the an Craites such glory, bards'll go hoarse singin' me praises!",
+    "processed_at": "2026-03-31T03:11:11",
+    "source_image": "ClanAnCraiteWarrior.jpg",
+    "card_json_path": "software/data/cards/Skellige/ClanAnCraiteWarrior2.json"
+}

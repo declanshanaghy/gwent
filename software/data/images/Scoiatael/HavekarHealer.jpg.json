@@ -1,0 +1,15 @@
+{
+    "name": "Havekar Healer",
+    "faction": "Scoia'tael",
+    "strength": 0,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Sure, I'll patch you up. Gonna cost you though.",
+    "processed_at": "2026-03-31T03:03:16",
+    "source_image": "HavekarHealer.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/HavekarHealer.json"
+}

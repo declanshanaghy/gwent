@@ -1,0 +1,11 @@
+{
+    "name": "Bovine Defense Force",
+    "faction": "Monsters",
+    "strength": 8,
+    "ranges": [
+        "close"
+    ],
+    "processed_at": "2026-03-31T03:36:03",
+    "source_image": "BovineDefenseForce.jpg",
+    "card_json_path": "software/data/cards/Monsters/BovineDefenseForce.json"
+}

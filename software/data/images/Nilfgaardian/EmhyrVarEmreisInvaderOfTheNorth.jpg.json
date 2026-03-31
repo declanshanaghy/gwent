@@ -1,0 +1,9 @@
+{
+    "name": "Emhyr var Emreis: Invader of the North",
+    "faction": "Nilfgaardian",
+    "specialty": "leader",
+    "card_text": "Abilities that restore a unit to the battlefield restore a random unit instead. Affects both players.",
+    "processed_at": "2026-03-31T03:23:07",
+    "source_image": "EmhyrVarEmreisInvaderOfTheNorth.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/EmhyrVarEmreisInvaderOfTheNorth.json"
+}

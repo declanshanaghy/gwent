@@ -1,0 +1,15 @@
+{
+    "name": "Vampire: Fleder",
+    "faction": "Monsters",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds.",
+    "processed_at": "2026-03-31T02:27:47",
+    "source_image": "VampireFleder.jpg",
+    "card_json_path": "software/data/cards/Monsters/VampireFleder.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Holger Blackhand",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "Now let's drink to Emperor of Nilfgaard - may his prick forever stay limp.",
+    "processed_at": "2026-03-31T03:10:09",
+    "source_image": "HolgerBlackhand.jpg",
+    "card_json_path": "software/data/cards/Skellige/HolgerBlackhand.json"
+}

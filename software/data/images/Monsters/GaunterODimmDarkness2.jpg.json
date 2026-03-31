@@ -1,0 +1,15 @@
+{
+    "name": "Gaunter O'Dimm: Darkness",
+    "faction": "Monsters",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "Fear not the shadows, but the light",
+    "card_json_path": "software/data/cards/Monsters/GaunterODimmDarkness2.json",
+    "processed_at": "2026-03-31T01:35:18",
+    "source_image": "GaunterODimmDarkness2.jpg"
+}

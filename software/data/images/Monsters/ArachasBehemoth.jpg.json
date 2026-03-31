@@ -1,0 +1,15 @@
+{
+    "name": "Arachas Behemoth",
+    "faction": "Monsters",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Like a cross between a crab, a spider...and a ploughin' mountain.",
+    "processed_at": "2026-03-31T03:42:22",
+    "source_image": "ArachasBehemoth.jpg",
+    "card_json_path": "software/data/cards/Monsters/ArachasBehemoth.json"
+}

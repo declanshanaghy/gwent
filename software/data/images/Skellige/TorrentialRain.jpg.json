@@ -1,0 +1,9 @@
+{
+    "name": "Torrential Rain",
+    "faction": "Skellige",
+    "specialty": "weather",
+    "card_text": "Even the rain in this land smells like piss.",
+    "card_json_path": "software/data/cards/Skellige/TorrentialRain.json",
+    "processed_at": "2026-03-31T01:58:11",
+    "source_image": "TorrentialRain.jpg"
+}

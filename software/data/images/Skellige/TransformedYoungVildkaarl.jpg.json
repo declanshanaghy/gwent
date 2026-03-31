@@ -1,0 +1,15 @@
+{
+    "name": "Transformed Young Vildkaarl",
+    "faction": "Skellige",
+    "strength": 8,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Roosaaaar!",
+    "processed_at": "2026-03-31T02:34:57",
+    "source_image": "TransformedYoungVildkaarl.jpg",
+    "card_json_path": "software/data/cards/Skellige/TransformedYoungVildkaarl.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "John Natalis",
+    "faction": "Northern Realms",
+    "strength": 10,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "That square should bear the names of my soldiers, of the dead. Not mine.",
+    "processed_at": "2026-03-31T02:40:37",
+    "source_image": "JohnNatalis.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/JohnNatalis2.json"
+}

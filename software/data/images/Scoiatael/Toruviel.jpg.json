@@ -1,0 +1,12 @@
+{
+    "name": "Toruviel",
+    "faction": "Scoia'tael",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "I'd gladly kill you from up close, stare into your eyes... But you reek, human.",
+    "processed_at": "2026-03-31T02:55:05",
+    "source_image": "Toruviel.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Toruviel.json"
+}

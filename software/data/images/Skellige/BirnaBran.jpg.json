@@ -1,0 +1,15 @@
+{
+    "name": "Birna Bran",
+    "faction": "Skellige",
+    "strength": 2,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Skellige must have a strong king. No matter what it takes.",
+    "processed_at": "2026-03-31T03:13:29",
+    "source_image": "BirnaBran.jpg",
+    "card_json_path": "software/data/cards/Skellige/BirnaBran.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Botchling",
+    "faction": "Monsters",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Admit your mistakes and bury them proper else they'll come back to haunt you",
+    "processed_at": "2026-03-31T01:35:40",
+    "source_image": "Botchling.jpg",
+    "card_json_path": "software/data/cards/Monsters/Botchling.json"
+}

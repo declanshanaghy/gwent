@@ -1,0 +1,12 @@
+{
+    "name": "Assire var Anahid",
+    "faction": "Nilfgaardian",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Nilfgaardian mages do have a choice: servile submission, or death.",
+    "processed_at": "2026-03-31T03:28:17",
+    "source_image": "AssireVarAnahid.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/AssireVarAnahid.json"
+}

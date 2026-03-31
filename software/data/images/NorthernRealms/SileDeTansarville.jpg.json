@@ -1,0 +1,12 @@
+{
+    "name": "Sile de Tansarville",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "The Lodge lacks humility. Our lust for power may yet be our undoing.",
+    "processed_at": "2026-03-31T03:16:21",
+    "source_image": "SileDeTansarville.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/S\u00edledeTansarville.json"
+}

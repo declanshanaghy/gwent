@@ -1,0 +1,12 @@
+{
+    "name": "Sheldon Skaggs",
+    "faction": "Northern Realms",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "I was there on the front lines! Right where the fightin' was the thickest!",
+    "processed_at": "2026-03-31T03:15:39",
+    "source_image": "SheldonSkaggs.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/SheldonSkaggs.json"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Emhyr var Emreis The Relentless",
+    "faction": "Nilfgaardian",
+    "specialty": "leader",
+    "card_text": "Draw a card from your opponent's discard pile. They do not call me 'The Patient'. Take care they do not call you 'The Headless'.",
+    "card_json_path": "software/data/cards/Nilfgaardian/EmhyrVarEmreisTheRelentless.json",
+    "processed_at": "2026-03-31T01:55:51",
+    "source_image": "EmhyrVarEmreisTheRelentless.jpg"
+}

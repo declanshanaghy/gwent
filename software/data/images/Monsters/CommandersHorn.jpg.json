@@ -1,0 +1,9 @@
+{
+    "name": "Commander's Horn",
+    "faction": "Monsters",
+    "specialty": "commander",
+    "card_text": "Plus one to morale, minus three to hearing.",
+    "processed_at": "2026-03-31T02:21:28",
+    "source_image": "CommandersHorn.jpg",
+    "card_json_path": "software/data/cards/Monsters/CommandersHorn.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Havekar Smuggler",
+    "faction": "Scoia'tael",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "I fight for whoever's paying the best. Or whoever's easiest to rob.",
+    "processed_at": "2026-03-31T02:58:30",
+    "source_image": "HavekarSmuggler.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/HavekarSmuggler1.json"
+}

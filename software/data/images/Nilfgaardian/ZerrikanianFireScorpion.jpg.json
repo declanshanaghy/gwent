@@ -1,0 +1,15 @@
+{
+    "name": "Zerrikanian Fire Scorpion",
+    "faction": "Nilfgaardian",
+    "strength": 5,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "scorch"
+    ],
+    "card_text": "The Zerrikanian Desert used to be a lush garden. Then these came along.",
+    "processed_at": "2026-03-31T03:29:02",
+    "source_image": "ZerrikanianFireScorpion.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/ZerrikanianFireScorpion.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Dun Banner Medic",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Stitch red to red, white to white, and everything will be alright.",
+    "processed_at": "2026-03-31T03:15:29",
+    "source_image": "DunBannerMedic.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/DunBannerMedic.json"
+}

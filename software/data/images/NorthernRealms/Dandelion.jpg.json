@@ -1,0 +1,14 @@
+{
+    "name": "Dandelion",
+    "faction": "Northern Realms",
+    "strength": 2,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Dandelion, you're a cynic, a lecher, a whoremonger, a liar... and my best friend.",
+    "processed_at": "2026-03-31T01:31:20",
+    "source_image": "Dandelion.jpg"
+}

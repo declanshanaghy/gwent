@@ -1,0 +1,12 @@
+{
+    "name": "Trebuchet",
+    "faction": "Northern Realms",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "Castle won't batter itself down, now will it? Get them trebuchets rollin'!",
+    "processed_at": "2026-03-31T03:18:38",
+    "source_image": "Trebuchet2.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Trebuchet1.json"
+}

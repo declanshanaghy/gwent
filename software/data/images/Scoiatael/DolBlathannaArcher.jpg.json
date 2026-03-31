@@ -1,0 +1,12 @@
+{
+    "name": "Dol Blathanna Archer",
+    "faction": "Scoia'tael",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Take another step dh'oine. You'd look better with an arrow between your eyes.",
+    "processed_at": "2026-03-31T02:53:53",
+    "source_image": "DolBlathannaArcher.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/DolBlathannaArcher1.json"
+}

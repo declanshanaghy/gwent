@@ -1,0 +1,15 @@
+{
+    "name": "Yennefer of Vengerberg",
+    "faction": "Northern Realms",
+    "strength": 7,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Magic is Chaos, Art and Science. It is a curse, a blessing and a progression.",
+    "card_json_path": "software/data/cards/NorthernRealms/YenneferOfVengerberg.json",
+    "processed_at": "2026-03-31T01:14:16",
+    "source_image": "YenneferOfVengerberg.jpg"
+}

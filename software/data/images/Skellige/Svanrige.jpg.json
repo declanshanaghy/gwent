@@ -1,0 +1,12 @@
+{
+    "name": "Svanrige",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "The Emperor also thought him an accidental king. At first.",
+    "processed_at": "2026-03-31T03:08:27",
+    "source_image": "Svanrige.jpg",
+    "card_json_path": "software/data/cards/Skellige/Svanrige.json"
+}

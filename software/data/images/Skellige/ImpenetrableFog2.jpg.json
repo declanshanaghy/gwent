@@ -1,0 +1,9 @@
+{
+    "name": "Impenetrable Fog",
+    "faction": "Skellige",
+    "specialty": "weather",
+    "card_text": "A good commander's dream, a bad one's horror.",
+    "processed_at": "2026-03-31T03:09:58",
+    "source_image": "ImpenetrableFog2.jpg",
+    "card_json_path": "software/data/cards/Skellige/ImpenetrableFog1.json"
+}

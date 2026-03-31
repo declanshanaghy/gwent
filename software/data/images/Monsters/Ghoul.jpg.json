@@ -1,0 +1,15 @@
+{
+    "name": "Ghoul",
+    "faction": "Monsters",
+    "strength": 1,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "If ghouls are part of the Circle of Life... then it's a damn vicious circle.",
+    "processed_at": "2026-03-31T03:39:22",
+    "source_image": "Ghoul.jpg",
+    "card_json_path": "software/data/cards/Monsters/Ghoul2.json"
+}

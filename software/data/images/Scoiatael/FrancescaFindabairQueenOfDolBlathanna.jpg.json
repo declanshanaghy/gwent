@@ -1,0 +1,9 @@
+{
+    "name": "Francesca Findabair: Queen of Dol Blathanna",
+    "faction": "Scoia'tael",
+    "specialty": "leader",
+    "card_text": "Destroy your enemy's strongest Close Combat unit(s) if the combined strength of that row is 10 or more.",
+    "processed_at": "2026-03-31T03:02:15",
+    "source_image": "FrancescaFindabairQueenOfDolBlathanna.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/FrancescaFindabairQueenOfDolBlathanna.json"
+}

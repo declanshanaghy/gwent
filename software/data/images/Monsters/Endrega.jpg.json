@@ -1,0 +1,15 @@
+{
+    "name": "Endrega",
+    "faction": "Monsters",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "The nest! Take out the nest or the bastards'll just keep coming!",
+    "processed_at": "2026-03-31T03:38:28",
+    "source_image": "Endrega.jpg",
+    "card_json_path": "software/data/cards/Monsters/Endrega.json"
+}

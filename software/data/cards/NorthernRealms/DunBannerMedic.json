@@ -12,5 +12,7 @@
     "strength": 5,
     "rfid": 687812594970,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "image": "../../images/NorthernRealms/DunBannerMedic.jpg",
+    "card_text": "Stitch red to red, white to white, and everything will be alright."
 }

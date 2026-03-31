@@ -1,0 +1,12 @@
+{
+    "name": "Eithn\u00e9",
+    "faction": "Scoia'tael",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "The dryad queen has eyes of molten silver, and a heart of cold-forged steel",
+    "processed_at": "2026-03-31T02:30:33",
+    "source_image": "Eithn.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Eithn.json"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Scorch",
+    "faction": "Northern Realms",
+    "specialty": "scorch",
+    "card_text": "Pillars of flame turn the mightiest to ash. All others tremble in shock and awe.",
+    "card_json_path": "software/data/cards/NorthernRealms/Scorch.json",
+    "processed_at": "2026-03-31T01:13:02",
+    "source_image": "Scorch.jpg"
+}

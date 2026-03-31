@@ -1,0 +1,15 @@
+{
+    "name": "Gaunter O'Dimm: Darkness",
+    "faction": "Scoia'tael",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Fear not the shadows, but the light",
+    "card_json_path": "software/data/cards/Scoiatael/GaunterODimmDarkness.json",
+    "processed_at": "2026-03-31T02:31:25",
+    "source_image": "GaunterODimmDarkness2.jpg"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Hemdall",
+    "faction": "Skellige",
+    "strength": 11,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "When the time of the White Frost comes, Hemdall will sound the call for battle.",
+    "processed_at": "2026-03-31T02:35:53",
+    "source_image": "Hemdall.jpg",
+    "card_json_path": "software/data/cards/Skellige/Hemdall.json"
+}

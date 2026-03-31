@@ -1,0 +1,15 @@
+{
+    "name": "Avallac'h",
+    "faction": "Nilfgaardian",
+    "strength": 0,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "You humans have...unusual taste.",
+    "processed_at": "2026-03-31T02:41:54",
+    "source_image": "Avallach.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/Avallach.json"
+}

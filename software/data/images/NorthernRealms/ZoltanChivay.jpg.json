@@ -1,0 +1,12 @@
+{
+    "name": "Zoltan Chivay",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Life without old mates and booze is like a woman without a rump.",
+    "processed_at": "2026-03-31T01:22:30",
+    "source_image": "ZoltanChivay.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/ZoltanChivay.json"
+}

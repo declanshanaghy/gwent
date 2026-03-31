@@ -1,0 +1,9 @@
+{
+    "name": "Commander's Horn",
+    "faction": "Northern Realms",
+    "specialty": "commander",
+    "card_text": "Plus one to morale, minus three to hearing.",
+    "card_json_path": "software/data/cards/NorthernRealms/CommandersHorn1.json",
+    "processed_at": "2026-03-31T01:13:53",
+    "source_image": "CommandersHorn.jpg"
+}

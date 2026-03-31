@@ -1,0 +1,16 @@
+{
+    "name": "Filavandrel aen Fidha\u00edl",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ],
+    "card_text": "Though we are now few and scattered, our hearts burn brighter than ever.",
+    "processed_at": "2026-03-31T03:04:22",
+    "source_image": "FilavandrelAenFidhal.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/FilavandrelAenFidhail.json"
+}

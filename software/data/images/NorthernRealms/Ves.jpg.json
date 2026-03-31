@@ -1,0 +1,12 @@
+{
+    "name": "Ves",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Better to live one day as a king than a whole life as a beggar.",
+    "processed_at": "2026-03-31T03:15:59",
+    "source_image": "Ves.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Ves.json"
+}

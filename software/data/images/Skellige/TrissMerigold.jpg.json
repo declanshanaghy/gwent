@@ -1,0 +1,12 @@
+{
+    "name": "Triss Merigold",
+    "faction": "Skellige",
+    "strength": 7,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "I can take care of myself. Trust me.",
+    "card_json_path": "software/data/cards/Skellige/TrissMerigold.json",
+    "processed_at": "2026-03-31T01:58:32",
+    "source_image": "TrissMerigold.jpg"
+}

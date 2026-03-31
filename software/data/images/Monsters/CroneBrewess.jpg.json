@@ -1,0 +1,15 @@
+{
+    "name": "Crone: Brewess",
+    "faction": "Monsters",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "We'll cut you up, boy. A fine broth you will make.",
+    "processed_at": "2026-03-31T03:35:24",
+    "source_image": "CroneBrewess.jpg",
+    "card_json_path": "software/data/cards/Monsters/CroneBrewess.json"
+}

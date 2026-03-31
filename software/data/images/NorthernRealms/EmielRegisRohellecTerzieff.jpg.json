@@ -1,0 +1,12 @@
+{
+    "name": "Emiel Regis Rohellec Terzieff",
+    "faction": "Northern Realms",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Men, the polite ones, at least, would call me a monster. A blood-drinking freak.",
+    "processed_at": "2026-03-31T02:40:26",
+    "source_image": "EmielRegisRohellecTerzieff.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/EmielRegis.json"
+}

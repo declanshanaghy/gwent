@@ -1,0 +1,9 @@
+{
+    "name": "Eredin King of the Wild Hunt",
+    "faction": "Monsters",
+    "specialty": "leader",
+    "card_text": "Pick any weather card from your deck and play it instantly.",
+    "processed_at": "2026-03-31T01:31:38",
+    "source_image": "EredinKingOfTheWildHunt.jpg",
+    "card_json_path": "software/data/cards/Monsters/EredinKingOfTheWildHunt.json"
+}

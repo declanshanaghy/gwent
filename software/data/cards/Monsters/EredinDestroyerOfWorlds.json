@@ -12,5 +12,7 @@
     "specialty": "leader",
     "rfid": 481219071443,
     "last_updated": "2026-03-27T14:35:07",
-    "rfid_written_at": "2026-03-27T14:35:07"
+    "rfid_written_at": "2026-03-27T14:35:07",
+    "image": "../../images/Monsters/EredinDestroyerOfWorlds.jpg",
+    "card_text": "Discard 2 cards and draw 1 card of your choice from your deck. It is unavoidable"
 }

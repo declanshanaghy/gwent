@@ -1,0 +1,15 @@
+{
+    "name": "Avallac'h",
+    "faction": "Skellige",
+    "strength": 0,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "You humans have unusual tastes.",
+    "card_json_path": "software/data/cards/Skellige/Avallach2.json",
+    "processed_at": "2026-03-31T02:34:30",
+    "source_image": "Avallach2.jpg"
+}

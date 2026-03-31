@@ -1,0 +1,12 @@
+{
+    "name": "Riordain",
+    "faction": "Scoia'tael",
+    "strength": 1,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Stare into their eyes, feast on their terror. Then go in for the kill.",
+    "processed_at": "2026-03-31T02:59:35",
+    "source_image": "Riordain.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Riordain.json"
+}

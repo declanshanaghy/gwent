@@ -1,0 +1,9 @@
+{
+    "name": "Clear Weather",
+    "faction": "Monsters",
+    "specialty": "weather",
+    "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all...",
+    "processed_at": "2026-03-31T03:37:15",
+    "source_image": "ClearWeather.jpg",
+    "card_json_path": "software/data/cards/Monsters/ClearWeather1.json"
+}

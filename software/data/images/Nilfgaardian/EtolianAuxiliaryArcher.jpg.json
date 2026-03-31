@@ -1,0 +1,15 @@
+{
+    "name": "Etolian Auxiliary Archer",
+    "faction": "Nilfgaardian",
+    "strength": 1,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "Double or nothing, aim for his cock.",
+    "processed_at": "2026-03-31T03:27:36",
+    "source_image": "EtolianAuxiliaryArcher.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/EtolianAuxiliaryArchers2.json"
+}

@@ -1,0 +1,16 @@
+{
+    "name": "Olaf",
+    "faction": "Skellige",
+    "strength": 12,
+    "ranges": [ 
+        "Close",
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Many've tried to defeat Olaf. But you won't hear about it from them - they're dead!",
+    "card_json_path": "software/data/cards/Skellige/Olaf.json",
+    "processed_at": "2026-03-31T01:59:51",
+    "source_image": "Olaf.jpg"
+}

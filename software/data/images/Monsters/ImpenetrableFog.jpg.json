@@ -1,0 +1,9 @@
+{
+    "name": "Impenetrable Fog",
+    "faction": "Monsters",
+    "specialty": "weather",
+    "card_text": "A good commander's dream... a bad one's horror.",
+    "processed_at": "2026-03-31T03:42:13",
+    "source_image": "ImpenetrableFog.jpg",
+    "card_json_path": "software/data/cards/Monsters/ImpenetrableFog1.json"
+}

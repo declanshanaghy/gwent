@@ -1,0 +1,11 @@
+{
+    "name": "Madman Lugos",
+    "faction": "Skellige",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "processed_at": "2026-03-31T03:08:46",
+    "source_image": "MadmanLugos.jpg",
+    "card_json_path": "software/data/cards/Skellige/MadmanLugos.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Young Berserker",
+    "faction": "Skellige",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "berserker"
+    ],
+    "card_text": "Want some?",
+    "processed_at": "2026-03-31T03:06:04",
+    "source_image": "YoungBerserker.jpg",
+    "card_json_path": "software/data/cards/Skellige/YoungBerserker.json"
+}

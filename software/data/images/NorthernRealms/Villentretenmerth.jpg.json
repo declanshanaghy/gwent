@@ -1,0 +1,15 @@
+{
+    "name": "Villentretenmerth",
+    "faction": "Northern Realms",
+    "strength": 7,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "scorch"
+    ],
+    "card_text": "Also calls himself Borkh Three Jackdaws... He's not the best at names.",
+    "processed_at": "2026-03-31T01:23:01",
+    "source_image": "Villentretenmerth.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Villentretenmerth2.json"
+}

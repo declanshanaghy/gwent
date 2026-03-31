@@ -1,0 +1,15 @@
+{
+    "name": "Ciaran aep Easnille",
+    "faction": "Scoia'tael",
+    "strength": 3,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "The path to freedom is paved in blood, not ink.",
+    "processed_at": "2026-03-31T02:56:01",
+    "source_image": "CiaranAepEasnille.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/CiaranAepEasnillien.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Young Emissary",
+    "faction": "Nilfgaardian",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "If I acquit myself well, perhaps next they'll post me somewhere civilized.",
+    "processed_at": "2026-03-31T01:40:46",
+    "source_image": "YoungEmissary.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/YoungEmissary1.json"
+}

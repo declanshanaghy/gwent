@@ -1,0 +1,9 @@
+{
+    "name": "Biting Frost",
+    "faction": "Northern Realms",
+    "specialty": "weather",
+    "card_text": "Best part about frost - bodies of the fallen don't rot so quickly.",
+    "processed_at": "2026-03-31T03:20:16",
+    "source_image": "BitingFrost2.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/BitingFrost.json"
+}

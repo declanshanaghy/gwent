@@ -1,0 +1,15 @@
+{
+    "name": "Kaedweni Siege Expert",
+    "faction": "Northern Realms",
+    "strength": 1,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "morale"
+    ],
+    "card_text": "You gotta recalibrate the arm by five degrees! Do what by the what now?",
+    "processed_at": "2026-03-31T03:18:12",
+    "source_image": "KaedweniSiegeExpert3.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/KaedweniSiegeExpert3.json"
+}

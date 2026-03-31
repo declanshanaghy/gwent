@@ -1,0 +1,9 @@
+{
+    "name": "Mardroeme",
+    "faction": "Skellige",
+    "specialty": "mardroeme",
+    "card_text": "Eat enough of them and the world will never be the same.",
+    "processed_at": "2026-03-31T03:08:37",
+    "source_image": "Mardroeme.jpg",
+    "card_json_path": "software/data/cards/Skellige/Mardroeme1.json"
+}

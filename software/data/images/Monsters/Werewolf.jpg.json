@@ -1,0 +1,15 @@
+{
+    "name": "Werewolf",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Wolves aren't as bad as they say. Werewolves, though\u2014those are worse.",
+    "processed_at": "2026-03-31T03:40:44",
+    "source_image": "Werewolf.jpg",
+    "card_json_path": "software/data/cards/Monsters/Werewolf.json"
+}

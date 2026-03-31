@@ -1,0 +1,15 @@
+{
+    "name": "Light Longship",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Escape them? In the waters of Skellige? Good Luck",
+    "processed_at": "2026-03-31T03:09:35",
+    "source_image": "LightLongship2.jpg",
+    "card_json_path": "software/data/cards/Skellige/LightLongship2.json"
+}

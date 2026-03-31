@@ -1,0 +1,15 @@
+{
+    "name": "Vrihedd Brigade Veteran",
+    "faction": "Scoia'tael",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ],
+    "card_text": "Vrihedd? What's that mean? Trouble.",
+    "processed_at": "2026-03-31T02:59:24",
+    "source_image": "VriheddBrigadeVeteran2.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/VriheddBrigadeVeteran2.json"
+}

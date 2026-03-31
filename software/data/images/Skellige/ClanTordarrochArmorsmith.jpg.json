@@ -1,0 +1,12 @@
+{
+    "name": "Clan Tordarroch Armorsmith",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Ye're in for a poundin'.",
+    "processed_at": "2026-03-31T03:12:09",
+    "source_image": "ClanTordarrochArmorsmith.jpg",
+    "card_json_path": "software/data/cards/Skellige/ClanTordarrochArmorsmith.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Avallac'h",
+    "faction": "Northern Realms",
+    "strength": 0,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "You humans have...unusual tastes.",
+    "processed_at": "2026-03-31T02:40:47",
+    "source_image": "Avallach.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Avallach.json"
+}

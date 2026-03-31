@@ -1,0 +1,9 @@
+{
+    "name": "Foltest: Son of Medell",
+    "faction": "Northern Realms",
+    "specialty": "leader",
+    "card_text": "Destroy your enemy's strongest Ranged Combat unit(s) if the combined strength of that row is 10 or more.",
+    "processed_at": "2026-03-31T03:21:48",
+    "source_image": "FoltestSonOfMedell.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/FoltestSonOfMedell.json"
+}

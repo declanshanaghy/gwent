@@ -1,0 +1,13 @@
+{
+    "name": "Triss Merigold",
+    "faction": "Scoia'tael",
+    "strength": 7,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "card_text": "I can take care of myself. Trust me.",
+    "processed_at": "2026-03-31T02:30:49",
+    "source_image": "TrissMerigold.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/TrissMerigold.json"
+}

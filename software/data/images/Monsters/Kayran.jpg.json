@@ -1,0 +1,15 @@
+{
+    "name": "Kayran",
+    "faction": "Monsters",
+    "strength": 8,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ],
+    "card_text": "Kill a kayran? Simple. Take your best sword... then sell it and hire a witcher.",
+    "processed_at": "2026-03-31T03:35:44",
+    "source_image": "Kayran.jpg",
+    "card_json_path": "software/data/cards/Monsters/Kayran.json"
+}

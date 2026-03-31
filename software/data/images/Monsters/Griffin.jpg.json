@@ -1,0 +1,12 @@
+{
+    "name": "Griffin",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Griffins like to toy with their prey. Eat 'em alive, piece by piece.",
+    "processed_at": "2026-03-31T03:38:08",
+    "source_image": "Griffin.jpg",
+    "card_json_path": "software/data/cards/Monsters/Griffin.json"
+}

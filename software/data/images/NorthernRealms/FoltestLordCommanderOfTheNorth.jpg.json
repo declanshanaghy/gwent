@@ -1,0 +1,9 @@
+{
+    "name": "Foltest: Lord Commander of the North",
+    "faction": "Northern Realms",
+    "specialty": "leader",
+    "card_text": "Clear any weather effects in play.",
+    "processed_at": "2026-03-31T03:19:48",
+    "source_image": "FoltestLordCommanderOfTheNorth.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/FoltestLordCommanderOfTheNorth.json"
+}

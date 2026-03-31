@@ -1,0 +1,15 @@
+{
+    "name": "Siege Technician",
+    "faction": "Nilfgaardian",
+    "strength": 0,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "I never miss twice.",
+    "processed_at": "2026-03-31T03:28:51",
+    "source_image": "SiegeTechnician.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/SiegeTechnician.json"
+}

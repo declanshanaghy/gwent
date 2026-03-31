@@ -9,5 +9,7 @@
     "strength": 4,
     "rfid": 824900275553,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "image": "../../images/Skellige/DonarAnHindar.jpg",
+    "card_text": "I've gathered all the jarls together. Now make your case."
 }

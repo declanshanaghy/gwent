@@ -1,0 +1,12 @@
+{
+    "name": "Clan Brokvar Archer",
+    "faction": "Skellige",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "So ye can hit a movin' target at two hundred paces. Me too. In a storm.",
+    "processed_at": "2026-03-31T03:13:09",
+    "source_image": "ClanBrokvarArcher2.jpg",
+    "card_json_path": "software/data/cards/Skellige/ClanBrokvarArcher2.json"
+}

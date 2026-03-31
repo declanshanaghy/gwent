@@ -1,0 +1,12 @@
+{
+    "name": "Hjalmar",
+    "faction": "Skellige",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Instead of mournin' the fallen, let's drink to their memory!",
+    "processed_at": "2026-03-31T03:10:36",
+    "source_image": "Hjalmar.jpg",
+    "card_json_path": "software/data/cards/Skellige/Hjalmar.json"
+}

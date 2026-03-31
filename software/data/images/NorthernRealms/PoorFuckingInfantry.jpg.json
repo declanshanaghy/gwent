@@ -1,0 +1,15 @@
+{
+    "name": "Poor Fucking Infantry",
+    "faction": "Northern Realms",
+    "strength": 1,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "I's a war veteran!...Spare me a crown?",
+    "processed_at": "2026-03-31T03:19:13",
+    "source_image": "PoorFuckingInfantry.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/PoorFuckingInfantry2.json"
+}

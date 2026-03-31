@@ -1,0 +1,15 @@
+{
+    "name": "Blue Stripes Commando",
+    "faction": "Northern Realms",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "I'd do anything for Temeria. Mostly, though, I kill for her...",
+    "processed_at": "2026-03-31T03:21:26",
+    "source_image": "BlueStripesCommando.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/BlueStripesCommando2.json"
+}

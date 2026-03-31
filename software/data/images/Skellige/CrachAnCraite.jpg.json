@@ -1,0 +1,9 @@
+{
+    "name": "Crach an Craite",
+    "faction": "Skellige",
+    "specialty": "leader",
+    "card_text": "Shuffle all cards from each player's graveyard back into their decks.",
+    "card_json_path": "software/data/cards/Skellige/CrachAnCraite.json",
+    "processed_at": "2026-03-31T02:12:33",
+    "source_image": "CrachAnCraite.jpg"
+}

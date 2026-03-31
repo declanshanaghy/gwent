@@ -1,0 +1,15 @@
+{
+    "name": "Rainfarn",
+    "faction": "Nilfgaardian",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "You'll die as painfully as that pathetic traitor Windhalm did",
+    "processed_at": "2026-03-31T03:24:37",
+    "source_image": "Rainfarn.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/Rainfarn.json"
+}

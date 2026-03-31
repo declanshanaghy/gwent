@@ -1,0 +1,12 @@
+{
+    "name": "Dennis Cranmer",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "I know how to carry out orders, so you can shove your advice up your coal chute.",
+    "processed_at": "2026-03-31T02:55:26",
+    "source_image": "DennisCranmer.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/DennisCranmer.json"
+}

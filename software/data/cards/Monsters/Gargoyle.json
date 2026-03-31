@@ -9,5 +9,7 @@
     "strength": 2,
     "rfid": 2681883912,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "image": "../../images/Monsters/Gargoyle.jpg",
+    "card_text": "Ancient sculptors nightmarish fantasies brought to life by bored mages."
 }

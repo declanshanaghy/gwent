@@ -1,0 +1,9 @@
+{
+    "name": "Eredin: Destroyer of Worlds",
+    "faction": "Monsters",
+    "specialty": "leader",
+    "card_text": "Discard 2 cards and draw 1 card of your choice from your deck. It is unavoidable",
+    "processed_at": "2026-03-31T03:42:59",
+    "source_image": "EredinDestroyerOfWorlds.jpg",
+    "card_json_path": "software/data/cards/Monsters/EredinDestroyerOfWorlds.json"
+}

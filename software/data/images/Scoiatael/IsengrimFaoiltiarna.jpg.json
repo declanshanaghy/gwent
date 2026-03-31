@@ -1,0 +1,15 @@
+{
+    "name": "Isengrim Faoiltiarna",
+    "faction": "Scoia'tael",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "medic"
+    ],
+    "card_text": "It dawns on them once they notice my scar: a realization of imminent death.",
+    "processed_at": "2026-03-31T02:33:26",
+    "source_image": "IsengrimFaoiltiarna.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/IsengrimFaoiltiarna2.json"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Gaunter O'Dimm: Darkness",
+    "faction": "Northern Realms",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Fear not the shadows, but the light.",
+    "card_json_path": "software/data/cards/NorthernRealms/GaunterODimmDarkness1.json",
+    "processed_at": "2026-03-31T01:14:49",
+    "source_image": "GaunterODimmDarkness.jpg"
+}

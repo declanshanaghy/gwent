@@ -9,5 +9,7 @@
     "specialty": "leader",
     "rfid": 551482051919,
     "last_updated": "2026-03-27T14:35:07",
-    "rfid_written_at": "2026-03-27T14:35:07"
+    "rfid_written_at": "2026-03-27T14:35:07",
+    "image": "../../images/Nilfgaardian/EmhyrVarEmreisTheWhiteFlame.jpg",
+    "card_text": "Cancel your opponent's Leader Ability"
 }

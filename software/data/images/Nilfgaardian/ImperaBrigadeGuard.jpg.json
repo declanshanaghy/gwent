@@ -1,0 +1,12 @@
+{
+    "name": "Impera Brigade Guard",
+    "faction": "Nilfgaardian",
+    "strength": 3,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "The Impera Brigade never surrenders. Ever.",
+    "processed_at": "2026-03-31T03:25:54",
+    "source_image": "ImperaBrigadeGuard.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/ImperaBrigadeGuard3.json"
+}

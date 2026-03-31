@@ -1,0 +1,15 @@
+{
+    "name": "Stefan Skellen",
+    "faction": "Nilfgaardian",
+    "strength": 9,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "My mark scars the face of our future Empress. That is my proudest achievement.",
+    "processed_at": "2026-03-31T03:24:15",
+    "source_image": "StefanSkellen.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/StefanSkellen.json"
+}

@@ -1,0 +1,13 @@
+{
+    "name": "Cirilla Fiona Elen Riannon",
+    "faction": "Northern Realms",
+    "strength": 15,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "card_text": "Know when fairy tales cease to be tales? When people start believing in them.",
+    "card_json_path": "software/data/cards/NorthernRealms/CirillaFionaElenRiannon.json",
+    "processed_at": "2026-03-31T02:39:59",
+    "source_image": "CirillaFionaElenRiannon2.jpg"
+}

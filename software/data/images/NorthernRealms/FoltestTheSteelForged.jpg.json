@@ -1,0 +1,9 @@
+{
+    "name": "Foltest The Steel Forged",
+    "faction": "Northern Realms",
+    "specialty": "leader",
+    "card_text": "Destroy your enemy's strongest Siege Combat unit(s) if the combined strength of that row is 10 or more.",
+    "processed_at": "2026-03-31T02:40:58",
+    "source_image": "FoltestTheSteelForged.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/FoltestTheSteelForged2.json"
+}

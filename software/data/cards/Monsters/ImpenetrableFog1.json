@@ -9,5 +9,7 @@
     "starter": true,
     "rfid": 275462508023,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "image": "../../images/Monsters/ImpenetrableFog.jpg",
+    "card_text": "A good commander's dream... a bad one's horror."
 }

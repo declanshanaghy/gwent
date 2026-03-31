@@ -1,0 +1,9 @@
+{
+    "name": "Impenetrable Fog",
+    "faction": "Scoia'tael",
+    "specialty": "weather",
+    "card_text": "A good commander's dream... a bad one's horror.",
+    "processed_at": "2026-03-31T02:58:06",
+    "source_image": "ImpenetrableFog.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/ImpenetrableFog1.json"
+}

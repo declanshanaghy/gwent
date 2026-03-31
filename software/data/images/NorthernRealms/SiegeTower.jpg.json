@@ -1,0 +1,12 @@
+{
+    "name": "Siege Tower",
+    "faction": "Northern Realms",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "card_text": "I love the clamor of siege towers in the morning. Sounds like victory.",
+    "card_json_path": "software/data/cards/NorthernRealms/SiegeTower1.json",
+    "processed_at": "2026-03-31T01:29:26",
+    "source_image": "SiegeTower.jpg"
+}

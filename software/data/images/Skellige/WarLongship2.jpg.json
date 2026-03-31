@@ -1,0 +1,15 @@
+{
+    "name": "War Longship",
+    "faction": "Skellige",
+    "strength": 6,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "They say Hemdall's heart swells whenever the longships sail out on a raid.",
+    "card_json_path": "software/data/cards/Skellige/WarLongship1.json",
+    "processed_at": "2026-03-31T03:07:20",
+    "source_image": "WarLongship2.jpg"
+}

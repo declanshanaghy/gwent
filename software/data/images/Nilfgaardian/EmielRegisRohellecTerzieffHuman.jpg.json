@@ -1,0 +1,12 @@
+{
+    "name": "Emiel Regis Rohellec Terzieff: Human",
+    "faction": "Nilfgaardian",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Men, the polite ones, at least, would call me a monster. A blood-drinking freak.",
+    "card_json_path": "software/data/cards/Nilfgaardian/EmielRegisRohellecTerzieffHuman.json",
+    "processed_at": "2026-03-31T01:49:41",
+    "source_image": "EmielRegisRohellecTerzieff2.jpg"
+}

@@ -1,0 +1,15 @@
+{
+    "name": "Draig Bon-Dhu",
+    "faction": "Skellige",
+    "strength": 2,
+    "ranges": [
+        "seige"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Hear ye now the tale of the heroic deeds of Clan an Craite",
+    "card_json_path": "software/data/cards/Skellige/DraigBonDhu.json",
+    "processed_at": "2026-03-31T02:01:34",
+    "source_image": "DraigBonDhu.jpg"
+}

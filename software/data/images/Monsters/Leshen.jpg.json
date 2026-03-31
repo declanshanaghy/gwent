@@ -1,0 +1,12 @@
+{
+    "name": "Leshen",
+    "faction": "Monsters",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "We never hunt in these woods. Not even if it means the whole village starves.",
+    "processed_at": "2026-03-31T02:25:16",
+    "source_image": "Leshen.jpg",
+    "card_json_path": "software/data/cards/Monsters/Leshen.json"
+}

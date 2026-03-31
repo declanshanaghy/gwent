@@ -1,0 +1,15 @@
+{
+    "name": "Dandelion",
+    "faction": "Skellige",
+    "strength": 2,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "morale"
+    ],
+    "card_text": "Dandelion, you're a cynic, a lecher, a whoremonger, a liar... and my best friend.",
+    "card_json_path": "software/data/cards/Skellige/Dandelion.json",
+    "processed_at": "2026-03-31T02:03:18",
+    "source_image": "Dandelion.jpg"
+}

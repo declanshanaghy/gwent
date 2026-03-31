@@ -1,0 +1,12 @@
+{
+    "name": "Vanhcmar",
+    "faction": "Nilfgaardian",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "For a fire mage, he's not very...flamboyant.",
+    "processed_at": "2026-03-31T03:23:41",
+    "source_image": "Vanhcmar.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/Vanhemar.json"
+}

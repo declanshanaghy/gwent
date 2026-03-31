@@ -1,0 +1,12 @@
+{
+    "name": "Saesenthessis",
+    "faction": "Scoia'tael",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Beautiful, pure, fierce - the perfect icon for a rebellion.",
+    "processed_at": "2026-03-31T02:33:05",
+    "source_image": "Saesenthessis.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Saesenthessis2.json"
+}

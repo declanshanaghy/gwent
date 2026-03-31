@@ -1,0 +1,16 @@
+{
+    "name": "Yaevinn",
+    "faction": "Scoia'tael",
+    "strength": 6,
+    "ranges": [
+        "close",
+        "ranged"
+    ],
+    "abilities": [
+        "agile"
+    ],
+    "card_text": "We are the drops of rain that together make a ferocious storm.",
+    "processed_at": "2026-03-31T02:32:19",
+    "source_image": "Yaevinn.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Yaevinn.json"
+}

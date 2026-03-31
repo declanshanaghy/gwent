@@ -1,0 +1,9 @@
+{
+    "name": "Biting Frost",
+    "faction": "Monsters",
+    "specialty": "weather",
+    "card_text": "Best part about frost... bodies of the fallen don't rot so quickly.",
+    "processed_at": "2026-03-31T03:36:20",
+    "source_image": "BitingFrost.jpg",
+    "card_json_path": "software/data/cards/Monsters/BitingFrost1.json"
+}

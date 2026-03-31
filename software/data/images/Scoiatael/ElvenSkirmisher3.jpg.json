@@ -1,0 +1,15 @@
+{
+    "name": "Elven Skirmisher",
+    "faction": "Scoia'tael",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "No matter what you may have heard, elves don't take human scalps. Too much lice.",
+    "processed_at": "2026-03-31T03:04:11",
+    "source_image": "ElvenSkirmisher3.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/ElvenSkirmisher1.json"
+}

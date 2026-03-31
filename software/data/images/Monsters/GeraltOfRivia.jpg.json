@@ -1,0 +1,12 @@
+{
+    "name": "Geralt of Rivia",
+    "faction": "Monsters",
+    "strength": 15,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "If that's what it takes to save the world, it's better to let that world die.",
+    "processed_at": "2026-03-31T03:36:11",
+    "source_image": "GeraltOfRivia.jpg",
+    "card_json_path": "software/data/cards/Monsters/GeraltOfRivia.json"
+}

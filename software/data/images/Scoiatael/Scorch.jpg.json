@@ -1,0 +1,9 @@
+{
+    "name": "Scorch",
+    "faction": "Scoia'tael",
+    "specialty": "scorch",
+    "card_text": "Pillars of flame turn the mightiest to ash. All others tremble in shock and awe.",
+    "processed_at": "2026-03-31T01:38:38",
+    "source_image": "Scorch.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/Scorch.json"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Mahakaman Defender",
+    "faction": "Scoia'tael",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "I'm telling ye, we're born for battle - we slash right at their knees!",
+    "processed_at": "2026-03-31T03:03:06",
+    "source_image": "MahakamanDefender5.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/MahakamanDefender4.json"
+}

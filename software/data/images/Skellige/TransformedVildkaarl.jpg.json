@@ -1,0 +1,15 @@
+{
+    "name": "Transformed Vildkaarl",
+    "faction": "Skellige",
+    "strength": 14,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "morale"
+    ],
+    "card_text": "Saw them fight once in my life...and once was enough.",
+    "processed_at": "2026-03-31T03:08:04",
+    "source_image": "TransformedVildkaarl.jpg",
+    "card_json_path": "software/data/cards/Skellige/TransformedVildkaarl.json"
+}

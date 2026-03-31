@@ -1,0 +1,15 @@
+{
+    "name": "Vampire: Katakan",
+    "faction": "Monsters",
+    "strength": 5,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "Drinking the blood of the Continent since the Conjunction.",
+    "processed_at": "2026-03-31T02:24:00",
+    "source_image": "VampireKatakan.jpg",
+    "card_json_path": "software/data/cards/Monsters/VampireKatakan.json"
+}

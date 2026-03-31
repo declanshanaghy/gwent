@@ -1,0 +1,12 @@
+{
+    "name": "Vrihedd Brigade Recruit",
+    "faction": "Scoia'tael",
+    "strength": 4,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Hatred burns brighter than any fire, and cuts deeper than any blade.",
+    "processed_at": "2026-03-31T02:54:36",
+    "source_image": "VriheddBrigadeRecruit.jpg",
+    "card_json_path": "software/data/cards/Scoiatael/VriheddBrigadeRecruit.json"
+}

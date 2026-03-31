@@ -1,0 +1,13 @@
+{
+    "name": "Triss Merigold",
+    "faction": "Monsters",
+    "strength": 7,
+    "ranges": [
+        "close"
+    ],
+    "specialty": "hero",
+    "card_text": "I can take care of myself. Trust me.",
+    "card_json_path": "software/data/cards/Monsters/TrissMerigold.json",
+    "processed_at": "2026-03-31T02:27:33",
+    "source_image": "TrissMerigold.jpg"
+}

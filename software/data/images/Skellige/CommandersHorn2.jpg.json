@@ -1,0 +1,9 @@
+{
+    "name": "Commander's Horn",
+    "faction": "Skellige",
+    "specialty": "commander",
+    "card_text": "Plus one to morale, minus three to hearing",
+    "card_json_path": "software/data/cards/Skellige/CommandersHorn.json",
+    "processed_at": "2026-03-31T02:34:46",
+    "source_image": "CommandersHorn2.jpg"
+}

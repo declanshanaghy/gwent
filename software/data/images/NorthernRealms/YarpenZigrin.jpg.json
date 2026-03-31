@@ -1,0 +1,12 @@
+{
+    "name": "Yarpen Zigrin",
+    "faction": "Northern Realms",
+    "strength": 2,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "The world belongs to whoever's best at crackin' skulls and impregnatin' lasses.",
+    "processed_at": "2026-03-31T03:15:49",
+    "source_image": "YarpenZigrin.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/YarpenZigrin.json"
+}

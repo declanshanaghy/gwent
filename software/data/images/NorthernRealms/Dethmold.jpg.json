@@ -1,0 +1,12 @@
+{
+    "name": "Dethmold",
+    "faction": "Northern Realms",
+    "strength": 6,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "I once made a prisoner vomit his own entrails...Ah, good times...",
+    "processed_at": "2026-03-31T03:18:48",
+    "source_image": "Dethmold.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/Dethmold.json"
+}

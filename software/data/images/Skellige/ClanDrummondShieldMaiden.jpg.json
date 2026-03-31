@@ -1,0 +1,15 @@
+{
+    "name": "Clan Drummond Shield Maiden",
+    "faction": "Skellige",
+    "strength": 4,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "muster"
+    ],
+    "card_text": "They'll shatter on our shields like waves on a rocky shore.",
+    "card_json_path": "software/data/cards/Skellige/ClanDrummondShieldMaiden2.json",
+    "processed_at": "2026-03-31T02:03:02",
+    "source_image": "ClanDrummondShieldMaiden.jpg"
+}

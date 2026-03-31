@@ -1,0 +1,12 @@
+{
+    "name": "Tibor Eggebracht",
+    "faction": "Nilfgaardian",
+    "strength": 10,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Albana! Forward! Alba! Long live the Emperor!",
+    "processed_at": "2026-03-31T03:24:04",
+    "source_image": "TiborEggebracht.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/TiborEggebracht.json"
+}

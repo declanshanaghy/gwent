@@ -1,0 +1,9 @@
+{
+    "name": "Clear Weather",
+    "faction": "Northern Realms",
+    "specialty": "weather",
+    "card_text": "The sun's shinin'. Promise! The sun's shinin'! Maybe there's hope left after all.",
+    "card_json_path": "software/data/cards/NorthernRealms/ClearWeather.json",
+    "processed_at": "2026-03-31T02:38:30",
+    "source_image": "ClearWeather2.jpg"
+}

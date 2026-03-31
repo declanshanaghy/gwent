@@ -1,0 +1,15 @@
+{
+    "name": "Shilard Fitz-Oesterlen",
+    "faction": "Nilfgaardian",
+    "strength": 7,
+    "ranges": [
+        "close"
+    ],
+    "abilities": [
+        "spy"
+    ],
+    "card_text": "Warfare is mere sound and fury, diplomacy is what truly shapes history.",
+    "processed_at": "2026-03-31T03:28:42",
+    "source_image": "ShilardFitzOesterlen.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/ShilardFitzOesterlen.json"
+}

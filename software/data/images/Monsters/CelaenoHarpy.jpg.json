@@ -1,0 +1,12 @@
+{
+    "name": "Celaeno Harpy",
+    "faction": "Monsters",
+    "strength": 2,
+    "ranges": [
+        "ranged"
+    ],
+    "card_text": "Common harpies feed on carrion. Celaeno harpies... they feed on dreams.",
+    "processed_at": "2026-03-31T03:39:13",
+    "source_image": "CelaenoHarpy.jpg",
+    "card_json_path": "software/data/cards/Monsters/CelaenoHarpy.json"
+}

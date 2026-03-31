@@ -1,0 +1,9 @@
+{
+    "name": "Emhyr var Emreis: The White Flame",
+    "faction": "Nilfgaardian",
+    "specialty": "leader",
+    "card_text": "Cancel your opponent's Leader Ability",
+    "processed_at": "2026-03-31T03:22:46",
+    "source_image": "EmhyrVarEmreisTheWhiteFlame.jpg",
+    "card_json_path": "software/data/cards/Nilfgaardian/EmhyrVarEmreisTheWhiteFlame.json"
+}

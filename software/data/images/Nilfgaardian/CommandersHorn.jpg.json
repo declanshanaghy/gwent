@@ -1,0 +1,9 @@
+{
+    "name": "Commander's Horn",
+    "faction": "Nilfgaardian",
+    "specialty": "commander",
+    "card_text": "Plus one to morale, minus three to hearing.",
+    "card_json_path": "software/data/cards/Nilfgaardian/CommandersHorn1.json",
+    "processed_at": "2026-03-31T01:57:06",
+    "source_image": "CommandersHorn.jpg"
+}

@@ -1,0 +1,9 @@
+{
+    "name": "Decoy",
+    "faction": "Nilfgaardian",
+    "specialty": "decoy",
+    "card_text": "When you run out of peasants, decoys also make decent arrow fodder.",
+    "card_json_path": "software/data/cards/Nilfgaardian/Decoy1.json",
+    "processed_at": "2026-03-31T01:57:24",
+    "source_image": "Decoy.jpg"
+}

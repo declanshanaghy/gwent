@@ -1,0 +1,9 @@
+{
+    "name": "Foltest King of Temeria",
+    "faction": "Northern Realms",
+    "specialty": "leader",
+    "card_text": "Pick an Impenetrable Fog card from your deck and play it instantly. It is natural and beautiful that a man should love his sister.",
+    "processed_at": "2026-03-31T01:22:45",
+    "source_image": "FoltestKingOfTemeria.jpg",
+    "card_json_path": "software/data/cards/NorthernRealms/FoltestKingOfTemeria.json"
+}

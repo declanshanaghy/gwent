@@ -1,0 +1,15 @@
+{
+    "name": "Catapult",
+    "faction": "Northern Realms",
+    "strength": 8,
+    "ranges": [
+        "siege"
+    ],
+    "abilities": [
+        "bond"
+    ],
+    "card_text": "The gods help those who have better catapults.",
+    "card_json_path": "software/data/cards/NorthernRealms/Catapult.json",
+    "processed_at": "2026-03-31T01:12:35",
+    "source_image": "Catapult.jpg"
+}

@@ -1,0 +1,12 @@
+{
+    "name": "Imlerith",
+    "faction": "Monsters",
+    "strength": 10,
+    "ranges": [
+        "close"
+    ],
+    "card_text": "Ladd nahw! Kill them! Litter the earth with their entrails!",
+    "card_json_path": "software/data/cards/Monsters/Imlerith.json",
+    "processed_at": "2026-03-31T03:35:01",
+    "source_image": "Imlerith.jpg"
+}
