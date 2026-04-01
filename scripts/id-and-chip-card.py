@@ -30,7 +30,7 @@ import gwent.hal.sfx
 import gwent.messaging.base
 from gwent.utils.logging import configure_logging, DEBUG, INFO
 
-LOG_FILE = "/tmp/logs/id-and-chip-card.log"
+LOG_FILE = str(REPO_ROOT / "tmp" / "logs" / "id-and-chip-card.log")
 
 log = logging.getLogger("id-and-chip-card")
 

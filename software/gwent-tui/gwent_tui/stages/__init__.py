@@ -7,6 +7,7 @@ from gwent_tui.stages.deal_cards import DealCardsStage
 from gwent_tui.stages.play_round import PlayRoundStage
 from gwent_tui.stages.round_end import RoundEndStage
 from gwent_tui.stages.game_over import GameOverStage
+from gwent_tui.stages.round_summary import RoundSummaryStage
 from gwent_tui.stages.unknown import UnknownStage
 from gwent_tui.stages.offline import OfflineStage
 
@@ -18,6 +19,7 @@ STAGE_WIDGETS = {
     "DealCards": DealCardsStage,
     "PlayRound": PlayRoundStage,
     "RoundEnd": RoundEndStage,
+    "RoundSummary": RoundSummaryStage,
     "GameOver": GameOverStage,
     "DisplayWinner": GameOverStage,
 }

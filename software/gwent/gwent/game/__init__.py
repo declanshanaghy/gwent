@@ -1,3 +1,4 @@
+import os
 import time
 import threading
 from typing import Any, Callable
@@ -171,7 +172,7 @@ class PubSubComponent(ThreadComponent):
             del self._callbacks[topic]
 
     def publish(self, topic, message: gwent.messaging.base.Message):
-        """Publish a message to a topic"""
+        """Publish a message to a topic and record to disk."""
         self._log.info({
             'action': 'publish',
             'topic': topic,
@@ -185,6 +186,27 @@ class PubSubComponent(ThreadComponent):
         if cond:
             with cond:
                 cond.notify_all()
+        # Record message to tmp/games/{game_id}/
+        self._record_message(message)
+
+    @staticmethod
+    def _record_message(message):
+        """Write message JSON to tmp/games/{game_id}/{ms}-{slug}.json."""
+        try:
+            import time as _time
+            from gwent.game.state import get_game_id
+            from gwent.game.data_paths import _DATA_ROOT
+            # tmp/games/ relative to repo root (data_root is software/data, repo is ../../)
+            repo_root = os.path.normpath(os.path.join(_DATA_ROOT, '..', '..'))
+            game_dir = os.path.join(repo_root, 'tmp', 'games', get_game_id())
+            os.makedirs(game_dir, exist_ok=True)
+            ms = int(_time.time() * 1000)
+            slug = f"{message.kind}-{message.subkind or 'none'}"
+            path = os.path.join(game_dir, f"{ms}-{slug}.json")
+            with open(path, 'w') as f:
+                f.write(message.body)
+        except Exception:
+            pass  # Don't let recording failures affect gameplay
 
     def publish_effect(self, effect: str):
         """Publish a sound effect"""

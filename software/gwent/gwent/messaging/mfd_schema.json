@@ -15,17 +15,29 @@
         "error",
         "choices"
       ]
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
     }
   },
   "oneOf": [
-    { "$ref": "#/definitions/Prompt" },
-    { "$ref": "#/definitions/Error" },
-    { "$ref": "#/definitions/Choices" }
+    {
+      "$ref": "#/definitions/Prompt"
+    },
+    {
+      "$ref": "#/definitions/Error"
+    },
+    {
+      "$ref": "#/definitions/Choices"
+    }
   ],
   "definitions": {
     "Prompt": {
       "type": "object",
-      "required": ["prompt"],
+      "required": [
+        "prompt"
+      ],
       "properties": {
         "prompt": {
           "type": "string",
@@ -47,7 +59,9 @@
     },
     "Error": {
       "type": "object",
-      "required": ["error"],
+      "required": [
+        "error"
+      ],
       "properties": {
         "prompt": {
           "type": "string",
@@ -57,7 +71,9 @@
     },
     "Choices": {
       "type": "object",
-      "required": ["choices"],
+      "required": [
+        "choices"
+      ],
       "properties": {
         "choices": {
           "type": "array",
@@ -75,7 +91,10 @@
     },
     "choice": {
       "type": "object",
-      "required": [ "id", "text" ],
+      "required": [
+        "id",
+        "text"
+      ],
       "properties": {
         "id": {
           "type": "string",

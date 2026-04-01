@@ -40,7 +40,8 @@ MQTT_PASS = "gwent"
 TOPIC_CARD = "gwent/cards/raw/read"
 TOPIC_CHOICE = "gwent/mfd/choose"
 
-LOG_DIR = "/tmp/logs"
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
+LOG_DIR = os.path.join(_REPO_ROOT, "tmp", "logs")
 
 log = logging.getLogger("ollama-vs")
 

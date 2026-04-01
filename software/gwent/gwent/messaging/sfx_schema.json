@@ -48,6 +48,10 @@
     "random": {
       "description": "If true, plays a random background track (subkind=music)",
       "type": "boolean"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
     }
   }
 }

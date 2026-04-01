@@ -45,12 +45,19 @@
     "row": {
       "type": "string",
       "description": "The board row affected (close, ranged, siege)",
-      "enum": ["close", "ranged", "siege"]
+      "enum": [
+        "close",
+        "ranged",
+        "siege"
+      ]
     },
     "target_player": {
       "type": "string",
       "description": "The player whose board the card was placed on (for spy cards)",
-      "enum": ["PLAYER.ONE", "PLAYER.TWO"]
+      "enum": [
+        "PLAYER.ONE",
+        "PLAYER.TWO"
+      ]
     },
     "reason": {
       "type": "string",
@@ -59,7 +66,9 @@
     "weather_rows": {
       "type": "array",
       "description": "Current active weather rows after change",
-      "items": {"type": "string"}
+      "items": {
+        "type": "string"
+      }
     },
     "returned_card": {
       "type": "object",
@@ -91,7 +100,15 @@
     "pronoun": {
       "type": "string",
       "description": "Subject pronoun for the acting leader (he/she/it). Used for narration.",
-      "enum": ["he", "she", "it"]
+      "enum": [
+        "he",
+        "she",
+        "it"
+      ]
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
     }
   }
 }

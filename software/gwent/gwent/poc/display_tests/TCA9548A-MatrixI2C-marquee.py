@@ -193,7 +193,10 @@ def run(text=DEFAULT_TEXT, channel=0, brightness=50, speed=0.1, log_to_stdout=Tr
         configure_stdout_logging(level=logging.INFO)
     else:
         # Configure logging to file (default behavior)
-        configure_logging(level=logging.INFO, log_file="/tmp/logs/matrix_marquee.log")
+        _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..'))
+        _log_file = os.path.join(_repo_root, "tmp", "logs", "matrix_marquee.log")
+        os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+        configure_logging(level=logging.INFO, log_file=_log_file)
     
     logger.info("Starting TCA9548A Matrix I2C marquee display...")
     logger.info(f"Text: '{text}'")

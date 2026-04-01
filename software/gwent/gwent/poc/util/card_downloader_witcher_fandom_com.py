@@ -712,7 +712,10 @@ class CardDownloader:
 def main() -> int:
     """Command-line entry point for the card downloader utility"""
     # Set up logging
-    configure_logging(level=DEBUG, log_file="/tmp/logs/card_downloader.log")
+    _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..'))
+    _log_file = os.path.join(_repo_root, "tmp", "logs", "card_downloader.log")
+    os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+    configure_logging(level=DEBUG, log_file=_log_file)
     
     # Parse command-line arguments
     output_path = 'tmp/card-differences.md'

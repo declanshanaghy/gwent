@@ -1371,7 +1371,10 @@ def main() -> int:
     
     # Set up logging using the gwent logging system
     # This will use the logging.json configuration file
-    configure_logging(log_file='/tmp/logs/card_manager.log')
+    _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..'))
+    _log_file = os.path.join(_repo_root, "tmp", "logs", "card_manager.log")
+    os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+    configure_logging(log_file=_log_file)
     
     # Get a logger for this module
     logger = get_logger("gwent.poc.util.card_manager.main")

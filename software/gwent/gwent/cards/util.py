@@ -10,6 +10,9 @@ from gwent.utils.logging import get_logger, configure_logging, INFO
 
 log = get_logger("card.util")
 
+_REPO_ROOT = os.path.normpath(os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
+
 CARDS_DIR = os.path.abspath(os.path.join(
     os.path.dirname(__file__), "..", "..", "..", "data", "cards"
 ))
@@ -105,7 +108,7 @@ def validate_cards() -> gwent.messaging.card.Message:
 
 def validate_cards_main():
     """Command-line entry point for validating cards."""
-    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
+    configure_logging(level=INFO, log_file=os.path.join(_REPO_ROOT, "tmp", "logs", "cards_util.log"))
     print("Validating cards...")
     biggest_card = validate_cards()
     print(f"Total cards validated. Biggest card: {biggest_card.name} ({biggest_card.bytes} bytes)")
@@ -115,7 +118,7 @@ def validate_cards_main():
 def read_card_main():
     """Command-line entry point for reading a card file."""
     import sys
-    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
+    configure_logging(level=INFO, log_file=os.path.join(_REPO_ROOT, "tmp", "logs", "cards_util.log"))
 
     if len(sys.argv) < 2:
         print("Usage: read-card-file <path_to_card_file>")
@@ -134,7 +137,7 @@ def read_card_main():
 
 def random_card_main():
     """Command-line entry point for getting a random card."""
-    configure_logging(level=INFO, log_file="/tmp/logs/cards_util.log")
+    configure_logging(level=INFO, log_file=os.path.join(_REPO_ROOT, "tmp", "logs", "cards_util.log"))
     card = random_card()
     print(f"Random Card: {card.name}")
     print(f"Faction: {card.faction}")

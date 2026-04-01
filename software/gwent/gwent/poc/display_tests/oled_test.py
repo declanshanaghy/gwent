@@ -13,7 +13,10 @@ import os
 from gwent.utils.logging import get_logger, configure_logging, INFO
 
 # Configure logging with console output
-configure_logging(level=INFO, log_file="/tmp/logs/oled_test.log")
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..'))
+_log_file = os.path.join(_REPO_ROOT, "tmp", "logs", "oled_test.log")
+os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+configure_logging(level=INFO, log_file=_log_file)
 
 # Get logger for this component
 logger = get_logger("display_test")

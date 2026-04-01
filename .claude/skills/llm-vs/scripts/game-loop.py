@@ -13,8 +13,8 @@ Models (prefix determines provider, aliases supported):
   anthropic/opus            → claude-opus-4-20250514
   openai/gpt-4o             (direct)
   openai/o3-mini            (direct)
-  gemini/flash              → gemini-2.5-flash-preview-05-20
-  gemini/pro                → gemini-2.5-pro-preview-05-06
+  gemini/flash              → gemini-2.5-flash
+  gemini/pro                → gemini-2.5-pro
   ollama/deepseek           → deepseek-r1:14b
   ollama/llama3             → llama3.2:3b
   Full model IDs also accepted (e.g. anthropic/claude-sonnet-4-20250514)
@@ -34,8 +34,11 @@ import time
 
 import paho.mqtt.client as mqtt
 
+SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SKILL_DIR)))
+
 # --- File logging setup ---
-LOG_DIR = '/tmp/logs'
+LOG_DIR = os.path.join(REPO_ROOT, 'tmp', 'logs')
 LOG_FILE = os.path.join(LOG_DIR, 'game-loop.log')
 os.makedirs(LOG_DIR, exist_ok=True)
 
@@ -47,9 +50,6 @@ _fh.setFormatter(logging.Formatter(
     '%(asctime)s - %(levelname)s - %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'))
 _file_logger.addHandler(_fh)
-
-SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(SKILL_DIR)))
 
 _mqtt_host = 'localhost'
 
@@ -261,10 +261,10 @@ _pause_event = threading.Event()
 _pause_event.set()  # starts unpaused
 _auto_pause = True  # default: pause after every turn
 
-ORDERS_FILE_P1 = '/tmp/llm-vs-orders-p1.json'
-ORDERS_FILE_P2 = '/tmp/llm-vs-orders-p2.json'
-STATUS_FILE = '/tmp/llm-vs-status.json'
-PID_FILE = '/tmp/pids/game-loop.pid'
+ORDERS_FILE_P1 = os.path.join(REPO_ROOT, 'tmp', 'llm-vs-orders-p1.json')
+ORDERS_FILE_P2 = os.path.join(REPO_ROOT, 'tmp', 'llm-vs-orders-p2.json')
+STATUS_FILE = os.path.join(REPO_ROOT, 'tmp', 'llm-vs-status.json')
+PID_FILE = os.path.join(REPO_ROOT, 'tmp', 'pids', 'game-loop.pid')
 
 # Faction-themed commander order preambles
 COMMANDER_PREAMBLE = {
@@ -519,10 +519,10 @@ def init_conversations(board, round_history=None):
     If round_history is provided, appends a round summary as the first
     user message so the LLM has context about past rounds.
     """
-    os.makedirs('/tmp/logs', exist_ok=True)
+    os.makedirs(os.path.join(REPO_ROOT, 'tmp', 'logs'), exist_ok=True)
     for pnum, player in [('1', 'PLAYER.ONE'), ('2', 'PLAYER.TWO')]:
         prompt = build_system_prompt(board, player)
-        fp = f'/tmp/logs/llm-vs-p{pnum}.jsonl'
+        fp = os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl')
         with open(fp, 'w') as f:
             f.write(json.dumps({"role": "system", "content": prompt}) + '\n')
             if round_history:
@@ -726,11 +726,13 @@ MODEL_ALIASES = {
     "openai/o3-mini":               "openai/o3-mini",
     "openai/o4-mini":               "openai/o4-mini",
     # Gemini
-    "gemini/flash":                 "gemini/gemini-2.5-flash-preview-05-20",
-    "gemini/pro":                   "gemini/gemini-2.5-pro-preview-05-06",
-    "gemini/2.5-flash":             "gemini/gemini-2.5-flash-preview-05-20",
-    "gemini/2.5-pro":               "gemini/gemini-2.5-pro-preview-05-06",
+    "gemini/flash":                 "gemini/gemini-2.5-flash",
+    "gemini/pro":                   "gemini/gemini-2.5-pro",
+    "gemini/2.5-flash":             "gemini/gemini-2.5-flash",
+    "gemini/2.5-pro":               "gemini/gemini-2.5-pro",
     "gemini/2.0-flash":             "gemini/gemini-2.0-flash",
+    "gemini/3-flash":               "gemini/gemini-3-flash-preview",
+    "gemini/3-pro":                 "gemini/gemini-3-pro-preview",
     # Ollama (common local models)
     "ollama/deepseek":              "ollama/deepseek-r1:14b",
     "ollama/deepseek-r1":           "ollama/deepseek-r1:14b",
@@ -743,6 +745,27 @@ MODEL_ALIASES = {
     "ollama/gemma":                 "ollama/gemma3:12b",
     "ollama/gemma3":                "ollama/gemma3:12b",
 }
+
+
+# Fallback models when a provider is unavailable (503, 429, etc.)
+# Grouped by provider — fallback picks from a DIFFERENT provider
+FALLBACK_MODELS = [
+    "anthropic/claude-sonnet-4-20250514",
+    "anthropic/claude-haiku-4-5-20251001",
+    "openai/gpt-4o",
+    "openai/gpt-4o-mini",
+    "gemini/gemini-2.5-flash",
+]
+
+
+def _pick_fallback(current_model):
+    """Pick a random fallback model from a different provider."""
+    current_provider = current_model.split("/")[0] if "/" in current_model else ""
+    candidates = [m for m in FALLBACK_MODELS
+                  if not m.startswith(current_provider + "/")]
+    if not candidates:
+        candidates = FALLBACK_MODELS
+    return random.choice(candidates)
 
 
 def _resolve_model(model):
@@ -884,26 +907,42 @@ def _call_ollama(ollama_url, model_id, messages):
 
 
 def _call_gemini(model_id, messages):
-    """Call Google Gemini API via the OpenAI-compatible endpoint."""
+    """Call Google Gemini API via the official google-genai SDK."""
     log_debug(f"Calling Gemini: model={model_id}, messages={len(messages)}")
     api_key = os.environ.get('GEMINI_API_KEY', '')
     if not api_key:
         raise RuntimeError("GEMINI_API_KEY not set")
-    # Gemini supports OpenAI-compatible chat completions
-    resp = requests.post(
-        'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-        headers={'Authorization': f'Bearer {api_key}',
-                 'Content-Type': 'application/json'},
-        json={'model': model_id, 'messages': messages,
-              'temperature': 0.7,
-              'response_format': {'type': 'json_object'}},
-        timeout=120)
-    resp.raise_for_status()
-    return resp.json()['choices'][0]['message']['content']
+    from google import genai
+    client = genai.Client(api_key=api_key)
+
+    # Convert OpenAI message format to Gemini: extract system prompt, build contents
+    system_text = ''
+    contents = []
+    for m in messages:
+        if m['role'] == 'system':
+            system_text = m['content']
+        elif m['role'] == 'user':
+            contents.append({'role': 'user', 'parts': [{'text': m['content']}]})
+        elif m['role'] == 'assistant':
+            contents.append({'role': 'model', 'parts': [{'text': m['content']}]})
+
+    config = {
+        'temperature': 0.7,
+        'response_mime_type': 'application/json',
+    }
+    if system_text:
+        config['system_instruction'] = system_text
+
+    response = client.models.generate_content(
+        model=model_id,
+        contents=contents,
+        config=config,
+    )
+    return response.text
 
 
 def call_llm(ollama_url, model, pnum, state_json):
-    fp = f'/tmp/logs/llm-vs-p{pnum}.jsonl'
+    fp = os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl')
     with open(fp) as f:
         lines = f.readlines()
     msgs = [json.loads(lines[0])]
@@ -1281,9 +1320,39 @@ def game_loop(args, board, sync):
         ok = False
         for attempt in range(3):
             log_debug(f"LLM call attempt {attempt+1}/3 for {plab}")
-            content, lat = call_llm(
-                args.ollama_url, player_model, pnum,
-                state_json if attempt == 0 else json.dumps(state))
+            try:
+                content, lat = call_llm(
+                    args.ollama_url, player_model, pnum,
+                    state_json if attempt == 0 else json.dumps(state))
+            except Exception as llm_err:
+                err_name = type(llm_err).__name__
+                err_str = str(llm_err)[:200]
+                # Check for provider unavailability (503, 529, 429, etc.)
+                is_transient = any(code in err_str for code in ("503", "529", "429", "UNAVAILABLE", "overloaded"))
+                if is_transient and attempt < 2:
+                    old_model = player_model
+                    player_model = _pick_fallback(old_model)
+                    short_model = _short_model_name(player_model)
+                    _assign_gender(player_model)
+                    log(f"  \u26a0 {err_name}: {old_model} unavailable, falling back to {player_model}")
+                    announce(f"{_short_model_name(old_model)} is overwhelmed! {short_model} takes over!", faction=faction)
+                    # Update player name on server
+                    try:
+                        pkey = "PLAYER.ONE" if pnum == "1" else "PLAYER.TWO"
+                        g = _pn(player_model).get("he", "they")
+                        requests.put(f'{args.game_url}/players',
+                                     json={pkey: {"name": short_model, "pronoun": g}},
+                                     timeout=5)
+                    except Exception:
+                        pass
+                    if pnum == "1":
+                        args.model_p1 = player_model
+                    else:
+                        args.model_p2 = player_model
+                    continue
+                else:
+                    log(f"  ERROR: {err_name} calling {player_model}: {err_str}")
+                    raise
             log_debug(f"LLM response received: latency={lat:.1f}s, len={len(content) if content else 0}")
             try:
                 cleaned = content.strip()
@@ -1294,7 +1363,7 @@ def game_loop(args, board, sync):
             except json.JSONDecodeError:
                 err = (f"ERROR: Invalid JSON. "
                        f"Your hand: {[c['name'] for c in board['hands'][cur]]}")
-                with open(f'/tmp/logs/llm-vs-p{pnum}.jsonl', 'a') as f:
+                with open(os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl'), 'a') as f:
                     f.write(json.dumps({"role": "user", "content": err})
                             + '\n')
                 log(f"  {plab}: bad JSON (attempt {attempt + 1})")
@@ -1366,7 +1435,7 @@ def game_loop(args, board, sync):
                 break
             else:
                 err = f"ERROR: {msg}"
-                with open(f'/tmp/logs/llm-vs-p{pnum}.jsonl', 'a') as f:
+                with open(os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl'), 'a') as f:
                     f.write(json.dumps({"role": "user", "content": err})
                             + '\n')
                 log(f"  {plab}: INVALID {act} {card_name} -> "

@@ -267,7 +267,10 @@ def main():
     leaders_only = args.leaders
     no_write = args.no_write
 
-    configure_logging(level=DEBUG, log_file="/tmp/logs/write_next.log")
+    _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
+    _log_file = os.path.join(_repo_root, 'tmp', 'logs', 'write_next.log')
+    os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+    configure_logging(level=DEBUG, log_file=_log_file)
     log = get_logger("write_next")
 
     # Lazy import — hardware init happens here

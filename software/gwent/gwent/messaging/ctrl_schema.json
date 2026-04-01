@@ -13,15 +13,24 @@
       "enum": [
         "stage"
       ]
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
     }
   },
   "oneOf": [
-    { "$ref": "#/definitions/Stage" }
+    {
+      "$ref": "#/definitions/Stage"
+    }
   ],
   "definitions": {
     "Stage": {
       "type": "object",
-      "required": ["stage", "active"],
+      "required": [
+        "stage",
+        "active"
+      ],
       "properties": {
         "stage": {
           "type": "string",

@@ -73,6 +73,13 @@ class Message(object):
         return self._instance[CONTENT_ID]
 
     def _ensure_content_id(self):
+        # Inject game_id from the server's current game
+        try:
+            from gwent.game.state import get_game_id
+            self._instance["game_id"] = get_game_id()
+        except ImportError:
+            pass  # TUI or non-server context — no game_id available
+
         kwargs = {
             'sort_keys': True,
             'indent': None,

@@ -41,7 +41,7 @@ CAPTURE_JPG = WEBCAM_DIR / "capture.jpg"
 BASELINE_JPG = WEBCAM_DIR / "baseline.jpg"
 WEBCAM_DEVICE = "/dev/video0"
 
-LOG_FILE = "/tmp/logs/capture-cards.log"
+LOG_FILE = str(REPO_ROOT / "tmp" / "logs" / "capture-cards.log")
 
 log = logging.getLogger("capture-cards")
 
@@ -230,7 +230,7 @@ def say(text, faction=None):
     if _tts is None:
         return
     _tts_counter += 1
-    tmp_dir = Path("/tmp/capture-cards-tts")
+    tmp_dir = REPO_ROOT / "tmp" / "capture-cards-tts"
     tmp_dir.mkdir(exist_ok=True)
 
     ext = ".wav" if _tts.native_wav else ".mp3"

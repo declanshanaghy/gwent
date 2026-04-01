@@ -28,7 +28,8 @@ DEFAULT_GWENT_URL = "http://localhost:8080/state"
 
 
 def _configure_logging():
-    log_file = "/tmp/logs/gwent-tui.log"
+    _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+    log_file = os.path.join(_repo_root, "tmp", "logs", "gwent-tui.log")
     os.makedirs(os.path.dirname(log_file), exist_ok=True)
     root = logging.getLogger()
     root.setLevel(logging.DEBUG)
@@ -151,6 +152,10 @@ class GwentTUI(App):
 
     async def _switch_stage(self, stage_name):
         """Swap the stage container widget if the stage changed."""
+        # Intercept: show round summary interstitial before PlayRound
+        if stage_name == "PlayRound" and self.state._show_round_summary:
+            stage_name = "RoundSummary"
+
         if stage_name == self._current_stage_name:
             return
 

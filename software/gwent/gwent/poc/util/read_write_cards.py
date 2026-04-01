@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 import time
 
@@ -155,7 +156,10 @@ def read_card():
 
 if __name__ == '__main__':
     # Set up logging
-    configure_logging(level=DEBUG, log_file="/tmp/logs/read_write_cards.log")
+    _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..', '..'))
+    _log_file = os.path.join(_repo_root, "tmp", "logs", "read_write_cards.log")
+    os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+    configure_logging(level=DEBUG, log_file=_log_file)
 
     log = get_logger(f'read-write-cards')
     log.info(f'Received args {sys.argv}...')

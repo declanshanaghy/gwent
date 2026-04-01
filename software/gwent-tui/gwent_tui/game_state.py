@@ -1,6 +1,7 @@
 """In-memory game state model. Standalone — no gwent package dependency."""
 
 import logging
+import os
 import threading
 import time
 from collections import deque
@@ -26,7 +27,7 @@ _EVENT_COLORS = {
     "round_clear":      "bright_white",
     "stage":            "bright_cyan",
     "error":            "bright_red",
-    "announcement":     "bright_magenta",
+    "announcement":     "dark_khaki",
     "choice":           "green1",
     "card_scan":        "bright_cyan",
 }
@@ -114,6 +115,11 @@ class GameState:
         self.last_played_time = 0.0
         self.last_played_subkind = ""
         self.last_played_by = None  # P1 or P2 enum — who played/drew the card
+
+        # Raw card event recording (for round summary + game over stats)
+        self.card_events = []           # all rounds' events
+        self._show_round_summary = False
+        self._summary_round = 0
 
         # Event log (recent events for footer)
         self.last_prompt = ""
@@ -472,7 +478,8 @@ class GameState:
         from datetime import datetime
         from pathlib import Path
 
-        game_dir = Path("/tmp/gwent-tui")
+        _repo_root = Path(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')))
+        game_dir = _repo_root / "tmp" / "gwent-tui"
         game_dir.mkdir(parents=True, exist_ok=True)
         game_id = self.game_id or datetime.now().strftime("%Y%m%d-%H%M%S")
         path = game_dir / f"{game_id}.json"
@@ -566,7 +573,10 @@ class GameState:
             entry = f"[dim]{ts}[/dim] {msg}"
         self._event_log.append(entry)
         try:
-            with open("/tmp/logs/gwent-tui-events.log", "a") as f:
+            _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
+            _events_log = os.path.join(_repo_root, "tmp", "logs", "gwent-tui-events.log")
+            os.makedirs(os.path.dirname(_events_log), exist_ok=True)
+            with open(_events_log, "a") as f:
                 # Strip markup for the file log
                 import re
                 plain = re.sub(r'\[/?[^\]]*\]', '', entry)
@@ -599,6 +609,34 @@ class GameState:
         """5 seconds per card when queued, 8 seconds for single cards."""
         return 5 if self.card_queue else 8
 
+    def events_for_round(self, round_num):
+        """Return card events for a specific round (thread-safe copy)."""
+        with self.lock:
+            return [e for e in self.card_events if e["round"] == round_num]
+
+    def dismiss_round_summary(self):
+        """Called when user dismisses the round summary interstitial."""
+        self._show_round_summary = False
+
+    def _record_card_event(self, subkind, p, card, data):
+        """Append a compact event record for stats tracking."""
+        self.card_events.append({
+            "round": self.round_number,
+            "ts": time.time(),
+            "subkind": subkind,
+            "player": p,
+            "name": card.get("name", "???"),
+            "row": data.get("row", ""),
+            "strength": card.get("strength"),
+            "faction": card.get("faction", ""),
+            "specialty": card.get("specialty", ""),
+            "abilities": card.get("abilities", []) or [],
+            "p1_score": self.scores.get(P1, 0),
+            "p2_score": self.scores.get(P2, 0),
+            "reason": data.get("reason", ""),
+            "weather_rows": data.get("weather_rows", []),
+        })
+
     # --- MQTT event handlers ---
 
     def on_ctrl(self, data):
@@ -607,12 +645,17 @@ class GameState:
             stage = data.get("stage", "")
             active = data.get("active", True)
             if active and stage:
+                prev_stage = self.stage
                 if stage == "DealCards":
                     self.dealt_cards = {P1: [], P2: []}
                     self.reg_leader1 = None
                     self.reg_leader2 = None
                     self.reg_deck1 = []
                     self.reg_deck2 = []
+                # Detect round transition: show interstitial between rounds
+                if stage == "PlayRound" and prev_stage == "RoundEnd":
+                    self._show_round_summary = True
+                    self._summary_round = self.round_number
                 self.stage = stage
                 self._log_event(f"\U0001f3ad Stage: {stage}", color=_EVENT_COLORS["stage"])
                 if stage in ("GameOver", "DisplayWinner"):
@@ -648,11 +691,11 @@ class GameState:
             subkind = data.get("subkind", "")
             if subkind == "announcement":
                 self.last_announcement = data.get("announcement", "")
-                # Color by faction if available, otherwise use announcement color
+                # Use faction color if present (player action), otherwise server color
                 faction = data.get("faction", "")
-                fc = _FACTION_COLORS.get(faction, _EVENT_COLORS["announcement"])
+                color = _FACTION_COLORS.get(faction, _EVENT_COLORS["announcement"])
                 self._log_event(
-                    f"\U0001f4e2 {self.last_announcement}", color=fc
+                    f"\U0001f4e2 {self.last_announcement}", color=color
                 )
 
     def on_card_play(self, player_suffix, data):
@@ -664,7 +707,14 @@ class GameState:
             if not card:
                 return
             name = card.get("name", "???")
-            ec = _EVENT_COLORS.get(subkind)
+            # Subkinds that represent gameplay actions — record for stats
+            _RECORD_SUBKINDS = {"play_card", "place_card", "muster", "spy_draw",
+                                "medic_resurrect", "remove_card", "weather_change",
+                                "commander_horn", "decoy_swap", "transform"}
+
+            # Color by player's faction for player-specific events
+            fc = _FACTION_COLORS.get(self.factions.get(p, ""))
+            ec = fc or _EVENT_COLORS.get(subkind)
             if subkind == "deal_leader":
                 if p == P1:
                     self.reg_leader1 = card
@@ -721,6 +771,10 @@ class GameState:
                     self.queue_card(new_card, subkind, p)
             elif subkind == "round_clear":
                 self._log_event(f"\U0001f3c1 Round cleared", color=_EVENT_COLORS["round_clear"])
+
+            # Record gameplay events for round summary / game over stats
+            if subkind in _RECORD_SUBKINDS:
+                self._record_card_event(subkind, p, card, data)
             elif subkind == "add_to_deck":
                 if p == P1:
                     self.reg_deck1.append(card)

@@ -39,7 +39,11 @@
     "pronoun": {
       "description": "Subject pronoun for the character (he/she/it). Used for in-game narration.",
       "type": "string",
-      "enum": ["he", "she", "it"]
+      "enum": [
+        "he",
+        "she",
+        "it"
+      ]
     },
     "image": {
       "description": "Relative file path or URL for the card's photo image",
@@ -120,6 +124,10 @@
           }
         }
       }
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
     }
   },
   "specialty": {

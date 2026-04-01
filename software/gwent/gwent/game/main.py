@@ -244,7 +244,8 @@ class Gwent:
         self._log.info("Received SIGUSR1, saving game state...")
 
         # Check for a dynamic filename request
-        save_as_file = "/tmp/gwent-save-as"
+        _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
+        save_as_file = os.path.join(_repo_root, "tmp", "gwent-save-as")
         name = ""
         if os.path.exists(save_as_file):
             with open(save_as_file) as f:
@@ -357,7 +358,8 @@ class Gwent:
             self.shutdown()
 
 
-PID_FILE = "/tmp/pids/gwent.pid"
+_REPO_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
+PID_FILE = os.path.join(_REPO_ROOT, "tmp", "pids", "gwent.pid")
 
 
 def _check_pid_file():
@@ -402,7 +404,9 @@ def run():
                         help="Simple mode: gTTS with static messages for max caching, no API cost")
     args, _unknown = parser.parse_known_args()
 
-    configure_logging(level=DEBUG, log_file="/tmp/logs/gwent.log", log_stdout=True)
+    _log_file = os.path.join(_REPO_ROOT, "tmp", "logs", "gwent.log")
+    os.makedirs(os.path.dirname(_log_file), exist_ok=True)
+    configure_logging(level=DEBUG, log_file=_log_file, log_stdout=True)
     _check_pid_file()
     _write_pid_file()
     try:
