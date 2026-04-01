@@ -277,6 +277,9 @@ class GwentTUI(App):
             log.debug("Failed to register client TTS: %s", e)
 
     def on_unmount(self):
+        from gwent_tui import tts as tts_mod
+        tts_mod.stop_music()
+        tts_mod.stop()
         if self._poller:
             self._poller.stop()
         if self._subscriber:

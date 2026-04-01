@@ -222,9 +222,11 @@ class PubSubComponent(ThreadComponent):
 
         Both server and TUI subscribe to gwent/music — whoever has audio
         enabled plays it. Retained so late-joining clients get the current track.
+        Schedules auto-advance to gwent/music/advance after track duration.
         """
         import glob as _glob
         import random as _random
+        import threading
         from gwent.game.data_paths import MUSIC_DIR
         import gwent.messaging.music
 
@@ -239,10 +241,36 @@ class PubSubComponent(ThreadComponent):
             others = [t for t in tracks if t != music]
             next_track = _random.choice(others) if others else music
 
-        self._log.info(f"Publishing music: {music}, next: {next_track}")
+        # Get track duration for auto-advance scheduling
+        duration = None
+        if music:
+            mp3_path = os.path.join(MUSIC_DIR, f'{music}.mp3')
+            if os.path.exists(mp3_path):
+                try:
+                    import pydub
+                    audio = pydub.AudioSegment.from_mp3(mp3_path)
+                    duration = len(audio) / 1000.0  # ms to seconds
+                except Exception:
+                    pass
+
+        self._log.info(f"Publishing music: {music}, next: {next_track}, duration: {duration:.0f}s" if duration else f"Publishing music: {music}, next: {next_track}")
         e = gwent.messaging.music.Message.with_play(
-            music=music, next_music=next_track)
+            music=music, next_music=next_track, duration_seconds=duration)
         self.publish(CH_MUSIC, e, retain=True)
+
+        # Schedule auto-advance after track duration
+        if duration:
+            def _auto_advance():
+                self._log.info(f"Auto-advancing music (timer expired for {music})")
+                complete = gwent.messaging.music.Message.with_complete(
+                    music=music, source="gwent-timer")
+                self.publish(CH_MUSIC_COMPLETE, complete)
+            # Cancel previous timer if any
+            if hasattr(self, '_music_timer') and self._music_timer:
+                self._music_timer.cancel()
+            self._music_timer = threading.Timer(duration, _auto_advance)
+            self._music_timer.daemon = True
+            self._music_timer.start()
 
     def publish_error(self, error: str):
         """Publish an error message"""

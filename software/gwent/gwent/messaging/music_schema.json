@@ -1,7 +1,7 @@
 {
   "id": "https://gwent.shanaghy.com/music.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
-  "description": "Music playback message — published to gwent/music (retained)",
+  "description": "Music playback message. gwent/music (retained) for play, gwent/music/complete for finished.",
   "type": "object",
   "required": [
     "subkind"
@@ -9,7 +9,7 @@
   "properties": {
     "subkind": {
       "type": "string",
-      "description": "play: start playing a track. complete: track finished playing.",
+      "description": "play: start a track. complete: track finished (from TUI, server-timer, or server).",
       "enum": ["play", "complete"]
     },
     "music": {
@@ -18,11 +18,20 @@
     },
     "next_music": {
       "type": "string",
-      "description": "Next track to play after current finishes, for seamless playback"
+      "description": "Next track to play after current finishes"
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp with timezone when playback started. Clients joining late can seek to (now - started_at)."
+    },
+    "duration_seconds": {
+      "type": "number",
+      "description": "Track duration in seconds. Server uses this to schedule auto-advance."
     },
     "source": {
       "type": "string",
-      "description": "Who completed playback (gwent, gwent-tui)"
+      "description": "Who completed playback: gwent-tui, gwent-timer, gwent"
     },
     "game_id": {
       "type": "string",

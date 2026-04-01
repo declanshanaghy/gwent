@@ -88,17 +88,16 @@ class MqttSubscriber:
         except Exception as e:
             log.debug("Failed to publish music complete: %s", e)
 
-    def _play_music(self, music_name, is_random):
-        """Resolve a music track and play it via TTS module."""
-        import glob
+    def _play_music(self, music_name, started_at=0):
+        """Resolve a music track and play it, seeking to current position."""
+        import time as _time
         import random as _random
         from pathlib import Path
 
-        # Resolve music dir (software/data/music/)
         repo_root = Path(__file__).resolve().parent.parent.parent
         music_dir = repo_root / "data" / "music"
 
-        if is_random or not music_name:
+        if not music_name:
             files = list(music_dir.glob("*.mp3"))
             if files:
                 path = str(_random.choice(files))
@@ -113,8 +112,20 @@ class MqttSubscriber:
             log.debug("Music file not found: %s", path)
             return
 
+        # Calculate seek offset from server's started_at ISO 8601 timestamp
+        seek_seconds = 0
+        if started_at:
+            try:
+                from datetime import datetime, timezone
+                start = datetime.fromisoformat(started_at)
+                seek_seconds = max(0, (datetime.now(timezone.utc) - start).total_seconds())
+                if seek_seconds > 1:
+                    log.info("Music seek: %.0fs into track", seek_seconds)
+            except (ValueError, TypeError):
+                pass
+
         self._current_music_track = music_name or os.path.splitext(os.path.basename(path))[0]
-        tts.play_music(path)
+        tts.play_music(path, seek_seconds=seek_seconds)
 
     def disconnect(self):
         """Stop loop and disconnect."""
@@ -165,10 +176,9 @@ class MqttSubscriber:
         elif topic == MUSIC:
             # Retained message — current music track from server
             music_name = data.get("music")
-            is_random = data.get("random", False)
-            log.info("Music update: %s (random=%s)", music_name or "random", is_random)
-            # Resolve and play the track
-            self._play_music(music_name, is_random)
+            started_at = data.get("started_at", 0)
+            log.info("Music update: %s (started_at=%s)", music_name or "random", started_at)
+            self._play_music(music_name, started_at)
 
         elif topic == CARDS_RAW_READ:
             self.state.on_raw_read(data)

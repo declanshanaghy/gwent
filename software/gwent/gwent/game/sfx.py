@@ -76,17 +76,24 @@ class SFX(gwent.game.PubSubComponent):
         except Exception as e:
             self._log.error(f"Error playing music: {e}", exc_info=True)
 
+    _last_music_advance = 0.0
+
     def _on_music_complete(self, msg: gwent.messaging.music.Message):
         """Handle gwent/music/complete — queue next track.
 
-        Only reacts to completions from external sources (gwent-tui),
-        not from server itself, to avoid feedback loops.
+        Debounced: ignores duplicate completions within 5 seconds.
+        Sources: gwent-tui (client finished), gwent-timer (server scheduled).
         """
-        if msg.subkind == "complete":
-            source = msg.source
-            if source and source != "gwent":
-                self._log.info(f"Music completed by {source}, publishing next track")
-                self.publish_music()
+        import time as _time
+        if msg.subkind != "complete":
+            return
+        now = _time.time()
+        if now - self._last_music_advance < 5.0:
+            self._log.debug(f"Music complete debounced (source={msg.source})")
+            return
+        self._last_music_advance = now
+        self._log.info(f"Music completed by {msg.source}, publishing next track")
+        self.publish_music()
 
     def _on_announcement_complete(self, msg):
         complete = gwent.messaging.sfx.Message.with_announcement_complete(

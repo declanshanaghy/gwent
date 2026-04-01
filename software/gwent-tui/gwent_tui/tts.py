@@ -165,8 +165,8 @@ def set_on_music_complete(callback):
     _on_music_complete_callback = callback
 
 
-def play_music(path: str):
-    """Play a music file in the background. Fires on_music_complete when done."""
+def play_music(path: str, seek_seconds: float = 0):
+    """Play a music file in the background, optionally seeking to a position."""
     global _music_proc, _music_current_path
     if _provider_name == "none":
         return
@@ -179,15 +179,22 @@ def play_music(path: str):
     import platform
     try:
         if platform.system() == "Darwin":
+            cmd = ["afplay", path]
+            if seek_seconds > 1:
+                cmd.extend(["--time", str(max(0, -seek_seconds))])  # afplay doesn't seek well
             _music_proc = subprocess.Popen(
-                ["afplay", path],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
+            # mpg123: --skip N skips N frames (~0.026s per frame at 128kbps)
+            cmd = ["mpg123", "-q"]
+            if seek_seconds > 1:
+                frames = int(seek_seconds / 0.026)
+                cmd.extend(["--skip", str(frames)])
+            cmd.append(path)
             _music_proc = subprocess.Popen(
-                ["mpg123", "-q", path],
-                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        log.info("Music playing: %s (pid=%s)", os.path.basename(path), _music_proc.pid)
-        # Monitor for completion in background thread
+                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        seek_info = f", seeked {seek_seconds:.0f}s" if seek_seconds > 1 else ""
+        log.info("Music playing: %s (pid=%s%s)", os.path.basename(path), _music_proc.pid, seek_info)
         t = threading.Thread(target=_music_monitor, args=(_music_proc,), daemon=True)
         t.start()
     except FileNotFoundError as e:
