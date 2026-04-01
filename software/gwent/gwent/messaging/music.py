@@ -4,7 +4,7 @@ Published to gwent/music (retained). Completions on gwent/music/complete.
 """
 import gwent.messaging.base
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 KIND = 'music'
 
@@ -17,7 +17,7 @@ class Message(gwent.messaging.base.Message):
     def with_play(music: str, next_music: str = None, duration_seconds: float = None):
         instance = {
             "music": music,
-            "started_at": datetime.now(timezone.utc).isoformat(),
+            "started_at": datetime.now().astimezone().isoformat(),
         }
         if next_music:
             instance["next_music"] = next_music

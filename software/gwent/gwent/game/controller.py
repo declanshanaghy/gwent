@@ -57,7 +57,8 @@ class Controller(gwent.game.PubSubComponent):
 
     def run(self):
         self.start_music()
-        self.start_main_menu()
+        if not getattr(self, '_skip_main_menu', False):
+            self.start_main_menu()
         super().run()
 
     def set_active_stage(self, st, completed: Callable, cancel: Callable, *args, **kwargs):

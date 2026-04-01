@@ -63,6 +63,7 @@ class GwentTUI(App):
         Binding("ctrl+c", "quit", "Quit", priority=True),
         Binding("question_mark", "help", "Help"),
         Binding("ctrl+s", "save", "Save State"),
+        Binding("right", "next_track", "Next Track"),
         Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
@@ -226,6 +227,7 @@ class GwentTUI(App):
                 table.add_column("Action", style="white")
                 for key, action in [
                     ("?", "Help"),
+                    ("\u2192", "Next music track"),
                     ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
@@ -256,6 +258,11 @@ class GwentTUI(App):
             snapshot_mod.POLL_TIMEOUT = self._POLL_PRESETS[0]
         log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
         await self._refresh_all()
+
+    def action_next_track(self):
+        """Skip to next music track."""
+        if self._subscriber:
+            self._subscriber._publish_music_complete()
 
     def _register_client_tts(self):
         """Register this client's TTS provider with the server."""

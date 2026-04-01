@@ -85,15 +85,20 @@ class SFX(gwent.game.PubSubComponent):
         Sources: gwent-tui (client finished), gwent-timer (server scheduled).
         """
         import time as _time
+        self._log.info(f"Music complete received: source={msg.source}, music={msg.music}")
         if msg.subkind != "complete":
             return
         now = _time.time()
-        if now - self._last_music_advance < 5.0:
-            self._log.debug(f"Music complete debounced (source={msg.source})")
+        elapsed = now - self._last_music_advance
+        if elapsed < 5.0:
+            self._log.info(f"Music complete debounced ({elapsed:.1f}s since last, source={msg.source})")
             return
         self._last_music_advance = now
-        self._log.info(f"Music completed by {msg.source}, publishing next track")
-        self.publish_music()
+        # Advance to the next_music that was promised in the last play message
+        from gwent.game import PubSubComponent
+        promised = PubSubComponent._music_next_track
+        self._log.info(f"Music advancing to: {promised or 'playlist next'} (triggered by {msg.source})")
+        self.publish_music(music=promised)
 
     def _on_announcement_complete(self, msg):
         complete = gwent.messaging.sfx.Message.with_announcement_complete(

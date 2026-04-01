@@ -30,6 +30,7 @@ _EVENT_COLORS = {
     "announcement":     "dark_khaki",
     "choice":           "green1",
     "card_scan":        "bright_cyan",
+    "music":            "plum1",
 }
 
 # Faction colors for announcements (matches FACTION_STYLE text colors)

@@ -166,7 +166,7 @@ def set_on_music_complete(callback):
 
 
 def play_music(path: str, seek_seconds: float = 0):
-    """Play a music file in the background, optionally seeking to a position."""
+    """Play a music file in the background."""
     global _music_proc, _music_current_path
     if _provider_name == "none":
         return
@@ -179,22 +179,14 @@ def play_music(path: str, seek_seconds: float = 0):
     import platform
     try:
         if platform.system() == "Darwin":
-            cmd = ["afplay", path]
-            if seek_seconds > 1:
-                cmd.extend(["--time", str(max(0, -seek_seconds))])  # afplay doesn't seek well
             _music_proc = subprocess.Popen(
-                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+                ["afplay", path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
-            # mpg123: --skip N skips N frames (~0.026s per frame at 128kbps)
-            cmd = ["mpg123", "-q"]
-            if seek_seconds > 1:
-                frames = int(seek_seconds / 0.026)
-                cmd.extend(["--skip", str(frames)])
-            cmd.append(path)
             _music_proc = subprocess.Popen(
-                cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        seek_info = f", seeked {seek_seconds:.0f}s" if seek_seconds > 1 else ""
-        log.info("Music playing: %s (pid=%s%s)", os.path.basename(path), _music_proc.pid, seek_info)
+                ["mpg123", "-q", path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        log.info("Music playing: %s (pid=%s)", os.path.basename(path), _music_proc.pid)
         t = threading.Thread(target=_music_monitor, args=(_music_proc,), daemon=True)
         t.start()
     except FileNotFoundError as e:
@@ -204,7 +196,10 @@ def play_music(path: str, seek_seconds: float = 0):
 def _music_monitor(proc):
     """Wait for music to finish, then fire completion callback."""
     proc.wait()
-    if _on_music_complete_callback:
+    # Small delay to allow crossfade overlap if next track starts quickly
+    import time as _time
+    _time.sleep(0.5)
+    if _on_music_complete_callback and proc == _music_proc:
         log.debug("Music track finished, firing completion")
         _on_music_complete_callback()
 

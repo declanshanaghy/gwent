@@ -36,11 +36,13 @@ class MqttSubscriber:
     def __init__(self, state, host=None, port=None):
         self.state = state
         self._current_music_track = ""
+        self._next_music_track = ""
         self.host = host or BROKER_HOST
         self.port = port or BROKER_PORT
         self.client = mqtt.Client(
             mqtt.CallbackAPIVersion.VERSION2,
             client_id="gwent-tui",
+            clean_session=True,
         )
         self.client.username_pw_set(BROKER_USER, BROKER_PASS)
         self.client.on_connect = self._on_connect
@@ -74,9 +76,17 @@ class MqttSubscriber:
             log.debug("Failed to publish announcement_complete: %s", e)
 
     def _publish_music_complete(self):
-        """Publish to gwent/music/complete so server can queue next track."""
+        """Track finished — immediately start next_music, then notify server."""
+        track = self._current_music_track or ""
+        next_track = getattr(self, '_next_music_track', "")
+
+        # Start next track immediately (don't wait for server round-trip)
+        if next_track:
+            log.info("Track finished, starting next: %s", next_track)
+            self._play_music(next_track, started_at="")
+
+        # Notify server so it can update the retained message
         try:
-            track = self._current_music_track or ""
             payload = json.dumps({
                 "kind": "music",
                 "subkind": "complete",
@@ -116,9 +126,10 @@ class MqttSubscriber:
         seek_seconds = 0
         if started_at:
             try:
-                from datetime import datetime, timezone
+                from datetime import datetime
                 start = datetime.fromisoformat(started_at)
-                seek_seconds = max(0, (datetime.now(timezone.utc) - start).total_seconds())
+                now = datetime.now().astimezone()
+                seek_seconds = max(0, (now - start).total_seconds())
                 if seek_seconds > 1:
                     log.info("Music seek: %.0fs into track", seek_seconds)
             except (ValueError, TypeError):
@@ -176,8 +187,11 @@ class MqttSubscriber:
         elif topic == MUSIC:
             # Retained message — current music track from server
             music_name = data.get("music")
-            started_at = data.get("started_at", 0)
-            log.info("Music update: %s (started_at=%s)", music_name or "random", started_at)
+            self._next_music_track = data.get("next_music", "")
+            started_at = data.get("started_at", "")
+            log.info("Music update: %s (next=%s)", music_name, self._next_music_track)
+            self.state._log_event(
+                f"\U0001f3b5 Now playing: {music_name or 'random'}", color="plum1")
             self._play_music(music_name, started_at)
 
         elif topic == CARDS_RAW_READ:

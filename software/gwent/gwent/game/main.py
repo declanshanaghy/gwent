@@ -321,29 +321,32 @@ class Gwent:
             self._log.error('Failed to connect to MQTT broker')
             return
         
+        # Check if we'll be loading a recording — skip main menu if so
+        import os
+        import gwent.game.state as game_state
+        state_file = os.environ.get("GWENT_STATE", "")
+        self._log.info(f"GWENT_STATE env var: '{state_file}'")
+
         # Create and start components
         self.create_components()
         self.initialize_components()
+
+        # Tell controller to skip main menu if loading a recording
+        controller = self._get_controller()
+        if state_file and controller:
+            controller._skip_main_menu = True
+
         self.start_components()
 
         # Start HTTP API server for state access
         from gwent.game.http_api import start_http_server
         self._http_server = start_http_server(self._get_controller, self.pubsub)
 
-        # Load saved game state to jump to a specific point.
-        # GWENT_STATE: path to a state JSON file (absolute, or name resolved under recordings/)
-        # GWENT_STATE_OUT: name for saving state on SIGUSR1 (default: state-<timestamp>)
-        import os
-        import gwent.game.state as game_state
-
-        state_file = os.environ.get("GWENT_STATE", "")
-        self._log.info(f"GWENT_STATE env var: '{state_file}'")
+        # Load saved game state to jump to a specific point
         if state_file:
-            # Resolve relative name to recordings dir
             if not os.path.isabs(state_file):
                 state_file = game_state.get_filepath(state_file)
             self._log.info(f"Loading game state from {state_file}")
-            controller = self._get_controller()
             if controller:
                 game_state.load(state_file, controller)
             else:

@@ -140,14 +140,14 @@ All scripts: load `.env` automatically, log to `tmp/logs/`, skip existing files,
    python3 .claude/skills/music-sfx-search/generate-sfx.py
    ```
 
-**Phase 2: User Review**
-4. Tell user: "Generated files are in tmp/resources/. Listen and remove any you don't want, then tell me to continue."
-5. STOP and wait
+**Phase 2: User Review (MANDATORY STOP)**
+4. Tell user: "Files are in `tmp/resources/`. Listen and remove any you don't want, then tell me to install."
+5. **STOP HERE. DO NOT PROCEED.** Wait for the user to explicitly say "install", "integrate", "save", "commit", or similar.
+6. Do NOT auto-install. Do NOT skip this step. The user must confirm.
 
-**Phase 3: Install**
-6. SFX: ensure WAV 44100Hz stereo, move to `software/data/sfx/{category}/`
-7. Music: move MP3s to `software/data/music/`
-8. Move sidecar JSONs alongside
+**Phase 3: Install (only after user confirmation)**
+7. SFX: ensure WAV 44100Hz stereo, move to `software/data/sfx/{category}/`
+8. Music: move MP3s + JSON sidecars to `software/data/music/`
 9. Clean up: `rm -rf tmp/resources/`
 
 ---
@@ -181,13 +181,16 @@ All scripts: load `.env` automatically, log to `tmp/logs/`, skip existing files,
 4. Present numbered list, download approved to tmp
 5. Write sidecar JSONs with `"source": "mixkit"`, `"mixkit_id"`, `"source_url"`
 
-**Phase 2: User Review**
-6. STOP and wait for user to prune
+**Phase 2: User Review (MANDATORY STOP)**
+6. Tell the user: "Files are in `tmp/resources/`. Listen and remove any you don't want, then tell me to install."
+7. **STOP HERE. DO NOT PROCEED.** Wait for the user to explicitly say "install", "integrate", "save", "commit", or similar.
+8. Do NOT auto-install. Do NOT skip this step. The user must confirm.
 
-**Phase 3: Convert & Install**
-7. Convert SFX MP3→WAV (44100Hz stereo) via pydub
-8. Move WAVs to `software/data/sfx/{category}/`, music MP3s to `software/data/music/`
-9. Clean up
+**Phase 3: Install (only after user confirmation)**
+9. Convert SFX MP3→WAV (44100Hz stereo) via pydub
+10. Move WAVs to `software/data/sfx/{category}/`
+11. Move music MP3s + JSON sidecars to `software/data/music/`
+12. Clean up: `rm -rf tmp/resources/`
 
 ### Known Working Mixkit IDs
 
