@@ -1,57 +1,77 @@
-# 📚 Gwent Companion Documentation: The Artisanal Collection ☕
+# Gwent Companion Documentation
 
-Welcome to the hand-crafted documentation for the Gwent Companion project, a physical-digital hybrid gaming system that enhances the traditional Gwent card game experience. This document serves as your locally-sourced guide to all documentation in the project.
+Welcome to the documentation for the Gwent Companion project, a Raspberry Pi-based digital companion for the physical card game Gwent from The Witcher III.
 
-## 🧙‍♂️ Project Overview
+## Project Overview
 
-- [README.md](README.md): The main project overview and entry point
-- [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md): How to set up the project environment
+- [README.md](README.md): Project overview, architecture diagram, and quick-start
+- [SETUP_INSTRUCTIONS.md](SETUP_INSTRUCTIONS.md): Hardware and environment setup
 
-## 🎨 Design Documentation
+## Architecture
 
-- [Design Documentation](design/README.md): Complete design documentation including architecture decisions, tasks, and specifications
-- [Product Requirements](design/000-product-requirements.md): Core requirements and features for the Gwent Companion
+- [GwentArchitecture.md](design/GwentArchitecture.md): Comprehensive system architecture (server, TUI, game-loop, hardware, MQTT)
+- [GwentGameStages.md](design/GwentGameStages.md): Game stage state machine and transitions
+- [GwentPubSub.md](design/GwentPubSub.md): MQTT pub/sub messaging architecture
+- [ThreadModel.md](design/ThreadModel.md): Threading model
 
-### 📐 Architecture Decision Records
+## Game Design
 
-- [ADR-000](design/ADR/000-task-master-roo-code.md): Task Master Integration for AI-Driven Development
-- [ADR-001](design/ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
-- [ADR-002](design/ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
+- [GwentRules.md](design/GwentRules.md): Canonical game rules as implemented
+- [GwentCardMechanics.md](design/GwentCardMechanics.md): Card abilities and mechanics
+- [GwentFactions.md](design/GwentFactions.md): Faction descriptions and passive abilities
+- [GwentLeaders.md](design/GwentLeaders.md): Leader cards and abilities
 
-### 📊 Architecture Diagrams
+## Product Requirements
 
-- [GwentPubSub.md](design/GwentPubSub.md): Interactive Mermaid diagram of the publish-subscribe architecture
-- [GwentPubSub.pdf](design/GwentPubSub.pdf): PDF version of the publish-subscribe architecture
-- [GwentGameStages.pdf](design/GwentGameStages.pdf): Game stages and state transitions
+- [PRD-000](design/000-product-requirements.md): Product overview and core requirements
+- [PRD-001](design/001-mqtt-pubsub-messaging.md): MQTT pub/sub messaging
+- [PRD-002](design/002-game-server-rest-api.md): Game server REST API
+- [PRD-003](design/003-game-state-machine.md): Game state machine
+- [PRD-004](design/004-hardware-abstraction-layer.md): Hardware abstraction layer
+- [PRD-005](design/005-terminal-dashboard.md): Terminal dashboard (gwent-tui)
+- [PRD-006](design/006-audio-tts-system.md): Audio and TTS system
+- [PRD-007](design/007-card-data-system.md): Card data system
+- [PRD-008](design/008-deck-management.md): Deck management
+- [PRD-009](design/009-game-recordings.md): Game recordings and replay
+- [PRD-010](design/010-llm-game-orchestration.md): LLM game orchestration
+- [PRD-011](design/011-card-capture-rfid.md): Card capture and RFID programming
 
-### 🎭 Style Guidelines
+## Architecture Decision Records
 
-- [Design Documentation Style Guide](design/DesignDocumentationStyleGuide.md): Guidelines for creating consistent design documentation
+- [ADR-001](design/ADR/001-audio-and-menu-subsystems.md): Audio and menu subsystems
+- [ADR-002](design/ADR/002-physical-interface-implementation.md): Physical interface (rotary encoder, OLED)
+- [ADR-003](design/ADR/003-mqtt-pubsub-backbone.md): MQTT as messaging backbone
+- [ADR-004](design/ADR/004-game-stage-state-machine.md): Stage-based state machine
+- [ADR-005](design/ADR/005-rest-api-long-polling.md): REST API long-polling with ETag
+- [ADR-006](design/ADR/006-hardware-abstraction-layer.md): Hardware abstraction layer
+- [ADR-007](design/ADR/007-tui-rich-textual-dashboard.md): Rich/Textual TUI dashboard
+- [ADR-008](design/ADR/008-multi-provider-tts.md): Multi-provider TTS with faction voices
+- [ADR-009](design/ADR/009-card-json-ownership-model.md): Card JSON ownership model
+- [ADR-010](design/ADR/010-llm-orchestration-architecture.md): LLM orchestration via HTTP + MQTT
+- [ADR-011](design/ADR/011-game-recordings-replay.md): Game recordings and replay
+- [ADR-012](design/ADR/012-rfid-card-capture-pipeline.md): RFID card capture pipeline
 
-## 💻 Software Documentation
+## Style Guidelines
 
-### 🎮 Gwent Core
+- [DesignDocumentationStyleGuide.md](design/DesignDocumentationStyleGuide.md): Design documentation style
+- [MermaidStyleGuide.md](design/MermaidStyleGuide.md): Mermaid diagram styling
 
-- [Gwent README](software/gwent/README.md): Documentation for the main Gwent Python package
-- [Menu System](software/gwent/docs/menu_system.md): Documentation for the interactive menu system
+## Software
 
-### 🧪 Proof of Concept Scripts
+- [Gwent Core](software/gwent/README.md): Game server package
+- [Gwent TUI](software/gwent-tui/): Terminal dashboard
+- [Gwent Shared](software/gwent-shared/): Shared utilities (TTS providers)
+- [Menu System](software/gwent/docs/menu_system.md): Interactive menu system
 
-- [POC README](software/gwent/gwent/poc/README.md): Overview of proof-of-concept scripts
-  - [Diagnostic Tools](software/gwent/gwent/poc/diagnostic_tools/README.md): Utilities for diagnosing hardware issues
-  - [Display Tests](software/gwent/gwent/poc/display_tests/README.md): Scripts for testing OLED displays
-  - [Input Tests](software/gwent/gwent/poc/input_tests/README.md): Scripts for testing input devices
-  - [RFID Tests](software/gwent/gwent/poc/rfid_tests/README.md): Scripts for testing RFID functionality
+### Proof of Concept
 
-## 🛠️ Development Tools
+- [POC Overview](software/gwent/gwent/poc/README.md): Proof-of-concept scripts
+  - [Diagnostic Tools](software/gwent/gwent/poc/diagnostic_tools/README.md)
+  - [Display Tests](software/gwent/gwent/poc/display_tests/README.md)
+  - [Input Tests](software/gwent/gwent/poc/input_tests/README.md)
+  - [RFID Tests](software/gwent/gwent/poc/rfid_tests/README.md)
 
-- [Scripts README](scripts/README.md): Documentation for development scripts and utilities
-- [Task List](task-list.mdc): Current progress and upcoming tasks
+## Development
 
-## 📡 External Components
-
-- [MFRC522 Python](software/MFRC522-python/README.md): Documentation for the RFID reader library
-
----
-
-*This documentation collection has been artisanally curated following the "latte drinking l33tC0dzr long hair, hippy trousers architect in an ivory tower style" as mandated by our design documentation style requirements.*
+- [Scripts](scripts/README.md): Development scripts and utilities
+- [MFRC522 Python](software/MFRC522-python/README.md): RFID reader library

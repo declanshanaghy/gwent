@@ -53,7 +53,8 @@ from gwent.utils.logging import get_logger
 log = get_logger("gwent.game.state")
 
 STATE_VERSION = 1
-STATES_DIR = os.path.join(os.path.dirname(__file__), "recordings")
+from gwent.game.data_paths import RECORDINGS_DIR
+STATES_DIR = RECORDINGS_DIR
 SCHEMA_PATH = os.path.join(STATES_DIR, "recording.schema.json")
 
 
@@ -76,7 +77,7 @@ def _dict_to_card(d):
     return gwent.messaging.card.Message.from_properties(d)
 
 
-def snapshot_dict(controller, player_names=None, client_tts=None):
+def snapshot_dict(controller, player_names=None, player_pronouns=None, client_tts=None):
     """Build the snapshot dict from current game state.
 
     Used by both save() and the HTTP /state endpoint.
@@ -142,6 +143,8 @@ def snapshot_dict(controller, player_names=None, client_tts=None):
     }
     if player_names:
         result["player_names"] = player_names
+    if player_pronouns:
+        result["player_pronouns"] = player_pronouns
     if client_tts:
         result["client_tts"] = client_tts
     return result

@@ -7,5 +7,6 @@
         "instructions": "Units only lose half their strength in bad weather conditions",
         "half_weather_penalty": true
     },
-    "last_updated": "2026-03-28T13:47:26"
+    "last_updated": "2026-03-28T13:47:26",
+    "pronoun": "he"
 }

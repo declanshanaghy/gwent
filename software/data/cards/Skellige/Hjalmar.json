@@ -13,5 +13,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Skellige/Hjalmar.jpg",
     "card_text": "Instead of mournin' the fallen, let's drink to their memory!",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

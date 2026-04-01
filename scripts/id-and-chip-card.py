@@ -123,9 +123,9 @@ _sfx = None
 _capture_sound = None
 _write_sound = None
 
-EFFECTS_DIR = REPO_ROOT / "software" / "gwent" / "gwent" / "hal" / "effects"
-CAPTURE_WAV = EFFECTS_DIR / "camera_shutter.wav"
-WRITE_WAV = EFFECTS_DIR / "card_read.wav"
+SFX_DATA_DIR = REPO_ROOT / "software" / "data" / "sfx"
+CAPTURE_WAV = SFX_DATA_DIR / "camera_shutter.wav"
+WRITE_WAV = SFX_DATA_DIR / "card_read.wav"
 
 
 def play_capture_sound():

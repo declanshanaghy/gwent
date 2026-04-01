@@ -273,7 +273,7 @@ def capture_image(output_path=None):
     return True
 
 
-CAPTURE_WAV = REPO_ROOT / "software" / "gwent" / "gwent" / "hal" / "effects" / "card_read.wav"
+CAPTURE_WAV = REPO_ROOT / "software" / "data" / "sfx" / "card_read.wav"
 
 
 def _play_capture_sound():

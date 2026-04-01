@@ -66,7 +66,7 @@ Show the leader separately above each table with its RFID. Owner column is impli
 
 ### 5. Save recording file
 
-Ask the user for a filename (suggest next sequential number in `software/gwent/gwent/game/recordings/`).
+Ask the user for a filename (suggest next sequential number in `software/data/recordings/`).
 
 Save as a game state JSON using this structure (model on existing recordings):
 

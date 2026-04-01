@@ -12,5 +12,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Monsters/Griffin.jpg",
     "card_text": "Griffins like to toy with their prey. Eat 'em alive, piece by piece.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "it"
 }

@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "commander",
+  "title": "Commander Drums Crescendo",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. War drums building from slow to fast crescendo, culminating in a cymbal crash, 4 seconds",
+  "duration_seconds": 4.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

@@ -33,12 +33,6 @@ This directory contains various scripts used for development, deployment, and ma
 |--------|-------------|
 | `test_hardware.py` | Tests all hardware components to ensure they're working correctly |
 
-## 📚 Development Workflow
-
-The Gwent project uses a task-based development workflow powered by the Task Master system. This system helps manage development tasks, track progress, and coordinate work between developers.
-
-For detailed information about the development workflow and task management system, see the [Task Master Documentation](../README-task-master.md).
-
 ## 🎮 Using the Scripts
 
 Most scripts can be executed directly from the command line:

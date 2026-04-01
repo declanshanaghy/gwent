@@ -20,16 +20,719 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0bb4bced-4b9d-42a3-997f-9a0faad2b8ca" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/all.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/main_menu.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_leaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/projects/-home-dshanaghy-src-github-com-declanshanaghy-gwent/memory/feedback_srp.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/projects/-home-dshanaghy-src-github-com-declanshanaghy-gwent/memory/feedback_srp.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/build-decks/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/build-decks/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/card-report/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/card-report/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/dev-server/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/dev-server/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/file-issue/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/file-issue/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/game-state/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/game-state/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/id-and-chip-card/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/id-and-chip-card/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/imagen/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/imagen/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/imagen/base-prompt.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/imagen/base-prompt.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/imagen/generate.ts" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/imagen/generate.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/imagen/profile-prompt.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/imagen/profile-prompt.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/implement-card/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/implement-card/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/import-skill/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/import-skill/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/llm-vs/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/llm-vs/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/llm-vs/references/game-state-format.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/llm-vs/references/game-state-format.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/llm-vs/references/gwent-rules-prompt.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/llm-vs/references/gwent-rules-prompt.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/llm-vs/references/mqtt-commands.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/llm-vs/references/mqtt-commands.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/llm-vs/scripts/game-loop.py" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/llm-vs/scripts/game-loop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/plan-stage/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/plan-stage/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/playback-and-record-trace/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/playback-and-record-trace/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/playback-trace/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/playback-trace/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/read-card/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/read-card/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/record-trace/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/record-trace/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/scan-card-photo/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/scan-card-photo/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/super-victory/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/super-victory/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/super-victory/references/synergy-catalog.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/super-victory/references/synergy-catalog.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/voice-explorer/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/voice-explorer/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/skills/write-card/SKILL.md" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/skills/write-card/SKILL.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cursor/mcp-example.json" beforeDir="false" afterPath="$PROJECT_DIR$/.cursor/mcp-example.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cursor/rules/cursor_rules.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/.cursor/rules/cursor_rules.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cursor/rules/dev_workflow.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/.cursor/rules/dev_workflow.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cursor/rules/self_improve.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/.cursor/rules/self_improve.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.cursor/rules/taskmaster.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/.cursor/rules/taskmaster.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitmodules" beforeDir="false" afterPath="$PROJECT_DIR$/.gitmodules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/deployment.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/gwent.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gwent.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.roomodes" beforeDir="false" afterPath="$PROJECT_DIR$/.roomodes" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.windsurfrules" beforeDir="false" afterPath="$PROJECT_DIR$/.windsurfrules" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/CLAUDE.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Justfile" beforeDir="false" afterPath="$PROJECT_DIR$/Justfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README-task-master.md" beforeDir="false" afterPath="$PROJECT_DIR$/README-task-master.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SETUP_INSTRUCTIONS.md" beforeDir="false" afterPath="$PROJECT_DIR$/SETUP_INSTRUCTIONS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/000-product-requirements.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/000-product-requirements.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/ADR/000-task-master-roo-code.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/ADR/000-task-master-roo-code.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/ADR/001-audio-and-menu-subsystems.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/ADR/001-audio-and-menu-subsystems.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/ADR/002-physical-interface-implementation.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/ADR/002-physical-interface-implementation.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/DesignDocumentationStyleGuide.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/DesignDocumentationStyleGuide.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentCardMechanics.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentCardMechanics.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentFactions.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentFactions.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentGameStages.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentGameStages.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentGameStages.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentGameStages.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentLeaders.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentLeaders.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentPubSub.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentPubSub.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentPubSub.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentPubSub.pdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/GwentRules.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/GwentRules.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/MermaidStyleGuide.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/MermaidStyleGuide.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/ThreadModel.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/ThreadModel.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo.svg" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo.svg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_prompt.txt" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_prompt.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v1.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v10.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v11.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v11.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v12.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v12.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v13.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v13.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v2.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v3.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v4.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v5.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v6.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v7.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v7.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v8.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v8.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/gwent_logo_v9.png" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/gwent_logo_v9.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/logo_README.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/logo_README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/logo_generator.html" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/logo_generator.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/logo/logo_generator_simple.html" beforeDir="false" afterPath="$PROJECT_DIR$/design/logo/logo_generator_simple.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/menu/menu_designer.html" beforeDir="false" afterPath="$PROJECT_DIR$/design/menu/menu_designer.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/000-index.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/000-index.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/001-raspberry-pi-setup.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/001-raspberry-pi-setup.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/002-rfid-card-detection.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/002-rfid-card-detection.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/003-game-state-management.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/003-game-state-management.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/004-rest-api-websocket.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/004-rest-api-websocket.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/005-physical-interface.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/005-physical-interface.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/006-audio-system.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/006-audio-system.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/007-react-web-interface.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/007-react-web-interface.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/008-player-guidance-system.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/008-player-guidance-system.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/009-deck-management.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/009-deck-management.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/010-system-integration.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/010-system-integration.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/011-hardware-specification.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/011-hardware-specification.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/design/tasks/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/design/tasks/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/50-listen-mqtt.conf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/50-listen-mqtt.conf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/README-task-master.md" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/README-task-master.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/capture-cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/capture-cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/dev.js" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/dev.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/example_prd.txt" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/example_prd.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/C&amp;C Red Alert [INET].ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/C&amp;C Red Alert [INET].ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/ChiKareGo.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/ChiKareGo.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/FreePixel.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/FreePixel.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/ProggyTiny.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/ProggyTiny.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/Volter__28Goldfish_29.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/Volter__28Goldfish_29.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/code2000.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/code2000.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/creep.bdf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/creep.bdf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/font5x8.bin" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/font5x8.bin" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/fontawesome-webfont.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/fontawesome-webfont.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/miscfs_.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/miscfs_.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/pixelmix.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/pixelmix.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/fonts/tiny.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/fonts/tiny.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/gwent.service" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/gwent.service" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/prd.txt" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/prd.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/MFRC522-python" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/LICENSE" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/LICENSE" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/MFRC522.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/SimpleMFRC522.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/mfrc522/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/MFRC522-python/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/MFRC522-python/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/CardReport.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/CardReport.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Arachas3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/ArachasBehemoth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/ArachasBehemoth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Avallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Avallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/BitingFrost1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/BitingFrost1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/BitingFrost2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/BitingFrost2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Botchling.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Botchling.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/BovineDefenseForce.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/BovineDefenseForce.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/CelaenoHarpy.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/CelaenoHarpy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/ClearWeather1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/ClearWeather1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Cockatrice.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Cockatrice.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/CommandersHorn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/CommandersHorn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/CroneBrewess.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/CroneBrewess.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/CroneWeavess.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/CroneWeavess.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/CroneWhispess.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/CroneWhispess.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Dandelion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Dandelion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Dandelion2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Dandelion2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/DimeritiumBomb.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/DimeritiumBomb.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Draug.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Draug.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EarthElemental.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EarthElemental.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Endrega.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Endrega.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EredinBraccGlasTheTreacherous.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EredinBraccGlasTheTreacherous.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EredinBringerOfDeath.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EredinBringerOfDeath.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EredinCommanderOfTheRedRiders.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EredinCommanderOfTheRedRiders.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EredinDestroyerOfWorlds.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EredinDestroyerOfWorlds.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/EredinKingOfTheWildHunt.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/EredinKingOfTheWildHunt.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Fiend.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Fiend.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/FireElemental.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/FireElemental.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Foglet.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Foglet.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Forktail.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Forktail.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Frightener.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Frightener.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Gargoyle.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Gargoyle.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/GaunterODimmDarkness1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/GaunterODimmDarkness1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/GaunterODimmDarkness2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/GaunterODimmDarkness2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/GeraltOfRivia.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/GeraltOfRivia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Ghoul1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Ghoul1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Ghoul2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Ghoul2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/GraveHag.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/GraveHag.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Griffin.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Griffin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Harpy.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Harpy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/IceGiant.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/IceGiant.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Imlerith.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Imlerith.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/ImpenetrableFog1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/ImpenetrableFog1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/ImpenetrableFog2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/ImpenetrableFog2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Kayran.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Kayran.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Leshen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Leshen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Nekker1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Nekker1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Nekker2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Nekker2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/PlagueMaiden.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/PlagueMaiden.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Scorch.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Scorch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Toad.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Toad.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/TorrentialRain1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/TorrentialRain1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/TrissMerigold.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/TrissMerigold.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/TrissMerigold2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/TrissMerigold2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireBruxa.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireBruxa.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireEkimmara.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireEkimmara.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireFleder.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireFleder.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireFleder2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireFleder2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireGarkain.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireGarkain.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireGarkhain.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireGarkhain.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/VampireKatakan.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/VampireKatakan.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Vesemir.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Vesemir.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Villentretenmerth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Villentretenmerth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Werewolf.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Werewolf.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/Wyvern.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/Wyvern.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/YenneferOfVengerberg.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/YenneferOfVengerberg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Monsters/ZoltanChivay.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Monsters/ZoltanChivay.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/Cow.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/Cow.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/EmielRegisRohellecTerzieffGodefroy.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/EmielRegisRohellecTerzieffGodefroy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimm.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimm.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/GaunterODimmDarkness3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/MysteriousElfAvallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/MysteriousElfAvallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/OlgierdVonEverec.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/OlgierdVonEverec.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/SkelligeStorm.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/SkelligeStorm.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Neutral/Vesemir.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Neutral/Vesemir.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Albrich.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Albrich.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/AssireVarAnahid.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/AssireVarAnahid.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Avallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Avallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BitingFrost1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BitingFrost1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BitingFrost2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BitingFrost2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BlackInfantryArcher.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/BlackInfantryArcher.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CahirMawrDyffrynAepCeallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CahirMawrDyffrynAepCeallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CirillaFionaElenRiannon.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CirillaFionaElenRiannon.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ClearWeather1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ClearWeather1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ClearWeather2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ClearWeather2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CommandersHorn1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/CommandersHorn1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Cynthia.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Cynthia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Dandelion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Dandelion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Decoy1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Decoy1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisEmperorOfNilfgaard.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisEmperorOfNilfgaard.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisHisImperialMajesty.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisHisImperialMajesty.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisInvaderOfTheNorth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisInvaderOfTheNorth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisTheRelentless.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisTheRelentless.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisTheWhiteFlame.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmhyrVarEmreisTheWhiteFlame.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmielRegisRohellecTerzieffHuman.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmielRegisRohellecTerzieffHuman.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmielRegisRohellecTerzieffVampire.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EmielRegisRohellecTerzieffVampire.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxiliaryArchers.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxiliaryArchers.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxiliaryArchers2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxiliaryArchers2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxillaryArchers.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/EtolianAuxillaryArchers.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/FringillaVigo.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/FringillaVigo.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/HeavyZerrikanianFireScorpion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/HeavyZerrikanianFireScorpion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImpenetrableFog3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ImperaBrigadeGuard3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/LethoOfGulet.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/LethoOfGulet.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/MennoCoehoorn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/MennoCoehoorn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Morteisen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Morteisen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Morteisen2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Morteisen2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/MorvranVoorhis.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/MorvranVoorhis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/NausicaaCavalryRider2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Puttkamer.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Puttkamer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Rainfarn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Rainfarn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RenauldAepMatsen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RenauldAepMatsen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RenualdAepMatsen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RenualdAepMatsen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RottenMangonel.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/RottenMangonel.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Scorch.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Scorch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ShilardFitzOesterlen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ShilardFitzOesterlen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/SiegeEngineer.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/SiegeEngineer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/SiegeTechnician.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/SiegeTechnician.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/StefanSkellen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/StefanSkellen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Sweers.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Sweers.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TiborEggebracht.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TiborEggebracht.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TorrentialRain.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TorrentialRain.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TorrentialRain1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/TorrentialRain1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vanhemar.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vanhemar.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/VattierDeRideaux.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/VattierDeRideaux.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vesemir.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vesemir.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Villentretenmerth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Villentretenmerth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Villentretenmerth2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Villentretenmerth2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vreemde.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/Vreemde.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YenneferOfVengerberg.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YenneferOfVengerberg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YenneferOfVengerberg2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YenneferOfVengerberg2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YoungEmissary1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YoungEmissary1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YoungEmissary2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/YoungEmissary2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ZerrikanianFireScorpion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Nilfgaardian/ZerrikanianFireScorpion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Avallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Avallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ballista1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ballista1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ballista2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ballista2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BitingFrost2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BlueStripesCommando1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BlueStripesCommando1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BlueStripesCommando2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/BlueStripesCommando2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Catapult.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Catapult.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CirillaFionaElenRiannon.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CirillaFionaElenRiannon.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CirillaFionaElenRiannon2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CirillaFionaElenRiannon2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ClearWeather2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CommandersHorn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CommandersHorn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CommandersHorn1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CommandersHorn1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CrinfridReaversDragonHunter.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/CrinfridReaversDragonHunter.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Dethmold.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Dethmold.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/DunBannerMedic.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/DunBannerMedic.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EmielRegis.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EmielRegis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EmielRegisRohellecTerzieff.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EmielRegisRohellecTerzieff.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EsteradThyssen.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/EsteradThyssen.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestKingOfTemeria.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestKingOfTemeria.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestLordCommanderOfTheNorth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestLordCommanderOfTheNorth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestSonOfMedell.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestSonOfMedell.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSiegemaster.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSiegemaster.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSiegemaster2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSiegemaster2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSteelForged.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSteelForged.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSteelForged2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/FoltestTheSteelForged2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/GaunterODimmDarkness1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/GaunterODimmDarkness1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/GeraltOfRivia.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/GeraltOfRivia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ImpenetrableFog3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/JohnNatalis.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/JohnNatalis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/JohnNatalis2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/JohnNatalis2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KaedweniSiegeExpert3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KeiraMetz.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KeiraMetz.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KieraMetz.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/KieraMetz.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/NausicaaCavalryRider.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/NausicaaCavalryRider.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PhilippaEilhart.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PhilippaEilhart.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PoorFuckingInfantry1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PoorFuckingInfantry1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PoorFuckingInfantry2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PoorFuckingInfantry2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PrinceStennis.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/PrinceStennis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/RedanianFootSoldier1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/RedanianFootSoldier1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/RedanianFootSoldier2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/RedanianFootSoldier2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SabrinaGlevissig.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SabrinaGlevissig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Scorch.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Scorch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SheldonSkaggs.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SheldonSkaggs.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegeTower1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegeTower1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegeTower2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegeTower2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegfriedOfDenesle.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SiegfriedOfDenesle.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SigismundDijkstra.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SigismundDijkstra.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SíledeTansarville.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/SíledeTansarville.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Thaler.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Thaler.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TorrentialRain1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TorrentialRain1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Trebuchet1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Trebuchet1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Trebuchet2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Trebuchet2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TrissMerigold.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TrissMerigold.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TrissMerigold2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/TrissMerigold2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/VernonRoche.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/VernonRoche.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ves.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Ves.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/Villentretenmerth3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/YarpenZigrin.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/YarpenZigrin.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/YenneferOfVengerberg.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/YenneferOfVengerberg.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ZoltanChivay.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ZoltanChivay.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ZoltanChivay2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/NorthernRealms/ZoltanChivay2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/BarclayEls.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/BarclayEls.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/BitingFrost3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/CiaranAepEasnilie.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/CiaranAepEasnilie.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/CiaranAepEasnillien.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/CiaranAepEasnillien.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/CirillaFionaElenRiannon.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/CirillaFionaElenRiannon.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ClearWeather1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ClearWeather1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Decoy2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DennisCranmer.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DennisCranmer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaArcher1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaArcher1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DolBlathannaScout2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/DwarvenSkirmisher3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Eithn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Eithn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Eithne.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Eithne.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ElvenSkirmisher2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FilavandrelAenFidhail.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FilavandrelAenFidhail.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FilavandrelAnFidhil.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FilavandrelAnFidhil.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairDaisyOfTheValley.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairDaisyOfTheValley.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairHopeOfTheAenSeidhe.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairHopeOfTheAenSeidhe.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairPurebloodElf.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairPurebloodElf.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairQueenOfDolBlathanna.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairQueenOfDolBlathanna.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairTheBeautiful.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/FrancescaFindabairTheBeautiful.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/GaunterODimmDarkness.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/GaunterODimmDarkness.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/GaunterODimmDarkness1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/GaunterODimmDarkness1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/GeraltOfRivia.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/GeraltOfRivia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarHealer.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarHealer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/HavekarSmuggler3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/IdaEmeanAepSivney.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/IdaEmeanAepSivney.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ImpenetrableFog1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ImpenetrableFog1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ImpenetrableFog2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ImpenetrableFog2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Iorveth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Iorveth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/IsengrimFaoiltiarna.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/IsengrimFaoiltiarna.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/IsengrimFaoiltiarna2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/IsengrimFaoiltiarna2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender4.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender4.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender5.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender5.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender6.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/MahakamanDefender6.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Milva.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Milva.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Riordain.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Riordain.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Riordan.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Riordan.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Saesenthessis.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Saesenthessis.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Saesenthessis2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Saesenthessis2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Schirr.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Schirr.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Scorch.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Scorch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/TorrentialRain1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/TorrentialRain1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Toruviel.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Toruviel.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/TrissMerigold.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/TrissMerigold.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Vesemir.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Vesemir.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Villentretenmerth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Villentretenmerth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeRecruit.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeRecruit.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeVeteran1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeVeteran1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeVeteran2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/VriheddBrigadeVeteran2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Yaevinn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Yaevinn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/Yaevinn2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/Yaevinn2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Scoiatael/ZoltanChivay.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Scoiatael/ZoltanChivay.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Avallach3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Berserker.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Berserker.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/BirnaBran.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/BirnaBran.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/BitingFrost1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/BitingFrost1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/BitingFrost2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/BitingFrost2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/BlueboyLugos.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/BlueboyLugos.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Cerys.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Cerys.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/CirillaFionaElenRiannon.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/CirillaFionaElenRiannon.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanAnCraiteWarrior3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanBrokvarArcher1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanBrokvarArcher1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanBrokvarArcher2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanBrokvarArcher2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDimunPirate.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDimunPirate.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDrummondShieldMaiden1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDrummondShieldMaiden1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDrummondShieldMaiden2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanDrummondShieldMaiden2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanHeymaeySkald.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanHeymaeySkald.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanHeymaeySkals.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanHeymaeySkals.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClanTordarrochArmorsmith.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClanTordarrochArmorsmith.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClearWeather1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClearWeather1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ClearWeather2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ClearWeather2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/CommandersHorn.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/CommandersHorn.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/CommandersHorn2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/CommandersHorn2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/CrachAnCraite.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/CrachAnCraite.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Dandelion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Dandelion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Decoy.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Decoy.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Decoy1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Decoy1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/DonarAnHindar.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/DonarAnHindar.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/DraigBonDhu.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/DraigBonDhu.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Ermion.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Ermion.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/GaunterODimmDarkness1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/GaunterODimmDarkness1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/GeraltOfRivia.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/GeraltOfRivia.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Hemdall.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Hemdall.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Hjalmar.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Hjalmar.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/HolgerBlackhand.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/HolgerBlackhand.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ImpenetrableFog1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ImpenetrableFog1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ImpenetrableFog2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ImpenetrableFog2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Kambi.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Kambi.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/KingBran.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/KingBran.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/LightLongship1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/LightLongship1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/LightLongship2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/LightLongship2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/MadmanLugos.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/MadmanLugos.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Mardroeme1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Mardroeme1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Olaf.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Olaf.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Scorch1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Scorch1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Scorch2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Scorch2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Svanrige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Svanrige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TorrentialRain2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedVildkaarl.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedVildkaarl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl3.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TransformedYoungVildkaarl3.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/TrissMerigold.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/TrissMerigold.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Udalryk.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Udalryk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Udalyrk.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Udalyrk.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Vesemir.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Vesemir.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Vesemir2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Vesemir2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Villentretenmerth.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Villentretenmerth.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/WarLongship1.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/WarLongship1.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/WarLongship2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/WarLongship2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/Warcry.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/Warcry.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/YoungBerserker.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/YoungBerserker.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ZoltanChivay.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ZoltanChivay.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/data/cards/Skellige/ZoltanChivay2.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/data/cards/Skellige/ZoltanChivay2.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/elevenlabs_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/elevenlabs_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/gtts_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/gtts_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/none_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/none_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/openai_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/openai_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/piper_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/piper_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/say_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/gwent_shared/tts/say_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-shared/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-shared/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/__main__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/__main__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/emoji.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/emoji.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/game_state.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/game_state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/mqtt_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/mqtt_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/save_dialog.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/save_dialog.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/snapshot.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/snapshot.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/deal_cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/deal_cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/game_over.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/game_over.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/main_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/main_menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/offline.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/offline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/play_round.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/play_round.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/register_decks.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/register_decks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/register_leaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/register_leaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/round_end.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/round_end.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/unknown.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/stages/unknown.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/tts.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/tts.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/board.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/board.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/decks.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/decks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/discard.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/discard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/footer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/footer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/hands.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/hands.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/header.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/header.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/main_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/main_menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/timers.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/timers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/unknown_stage.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/unknown_stage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/weather.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/gwent_tui/widgets/weather.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent-tui/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent-tui/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/MANIFEST.in" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/MANIFEST.in" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/docs/logging_system.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/docs/logging_system.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/docs/menu_system.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/docs/menu_system.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/docs/rotary_encoder_implementations.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/docs/rotary_encoder_implementations.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/docs/rotary_encoder_troubleshooting.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/docs/rotary_encoder_troubleshooting.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/cards/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/cards/util.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/cards/util.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/fonts/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/fonts/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/fonts/pixelmix.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/fonts/pixelmix.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/board.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/board.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/constants.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/constants.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/controller.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/decks.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/decks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/errors.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/errors.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/http_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/http_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/mfd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/player.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/004-nifgardian-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/004-nifgardian-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/005-scoiatael-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/005-scoiatael-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/006-scoiatael-vs-skellige-final-play.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/006-scoiatael-vs-skellige-final-play.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/007-skellige-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/007-skellige-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/008-nilfgaardian-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/008-nilfgaardian-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/009-nilfgaardian-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/009-nilfgaardian-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/011-scoiatael-vs-monsters-play.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/011-scoiatael-vs-monsters-play.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/012-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/012-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/013-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/013-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/014-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/014-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/015-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/015-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/016-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/016-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/017-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/017-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/018-nilfgaardian-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/018-nilfgaardian-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/019-nilfgaardian-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/019-nilfgaardian-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/020-nilfgaardian-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/020-nilfgaardian-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/021-skellige-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/021-skellige-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/022-skellige-vs-monsters-berserker.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/022-skellige-vs-monsters-berserker.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/023-super-victory-monsters-vs-nilfgaardian.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/023-super-victory-monsters-vs-nilfgaardian.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/024-super-victory-nilfgaardian-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/024-super-victory-nilfgaardian-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/025-super-victory-monsters-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/025-super-victory-monsters-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/026-super-victory-northernrealms-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/026-super-victory-northernrealms-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/027-super-victory-monsters-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/027-super-victory-monsters-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/028-super-victory-scoiatael-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/028-super-victory-scoiatael-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/029-super-victory-monsters-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/029-super-victory-monsters-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/030-super-victory-skellige-vs-monsters.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/030-super-victory-skellige-vs-monsters.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/031-super-victory-nilfgaardian-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/031-super-victory-nilfgaardian-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/032-super-victory-northernrealms-vs-nilfgaardian.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/032-super-victory-northernrealms-vs-nilfgaardian.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/033-super-victory-nilfgaardian-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/033-super-victory-nilfgaardian-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/034-super-victory-scoiatael-vs-nilfgaardian.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/034-super-victory-scoiatael-vs-nilfgaardian.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/035-super-victory-nilfgaardian-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/035-super-victory-nilfgaardian-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/036-super-victory-skellige-vs-nilfgaardian.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/036-super-victory-skellige-vs-nilfgaardian.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/037-super-victory-northernrealms-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/037-super-victory-northernrealms-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/038-super-victory-scoiatael-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/038-super-victory-scoiatael-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/039-super-victory-northernrealms-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/039-super-victory-northernrealms-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/040-super-victory-skellige-vs-northernrealms.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/040-super-victory-skellige-vs-northernrealms.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/041-super-victory-scoiatael-vs-skellige.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/041-super-victory-scoiatael-vs-skellige.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/042-super-victory-skellige-vs-scoiatael.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/042-super-victory-skellige-vs-scoiatael.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/recording.schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/recording.schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/state-1774740087.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/recordings/state-1774740087.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/replay.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/replay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/round_keeper.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/round_keeper.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/sfx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/all.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/all.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/deal_cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/deal_cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/display_winner.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/display_winner.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/game_over.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/game_over.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/main_menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/main_menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/play_round.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/play_round.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_decks.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_decks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_leaders.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/register_leaders.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/stages/round_end.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/stages/round_end.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/state.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/state.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/game/tracer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/game/tracer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/audio.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/audio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/camera_shutter.wav" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/camera_shutter.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/card_read.wav" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/card_read.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/mfd_choose.wav" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/mfd_choose.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/mfd_select.wav" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/effects/mfd_select.wav" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/fonts/pixelmix.ttf" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/fonts/pixelmix.ttf" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/matrix.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/matrix.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfdi.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfdi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/mfrc522_entrypoints.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/music/music1.mp3" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/music/music1.mp3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/oled_ssd1306.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/oled_ssd1306.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rfid.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary_pigpio.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/rotary_pigpio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/sfx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/base.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/elevenlabs_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/elevenlabs_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/gtts_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/gtts_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/openai_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/openai_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/piper_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/piper_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/say_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/hal/tts/say_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/logical/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/logical/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/logical/audio_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/logical/audio_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/logical/menu.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/logical/menu.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/logical/menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/logical/menu.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/base.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/card.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_play.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_play.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_play_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_play_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/card_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/choice_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/ctrl_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/factory.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/factory.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/mfd_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx_schema.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/messaging/sfx_schema.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/audio_diagnostic.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/audio_diagnostic.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_permissions_check.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_permissions_check.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_service_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/gpio_service_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/tts_service_explorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/tts_service_explorer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/tts_voice_explorer.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/diagnostic_tools/tts_voice_explorer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/TCA9548A-MatrixI2C-marquee.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/TCA9548A-MatrixI2C-marquee.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/TCA9548A-MatrixI2C-test.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/TCA9548A-MatrixI2C-test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/oled_test.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/oled_test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/ssd1305_luma_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/ssd1305_luma_demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/ssd1305_pillow_demo.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/ssd1305_pillow_demo.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/test_displays.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/display_tests/test_displays.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/rotary_pigpio.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/input_tests/rotary_pigpio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/luma.examples" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/luma.examples" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/ollama_vs.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/ollama_vs.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/rfid_tests/rfid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/terminal_image.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/terminal_image.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/terminal_image_minimal.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/terminal_image_minimal.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/card_downloader_witcher_fandom_com.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/card_downloader_witcher_fandom_com.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/card_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/card_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/read_write_cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/read_write_cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/rfid_ping.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/rfid_ping.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/poc/util/update_card_rfid.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/poc/util/update_card_rfid.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/utils/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/utils/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/utils/import_cards.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/utils/import_cards.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/utils/logging.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/utils/logging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/gwent/utils/write_next.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/gwent/utils/write_next.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/conftest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_berserker_transformation_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_berserker_transformation_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_cancel_leader_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_cancel_leader_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_clear_weather_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_clear_weather_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_draw_own_discard_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_draw_own_discard_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_extra_draw_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_extra_draw_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_half_weather_penalty_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_half_weather_penalty_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_medic_random_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_medic_random_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_optimize_agile_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_optimize_agile_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_view_opponent_hand_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_view_opponent_hand_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/integration-tests/test_weather_ranges_validator.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/integration-tests/test_weather_ranges_validator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/logging.json" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/logging.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/pytest.ini" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/pytest.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/setup.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/setup.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/test_audio_performance.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/test_audio_performance.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/test_audio_stutter_fix.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/test_audio_stutter_fix.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/test_game_with_rotary.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/test_game_with_rotary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/test_rotary.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/test_rotary.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/conftest.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/conftest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_audio_file_playback.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_audio_file_playback.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_audio_playback.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_audio_playback.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_audio_state_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_audio_state_manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_audio_stutter_fix.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_audio_stutter_fix.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_hardware.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_hardware.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_integrated_audio.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_integrated_audio.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_logging.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_logging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_menu_integration.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_menu_integration.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/software/gwent/tests/test_simple.py" beforeDir="false" afterPath="$PROJECT_DIR$/software/gwent/tests/test_simple.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/task-list.mdc" beforeDir="false" afterPath="$PROJECT_DIR$/task-list.mdc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/toc.md" beforeDir="false" afterPath="$PROJECT_DIR$/toc.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +762,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="JupyterTrust" id="38dc6742-3373-4a9c-b829-61dcabdf43d2" />
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="1bruCrKsRRcMcDQDId9i5GvLZ9B" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -66,25 +772,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">
-    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
-    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
-    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="TEXT" />
-    <property name="com.intellij.ide.scratch.LRUPopupBuilder$2/Languages" value="Python" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/software/gwent/gwent/hal" />
-    <property name="node.js.detected.package.eslint" value="true" />
-    <property name="node.js.detected.package.tslint" value="true" />
-    <property name="node.js.path.for.package.eslint" value="project" />
-    <property name="node.js.path.for.package.tslint" value="project" />
-    <property name="node.js.selected.package.eslint" value="(autodetect)" />
-    <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
-  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/software/gwent/gwent/game" />
@@ -100,7 +795,7 @@
       <recent name="$PROJECT_DIR$/software/gwent/gwent/messaging" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Gwent">
+  <component name="RunManager">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -110,26 +805,6 @@
       <option name="PARAMETERS" value="" />
       <module name="" />
       <envs />
-      <method />
-    </configuration>
-    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
-      <module name="" />
-      <working_directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <kind value="FILE" />
-      <method />
-    </configuration>
-    <configuration default="true" type="GoRunFileConfiguration" factoryName="Go Single File">
-      <module name="" />
-      <working_directory value="$PROJECT_DIR$" />
-      <filePath value="$PROJECT_DIR$" />
-      <method />
-    </configuration>
-    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
-      <module name="" />
-      <working_directory value="$PROJECT_DIR$" />
-      <framework value="gotest" />
-      <kind value="DIRECTORY" />
       <method />
     </configuration>
     <configuration default="true" type="DjangoTestsConfigurationType">
@@ -152,6 +827,26 @@
       <option name="OPTIONS" value="" />
       <method v="2" />
     </configuration>
+    <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <method />
+    </configuration>
+    <configuration default="true" type="GoRunFileConfiguration" factoryName="Go Single File">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method />
+    </configuration>
+    <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
+      <module name="" />
+      <working_directory value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <kind value="DIRECTORY" />
+      <method />
+    </configuration>
     <configuration default="true" type="PyBehaveRunConfigurationType" factoryName="Behave">
       <module name="gwent" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -163,6 +858,43 @@
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="ADDITIONAL_ARGS" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <module name="" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="tests" factoryName="Unittests">
+      <module name="gwent" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;.&quot;" />
+      <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
     <configuration name="remote debug gwent" type="PyRemoteDebugConfigurationType" factoryName="Python Remote Debug">
@@ -204,28 +936,6 @@
         </ENTRIES>
       </EXTENSION>
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/software/gwent/gwent/game/main.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration default="true" type="PythonConfigurationType" factoryName="Python">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <module name="" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -361,34 +1071,13 @@
       <envs />
       <method v="2" />
     </configuration>
-    <configuration default="true" type="tests" factoryName="Unittests">
-      <module name="gwent" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="IS_MODULE_SDK" value="false" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="_new_additionalArguments" value="&quot;&quot;" />
-      <option name="_new_target" value="&quot;.&quot;" />
-      <option name="_new_targetType" value="&quot;PATH&quot;" />
-      <method v="2" />
-    </configuration>
-    <list>
-      <item itemvalue="Python.write_all_to_disk" />
-      <item itemvalue="Python.read card" />
-      <item itemvalue="Python.write card" />
-      <item itemvalue="Python.Gwent" />
-      <item itemvalue="Python.mqttpoc" />
-      <item itemvalue="Python Debug Server.remote debug gwent" />
-    </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Python.mqttpoc" />
-      </list>
-    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-WS-241.17011.90" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="SvnConfiguration">
@@ -422,6 +1111,8 @@
       <workItem from="1606154404121" duration="14067000" />
       <workItem from="1606258844570" duration="4486000" />
       <workItem from="1606264918533" duration="4630000" />
+      <workItem from="1774921832872" duration="25000" />
+      <workItem from="1775013537959" duration="6000" />
     </task>
     <servers />
   </component>
@@ -438,7 +1129,6 @@
         </entry>
       </map>
     </option>
-    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="381" y="231" width="1071" height="724" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1606262866452">
@@ -483,48 +1173,12 @@
     <state x="629" y="244" width="670" height="676" key="search.everywhere.popup/0.23.1792.1097@0.23.1792.1097" timestamp="1606166262135" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/.pyenv/versions/3.7.5/envs/gwent/lib/python3.7/site-packages/django/conf/__init__.py</url>
-          <line>52</line>
-          <option name="timeStamp" value="18" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/software/gwent/gwent/novigrad/novigrad/settings.py</url>
-          <line>22</line>
-          <option name="timeStamp" value="19" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$USER_HOME$/.pyenv/versions/3.7.5/envs/gwent/lib/python3.7/site-packages/django/conf/__init__.py</url>
-          <line>31</line>
-          <option name="timeStamp" value="20" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/software/gwent/gwent/cards/util.py</url>
-          <line>44</line>
-          <option name="timeStamp" value="185" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/software/gwent/gwent/hal/__init__.py</url>
-          <line>20</line>
-          <option name="timeStamp" value="209" />
-        </line-breakpoint>
-      </breakpoints>
-      <default-breakpoints>
-        <breakpoint type="python-exception">
-          <properties notifyOnTerminate="true" exception="BaseException">
-            <option name="notifyOnTerminate" value="true" />
-          </properties>
-        </breakpoint>
-      </default-breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="pygame.mixer.get_init()" language="Python" />
+        <watch expression="pygame.mixer.get_init()" />
       </configuration>
       <configuration name="Python.DjangoServer">
-        <watch expression="settings" language="Python" />
+        <watch expression="settings" />
       </configuration>
     </watches-manager>
   </component>

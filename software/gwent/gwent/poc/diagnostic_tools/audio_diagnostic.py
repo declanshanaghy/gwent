@@ -46,10 +46,10 @@ def check_audio_files() -> bool:
     logger.info("Checking audio files...")
     
     # Define paths to check
-    module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    from gwent.game.data_paths import SFX_DIR, MUSIC_DIR
     paths_to_check = [
-        os.path.join(module_dir, "hal", "music", "music1.mp3"),
-        os.path.join(module_dir, "hal", "effects")
+        os.path.join(MUSIC_DIR, "music1.mp3"),
+        SFX_DIR
     ]
     
     all_files_exist = True
@@ -148,8 +148,8 @@ def test_audio_playback() -> bool:
         from gwent.logical.audio_manager import audio_state
         
         # Find music file
-        module_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        music_path = os.path.join(module_dir, "hal", "music", "music1.mp3")
+        from gwent.game.data_paths import MUSIC_DIR
+        music_path = os.path.join(MUSIC_DIR, "music1.mp3")
         
         if not os.path.exists(music_path):
             logger.error(f"Music file not found: {music_path}")
@@ -333,8 +333,8 @@ def run_diagnostics(args) -> Dict[str, bool]:
     
     if not results.get("audio_files", False):
         logger.info("- Check that audio files exist in the correct locations")
-        logger.info("  - Music files should be in gwent/hal/music/")
-        logger.info("  - Effect files should be in gwent/hal/effects/")
+        logger.info("  - Music files should be in software/data/music/")
+        logger.info("  - Effect files should be in software/data/sfx/")
     
     if not results.get("pygame_mixer", False):
         logger.info("- Check for issues with audio hardware or drivers")

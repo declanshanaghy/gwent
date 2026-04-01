@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-26T18:58:22.051610+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [
+              {
+                "content_id": "ef27f307707daa51b50ead951f630346",
+                "faction": "Scoia'tael",
+                "kind": "card",
+                "name": "Cirilla Fiona Elen Riannon",
+                "owner": "Declan Shanaghy (dek)",
+                "ranges": [
+                  "close"
+                ],
+                "rfid": 416307170583,
+                "specialty": "hero",
+                "strength": 15,
+                "owner_nickname": "dek"
+              }
+            ],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [
+            {
+              "content_id": "29884a1b8e1c3271de7f50300734d8f9",
+              "faction": "Scoia'tael",
+              "kind": "card",
+              "name": "Gaunter O'Dimm: Darkness 1",
+              "owner": "Declan Shanaghy (dek)",
+              "ranges": [
+                "ranged"
+              ],
+              "rfid": 1272335824,
+              "strength": 4,
+              "owner_nickname": "dek",
+              "abilities": [
+                "muster"
+              ]
+            }
+          ],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [
+              {
+                "abilities": [
+                  "muster"
+                ],
+                "content_id": "8b9bb83ce8d0487ba0d6e885ba07153e",
+                "faction": "Skellige",
+                "kind": "card",
+                "name": "Gaunter O'Dimm: Darkness 1",
+                "owner": "Declan Shanaghy (dek)",
+                "ranges": [
+                  "ranged"
+                ],
+                "rfid": 347537624364,
+                "strength": 4,
+                "owner_nickname": "dek"
+              }
+            ],
+            "siege": []
+          },
+          "discard": [
+            {
+              "abilities": [
+                "commander"
+              ],
+              "content_id": "439a37f3bd67575c47894b9aa8b4ac63",
+              "faction": "Skellige",
+              "kind": "card",
+              "name": "Draig Bon-Dhu",
+              "owner": "Declan Shanaghy (dek)",
+              "ranges": [
+                "siege"
+              ],
+              "rfid": 1033390149117,
+              "strength": 2,
+              "owner_nickname": "dek"
+            }
+          ],
+          "gems": 1,
+          "passed": true,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "content_id": "edca77bff15641be451750b273adbb2a",
+          "faction": "Scoia'tael",
+          "kind": "card",
+          "leader": {
+            "commander_ranges": [
+              "ranged"
+            ],
+            "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+          },
+          "name": "Francesca Findabair - The Beautiful",
+          "owner": "Declan Shanaghy (dek)",
+          "rfid": 553478147534,
+          "specialty": "leader",
+          "starter": true,
+          "owner_nickname": "dek"
+        },
+        "PLAYER.TWO": {
+          "faction": "Skellige",
+          "kind": "card",
+          "leader": {
+            "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+            "reshuffle_graveyards": true
+          },
+          "name": "Crach an Craite",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 1033423375860
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Scoia'tael",
+        "PLAYER.TWO": "Skellige"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "content_id": "b4ad4821d5b0fe3d2d26af74f959757d",
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Scorch",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 895447682358,
+            "specialty": "scorch",
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "2ff2e32c16c247b827a68079bc751e81",
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy (dek)",
+            "rfid": 619110092078,
+            "specialty": "decoy",
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "04887a79e9b50fa7ccc4d1c67d6cefa9",
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Biting Frost",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 141278203231,
+            "specialty": "weather",
+            "owner_nickname": "dek"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "content_id": "47237d06d921633ffc38194f339fcebe",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy (dek)",
+            "rfid": 1033859976656,
+            "specialty": "decoy",
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "b3e10ad1168b2f28b0fa655004eb040c",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Scorch: 1",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 550625692967,
+            "specialty": "scorch",
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "892cbbc35e5236f8bda9b0af7f4e5a68",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Zoltan Chivay",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 482158005668,
+            "strength": 5,
+            "owner_nickname": "dek"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "content_id": "edca77bff15641be451750b273adbb2a",
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "leader": {
+              "commander_ranges": [
+                "ranged"
+              ],
+              "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+            },
+            "name": "Francesca Findabair - The Beautiful",
+            "rfid": 553478147534,
+            "specialty": "leader",
+            "starter": true
+          },
+          {
+            "content_id": "a620fff1be0450405a02c9c863bdd5ac",
+            "faction": "Scoia'tael",
+            "kind": "card",
+            "name": "Decoy: 2",
+            "owner": "Declan Shanaghy (dek)",
+            "rfid": 140825152881,
+            "specialty": "decoy",
+            "owner_nickname": "dek"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "content_id": "8e3a4bafc3c9c0c1978a2efa9dc2d07d",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Olaf",
+            "owner": "DeclanShanaghy",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "rfid": 206272941480,
+            "strength": 12
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "content_id": "e6fc27546168add4c298e5e248d140d7",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "DeclanShanaghy",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 415434427718,
+            "strength": 2,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "content_id": "3ff3f4ac98b934a928da3bda1aff789f",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Avallac'h",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 481285852652,
+            "strength": 0,
+            "owner_nickname": "dylan"
+          },
+          {
+            "content_id": "0f6b05eec662049711d5d9e248ddb607",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Scorch: 2",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 826225216783,
+            "specialty": "scorch",
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "3b61cca9eb2971c4dea10c57165c8395",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close"
+            ],
+            "rfid": 553007992276,
+            "specialty": "hero",
+            "strength": 7,
+            "owner_nickname": "dek"
+          },
+          {
+            "content_id": "02d45afacb548644073482871fa3541a",
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Commander's Horn",
+            "owner": "Declan Shanaghy (dek)",
+            "ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ],
+            "rfid": 1031041404264,
+            "specialty": "commander",
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "leader": {
+              "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+              "reshuffle_graveyards": true
+            },
+            "name": "Crach an Craite",
+            "specialty": "leader",
+            "starter": true,
+            "rfid": 1033423375860
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 2,
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    },
+    "leader1": {
+      "content_id": "edca77bff15641be451750b273adbb2a",
+      "faction": "Scoia'tael",
+      "kind": "card",
+      "leader": {
+        "commander_ranges": [
+          "ranged"
+        ],
+        "instructions": "Doubles the strength of all your ranged combat units (unless commanders horn is present in that row)"
+      },
+      "name": "Francesca Findabair - The Beautiful",
+      "owner": "Declan Shanaghy (dek)",
+      "rfid": 553478147534,
+      "specialty": "leader",
+      "starter": true,
+      "owner_nickname": "dek"
+    },
+    "leader2": {
+      "faction": "Skellige",
+      "kind": "card",
+      "leader": {
+        "instructions": "Shuffle all cards from each player's graveyard back into their decks",
+        "reshuffle_graveyards": true
+      },
+      "name": "Crach an Craite",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 1033423375860
+    }
+  }
+}

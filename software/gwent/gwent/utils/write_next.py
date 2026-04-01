@@ -75,10 +75,10 @@ E_STARTER = "⭐"
 E_FILE = "📄"
 E_LEADER = "👑"
 
+from gwent.game.data_paths import SFX_DIR
+
 # Card read sound effect
-CARD_READ_WAV = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), "..", "hal", "effects", "card_read.wav"
-))
+CARD_READ_WAV = os.path.join(SFX_DIR, "card_read.wav")
 
 
 def _init_audio():

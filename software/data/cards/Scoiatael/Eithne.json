@@ -1,7 +1,7 @@
 {
     "kind": "card",
     "faction": "Scoia'tael",
-    "name": "Eithn\u00e9",
+    "name": "Eithné",
     "strength": 10,
     "ranges": [
         "ranged"
@@ -14,5 +14,6 @@
     "rfid_written_at": "2026-03-29T02:54:05",
     "image": "../../images/Scoiatael/Eithn.jpg",
     "image_verified": true,
-    "card_text": "The dryad queen has eyes of molten silver, and a heart of cold-forged steel"
+    "card_text": "The dryad queen has eyes of molten silver, and a heart of cold-forged steel",
+    "pronoun": "she"
 }

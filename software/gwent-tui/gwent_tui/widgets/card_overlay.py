@@ -3,7 +3,9 @@
 import logging
 import time
 
+from rich.console import Group
 from rich.table import Table
+from rich.text import Text
 from rich import box
 from textual.containers import Horizontal
 from textual.widgets import Static
@@ -11,22 +13,31 @@ from textual_image.widget import TGPImage
 
 from gwent_tui.card_images import resolve_card_image
 from gwent_tui.emoji import FACTION_STYLE
-from gwent_tui.game_state import P1
+from gwent_tui.game_state import P1, P2
 
 log = logging.getLogger("gwent_tui.card_overlay")
 
 DISPLAY_SECONDS = 8
 
+_POSSESSIVE = {"he": "his", "she": "her", "it": "its"}
+
 
 class CardAttrsWidget(Static):
-    """Displays card attributes as a vertical list."""
+    """Displays card attributes as a vertical list with quote at bottom."""
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._card = None
+        self._player_name = ""
+        self._leader_pronoun = "he"
+        self._subkind = "play_card"
 
-    def set_card(self, card):
+    def set_card(self, card, player_name="", leader_pronoun="he", subkind="play_card", is_p1=True):
         self._card = card
+        self._player_name = player_name
+        self._leader_pronoun = leader_pronoun
+        self._subkind = subkind
+        self._is_p1 = is_p1
         self.refresh()
 
     def render(self):
@@ -37,13 +48,35 @@ class CardAttrsWidget(Static):
         faction = card.get("faction", "")
         fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
         color = fc[0]
+        card_name = card.get("name", "???")
 
+        # Build narration line — player plays/draws, pronoun from leader
+        poss = _POSSESSIVE.get(self._leader_pronoun, "their")
+        player = self._player_name or "Unknown"
+        if self._subkind == "spy_draw":
+            narration_text = f"[bold]{player}[/] draws [bold]{card_name}[/] from the deck"
+        elif self._subkind == "medic_resurrect":
+            narration_text = f"[bold]{player}[/] resurrects [bold]{card_name}[/] from the graveyard"
+        elif self._subkind == "deal_to_hand":
+            narration_text = f"[bold]{player}[/] draws [bold]{card_name}[/] from the deck"
+        elif self._subkind == "remove_card":
+            narration_text = f"[bold red]{card_name}[/] is destroyed!"
+        elif self._subkind == "decoy_swap":
+            narration_text = f"[bold]{player}[/] recalls [bold]{card_name}[/] with a decoy"
+        elif self._subkind == "transform":
+            narration_text = f"[bold]{card_name}[/] transforms!"
+        else:
+            narration_text = f"[bold]{player}[/] plays [bold]{card_name}[/] from {poss} hand"
+
+        # P1 text aligns left, P2 text aligns right
+        justify = "left" if self._is_p1 else "right"
+        narration = Text.from_markup(narration_text, justify=justify)
+
+        # Card attributes table
         t = Table(box=box.SIMPLE, show_header=False, padding=(0, 1), expand=True)
         t.add_column("", style=f"bold {color}", width=10)
         t.add_column("")
 
-        name = card.get("name", "???")
-        t.add_row("Name", f"[bold bright_white]{name}[/]")
         t.add_row("Faction", f"[{color}]{faction}[/]")
 
         if card.get("strength") is not None:
@@ -51,20 +84,49 @@ class CardAttrsWidget(Static):
         if card.get("ranges"):
             ranges = card["ranges"]
             range_icons = {"close": "\u2694 Close", "ranged": "\U0001f3f9 Ranged", "siege": "\U0001f3f0 Siege"}
-            r_text = ", ".join(range_icons.get(r, r) for r in ranges)
+            r_text = " [dim]\u2502[/] ".join(range_icons.get(r, r) for r in ranges)
             t.add_row("Range", r_text)
         if card.get("specialty"):
             t.add_row("Specialty", f"[bold]{card['specialty']}[/]")
         if card.get("abilities"):
             abilities = card["abilities"]
             if isinstance(abilities, list):
-                t.add_row("Abilities", ", ".join(abilities))
+                a_text = " [dim]\u2502[/] ".join(f"[bold]{a}[/]" for a in abilities)
+                t.add_row("Abilities", a_text)
         if card.get("owner"):
             t.add_row("Owner", f"[dim]{card['owner']}[/]")
+
+        # Blank line, narration, blank line, faction-colored separator, blank line, attrs
+        sep = Text("\u2500" * 34, style=color)
+        parts = [Text(""), narration, Text(""), sep, Text(""), t]
+
+        # Quote at the bottom — pad with blank lines to push it down
         if card.get("card_text"):
-            t.add_row("", "")
-            t.add_row("", f"[italic dim]\u201c{card['card_text']}\u201d[/]")
-        return t
+            # Count rendered lines above:
+            #   blank(1) + narration(2 wrap) + blank(1) + sep(1) + blank(1)
+            #   + table top gap(1) + data rows + table bottom gap(1)
+            row_count = 1  # faction always present
+            for field in ("strength", "specialty", "owner"):
+                if card.get(field) is not None:
+                    row_count += 1
+            if card.get("ranges"):
+                row_count += 1
+            if card.get("abilities"):
+                row_count += 1
+            content_lines = 1 + 2 + 1 + 1 + 1 + 1 + row_count + 1
+            # Overlay inner height ~24 (28h - 2 border - 2 padding)
+            # Reserve: quote (2 lines) + attribution (1) + bottom gap (1)
+            padding = max(0, 24 - content_lines - 4)
+            parts.append(Text("\n" * padding))
+            parts.append(Text.from_markup(
+                f"  [italic bright_white]\u201c{card['card_text']}\u201d[/]",
+                justify=justify))
+            parts.append(Text.from_markup(
+                f"  [dim]\u2014 {card_name}[/]",
+                justify=justify))
+            parts.append(Text(""))
+
+        return Group(*parts)
 
 
 class CardImageOverlay(Horizontal):
@@ -92,6 +154,7 @@ class CardImageOverlay(Horizontal):
     CardImageOverlay #overlay-attrs {
         width: 1fr;
         height: 100%;
+        padding: 0 1;
     }
     """
 
@@ -122,9 +185,13 @@ class CardImageOverlay(Horizontal):
                 # Track target row for flash highlight
                 ranges = card.get("ranges", [])
                 self._target_row = ranges[0] if ranges else "close"
-                # current_player has already advanced to the next player,
-                # so the one who just played is the OTHER player
-                is_p1 = state.current_player != P1
+                # Use last_played_by (set from MQTT topic) for accurate player tracking
+                # Falls back to inverting current_player for backwards compat
+                played_by = getattr(state, 'last_played_by', None)
+                if played_by is not None:
+                    is_p1 = played_by == P1
+                else:
+                    is_p1 = state.current_player != P1
 
                 image_path = resolve_card_image(card)
                 if image_path:
@@ -133,21 +200,49 @@ class CardImageOverlay(Horizontal):
                         attrs_widget = self.query_one("#overlay-attrs", CardAttrsWidget)
 
                         img_widget.image = image_path
-                        attrs_widget.set_card(card)
+
+                        # Determine player name and pronoun for narration
+                        player_key = P1 if is_p1 else P2
+                        leader = state.reg_leader1 if is_p1 else state.reg_leader2
+                        # Use player pronoun if set (from server), fall back to leader pronoun
+                        player_pronoun = getattr(state, 'player_pronouns', {}).get(
+                            player_key, leader.get("pronoun", "he") if leader else "he")
+                        player_name = getattr(state, 'player_names', {}).get(
+                            player_key, "Player 1" if is_p1 else "Player 2")
+                        subkind = getattr(state, 'last_played_subkind', '') or "play_card"
+
+                        attrs_widget.set_card(
+                            card,
+                            player_name=player_name,
+                            leader_pronoun=player_pronoun,
+                            subkind=subkind,
+                            is_p1=is_p1,
+                        )
 
                         # P1: image left, attrs right. P2: attrs left, image right.
                         if is_p1:
-                            img_widget.styles.order = 1
-                            attrs_widget.styles.order = 2
+                            self.move_child(img_widget, before=attrs_widget)
                         else:
-                            attrs_widget.styles.order = 1
-                            img_widget.styles.order = 2
+                            self.move_child(attrs_widget, before=img_widget)
 
-                        # Faction-colored border with card name
+                        # Faction-colored border: player tag top-left, card name centered
                         fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
                         self.styles.border = ("round", fc[0])
                         self.styles.background = "black"
-                        self.border_title = f" {name} "
+                        self.styles.border_subtitle_align = "center"
+
+                        # Build title: "P1" flush left, card name centered in 78-char border
+                        # The border line draws as: ──<title>──
+                        # We want: ─ P1 ─────── Card Name ─────────
+                        p_tag = "P1" if is_p1 else "P2"
+                        tag_len = len(p_tag) + 1  # tag + leading space
+                        center_pos = max(0, (78 - len(name)) // 2 - tag_len)
+                        fill = "\u2500" * center_pos  # ─ characters
+                        self.styles.border_title_align = "left"
+                        self.border_title = f" {p_tag} {fill} {name} "
+
+                        leader_name = leader.get("name", "Unknown") if leader else "Unknown"
+                        self.border_subtitle = f" {player_name} / {leader_name} "
 
                         # Center over the board
                         self._center_on_board()
@@ -158,8 +253,13 @@ class CardImageOverlay(Horizontal):
                         self.add_class("visible")
                         log.debug("Showing card image: %s (%s) p1=%s", name, image_path, is_p1)
                     except Exception as e:
-                        log.debug("Failed to show card image: %s", e)
+                        import sys, traceback
+                        print(f"ERROR: Failed to show card image for {name}: {e}", file=sys.stderr)
+                        traceback.print_exc(file=sys.stderr)
+                        log.error("Failed to show card image: %s", e, exc_info=True)
                 else:
+                    import sys
+                    print(f"WARNING: No image found for card: {name} ({faction})", file=sys.stderr)
                     log.debug("No image for card: %s (%s)", name, faction)
                     self._hide()
         else:

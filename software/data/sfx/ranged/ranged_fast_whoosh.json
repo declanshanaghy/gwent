@@ -1,0 +1,9 @@
+{
+  "type": "sfx",
+  "use_for": "ranged",
+  "title": "Fast sword whoosh",
+  "source": "mixkit",
+  "source_url": "https://assets.mixkit.co/active_storage/sfx/2158/2158-preview.mp3",
+  "mixkit_id": 2158,
+  "license": "Mixkit Free License"
+}

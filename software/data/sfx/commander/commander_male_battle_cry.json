@@ -1,0 +1,9 @@
+{
+  "type": "sfx",
+  "use_for": "commander",
+  "title": "Male voice battle cry",
+  "source": "mixkit",
+  "source_url": "https://assets.mixkit.co/active_storage/sfx/351/351-preview.mp3",
+  "mixkit_id": 351,
+  "license": "Mixkit Free License"
+}

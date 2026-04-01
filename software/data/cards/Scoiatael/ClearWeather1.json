@@ -9,5 +9,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Scoiatael/ClearWeather.jpg",
     "card_text": "The sun's shinin', Dromle! The sun's shinin'! Maybe there's hope left after all...",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "it"
 }

@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "ranged",
+  "title": "Ranged Arrow Volley",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Volley of many arrows whooshing overhead, multiple projectiles cutting through air, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

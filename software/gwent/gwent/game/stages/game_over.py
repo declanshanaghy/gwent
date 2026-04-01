@@ -32,7 +32,7 @@ _WIN_TEMPLATES = [
     "Victory for {winner}! {loser} retreats from {location} in shame. {w_gems} gems left to {l_gems}.",
     "{loser}'s forces crumble before {winner} at {location}! {w_gems} gems left to {l_gems}.",
     "A decisive victory! {winner} claims {location} from {loser}. {w_gems} gems left to {l_gems}!",
-    "{winner} raises their banner over {location} after defeating {loser}! {w_gems} gems left to {l_gems}.",
+    "{winner} raises {his} banner over {location} after defeating {loser}! {w_gems} gems left to {l_gems}.",
     "The White Wolf of Gwent! {winner} vanquishes {loser} at {location}! {w_gems} gems to {l_gems}!",
     "A victory worthy of Kaer Morhen! {winner} destroys {loser} at the battle of {location}. {w_gems} to {l_gems}!",
     "The tavern at {location} erupts! {winner} claims total victory over {loser}! {w_gems} gems standing!",
@@ -43,7 +43,7 @@ _WIN_TEMPLATES = [
     "Ploughing magnificent! {winner} annihilates {loser} at the gates of {location}! {w_gems} to {l_gems}. Game over!",
     "Yennefer herself would applaud! {winner} dismantles {loser} at {location}! {w_gems} gems to {l_gems}!",
     "The coin lands in {winner}'s favor! {loser} limps away from {location} empty-handed. {w_gems} to {l_gems}!",
-    "{winner} plays like a seasoned witcher! {loser} never stood a chance at {location}. {w_gems} gems to {l_gems}.",
+    "{winner} plays like a seasoned witcher! {He} gives {loser} no chance at {location}. {w_gems} gems to {l_gems}.",
     "A massacre at {location}! {winner} leaves {loser} in ruins! {w_gems} gems standing to {l_gems}!",
     "Triss Merigold sends a slow clap from {location}. {winner} dominates {loser}! {w_gems} to {l_gems}!",
     "Lambert would buy {winner} an ale for this one! {loser} crumbles at {location}. {w_gems} gems to {l_gems}.",
@@ -53,10 +53,10 @@ _WIN_TEMPLATES = [
     "The sorceresses of Aretuza bear witness! {winner} humiliates {loser} at {location}! {w_gems} to {l_gems}!",
     "Not even a Quen shield could save {loser}! {winner} triumphs at {location}! {w_gems} gems to {l_gems}.",
     "Zoltan raises his axe in salute! {winner} crushes {loser} at the walls of {location}! {w_gems} to {l_gems}!",
-    "{winner} fights with the fury of the Wild Hunt! {loser} falls at {location}. {w_gems} gems to {l_gems}!",
+    "{winner} fights with the fury of the Wild Hunt! {He} watches {loser} fall at {location}. {w_gems} gems to {l_gems}!",
     "The Emperor himself bows! {winner} claims absolute victory over {loser} at {location}! {w_gems} to {l_gems}!",
     "Roach gallops in celebration! {winner} devastates {loser} at {location}! {w_gems} gems remain to {l_gems}!",
-    "A tale for the ages! {winner} outmaneuvers {loser} at {location} with cunning and steel! {w_gems} to {l_gems}!",
+    "A tale for the ages! {winner} outmaneuvers {loser} at {location} with {his} cunning and steel! {w_gems} to {l_gems}!",
 ]
 
 _DRAW_TEMPLATES = [
@@ -89,20 +89,20 @@ _DRAW_TEMPLATES = [
 
 class GameOver(gwent.game.stages.base.GameStage):
 
-    def _msg_game_over_win(self, winner, loser, w_gems, l_gems):
+    def _msg_game_over_win(self, winner, loser, w_gems, l_gems, **pn):
         if gwent.game.BaseComponent.simple_mode:
             return f"{winner} wins the game."
         location = random.choice(LOCATIONS)
         return random.choice(_WIN_TEMPLATES).format(
             winner=winner, loser=loser, location=location,
-            w_gems=w_gems, l_gems=l_gems)
+            w_gems=w_gems, l_gems=l_gems, **pn)
 
-    def _msg_game_over_draw(self, leader1, leader2):
+    def _msg_game_over_draw(self, leader1, leader2, **pn):
         if gwent.game.BaseComponent.simple_mode:
             return "The game ends in a draw."
         location = random.choice(LOCATIONS)
         return random.choice(_DRAW_TEMPLATES).format(
-            leader1=leader1, leader2=leader2, location=location)
+            leader1=leader1, leader2=leader2, location=location, **pn)
 
     @property
     def stage(self):
@@ -114,16 +114,19 @@ class GameOver(gwent.game.stages.base.GameStage):
         p1_gems = board.players[PLAYER.ONE].gems
         p2_gems = board.players[PLAYER.TWO].gems
 
-        from gwent.game.stages.round_end import _leader_nickname
+        from gwent.game.stages.round_end import _leader_nickname, _leader_pronouns
         leader1 = _leader_nickname(board, PLAYER.ONE)
         leader2 = _leader_nickname(board, PLAYER.TWO)
 
         if p1_gems > p2_gems:
-            msg = self._msg_game_over_win(leader1, leader2, p1_gems, p2_gems)
+            pn = _leader_pronouns(board, PLAYER.ONE)
+            msg = self._msg_game_over_win(leader1, leader2, p1_gems, p2_gems, **pn)
         elif p2_gems > p1_gems:
-            msg = self._msg_game_over_win(leader2, leader1, p2_gems, p1_gems)
+            pn = _leader_pronouns(board, PLAYER.TWO)
+            msg = self._msg_game_over_win(leader2, leader1, p2_gems, p1_gems, **pn)
         else:
-            msg = self._msg_game_over_draw(leader1, leader2)
+            pn = _leader_pronouns(board, PLAYER.ONE)
+            msg = self._msg_game_over_draw(leader1, leader2, **pn)
 
         self._log.info({
             'action': 'game_over',

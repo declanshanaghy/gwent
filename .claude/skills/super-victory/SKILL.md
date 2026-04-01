@@ -112,10 +112,10 @@ Every run deletes ALL existing `*-super-victory-*.json` files and creates new on
 
 ```bash
 # Remove all previous super-victory recordings
-rm -f software/gwent/gwent/game/recordings/*-super-victory-*.json
+rm -f software/data/recordings/*-super-victory-*.json
 
 # Determine the next available number prefix
-last=$(ls software/gwent/gwent/game/recordings/*.json 2>/dev/null | sort | tail -1)
+last=$(ls software/data/recordings/*.json 2>/dev/null | sort | tail -1)
 # Extract number, increment by 1 for the first new file
 ```
 
@@ -232,7 +232,7 @@ If two opposing decks in a matchup both contain the same Neutral card (e.g., Gau
 #### 4e. Write the recording file
 
 ```
-software/gwent/gwent/game/recordings/NNN-super-victory-FACTION1-vs-FACTION2.json
+software/data/recordings/NNN-super-victory-FACTION1-vs-FACTION2.json
 ```
 
 Use lowercase faction names without spaces/apostrophes: `monsters`, `nilfgaardian`, `northernrealms`, `scoiatael`, `skellige`.
@@ -254,7 +254,7 @@ If `--play` flag is set, for each generated matchup:
 
 ```bash
 # Load the recording into the game server
-GWENT_STATE=software/gwent/gwent/game/recordings/<file>.json bash scripts/dev-server.sh gwent restart
+GWENT_STATE=software/data/recordings/<file>.json bash scripts/dev-server.sh gwent restart
 
 # Wait for game to initialize
 sleep 3
@@ -279,6 +279,6 @@ The game-loop.py script detects the game is already in PlayRound and starts play
 
 - Synergy catalog: `.claude/skills/super-victory/references/synergy-catalog.md`
 - Card data: `software/data/cards/{Faction}/*.json`
-- Recording format: `software/gwent/gwent/game/recordings/*.json`
+- Recording format: `software/data/recordings/*.json`
 - LLM-vs integration: `.claude/skills/llm-vs/SKILL.md`
 - Game rules: `design/GwentRules.md`

@@ -14,5 +14,6 @@
     "rfid_written_at": "2026-03-26T17:48:19",
     "image": "../../images/Monsters/Botchling.jpg",
     "card_text": "Admit your mistakes and bury them proper else they'll come back to haunt you",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "it"
 }

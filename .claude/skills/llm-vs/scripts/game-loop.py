@@ -7,17 +7,23 @@ Usage:
   python3 game-loop.py [--model-p1 MODEL] [--model-p2 MODEL]
                        [--ollama-url URL] [--game-url URL] [--max-turns N]
 
-Models (prefix determines provider):
-  anthropic/claude-haiku-4-5-20251001   (default)
-  anthropic/claude-sonnet-4-6
-  openai/gpt-4o
-  ollama/deepseek-r1:14b
-  ollama/llama3.2:3b
+Models (prefix determines provider, aliases supported):
+  anthropic/sonnet          → claude-sonnet-4-20250514
+  anthropic/haiku           → claude-haiku-4-5-20251001
+  anthropic/opus            → claude-opus-4-20250514
+  openai/gpt-4o             (direct)
+  openai/o3-mini            (direct)
+  gemini/flash              → gemini-2.5-flash-preview-05-20
+  gemini/pro                → gemini-2.5-pro-preview-05-06
+  ollama/deepseek           → deepseek-r1:14b
+  ollama/llama3             → llama3.2:3b
+  Full model IDs also accepted (e.g. anthropic/claude-sonnet-4-20250514)
 """
 import argparse
 import json
 import logging
 import os
+import random
 import re
 import requests
 import signal
@@ -644,8 +650,81 @@ def build_state(board, cur):
 
 
 # ---------------------------------------------------------------------------
+# Model gender / pronouns (randomly assigned at startup)
+# ---------------------------------------------------------------------------
+
+_model_pronouns = {}  # model_str -> {"he": ..., "his": ..., "him": ..., ...}
+
+
+def _assign_gender(model_str):
+    """Assign a random gender to a model and store pronoun forms."""
+    gender = random.choice(["he", "she"])
+    forms = {
+        "he": {"he": "he", "He": "He", "his": "his", "His": "His", "him": "him", "himself": "himself"},
+        "she": {"he": "she", "He": "She", "his": "her", "His": "Her", "him": "her", "himself": "herself"},
+    }
+    _model_pronouns[model_str] = forms[gender]
+    return gender
+
+
+def _pn(model_str):
+    """Get pronoun dict for a model. Returns they/their if not assigned."""
+    return _model_pronouns.get(model_str, {
+        "he": "they", "He": "They", "his": "their", "His": "Their",
+        "him": "them", "himself": "themselves",
+    })
+
+
+# ---------------------------------------------------------------------------
 # LLM providers
 # ---------------------------------------------------------------------------
+
+# Model alias mapping: short/simple names → canonical provider/model strings
+# Use these aliases on the command line for convenience.
+MODEL_ALIASES = {
+    # Anthropic
+    "anthropic/haiku":              "anthropic/claude-haiku-4-5-20251001",
+    "anthropic/claude-haiku":       "anthropic/claude-haiku-4-5-20251001",
+    "anthropic/sonnet":             "anthropic/claude-sonnet-4-20250514",
+    "anthropic/claude-sonnet":      "anthropic/claude-sonnet-4-20250514",
+    "anthropic/opus":               "anthropic/claude-opus-4-20250514",
+    "anthropic/claude-opus":        "anthropic/claude-opus-4-20250514",
+    # OpenAI
+    "openai/gpt4o":                 "openai/gpt-4o",
+    "openai/gpt-4o-mini":           "openai/gpt-4o-mini",
+    "openai/gpt4o-mini":            "openai/gpt-4o-mini",
+    "openai/o1":                    "openai/o1",
+    "openai/o1-mini":               "openai/o1-mini",
+    "openai/o3":                    "openai/o3",
+    "openai/o3-mini":               "openai/o3-mini",
+    "openai/o4-mini":               "openai/o4-mini",
+    # Gemini
+    "gemini/flash":                 "gemini/gemini-2.5-flash-preview-05-20",
+    "gemini/pro":                   "gemini/gemini-2.5-pro-preview-05-06",
+    "gemini/2.5-flash":             "gemini/gemini-2.5-flash-preview-05-20",
+    "gemini/2.5-pro":               "gemini/gemini-2.5-pro-preview-05-06",
+    "gemini/2.0-flash":             "gemini/gemini-2.0-flash",
+    # Ollama (common local models)
+    "ollama/deepseek":              "ollama/deepseek-r1:14b",
+    "ollama/deepseek-r1":           "ollama/deepseek-r1:14b",
+    "ollama/llama3":                "ollama/llama3.2:3b",
+    "ollama/llama3.2":              "ollama/llama3.2:3b",
+    "ollama/qwen":                  "ollama/qwen2.5:14b",
+    "ollama/qwen2.5":               "ollama/qwen2.5:14b",
+    "ollama/mistral":               "ollama/mistral:7b",
+    "ollama/phi4":                  "ollama/phi4:14b",
+    "ollama/gemma":                 "ollama/gemma3:12b",
+    "ollama/gemma3":                "ollama/gemma3:12b",
+}
+
+
+def _resolve_model(model):
+    """Resolve a model alias to its canonical name, or return as-is."""
+    resolved = MODEL_ALIASES.get(model, model)
+    if resolved != model:
+        log(f"  Resolved alias '{model}' → '{resolved}'")
+    return resolved
+
 
 def _provider(model):
     """Return (provider, model_id) from a model string.
@@ -666,19 +745,29 @@ def _provider(model):
 
 
 def _short_model_name(model):
-    """Shorten a model string for display.
+    """Shorten a model string for display — strip numbers and version tags.
 
     'anthropic/claude-haiku-4-5-20251001' → 'claude-haiku'
+    'anthropic/claude-sonnet-4-6-20250514' → 'claude-sonnet'
     'openai/gpt-4o' → 'gpt-4o'
-    'deepseek-r1:14b' → 'deepseek-r1:14b'
+    'openai/o3-mini' → 'o3-mini'
+    'gemini/gemini-2.5-flash-preview-05-20' → 'gemini-flash'
+    'ollama/deepseek-r1:14b' → 'deepseek-r1'
+    'ollama/llama3.2:3b' → 'llama3'
     """
     name = model.split("/")[-1]  # drop provider prefix
-    # Trim long version suffixes (segments of 3+ digits)
+    name = name.split(":")[0]    # drop size tag (e.g. :14b, :7b)
+    # Split on hyphens, keep only non-pure-numeric parts
+    # Exception: keep segments that mix letters+digits (e.g. '4o', 'r1', '3b')
     parts = name.split("-")
     short = []
     for p in parts:
-        if p.isdigit() and len(p) > 2:
-            break
+        if re.fullmatch(r'\d+', p):
+            continue  # pure number like '4', '5', '20251001'
+        if p in ("preview",):
+            continue  # noise words
+        # Strip trailing dot-numbers (e.g. 'gemini2.5' -> 'gemini', 'llama3.2' -> 'llama3')
+        p = re.sub(r'\.\d+$', '', p)
         short.append(p)
     return "-".join(short) or name
 
@@ -718,7 +807,7 @@ def _call_openai(model_id, messages):
 
 
 def _call_anthropic(model_id, messages):
-    """Call Anthropic messages API."""
+    """Call Anthropic messages API with retry on 429/529."""
     log_debug(f"Calling Anthropic: model={model_id}, messages={len(messages)}")
     api_key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not api_key:
@@ -731,18 +820,28 @@ def _call_anthropic(model_id, messages):
             system_text = m['content']
         else:
             api_messages.append(m)
-    resp = requests.post(
-        'https://api.anthropic.com/v1/messages',
-        headers={'x-api-key': api_key,
-                 'anthropic-version': '2023-06-01',
-                 'Content-Type': 'application/json'},
-        json={'model': model_id, 'max_tokens': 1024,
-              'system': system_text,
-              'messages': api_messages,
-              'temperature': 0.7},
-        timeout=120)
-    resp.raise_for_status()
-    return resp.json()['content'][0]['text']
+    for attempt in range(5):
+        resp = requests.post(
+            'https://api.anthropic.com/v1/messages',
+            headers={'x-api-key': api_key,
+                     'anthropic-version': '2023-06-01',
+                     'Content-Type': 'application/json'},
+            json={'model': model_id, 'max_tokens': 1024,
+                  'system': system_text,
+                  'messages': api_messages,
+                  'temperature': 0.7},
+            timeout=120)
+        if resp.status_code in (429, 529):
+            wait = min(2 ** attempt * 5, 60)
+            log(f"Anthropic {resp.status_code} (overloaded), retrying in {wait}s...")
+            time.sleep(wait)
+            continue
+        if not resp.ok:
+            log(f"Anthropic error {resp.status_code}: {resp.text[:500]}")
+            resp.raise_for_status()
+        return resp.json()['content'][0]['text']
+    log(f"Anthropic error {resp.status_code}: {resp.text[:500]}")
+    resp.raise_for_status()  # final attempt — let it raise
 
 
 def _call_ollama(ollama_url, model_id, messages):
@@ -770,7 +869,7 @@ def _call_gemini(model_id, messages):
                  'Content-Type': 'application/json'},
         json={'model': model_id, 'messages': messages,
               'temperature': 0.7,
-              'response_mime_type': 'application/json'},
+              'response_format': {'type': 'json_object'}},
         timeout=120)
     resp.raise_for_status()
     return resp.json()['choices'][0]['message']['content']
@@ -1047,11 +1146,10 @@ def game_loop(args, board, sync):
         plab = f"P{pnum} ({faction})"
 
         # --- Pause checkpoint ---
-        log_debug(f"Pause checkpoint: turn={turn}, player={cur}, auto_pause={_auto_pause}")
         _write_status(board, cur, turn)
         if _auto_pause:
-            log_debug("Auto-pausing, waiting for SIGUSR1...")
             _pause_event.clear()  # re-pause after each turn
+            log(f"\u23f8  Paused — send USR1 to step, USR2 to run (pid {os.getpid()})")
         _pause_event.wait()  # blocks until unpaused
         log_debug(f"Unpaused, proceeding with turn {turn}")
 
@@ -1087,18 +1185,18 @@ def game_loop(args, board, sync):
         # Announce turn start with varied phrasing
         player_model = args.model_p1 if pnum == '1' else args.model_p2
         short_model = _short_model_name(player_model)
+        pn = _pn(player_model)
         if ps1 == ps2:
             score_desc = f"Scores are tied at {ps1}"
         elif (pnum == '1' and ps1 > ps2) or (pnum == '2' and ps2 > ps1):
             score_desc = f"Leading {max(ps1,ps2)} to {min(ps1,ps2)}"
         else:
             score_desc = f"Trailing {min(ps1,ps2)} to {max(ps1,ps2)}"
-        import random
         thinking_phrases = [
-            f"{short_model} considers their next move.",
+            f"{short_model} considers {pn['his']} next move.",
             f"{short_model} studies the board carefully.",
-            f"{short_model} weighs their options.",
-            f"{short_model} plots their strategy.",
+            f"{short_model} weighs {pn['his']} options.",
+            f"{short_model} plots {pn['his']} strategy.",
             f"{short_model} surveys the battlefield.",
             f"{short_model} takes a moment to think.",
             f"{short_model} deliberates.",
@@ -1107,19 +1205,19 @@ def game_loop(args, board, sync):
             f"The crowd watches as {short_model} decides.",
             f"All eyes on {short_model}.",
             f"{short_model} reaches for a card.",
-            f"{short_model} strokes their chin thoughtfully.",
-            f"{short_model} narrows their eyes at the board.",
+            f"{short_model} strokes {pn['his']} chin thoughtfully.",
+            f"{short_model} narrows {pn['his']} eyes at the board.",
             f"A hush falls as {short_model} contemplates.",
             f"{short_model} taps the table, deep in thought.",
             f"{short_model} scans the opponent's side of the board.",
-            f"{short_model} leans forward, studying their hand.",
+            f"{short_model} leans forward, studying {pn['his']} hand.",
             f"The tension builds as {short_model} decides.",
-            f"{short_model} glances at their remaining cards.",
-            f"{short_model} pauses before making their move.",
+            f"{short_model} glances at {pn['his']} remaining cards.",
+            f"{short_model} pauses before making {pn['his']} move.",
             f"What will {short_model} do next?",
             f"{short_model} takes a deep breath.",
             f"{short_model} mulls over the possibilities.",
-            f"{short_model} drums their fingers on the table.",
+            f"{short_model} drums {pn['his']} fingers on the table.",
             f"The crowd holds its breath as {short_model} thinks.",
             f"{short_model} reviews the state of play.",
             f"A flicker of recognition crosses {short_model}'s face.",
@@ -1128,20 +1226,20 @@ def game_loop(args, board, sync):
             f"The wind shifts as {short_model} ponders.",
             f"{short_model} weighs risk against reward.",
             f"Will {short_model} play it safe or go all in?",
-            f"{short_model} shuffles through their options.",
+            f"{short_model} shuffles through {pn['his']} options.",
             f"The fate of the continent rests on {short_model}'s choice.",
             f"{short_model} recalls the lessons of past rounds.",
             f"A knowing smile crosses {short_model}'s face.",
-            f"{short_model} steels their resolve.",
+            f"{short_model} steels {pn['his']} resolve.",
             f"The tavern grows quiet as {short_model} thinks.",
             f"{short_model} traces a finger across the board.",
             f"{short_model} checks the score one more time.",
             f"Is {short_model} about to make a game-changing play?",
-            f"{short_model} furrows their brow in concentration.",
-            f"The cards tremble as {short_model} decides their fate.",
+            f"{short_model} furrows {pn['his']} brow in concentration.",
+            f"The cards tremble as {short_model} decides {pn['his']} fate.",
             f"{short_model} counts the cards remaining.",
             f"Every move matters now. {short_model} knows it.",
-            f"{short_model} stares down their opponent.",
+            f"{short_model} stares down {pn['his']} opponent.",
             f"The moment of truth approaches for {short_model}.",
         ]
         thinking = random.choice(thinking_phrases)
@@ -1268,7 +1366,7 @@ def game_loop(args, board, sync):
 def main():
     parser = argparse.ArgumentParser(
         description='LLM vs LLM Gwent game manager')
-    parser.add_argument('--model-p1', default='anthropic/claude-sonnet-4-20250514',
+    parser.add_argument('--model-p1', default='anthropic/sonnet',
                         help='Model for P1')
     parser.add_argument('--model-p2', default=None,
                         help='Model for P2 (defaults to --model-p1)')
@@ -1304,6 +1402,11 @@ def main():
     # Default P2 model to P1 model if not specified
     if not args.model_p2:
         args.model_p2 = args.model_p1
+
+    # Resolve model aliases (e.g. "anthropic/sonnet" → full model ID)
+    args.model_p1 = _resolve_model(args.model_p1)
+    args.model_p2 = _resolve_model(args.model_p2)
+
     log_debug(f"Args: model_p1={args.model_p1}, model_p2={args.model_p2}, no_pause={args.no_pause}, game_url={args.game_url}")
 
     global _json_output
@@ -1339,6 +1442,10 @@ def main():
         elif provider == 'anthropic':
             if not os.environ.get('ANTHROPIC_API_KEY'):
                 log("ERROR: ANTHROPIC_API_KEY not set (check .env)")
+                return 1
+        elif provider == 'gemini':
+            if not os.environ.get('GEMINI_API_KEY'):
+                log("ERROR: GEMINI_API_KEY not set (check .env)")
                 return 1
         else:
             log(f"Checking Ollama model {model_id} on {args.ollama_url}...")
@@ -1376,15 +1483,20 @@ def main():
 
     log(f"Game ready: stage={stage}")
 
-    # 3b. Set player display names on the server
+    # 3b. Assign random genders and set player names + pronouns on the server
     short_p1 = _short_model_name(args.model_p1)
     short_p2 = _short_model_name(args.model_p2)
+    g1 = _assign_gender(args.model_p1)
+    g2 = _assign_gender(args.model_p2)
+    log(f"Players: {short_p1} ({g1}) vs {short_p2} ({g2})")
     try:
         requests.put(f'{args.game_url}/players',
-                     json={"PLAYER.ONE": short_p1,
-                           "PLAYER.TWO": short_p2},
+                     json={
+                         "PLAYER.ONE": {"name": short_p1, "pronoun": g1},
+                         "PLAYER.TWO": {"name": short_p2, "pronoun": g2},
+                     },
                      timeout=5)
-        log(f"Player names set: {short_p1} vs {short_p2}")
+        log(f"Player names + pronouns set on server")
     except Exception as e:
         log_debug(f"Failed to set player names: {e}")
 
@@ -1416,7 +1528,6 @@ def main():
         log_debug(f"Failed to read TTS sources: {e}")
 
     # 6. Announce game start with varied commentary
-    import random
     p1_faction = board.get('factions', {}).get('PLAYER.ONE', '')
     p2_faction = board.get('factions', {}).get('PLAYER.TWO', '')
     game_start_phrases = [
@@ -1516,6 +1627,8 @@ def main():
 if __name__ == '__main__':
     try:
         sys.exit(main() or 0)
+    except KeyboardInterrupt:
+        sys.exit(0)
     except Exception as e:
         _file_logger.exception("game-loop.py crashed: %s", e)
         raise

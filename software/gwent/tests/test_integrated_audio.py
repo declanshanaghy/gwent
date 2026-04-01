@@ -33,8 +33,8 @@ class TestIntegratedAudio:
     @pytest.fixture
     def music_file(self):
         """Fixture to get the path to the music file."""
-        module_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        music_path = os.path.join(module_dir, "gwent/hal/music/music1.mp3")
+        from gwent.game.data_paths import MUSIC_DIR
+        music_path = os.path.join(MUSIC_DIR, "music1.mp3")
         
         if not os.path.exists(music_path):
             pytest.skip(f"Music file not found at {music_path}")
@@ -44,8 +44,8 @@ class TestIntegratedAudio:
     @pytest.fixture
     def sound_file(self):
         """Fixture to get the path to the sound effect file."""
-        module_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        sound_path = os.path.join(module_dir, "gwent/hal/effects/card_read.wav")
+        from gwent.game.data_paths import SFX_DIR
+        sound_path = os.path.join(SFX_DIR, "card_read.wav")
         
         if not os.path.exists(sound_path):
             pytest.skip(f"Sound effect file not found at {sound_path}")

@@ -81,7 +81,7 @@ class _Handler(BaseHTTPRequestHandler):
 
         try:
             # Get current state and its ETag
-            snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, client_tts=self.server.client_tts)
+            snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, player_pronouns=self.server.player_pronouns, client_tts=self.server.client_tts)
             etag = self._compute_etag(snapshot)
 
             if client_etag and client_etag == etag:
@@ -93,7 +93,7 @@ class _Handler(BaseHTTPRequestHandler):
                         cond.wait(timeout=timeout)
 
                 # Re-snapshot after wake
-                snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, client_tts=self.server.client_tts)
+                snapshot = game_state.snapshot_dict(controller, player_names=self.server.player_names, player_pronouns=self.server.player_pronouns, client_tts=self.server.client_tts)
                 new_etag = self._compute_etag(snapshot)
 
                 if new_etag == client_etag:
@@ -117,21 +117,33 @@ class _Handler(BaseHTTPRequestHandler):
             self._send_json(503, {"error": str(e)})
 
     def _handle_set_players(self):
-        """Set player display names."""
+        """Set player display names and optional pronouns."""
         try:
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length)
             data = json.loads(body)
             for key in ("PLAYER.ONE", "PLAYER.TWO"):
                 if key in data:
-                    self.server.player_names[key] = str(data[key])
-            log.info("Player names updated: %s", self.server.player_names)
+                    val = data[key]
+                    if isinstance(val, dict):
+                        # Extended format: {"name": "...", "pronoun": "he|she"}
+                        self.server.player_names[key] = str(val.get("name", key))
+                        if "pronoun" in val:
+                            self.server.player_pronouns[key] = str(val["pronoun"])
+                    else:
+                        self.server.player_names[key] = str(val)
+            log.info("Player names updated: %s, pronouns: %s",
+                     self.server.player_names, self.server.player_pronouns)
             # Wake long-poll clients so they pick up the change
             cond = self.server.state_condition
             if cond:
                 with cond:
                     cond.notify_all()
-            self._send_json(200, {"status": "ok", "player_names": self.server.player_names})
+            self._send_json(200, {
+                "status": "ok",
+                "player_names": self.server.player_names,
+                "player_pronouns": self.server.player_pronouns,
+            })
         except Exception as e:
             log.error("Error setting player names: %s", e)
             self._send_json(400, {"error": str(e)})
@@ -217,6 +229,7 @@ class _GwentHTTPServer(ThreadingMixIn, HTTPServer):
         self.get_controller = controller_getter
         self.state_condition = getattr(pubsub, 'state_condition', None) if pubsub else None
         self.player_names = {"PLAYER.ONE": "Player 1", "PLAYER.TWO": "Player 2"}
+        self.player_pronouns = {"PLAYER.ONE": "he", "PLAYER.TWO": "he"}
         self.client_tts = {}  # {client_id: provider_name}
         super().__init__(("", port), _Handler)
 

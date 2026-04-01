@@ -31,15 +31,15 @@ _WIN_TEMPLATES = [
     "{winner} sweeps round {round} like a Skellige storm! {w_score} over {loser}'s {l_score}.",
     "The bards of {location} will sing of {winner}'s {w_score}-point triumph over {loser}!",
     "Not even the mages of Aretuza could save {loser}. {winner} wins {w_score} to {l_score} at {location}!",
-    "{loser}'s forces crumble at the gates of {location}. {winner} stands victorious, {w_score} to {l_score}.",
+    "{loser}'s forces crumble at the gates of {location}. {winner} stands victorious at {his} post, {w_score} to {l_score}.",
     "From the walls of {location}, {winner} claims round {round}! {margin} points to spare.",
     "Dandelion scribbles furiously: {winner} humiliates {loser} at {location}, {w_score} to {l_score}!",
     "The Continent trembles! {winner} dominates round {round} at {location}. {w_score} to {l_score}.",
     "{winner} outplays {loser} at {location} with the cunning of a Nilfgaardian spy. {w_score} to {l_score}!",
     "A decisive blow at {location}! {winner} takes the round {w_score} to {l_score}.",
-    "{loser} retreats from {location} in shame. {winner} wins by {margin}!",
+    "{loser} retreats from {location} in shame. {winner} wins by {margin}, {his} banner flying high!",
     "The merchants of {location} bet heavily on {winner}. {w_score} to {l_score} proves them right!",
-    "{winner} raises a tankard at {location}! Round {round} won, {w_score} to {l_score}.",
+    "{winner} raises {his} tankard at {location}! Round {round} won, {w_score} to {l_score}.",
     "The Witchers of Kaer Morhen nod approvingly. {winner} bests {loser} by {margin} at {location}.",
     "Like Geralt slaying a griffin, {winner} dismantles {loser} at {location}! {w_score} to {l_score}.",
     "Round {round} at {location} belongs to {winner}! {loser} falls {margin} short.",
@@ -54,7 +54,7 @@ _WIN_TEMPLATES = [
     "The druids of {location} foresaw this: {winner} triumphs over {loser} by {margin} points!",
     "Roach gallops through {location} with news of {winner}'s victory! {w_score} to {l_score} over {loser}.",
     "Vesemir would be proud. {winner} outfoxes {loser} at {location}, round {round}. {w_score} to {l_score}.",
-    "{winner} plays like a grandmaster at {location}. {loser} falls behind by {margin}!",
+    "{winner} plays like a grandmaster at {location}. {He} leaves {loser} behind by {margin}!",
     "The crows circle over {location} as {loser} crumbles. {winner} wins round {round}, {w_score} to {l_score}.",
     "A cunning gambit at {location}! {winner} lures {loser} into defeat. {w_score} to {l_score}!",
     "The Emperor himself would applaud. {winner} seizes {location}, crushing {loser} by {margin}.",
@@ -63,7 +63,7 @@ _WIN_TEMPLATES = [
     "The innkeeper at {location} pours a victory ale for {winner}. {loser} drowns their sorrows at {l_score}.",
     "By the Eternal Fire! {winner} scorches {loser} at {location}. {w_score} to {l_score} in round {round}!",
     "Dijkstra's spies confirm it: {winner} has routed {loser} at {location} by {margin} points.",
-    "The bonfires of {location} burn bright for {winner}! {loser} slinks away with only {l_score}.",
+    "The bonfires of {location} burn bright for {winner}! {He} watches {loser} slink away with only {l_score}.",
     "A masterful round at {location}! {winner} leaves {loser} speechless. {w_score} to {l_score}, round {round}.",
 ]
 
@@ -101,6 +101,17 @@ def _leader_nickname(board, player):
     return "Player 1" if str(player) == "PLAYER.ONE" else "Player 2"
 
 
+def _leader_pronouns(board, player):
+    """Return pronoun format dict for the player's leader."""
+    from gwent.game.pronouns import pronoun_forms
+    leader = board.leaders.get(player)
+    if leader:
+        p = leader.pronoun if hasattr(leader, 'pronoun') else (
+            leader.get('pronoun', '') if hasattr(leader, 'get') else '')
+        return pronoun_forms(p)
+    return pronoun_forms("")
+
+
 class RoundEnd(gwent.game.stages.base.GameStage):
 
     @property
@@ -113,7 +124,7 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         self._game_over = False
         self._determine_winner()
 
-    def _msg_round_win(self, winner, loser, w_score, l_score, rnd, w_faction, l_faction):
+    def _msg_round_win(self, winner, loser, w_score, l_score, rnd, w_faction, l_faction, **pn):
         if gwent.game.BaseComponent.simple_mode:
             return f"Round {rnd}. {winner} wins {w_score} to {l_score}."
         location = random.choice(LOCATIONS)
@@ -121,14 +132,14 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         return random.choice(_WIN_TEMPLATES).format(
             winner=winner, loser=loser, w_score=w_score, l_score=l_score,
             w_faction=w_faction, l_faction=l_faction,
-            margin=margin, round=rnd, location=location)
+            margin=margin, round=rnd, location=location, **pn)
 
-    def _msg_round_draw(self, p1, p2, score, rnd):
+    def _msg_round_draw(self, p1, p2, score, rnd, **pn):
         if gwent.game.BaseComponent.simple_mode:
             return f"Round {rnd}. Draw at {score}."
         location = random.choice(LOCATIONS)
         return random.choice(_DRAW_TEMPLATES).format(
-            p1=p1, p2=p2, score=score, round=rnd, location=location)
+            p1=p1, p2=p2, score=score, round=rnd, location=location, **pn)
 
     def _determine_winner(self):
         p1_score = self._board.calculate_player_score(PLAYER.ONE)
@@ -161,19 +172,21 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             self._board.players[loser].gems -= 1
             w_label = _leader_nickname(self._board, winner)
             l_label = _leader_nickname(self._board, loser)
+            w_pn = _leader_pronouns(self._board, winner)
             w_score = max(p1_score, p2_score)
             l_score = min(p1_score, p2_score)
             commentary = self._msg_round_win(
                 w_label, l_label, w_score, l_score, rnd,
                 self._board.factions.get(winner, ""),
-                self._board.factions.get(loser, ""))
+                self._board.factions.get(loser, ""), **w_pn)
         elif winner is None:
             self._board.players[PLAYER.ONE].gems -= 1
             self._board.players[PLAYER.TWO].gems -= 1
+            pn1 = _leader_pronouns(self._board, PLAYER.ONE)
             commentary = self._msg_round_draw(
                 _leader_nickname(self._board, PLAYER.ONE),
                 _leader_nickname(self._board, PLAYER.TWO),
-                p1_score, rnd)
+                p1_score, rnd, **pn1)
         else:
             commentary = ""
 

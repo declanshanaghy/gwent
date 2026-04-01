@@ -15,5 +15,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Nilfgaardian/YoungEmissary.jpg",
     "card_text": "If I acquit myself well, perhaps next they'll post me somewhere civilized.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

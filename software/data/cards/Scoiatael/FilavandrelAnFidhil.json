@@ -1,7 +1,7 @@
 {
     "kind": "card",
     "faction": "Scoia'tael",
-    "name": "Filavandrel a\u00e9n Fidh\u00e1il",
+    "name": "Filavandrel aén Fidháil",
     "strength": 2,
     "ranges": [
         "close",
@@ -11,5 +11,6 @@
         "agile"
     ],
     "last_updated": "2026-03-26T16:42:44",
-    "image": "../../images/Scoiatael/FilavandrelAnFidhil-cropped.jpg"
+    "image": "../../images/Scoiatael/FilavandrelAnFidhil-cropped.jpg",
+    "pronoun": "he"
 }

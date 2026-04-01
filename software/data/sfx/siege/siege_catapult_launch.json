@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "siege",
+  "title": "Siege Catapult Launch",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Catapult arm swinging and launching a boulder, wood creaking under tension then snapping forward, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

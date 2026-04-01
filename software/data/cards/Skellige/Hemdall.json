@@ -14,5 +14,6 @@
     "rfid_written_at": "2026-03-29T04:22:19",
     "image": "../../images/Skellige/Hemdall.jpg",
     "card_text": "When the time of the White Frost comes, Hemdall will sound the call for battle.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

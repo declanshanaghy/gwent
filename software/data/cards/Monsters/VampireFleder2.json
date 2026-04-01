@@ -16,5 +16,6 @@
     "rfid_written_at": "2026-03-29T04:45:06",
     "image": "../../images/Monsters/VampireFleder.jpg",
     "image_verified": false,
-    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds."
+    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds.",
+    "pronoun": "it"
 }

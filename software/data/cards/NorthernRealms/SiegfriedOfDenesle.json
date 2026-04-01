@@ -12,5 +12,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/NorthernRealms/SiegfriedOfDenesle.jpg",
     "card_text": "We're on the same side, witcher. You'll realize this one day.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

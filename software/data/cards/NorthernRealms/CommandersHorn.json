@@ -15,5 +15,6 @@
     "rfid_written_at": "2026-03-29T03:57:17",
     "image": "../../images/NorthernRealms/CommandersHorn.jpg",
     "image_verified": true,
-    "card_text": "Plus one to morale, minus three to hearing."
+    "card_text": "Plus one to morale, minus three to hearing.",
+    "pronoun": "it"
 }

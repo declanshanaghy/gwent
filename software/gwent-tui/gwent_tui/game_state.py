@@ -77,6 +77,8 @@ class GameState:
         # Last played card for image overlay
         self.last_played_card = None
         self.last_played_time = 0.0
+        self.last_played_subkind = ""
+        self.last_played_by = None  # P1 or P2 enum — who played/drew the card
 
         # Event log (recent events for footer)
         self.last_prompt = ""
@@ -92,6 +94,7 @@ class GameState:
         self.http_status = "off"    # off, polling, processing, error
         self.server_tts = ""       # server TTS provider name (from snapshot)
         self.player_names = {P1: "Player 1", P2: "Player 2"}
+        self.player_pronouns = {P1: "he", P2: "he"}
 
         # Change highlights: {key: expire_time}
         # Keys: "board:{player}:{row}:{card_name}", "hand:{player}:{card_name}",
@@ -141,11 +144,15 @@ class GameState:
         self.stage = snapshot.get("active_stage", "—") or "—"
         self.server_tts = snapshot.get("tts_provider", "") or ""
 
-        # Player display names (set via PUT /players)
+        # Player display names and pronouns (set via PUT /players)
         names = snapshot.get("player_names", {})
         for key, name in names.items():
             p = _normalize_player(key)
             self.player_names[p] = name
+        pronouns = snapshot.get("player_pronouns", {})
+        for key, pronoun in pronouns.items():
+            p = _normalize_player(key)
+            self.player_pronouns[p] = pronoun
 
         board = state.get("board", {})
         if not board or self.stage not in self._GAME_STAGES:
@@ -594,26 +601,64 @@ class GameState:
                 self._log_event(f"\u2694 {name} \u2192 {row or 'board'} ({p})")
                 self.last_played_card = card
                 self.last_played_time = time.time()
+                self.last_played_subkind = subkind
+                self.last_played_by = p
             elif subkind == "muster":
                 row = data.get("row", "")
                 self._log_event(f"\U0001f4e3 Muster: {name} \u2192 {row} ({p})")
                 self.last_played_card = card
                 self.last_played_time = time.time()
+                self.last_played_subkind = subkind
+                self.last_played_by = p
+            elif subkind == "spy_draw":
+                self._log_event(f"\U0001f575 Spy draw: {name} ({p})")
+                self.last_played_card = card
+                self.last_played_time = time.time()
+                self.last_played_subkind = subkind
+                self.last_played_by = p
+            elif subkind == "medic_resurrect":
+                row = data.get("row", "")
+                self._log_event(f"\U0001f48a Medic: {name} \u2192 {row} ({p})")
+                self.last_played_card = card
+                self.last_played_time = time.time()
+                self.last_played_subkind = subkind
+                self.last_played_by = p
             elif subkind == "remove_card":
                 reason = data.get("reason", "")
                 self._log_event(f"\U0001f525 {name} destroyed ({reason}) ({p})")
+                self.last_played_card = card
+                self.last_played_time = time.time()
+                self.last_played_subkind = subkind
+                self.last_played_by = p
             elif subkind == "weather_change":
                 rows = data.get("weather_rows", [])
                 if rows:
                     self._log_event(f"\u2601 Weather: {', '.join(rows)}")
                 else:
                     self._log_event(f"\u2600 Weather cleared")
+                # weather_change doesn't carry the card — skip overlay
             elif subkind == "commander_horn":
                 row = data.get("row", "")
                 self._log_event(f"\U0001f4ef Horn on {row} ({p})")
             elif subkind == "decoy_swap":
                 returned = data.get("returned_card", {})
                 self._log_event(f"\U0001f3ad Decoy: {returned.get('name', '?')} returned ({p})")
+                # Show the returned card in the overlay
+                if returned:
+                    self.last_played_card = returned
+                    self.last_played_time = time.time()
+                    self.last_played_subkind = subkind
+                    self.last_played_by = p
+            elif subkind == "transform":
+                new_card = data.get("new_card", {})
+                old_name = data.get("old_card", {}).get("name", "?")
+                new_name = new_card.get("name", "?")
+                self._log_event(f"\U0001f500 Transform: {old_name} \u2192 {new_name} ({p})")
+                if new_card:
+                    self.last_played_card = new_card
+                    self.last_played_time = time.time()
+                    self.last_played_subkind = subkind
+                    self.last_played_by = p
             elif subkind == "round_clear":
                 self._log_event(f"\U0001f3c1 Round cleared")
             elif subkind == "add_to_deck":

@@ -50,8 +50,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player} stands down.",
         "{player} yields the field.",
         "{player} holds back.",
-        "{player} bides their time.",
-        "{player} folds their arms.",
+        "{player} bides {his} time.",
+        "{player} folds {his} arms.",
     ]
 
     _SIMPLE_PLACEMENT = [
@@ -66,10 +66,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
     _SIMPLE_SPY = [
         "{player}: {name}, spy. Draw 2.",
         "{player} plants {name} as a spy! Drawing 2.",
-        "A spy for {player}! {name} infiltrates. Draw 2.",
+        "A spy for {player}! {name} infiltrates. {He} draws 2.",
         "{player} sends {name} behind enemy lines. 2 cards drawn.",
         "{name} the double agent! {player} draws 2.",
-        "Espionage! {player}'s {name} switches sides. Draw 2.",
+        "Espionage! {player}'s {name} switches sides. {He} draws 2.",
     ]
 
     _SIMPLE_CHOOSE_ROW = [
@@ -91,12 +91,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
     ]
 
     _SIMPLE_DECOY_PROMPT = [
-        "{player}: Decoy! Scan a card on your board to return to hand.",
-        "{player}: Decoy deployed! Pick a card from your board to retrieve.",
+        "{player}: Decoy! Scan a card on {his} board to return to hand.",
+        "{player}: Decoy deployed! Pick a card from {his} board to retrieve.",
         "{player} plays Decoy. Which card comes back to hand?",
         "{player}: Decoy swap! Scan a board card to reclaim.",
         "Decoy in play! {player}, choose a card to pull back.",
-        "{player}: tactical retreat! Scan a card to return to hand.",
+        "{player}: tactical retreat! Scan a card to return to {his} hand.",
     ]
 
     _SIMPLE_NO_DECOY_TARGET = [
@@ -123,7 +123,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "That ability was already spent.",
         "The leader's power is exhausted.",
         "Once per game — already used.",
-        "Your leader already played their part.",
+        "Your leader already played {his} part.",
     ]
 
     _SIMPLE_CHOOSE_ROW_FIRST = [
@@ -136,12 +136,12 @@ class PlayRound(gwent.game.stages.base.GameStage):
     ]
 
     _SIMPLE_LEADER_WEATHER = [
-        "{player}: leader ability. Scan a weather card from your deck.",
+        "{player}: leader ability. Scan a weather card from {his} deck.",
         "{player}'s leader commands the skies. Scan a weather card.",
         "{player}: invoke the elements! Scan a weather card from deck.",
         "By the leader's will! {player}, scan a weather card.",
         "{player}'s leader stirs the heavens. Choose a weather card.",
-        "The leader commands weather! {player}, scan from deck.",
+        "The leader commands weather! {player}, scan from {his} deck.",
     ]
 
     _SIMPLE_LEADER_OPP_DISCARD = [
@@ -149,26 +149,26 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}'s leader raids the enemy graveyard! {count} cards to plunder. Scan one.",
         "{player}: claim a fallen foe! {count} in opponent's discard. Scan to take.",
         "The leader picks through enemy remains. {count} cards, {player}. Scan one.",
-        "{player}'s leader loots the battlefield! {count} enemy cards await. Scan to claim.",
+        "{player}'s leader loots the battlefield! {count} enemy cards await. {He} scans to claim.",
         "Enemy discard lies open! {player}, scan one of {count} cards to seize.",
     ]
 
     _SIMPLE_LEADER_OWN_DISCARD = [
-        "{player}: leader ability. Scan a card from your discard to restore. {count} available.",
+        "{player}: leader ability. Scan a card from {his} discard to restore. {count} available.",
         "{player}'s leader reaches into the grave! {count} cards to resurrect. Scan one.",
-        "{player}: reclaim a fallen ally! {count} in your discard. Scan to restore.",
+        "{player}: reclaim a fallen ally! {count} in {his} discard. Scan to restore.",
         "The leader calls to the dead. {count} cards, {player}. Scan one to revive.",
-        "{player}'s leader defies death! {count} cards in discard. Scan one.",
+        "{player}'s leader defies death! {count} cards in discard. {He} scans one.",
         "From the ashes! {player}, scan one of {count} discarded cards to reclaim.",
     ]
 
     _SIMPLE_LEADER_DISCARD_HAND = [
-        "{player}: leader ability. Scan {count} card(s) from your hand to discard.",
+        "{player}: leader ability. Scan {count} card(s) from {his} hand to discard.",
         "{player}'s leader demands sacrifice! Scan {count} card(s) to discard.",
         "The leader requires tribute. {player}, discard {count} from hand.",
-        "{player}: surrender {count} card(s) from hand to the leader's will.",
+        "{player}: surrender {count} card(s) from {his} hand to the leader's will.",
         "A price must be paid! {player}, scan {count} hand card(s) to discard.",
-        "{player}'s leader calls for offerings. Scan {count} from your hand.",
+        "{player}'s leader calls for offerings. Scan {count} from {his} hand.",
     ]
 
     _SIMPLE_MEDIC_PROMPT = [
@@ -188,6 +188,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}'s medic saves {resurrected}!",
         "{resurrected} cheats death! Back in {player}'s hand.",
     ]
+    # NOTE: _SIMPLE_MEDIC_PROMPT, _SIMPLE_MEDIC_EMPTY, _SIMPLE_MUSTER, _SIMPLE_SCORCH,
+    # _SIMPLE_DECOY, _SIMPLE_MARDROEME, _SIMPLE_SCORCH_SPECIALTY, _SIMPLE_COMMANDER
+    # all accept **pn via their _msg_* callers. Pronoun placeholders are added
+    # where natural English calls for gendered language.
 
     _SIMPLE_MEDIC_EMPTY = [
         "{player}: {name}, medic. No targets.",
@@ -383,6 +387,16 @@ class PlayRound(gwent.game.stages.base.GameStage):
             return self._LEADER_NICKNAMES.get(name, name)
         return "Player 1" if player == PLAYER.ONE else "Player 2"
 
+    def _player_pronouns(self, player):
+        """Return pronoun format dict for the player's leader."""
+        from gwent.game.pronouns import pronoun_forms
+        leader = self._board.leaders.get(player)
+        if leader:
+            p = leader.pronoun if hasattr(leader, 'pronoun') else (
+                leader.get('pronoun', '') if hasattr(leader, 'get') else '')
+            return pronoun_forms(p)
+        return pronoun_forms("")
+
     def _announce_and_advance(self, prompt):
         """Announce a card play, save as last action summary, then advance turn."""
         self._last_action_summary = prompt
@@ -395,9 +409,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
     # --- Announcement helpers (SRP: one method per announcement type) ---
 
-    def _msg_turn_prompt(self, label, score, opp_score, margin, opp_passed):
+    def _msg_turn_prompt(self, label, score, opp_score, margin, opp_passed, **pn):
         if self._simple:
-            return random.choice(self._SIMPLE_TURN).format(player=label)
+            return random.choice(self._SIMPLE_TURN).format(player=label, **pn)
         if opp_passed:
             quips = self._TURN_OPP_PASSED_AHEAD if margin > 0 else self._TURN_OPP_PASSED_BEHIND
         elif margin > 15:
@@ -411,11 +425,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         else:
             quips = self._TURN_DESPERATE
         return random.choice(quips).format(
-            player=label, score=score, opp_score=opp_score, margin=abs(margin))
+            player=label, score=score, opp_score=opp_score, margin=abs(margin), **pn)
 
-    def _msg_pass(self, label, score, opp_score, margin):
+    def _msg_pass(self, label, score, opp_score, margin, **pn):
         if self._simple:
-            return random.choice(self._SIMPLE_PASS).format(player=label)
+            return random.choice(self._SIMPLE_PASS).format(player=label, **pn)
         if margin > 10:
             quips = self._PASS_DOMINATING
         elif margin > 0:
@@ -427,124 +441,124 @@ class PlayRound(gwent.game.stages.base.GameStage):
         else:
             quips = self._PASS_DESPERATE
         return random.choice(quips).format(
-            player=label, score=score, opp_score=opp_score, margin=abs(margin))
+            player=label, score=score, opp_score=opp_score, margin=abs(margin), **pn)
 
-    def _msg_placement(self, label, name, strength, row):
+    def _msg_placement(self, label, name, strength, row, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_PLACEMENT).format(
-                player=label, name=name, strength=strength, row=row)
+                player=label, name=name, strength=strength, row=row, **pn)
         row_phrases = self._ROW_PHRASES.get(row, self._CLOSE_PHRASES)
         return random.choice(row_phrases).format(
-            player=label, name=name, strength=strength)
+            player=label, name=name, strength=strength, **pn)
 
-    def _msg_spy(self, label, name, strength):
+    def _msg_spy(self, label, name, strength, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_SPY).format(
-                player=label, name=name, strength=strength)
+                player=label, name=name, strength=strength, **pn)
         return random.choice(self._SPY_PHRASES).format(
-            player=label, name=name, strength=strength)
+            player=label, name=name, strength=strength, **pn)
 
     _MEDIC_PROMPT_PHRASES = [
         "{player} deploys {name} the battlefield medic! Scan a card from discard to resurrect. {count} available.",
         "{name} kneels over the fallen! {player}'s medic can save one soul. {count} in the graveyard. Scan to resurrect!",
         "The battlefield surgeon arrives! {player}'s {name} surveys {count} fallen warriors. Scan one to bring back!",
-        "Death is not the end! {player}'s {name} reaches into the grave. {count} souls await resurrection!",
-        "{name} channels forbidden magic! {count} cards in {player}'s discard. Scan one to cheat death!",
-        "By blood and sorcery! {player}'s {name} can raise the dead! {count} candidates. Choose wisely!",
+        "Death is not the end! {player}'s {name} reaches into the grave. {He} finds {count} souls awaiting resurrection!",
+        "{name} channels forbidden magic! {count} cards in {player}'s discard. {He} must scan one to cheat death!",
+        "By blood and sorcery! {player}'s {name} can raise the dead! {count} candidates. {He} must choose wisely!",
     ]
 
-    def _msg_medic_prompt(self, label, name, count):
+    def _msg_medic_prompt(self, label, name, count, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_MEDIC_PROMPT).format(
-                player=label, name=name, count=count)
+                player=label, name=name, count=count, **pn)
         return random.choice(self._MEDIC_PROMPT_PHRASES).format(
-            player=label, name=name, count=count)
+            player=label, name=name, count=count, **pn)
 
-    def _msg_medic_resurrect(self, label, resurrected):
+    def _msg_medic_resurrect(self, label, resurrected, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_MEDIC_RESURRECT).format(
-                player=label, resurrected=resurrected)
+                player=label, resurrected=resurrected, **pn)
         return random.choice(self._MEDIC_PHRASES).format(
-            player=label, name="the medic", resurrected=resurrected)
+            player=label, name="the medic", resurrected=resurrected, **pn)
 
     _MEDIC_EMPTY_PHRASES = [
         "{player} deploys {name}, but the graveyard offers no one to save.",
         "{name} searches the fallen for {player}, but death holds tight. No one to resurrect!",
         "The graveyard is empty! {player}'s {name} finds no souls to reclaim.",
-        "{name} reaches into the void for {player}, but the dead stay dead this time.",
-        "Not a single corpse worth saving! {player}'s {name} stands over an empty graveyard.",
-        "{player}'s {name} looks for the fallen, but the crows have already picked the bones clean.",
+        "{name} reaches into the void for {player}, but the dead stay dead. {His} power is wasted this time.",
+        "Not a single corpse worth saving! {player}'s {name} stands over an empty graveyard. {He} shakes {his} head.",
+        "{player}'s {name} looks for the fallen, but {he} finds the crows have already picked the bones clean.",
     ]
 
-    def _msg_medic_empty(self, label, name):
+    def _msg_medic_empty(self, label, name, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_MEDIC_EMPTY).format(
-                player=label, name=name)
+                player=label, name=name, **pn)
         return random.choice(self._MEDIC_EMPTY_PHRASES).format(
-            player=label, name=name)
+            player=label, name=name, **pn)
 
-    def _msg_muster(self, label, name, count, mustered):
+    def _msg_muster(self, label, name, count, mustered, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_MUSTER).format(
-                player=label, name=name, count=count, mustered=mustered)
+                player=label, name=name, count=count, mustered=mustered, **pn)
         return random.choice(self._MUSTER_PHRASES).format(
-            player=label, name=name, count=count, mustered=mustered)
+            player=label, name=name, count=count, mustered=mustered, **pn)
 
-    def _msg_scorch(self, label, name, scorched):
+    def _msg_scorch(self, label, name, scorched, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_SCORCH).format(
-                player=label, name=name, scorched=scorched)
+                player=label, name=name, scorched=scorched, **pn)
         return random.choice(self._SCORCH_ABILITY_PHRASES).format(
-            player=label, name=name, scorched=scorched)
+            player=label, name=name, scorched=scorched, **pn)
 
     _SCORCH_NO_TARGET_PHRASES = [
         "{name} breathes fire, but finds no worthy targets!",
-        "{name} unleashes flames across an empty field! The fire rages, but nothing burns.",
+        "{name} unleashes flames across an empty field! {His} fire rages, but nothing burns.",
         "The inferno of {name} roars, but the battlefield is barren. Not even a drowner to scorch!",
-        "{name} spews dragon fire into the void! Impressive, but pointless.",
-        "Flames erupt from {name}, but find only empty ground. The Continent shrugs.",
+        "{name} spews dragon fire into the void! {His} display is impressive, but pointless.",
+        "Flames erupt from {name}, but {he} finds only empty ground. The Continent shrugs.",
         "{name} scorches nothing but pride! No targets on the field.",
     ]
 
-    def _msg_scorch_no_targets(self, name):
+    def _msg_scorch_no_targets(self, name, **pn):
         if self._simple:
-            return random.choice(self._SIMPLE_SCORCH_NO_TARGETS).format(name=name)
-        return random.choice(self._SCORCH_NO_TARGET_PHRASES).format(name=name)
+            return random.choice(self._SIMPLE_SCORCH_NO_TARGETS).format(name=name, **pn)
+        return random.choice(self._SCORCH_NO_TARGET_PHRASES).format(name=name, **pn)
 
-    def _msg_decoy(self, label, target_name, row):
+    def _msg_decoy(self, label, target_name, row, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_DECOY).format(
-                player=label, target=target_name, row=row)
+                player=label, target=target_name, row=row, **pn)
         return random.choice(self._DECOY_PHRASES).format(
-            player=label, target=target_name, row=row)
+            player=label, target=target_name, row=row, **pn)
 
-    def _msg_mardroeme(self, label, name):
+    def _msg_mardroeme(self, label, name, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_MARDROEME).format(
-                player=label, name=name)
+                player=label, name=name, **pn)
         return random.choice(self._MARDROEME_PHRASES).format(
-            player=label, name=name)
+            player=label, name=name, **pn)
 
-    def _msg_scorch_specialty(self, label, card_name, scorched_names):
+    def _msg_scorch_specialty(self, label, card_name, scorched_names, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_SCORCH_SPECIALTY).format(
-                player=label, name=card_name, scorched=scorched_names)
+                player=label, name=card_name, scorched=scorched_names, **pn)
         return random.choice(self._SCORCH_SPECIALTY_PHRASES).format(
-            player=label, name=card_name, scorched=scorched_names)
+            player=label, name=card_name, scorched=scorched_names, **pn)
 
-    def _msg_scorch_specialty_empty(self, label, card_name):
+    def _msg_scorch_specialty_empty(self, label, card_name, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_SCORCH_SPECIALTY_EMPTY).format(
-                player=label, name=card_name)
+                player=label, name=card_name, **pn)
         return random.choice(self._SCORCH_SPECIALTY_NO_TARGETS).format(
-            player=label, name=card_name)
+            player=label, name=card_name, **pn)
 
-    def _msg_commander(self, label, name, faction, row):
+    def _msg_commander(self, label, name, faction, row, **pn):
         if self._simple:
             return random.choice(self._SIMPLE_COMMANDER).format(
-                player=label, name=name, row=row)
+                player=label, name=name, row=row, **pn)
         return random.choice(self._COMMANDER_PHRASES).format(
-            name=name, faction=faction, row=row)
+            name=name, faction=faction, row=row, **pn)
 
     def _prompt_turn(self):
         """Prompt the current player to play a card or pass."""
@@ -573,7 +587,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         margin = cur_score - opp_score
         opp_passed = self._board.players[opp].passed
 
-        prompt = self._msg_turn_prompt(label, cur_score, opp_score, margin, opp_passed)
+        pn = self._player_pronouns(cur)
+        prompt = self._msg_turn_prompt(label, cur_score, opp_score, margin, opp_passed, **pn)
 
         self._awaiting = self.AWAITING_CARD
         self.publish_prompt(
@@ -727,21 +742,21 @@ class PlayRound(gwent.game.stages.base.GameStage):
     }
     _COMMANDER_PHRASES = [
         "{faction}'s fearless commander {name} sounds the horn! All {row} units double their strength!",
-        "The horn of {name} echoes across the {row} line! {faction} warriors fight with renewed fury!",
-        "{name} rallies the troops! {faction}'s {row} combat forces surge with power!",
+        "The horn of {name} echoes across the {row} line! {faction} warriors fight with renewed fury under {his} command!",
+        "{name} rallies the troops! {He} drives {faction}'s {row} combat forces to surge with power!",
         "A mighty blast from {name}'s horn! {faction}'s {row} warriors are inspired to fight harder!",
         "Commander {name} takes the field! The {row} line roars with doubled strength for {faction}!",
         "{name} raises the banner of {faction}! Every {row} soldier fights with the strength of two!",
         "Like Foltest at the siege of Vizima! {name} doubles {faction}'s {row} line!",
         "The horn blast shakes the walls of Novigrad! {name} empowers every {row} warrior for {faction}!",
-        "Vesemir taught them well! {name} inspires {faction}'s {row} forces to fight like two armies!",
+        "Vesemir taught {him} well! {name} inspires {faction}'s {row} forces to fight like two armies!",
         "A commander worthy of Kaer Morhen! {name} doubles {row} strength for {faction}!",
         "The bards of Oxenfurt will sing of this! {name} rallies {faction}'s {row} line to twice their power!",
         "By the Great Sun! {name} blasts the horn and {faction}'s {row} forces surge with doubled might!",
         "Dandelion strums a war chord! {name} fires up {faction}'s {row} warriors to legendary strength!",
         "The horn of war! {name} inspires {faction}'s {row} forces to fight with the fury of a hundred Witchers!",
         "Like Foltest rallying at Brenna! {name} doubles {faction}'s {row} combat strength with a mighty war cry!",
-        "{name} channels the spirit of Kaer Morhen! {faction}'s {row} warriors surge with doubled might!",
+        "{name} channels the spirit of Kaer Morhen! {His} call drives {faction}'s {row} warriors to surge with doubled might!",
         "A blast that echoes from Novigrad to Nilfgaard! {name} empowers {faction}'s entire {row} line!",
         "The {row} troops roar as {name} raises the banner! {faction}'s forces fight with the strength of the Wild Hunt!",
         "Dandelion would compose a ballad! {name} inspires {faction}'s {row} line to legendary feats of strength!",
@@ -770,7 +785,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Blood and steel! {name} wades into the thick of battle for {player}! Strength {strength}.",
         "{name} roars a challenge and charges! {strength} points of close combat carnage for {player}!",
         "The enemy flinches as {name} joins {player}'s front line. {strength} strength, blade raised!",
-        "Into the breach! {player} throws {name} at the enemy! Strength {strength}.",
+        "Into the breach! {player} throws {name} at the enemy! {His} warrior brings strength {strength}.",
         "{name} shoulders past the shield wall! {strength} points of melee might for {player}!",
         "School of the Wolf style! {name} cuts through the front line at {strength} for {player}!",
         "Geralt would be proud! {name} enters the melee with {strength} points for {player}!",
@@ -782,13 +797,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Eskel nods in approval. {name} takes position at {strength} strength for {player}!",
         "Zoltan would buy this fighter a drink! {name} at {strength} strength, brawling for {player}!",
         "A duel worthy of Toussaint's knights! {name} joins {player}'s melee at {strength}!",
-        "{name} wields their blade like Ciri in a fury! {strength} points of close combat for {player}!",
+        "{name} wields {his} blade like Ciri in a fury! {strength} points of close combat for {player}!",
         "Steel for humans! {name} unsheathes and charges for {player}! Strength {strength}.",
         "Like a wolf among sheep! {name} tears into the melee for {player}! {strength} points of savage fury!",
         "The White Wolf would approve! {name} joins {player}'s vanguard with {strength} points of cold steel!",
         "Medallion's humming! {name} senses blood and joins {player}'s front line! Strength {strength}!",
-        "{player} plays {name} like a master! {strength} points of close combat expertise hit the field!",
-        "The School of the Wolf teaches: strike fast! {name} does exactly that for {player}! Strength {strength}.",
+        "{player} plays {name} like a master! {He} sends {strength} points of close combat expertise onto the field!",
+        "The School of the Wolf teaches: strike fast! {name} does exactly that for {player}! {He} brings strength {strength}.",
         "Throats will be cut! {name} storms into the fray with {strength} points of pure aggression for {player}!",
         "By Melitele's grace! {name} wades into battle for {player}, bringing {strength} points of righteous fury!",
         "{name} bellows a challenge across the field! {strength} points of melee devastation for {player}!",
@@ -801,7 +816,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{name} joins {player}'s ranged line. {strength} strength, eyes on the enemy.",
         "{player} sends {name} to high ground! {strength} points of deadly precision.",
         "A volley of death! {name} draws back and lets fly for {player}! Strength {strength}.",
-        "{name} picks their target from afar. {strength} points of cold, calculated fury for {player}.",
+        "{name} picks {his} target from afar. {strength} points of cold, calculated fury for {player}.",
         "The arrows of {name} darken the sky! {strength} ranged strength for {player}!",
         "{player} stations {name} on the hill. {strength} points of eagle-eyed destruction!",
         "No one is safe from {name}'s reach! {strength} ranged power rains down for {player}!",
@@ -809,18 +824,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{name} perches like a griffin on the clifftop! {strength} ranged strength for {player}!",
         "Yennefer herself couldn't deflect this! {name} rains {strength} points of ranged fury for {player}!",
         "From the towers of Vizima! {name} takes deadly aim at {strength} strength for {player}!",
-        "{player} deploys {name} with the precision of a Scoia'tael ambush! {strength} ranged power!",
+        "{player} deploys {name} with the precision of a Scoia'tael ambush! {His} archer brings {strength} ranged power!",
         "The archers of Skellige have nothing on {name}! {strength} points of ranged devastation for {player}!",
         "{name} fires from beyond the fog like a ghost! {strength} strength rains down for {player}!",
         "Steady as a crossbow on a wall! {name} at {strength} ranged strength for {player}!",
         "A shot worthy of the Blue Stripes! {name} brings {strength} points of ranged havoc to {player}'s line!",
         "Triss would call that aim magical! {name} at {strength} ranged power for {player}!",
-        "{player} sets {name} on the ridgeline. {strength} points, and every one aimed at a throat!",
+        "{player} sets {name} on the ridgeline. {He} aims {strength} points, every one at a throat!",
         "Silver for monsters! {name} takes aim for {player}! {strength} points of deadly precision!",
         "From the towers of Oxenfurt! {name} rains judgment for {player}! Strength {strength}!",
         "Like Milva from the treetops! {name} lets fly for {player}! {strength} points of lethal accuracy!",
         "The elves taught precision. {name} proves it for {player}! {strength} ranged strength on target!",
-        "{player} positions {name} on the ridge. {strength} points of hawk-eyed destruction awaits!",
+        "{player} positions {name} on the ridge. {His} {strength} points of hawk-eyed destruction await!",
         "Not even a leshen could hide from {name}! {strength} points of ranged fury for {player}!",
         "{name} draws, steadies, fires! {strength} points of ranged power streak across the field for {player}!",
         "The archers of Dol Blathanna would be proud! {name} joins {player}'s ranged line at strength {strength}!",
@@ -835,9 +850,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player} unleashes {name}! {strength} points of devastating siege force.",
         "Walls crumble as {name} opens fire! {strength} siege power for {player}!",
         "{name} hurls destruction from afar! {strength} points of earth-shattering siege for {player}!",
-        "The war machines roar! {player} deploys {name} with {strength} points of crushing force!",
+        "The war machines roar! {player} deploys {name} with {strength} points of crushing force! {He} means business!",
         "Towers topple! {name} brings {strength} points of siege devastation for {player}!",
-        "{player} rolls out the heavy artillery! {name} at {strength} siege strength, ready to level everything!",
+        "{player} rolls out the heavy artillery! {He} sets {name} at {strength} siege strength, ready to level everything!",
         "Foltest the Siegemaster would weep with joy! {name} at {strength} siege strength for {player}!",
         "The walls of Vizima couldn't withstand {name}! {strength} points of siege for {player}!",
         "Nilfgaardian engineering at its finest! {name} brings {strength} siege power for {player}!",
@@ -848,13 +863,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Emhyr's invasion force had nothing on this! {name} at {strength} siege power for {player}!",
         "Even a griffin couldn't dodge this! {name} rains {strength} points of siege fire for {player}!",
         "The ground cracks beneath {name}! {strength} points of devastating siege for {player}!",
-        "{player} positions {name} like the siege of La Valette! {strength} strength, pure destruction!",
+        "{player} positions {name} like the siege of La Valette! {His} {strength} strength brings pure destruction!",
         "Fire the trebuchets! {name} rains devastation for {player}! {strength} siege power!",
         "Like the siege of La Valette Castle! {name} brings {strength} points of wall-shattering force for {player}!",
         "{name} rolls into position, gears grinding! {strength} points of mechanical fury for {player}!",
         "Even Kaer Morhen's walls would crumble! {name} deploys {strength} siege strength for {player}!",
         "The dwarven engineers outdid themselves! {player} unleashes {name} at {strength} siege power!",
-        "{player} sets {name} loose! {strength} points of earth-shaking, bone-rattling siege devastation!",
+        "{player} sets {name} loose! {He} unleashes {strength} points of earth-shaking, bone-rattling siege devastation!",
         "The ground trembles from Novigrad to Vizima! {name} at {strength} siege strength for {player}!",
         "{name} aims at the heart of the enemy! {strength} points of siege power that would make Dijkstra weep for {player}!",
         "Fortifications? What fortifications? {name} brings {strength} points of obliterating siege force for {player}!",
@@ -873,9 +888,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{name} whispers sweet lies and crosses enemy lines. {player} trades {strength} strength for stolen secrets!",
         "The treacherous {name} pledges false loyalty to the enemy. A wolf among sheep for {player}!",
         "{player} plays a dangerous game. {name} feigns surrender, but carries a dagger and a deck of stolen intel!",
-        "Betrayal most foul! {name} sells their sword to the enemy, but their soul belongs to {player}!",
+        "Betrayal most foul! {name} sells {his} sword to the enemy, but {his} soul belongs to {player}!",
         "Like a serpent in the grass, {name} slithers into enemy ranks. {player} sacrifices {strength} points for the greater scheme!",
-        "{name} kneels before the enemy commander, hiding {player}'s knife behind their back. Draw 2!",
+        "{name} kneels before the enemy commander, hiding {player}'s knife behind {his} back. Draw 2!",
         "Every court needs its traitor. {name} joins the enemy at strength {strength}, feeding {player} precious intelligence!",
         "The enemy welcomes {name} with open arms. Fools! {player} just bought two cards with {strength} points of deception!",
         "Scheming and skulduggery! {player} deploys {name} as a double agent. The enemy gains {strength}, but at what cost?",
@@ -887,13 +902,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Emhyr's spymaster smiles! {player} sends {name} at {strength} strength. Information is the real weapon!",
         "A move straight from Vizima's intelligence service! {name} at {strength} for the enemy, two draws for {player}!",
         "Ploughing brilliant! {player} sacrifices {name} at {strength} strength. The enemy never sees the real play!",
-        "Yennefer's favorite trick! {name} at {strength} to the enemy. {player} refills their hand!",
+        "Yennefer's favorite trick! {name} at {strength} to the enemy. {player} refills {his} hand!",
         "Cold as a Skellige winter! {player} sends {name} to freeze the enemy with {strength} points of false allegiance!",
         "Every Witcher knows: information kills more than swords. {name} at {strength} for {player}'s intelligence!",
         "Dijkstra taught {name} well! A spy crosses the line for {player}, trading {strength} points for precious intel!",
         "The Redanian Secret Service strikes! {name} infiltrates for {player}! {strength} strength sacrificed for 2 cards!",
         "Trust no one on the Continent! {name} defects with {strength} points, but {player} draws the real prize!",
-        "{player} plays the Great Game! {name} sells their loyalty for {strength} points. The intelligence is priceless!",
+        "{player} plays the Great Game! {name} sells {his} loyalty for {strength} points. The intelligence is priceless!",
         "A move worthy of Philippa Eilhart! {name} spies for {player}, gifting {strength} but stealing secrets!",
         "{name} kneels before the wrong commander. {player} trades {strength} points for a hand full of possibilities!",
         "The Lodge of Sorceresses would approve! {name} weaves deception for {player}! {strength} points of calculated treachery!",
@@ -909,9 +924,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "By blood and sorcery, {name} drags {resurrected} from death's embrace!",
         "{player}'s {name} kneels over the corpse of {resurrected}. A heartbeat returns!",
         "The battlefield surgeon {name} refuses to let death have {resurrected}!",
-        "From ashes to fury! {name} resurrects {resurrected}. The enemy won't believe their eyes!",
+        "From ashes to fury! {name} resurrects {resurrected}. The enemy won't believe {his} power!",
         "Death is merely an inconvenience! {name} brings {resurrected} back to fight for {player}!",
-        "{resurrected} gasps for air as {name} pulls them from the abyss. Back in {player}'s hand!",
+        "{resurrected} gasps for air as {name} pulls {him} from the abyss. Back in {player}'s hand!",
         "The graveyard surrenders its prize! {name} returns {resurrected} to the land of the living!",
         "Not today, death! {player}'s {name} snatches {resurrected} from the void!",
         "A miracle on the battlefield! {name} breathes life into {resurrected} once more!",
@@ -924,13 +939,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Ciri couldn't travel between worlds faster! {name} brings {resurrected} back from the abyss!",
         "The Continent gasps! {name} defies death and {resurrected} rises again for {player}!",
         "Even Eredin fears this magic! {name} returns {resurrected} from the grave for {player}!",
-        "Vesemir would call it unnatural. {player} calls it winning. {name} revives {resurrected}!",
+        "Vesemir would call it unnatural. {player} calls it winning. {He} watches as {name} revives {resurrected}!",
         "From the graveyards of Velen! {name} summons {resurrected} back to {player}'s cause!",
         "Triss Merigold couldn't do better! {name} brings {resurrected} screaming back from the void for {player}!",
         "The dead don't stay dead on this field! {name} drags {resurrected} back to fight for {player}!",
         "By the power of Aretuza! {name} resurrects {resurrected}! The enemy stares in disbelief at {player}'s miracle!",
         "What is dead may never die! {name} restores {resurrected} to {player}'s forces from beyond the grave!",
-        "{player}'s {name} refuses death's claim! {resurrected} claws back from the abyss, blade in hand!",
+        "{player}'s {name} refuses death's claim! {He} pulls {resurrected} back from the abyss, blade in hand!",
         "The sorceresses weep with joy! {name} pulls {resurrected} from death's cold embrace for {player}!",
         "Necromancy? No, just battlefield medicine! {name} revives {resurrected} for another fight in {player}'s name!",
         "{resurrected} returns from the grave, angrier than a fiend! {name} works wonders for {player}!",
@@ -941,15 +956,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
     # --- Muster commentary ---
     # Templates accept: {player}, {name}, {count}, {mustered}
     _MUSTER_PHRASES = [
-        "{name} calls their fellow soldiers to battle! {mustered} answer for {player}!",
+        "{name} calls {his} fellow soldiers to battle! {mustered} answer for {player}!",
         "{name} rallies the ranks! {count} comrades rush to {player}'s side: {mustered}!",
         "Brothers in arms! {name} summons {mustered} to fight alongside {player}!",
         "{player}'s {name} lets out a war cry! {count} allies storm the field: {mustered}!",
         "The muster horn sounds! {name} brings {mustered} charging into battle for {player}!",
-        "They hunt in packs! {name} howls and {mustered} emerge from the shadows for {player}!",
+        "{He} hunts in packs! {name} howls and {mustered} emerge from the shadows for {player}!",
         "The earth trembles as {name} calls the swarm! {mustered} pour onto the field!",
         "Blood calls to blood! {name} summons {count} kin: {mustered}. {player}'s horde grows!",
-        "One becomes many! {name} musters {mustered} from every corner of {player}'s forces!",
+        "One becomes many! {name} musters {mustered} from every corner of {his} forces!",
         "Where there's one, there's more! {name} brings {count} allies: {mustered}!",
         "Like drowners from a swamp! {name} calls {count} kin and {mustered} surge forth for {player}!",
         "The Wild Hunt assembles! {name} musters {mustered} to {player}'s cause!",
@@ -967,7 +982,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Like the fall of Cintra! {name} brings {count} warriors crashing onto the field: {mustered} for {player}!",
         "The pack assembles! {name} howls and {count} brothers answer: {mustered}! {player}'s army swells!",
         "Vesemir taught them to hunt together! {name} musters {mustered} for {player}! {count} strong!",
-        "An army unto themselves! {name} summons {count} comrades: {mustered}. {player} floods the battlefield!",
+        "An army unto themselves! {name} summons {count} comrades: {mustered}. {player} floods the battlefield with {his} horde!",
         "The muster horn echoes across the Pontar! {name} calls {mustered} to {player}'s cause!",
         "Where one falls, many rise! {name} brings {count} allies: {mustered}. {player}'s forces multiply!",
         "Like cockroaches! {name} brings {mustered} swarming onto the field for {player}! {count} total!",
@@ -984,14 +999,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{name} turns the air to fire! {scorched} reduced to cinders!",
         "Burn them all! {name} incinerates {scorched} where they stand!",
         "The stench of charred armor fills the air. {name} has scorched {scorched}!",
-        "{name} opens their maw and hellfire pours forth! {scorched} is no more!",
+        "{name} opens {his} maw and hellfire pours forth! {scorched} is no more!",
         "A pillar of flame erupts! {player}'s {name} annihilates {scorched}!",
         "The battlefield burns! {name} leaves nothing but ash where {scorched} once stood!",
         "Igni sign, Witcher style! {player}'s {name} scorches {scorched} to nothing!",
         "Triss Merigold's fire magic has nothing on {name}! {scorched} incinerated!",
         "The flames of Vilgefortz pale in comparison! {name} destroys {scorched} for {player}!",
         "Like dragon fire over Loc Muinne! {name} reduces {scorched} to cinders!",
-        "{name} channels the fury of a thousand suns! {scorched} burned from existence for {player}!",
+        "{name} channels {his} fury like a thousand suns! {scorched} burned from existence for {player}!",
         "Yennefer smells the sulfur from Vengerberg! {name} scorches {scorched}!",
         "Even a leshen's bark would burn! {player}'s {name} annihilates {scorched} in hellfire!",
         "The forges of Mahakam couldn't burn hotter! {name} scorches {scorched}!",
@@ -1003,8 +1018,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "The flames of Mount Carbon! {name} scorches {scorched} from existence!",
         "Like Vilgefortz at Thanedd! {name} unleashes hellfire! {scorched} is incinerated for {player}!",
         "Burn, you filth! {player}'s {name} reduces {scorched} to a pile of smoking armor!",
-        "The stench of charred flesh fills the air! {name} has scorched {scorched}! {player} doesn't even flinch!",
-        "A funeral pyre on the battlefield! {name} cremates {scorched} where they stand!",
+        "The stench of charred flesh fills the air! {name} has scorched {scorched}! {player} doesn't even flinch — {he} expected nothing less!",
+        "A funeral pyre on the battlefield! {name} cremates {scorched} where {he} stands!",
         "Fire and fury! {player}'s {name} turns the air to molten hell! {scorched} is no more!",
         "Not even a higher vampire survives this! {name} annihilates {scorched} with searing flames!",
         "The temperature rises! {name} incinerates {scorched}! {player}'s enemies burn like Novigrad's pyres!",
@@ -1013,13 +1028,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
     # --- Turn prompt quips by game state ---
     # All templates accept: {player}, {score}, {opp_score}, {margin}
     _TURN_CRUSHING = [  # >15 ahead
-        "{player}'s turn. They're trampling the opposition! {score} to {opp_score}.",
-        "{player} is on a rampage! Up {margin} points. Can anyone stop them?",
+        "{player}'s turn. {He}'s trampling the opposition! {score} to {opp_score}.",
+        "{player} is on a rampage! Up {margin} points. Can anyone stop {him}?",
         "Total domination from {player}! {score} to {opp_score}. Play on!",
-        "{player}'s army is unstoppable! {margin} points ahead, the battlefield belongs to them!",
+        "{player}'s army is unstoppable! {margin} points ahead, the battlefield belongs to {him}!",
         "The bards will write legends of {player}'s conquest! {score} to {opp_score}!",
         "Like the Wild Hunt itself! {player} devastates at {score} to {opp_score}!",
-        "{player} lords over the field! {margin} ahead. Another card to twist the knife?",
+        "{player} lords over the field! {margin} ahead. Will {he} twist the knife with another card?",
         "Nilfgaard's finest generals couldn't plan a better assault! {player} leads {margin}!",
         "Emhyr himself applauds! {player} crushes at {score} to {opp_score}!",
         "The Continent bows before {player}! {margin} ahead, this is a slaughter!",
@@ -1042,10 +1057,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}'s turn. Leading {score} to {opp_score}. Keep the pressure on!",
         "The advantage is {player}'s! {margin} ahead. Press the attack?",
         "{player} holds the upper hand at {score}. Can they seal the deal?",
-        "{player} smells blood! {margin} points up. Time to go for the kill!",
+        "{player} smells blood! {margin} points up. Time for {him} to go for the kill!",
         "The tide favors {player}! {score} to {opp_score}. Will they push or hold?",
         "Kaer Morhen trained warriors well. {player} leads by {margin}!",
-        "{player}'s forces are gaining ground! {score} to {opp_score}, play wisely!",
+        "{player}'s forces are gaining ground! {score} to {opp_score}. {He} should play wisely!",
         "The sorceresses of Aretuza nod approvingly. {player} leads by {margin}!",
         "Geralt's medallion hums with confidence! {player} up {margin} at {score} to {opp_score}!",
         "The taverns of Novigrad would bet on {player}! {margin} points ahead!",
@@ -1056,10 +1071,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Zoltan raises a mug! {player} has a comfortable {margin}-point advantage!",
         "{player}'s doing better than Lambert on a good day! {score} to {opp_score}!",
         "Steady as a Witcher's hand! {player} leads {score} to {opp_score}. Keep the blade sharp!",
-        "{player} has the wind at their back! {margin} ahead. Dandelion scribbles furiously!",
+        "{player} has the wind at {his} back! {margin} ahead. Dandelion scribbles furiously!",
         "The Path favors {player}! Leading by {margin}. Press the advantage like a wolf on the hunt!",
         "Triss would smile at this position! {player} at {score}, opponent at {opp_score}.",
-        "{player}'s medallion is humming with confidence! {margin} points up and climbing!",
+        "{player}'s medallion is humming with confidence! {He}'s {margin} points up and climbing!",
         "Like tracking a griffin — {player} is closing in! {score} to {opp_score}. The kill is near!",
         "The advantage lies with {player}! {margin} ahead. A good hand of Gwent, this!",
         "Zoltan raises his axe in approval! {player} leads {score} to {opp_score}!",
@@ -1068,11 +1083,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}'s turn. It's neck and neck! {score} to {opp_score}.",
         "A tense standoff! {player} at {score}, opponent at {opp_score}. Every card matters!",
         "{player} steps up. The scores are razor thin. {score} to {opp_score}!",
-        "This could go either way! {player} at {score}. Choose carefully!",
+        "This could go either way! {player} at {score}. {He} must choose carefully!",
         "The battlefield trembles in the balance! {player}'s move at {score} to {opp_score}.",
         "Neither side gives an inch! {player} plays at {score} to {opp_score}.",
         "Geralt would call this a true contest! {player} at {score}, deadlocked!",
-        "A match worthy of Vizima's finest tavern! {player}'s turn, scores nearly even!",
+        "A match worthy of Vizima's finest tavern! {player}'s turn, {he} faces nearly even scores!",
         "Both commanders eye each other across the field. {player} at {score} to {opp_score}.",
         "Tense as a crossbow string! {player}'s move. {score} to {opp_score}!",
         "The winds howl and the scores hold! {player} at {score} to {opp_score}!",
@@ -1092,7 +1107,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "A contest worthy of the Passiflora's back room! {player} at {score} to {opp_score}. Who blinks first?",
         "Even Gaunter O'Dimm couldn't predict this! {player}'s turn at {score} to {opp_score}!",
         "The cards haven't been this close since Dijkstra played Thaler! {player} at {score}!",
-        "A duel of wits! {player} matches blow for blow at {score} to {opp_score}!",
+        "A duel of wits! {player} matches blow for blow at {score} to {opp_score}! {His} next move is critical!",
         "Wind's howling, and so is the crowd! {player}'s turn. {score} to {opp_score}, razor thin!",
         "Like two Witchers circling a contract! {player} at {score}, opponent at {opp_score}. Every card counts!",
     ]
@@ -1100,10 +1115,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}'s turn. Trailing by {margin}! Can they muster a comeback?",
         "{player} is down {margin} points. Time to dig deep!",
         "The situation looks grim for {player}! {opp_score} to {score}. What's the play?",
-        "{player} needs a miracle! Down {margin}. Do they have a trick up their sleeve?",
-        "The enemy presses their advantage! {player} trails {margin}. Fight back!",
+        "{player} needs a miracle! Down {margin}. Does {he} have a trick up {his} sleeve?",
+        "The enemy presses their advantage! {player} trails {margin}. {He} must fight back!",
         "Even a cornered wolf is dangerous. {player}'s turn, down {margin}!",
-        "{player} searches their hand desperately. {margin} behind. What can turn this around?",
+        "{player} searches {his} hand desperately. {margin} behind. What can turn this around?",
         "Vesemir would say: never give up! {player} trails by {margin}. Play on!",
         "Geralt's been in worse scrapes! {player} trails {margin} at {score} to {opp_score}!",
         "The Wolf School teaches perseverance! {player} down {margin}, but the game isn't over!",
@@ -1117,15 +1132,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player} needs a miracle from Melitele! Trailing {margin} points. Dig deeper!",
         "Like facing a fiend with a broken sword! {player} trails by {margin}. Any tricks left?",
         "Eskel would tell {player} to stay calm. Down {margin}. The comeback starts now!",
-        "{player} stares at their hand like Geralt at a crossroads. {margin} behind. Which path?",
+        "{player} stares at {his} hand like Geralt at a crossroads. {margin} behind. Which path?",
         "The crowd murmurs. Can {player} claw back from {margin} down? {opp_score} to {score}!",
         "Tougher than a contract on a higher vampire! {player} trails by {margin}. Fight on!",
         "Lambert would say something rude about this position. {player} down {margin}. Prove him wrong!",
     ]
     _TURN_DESPERATE = [  # >15 behind
-        "{player}'s turn. It's looking bleak! Down {margin} points. Can they claw back?",
+        "{player}'s turn. It's looking bleak! Down {margin} points. Can {he} claw back?",
         "A massacre on the field! {player} trails {margin}. Is there any hope?",
-        "{player} stares down a {margin}-point deficit. Only a Scorch or a miracle can save them!",
+        "{player} stares down a {margin}-point deficit. Only a Scorch or a miracle can save {him}!",
         "The crows are circling {player}'s army! Down {margin}. This may be the end!",
         "Dandelion winces. {player} is getting destroyed! {opp_score} to {score}!",
         "Even Yennefer's magic couldn't close this gap! {player} down {margin}!",
@@ -1141,7 +1156,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "The leshens of the forest couldn't care less! {player} trails {margin}. It's grim!",
         "The White Frost closes in on {player}! Down {margin}. Only legends come back from this!",
         "Ploughing hell! {player} trails by {margin}. Even Ciri's Elder Blood couldn't portal out of this!",
-        "{player} needs Yennefer's magic AND Triss's luck! Down {margin} points. Desperate times call for desperate measures!",
+        "{player} needs Yennefer's magic AND Triss's luck! Down {margin} points. {He} faces desperate times!",
         "The crows feast early! {player} at {score} against {opp_score}. A funeral dirge plays!",
         "Like Geralt at Stygga Castle! {player} faces impossible odds, down {margin}. Fight or die!",
         "The bookmakers in Novigrad are already paying out! {player} trails {margin}. It would take a miracle!",
@@ -1149,37 +1164,37 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Vesemir's ghost whispers: never surrender! {player} down {margin}. One last stand?",
     ]
     _TURN_OPP_PASSED_AHEAD = [  # opponent passed, we're ahead
-        "{player}'s turn. The enemy has passed! {score} to {opp_score}. The round is yours to lose!",
+        "{player}'s turn. The enemy has passed! {score} to {opp_score}. The round is {his} to lose!",
         "The opponent retreats! {player} leads {score} to {opp_score}. Pass or pile on?",
         "With the enemy done, {player} reigns supreme at {score}! More cards, or save them?",
-        "The field is {player}'s alone! Opponent passed at {opp_score}. Conserve or crush?",
+        "The field is {player}'s alone! Opponent passed at {opp_score}. Should {he} conserve or crush?",
         "Victory is assured! {player} at {score}. Every extra card is a waste, or is it insurance?",
         "Geralt would nod and walk away. {player} leads {score} to {opp_score}. Save those cards!",
         "The enemy fled like drowners from Igni! {player} at {score} to {opp_score}. A wise pass?",
         "Like claiming a Witcher contract with the monster already dead! {player} at {score}. Easy win?",
         "Vesemir's first lesson: don't waste resources. {player} leads {score} to {opp_score}. Pass or play?",
         "The tavern crowd cheers! {player} ahead {score} to {opp_score}. Conserve for the next round?",
-        "The coward retreats! {player} stands victorious at {score} to {opp_score}. Save your strength or humiliate them?",
+        "The coward retreats! {player} stands victorious at {score} to {opp_score}. Should {he} save {his} strength or humiliate them?",
         "{player} rules the field! Enemy fled at {opp_score}. With {score} points, why waste another card?",
         "Like a Witcher after the kill! {player} ahead {score} to {opp_score}. Loot the corpse or walk away?",
         "The enemy knows when they're beaten! {player} at {score}. Every extra card played is pure showing off!",
-        "The Path is clear for {player}! Leading {score} to {opp_score}. Pass and save, or twist the knife?",
+        "The Path is clear for {player}! Leading {score} to {opp_score}. {He} can pass and save, or twist the knife!",
     ]
     _TURN_OPP_PASSED_BEHIND = [  # opponent passed, we're behind
         "{player}'s turn. The enemy passed at {opp_score}! Down {margin}. Time to catch up!",
         "The opponent bows out at {opp_score}! {player} trails by {margin}. The comeback is on!",
         "A chance to strike! Opponent passed. {player} needs {margin} more points to win!",
-        "The enemy thinks they've won at {opp_score}! {player} at {score}. Prove them wrong!",
+        "The enemy thinks they've won at {opp_score}! {player} at {score}. {He} must prove them wrong!",
         "No more interference! Opponent passed. {player} needs to close a {margin}-point gap!",
         "A Witcher never quits! {player} at {score}, needs {margin} more! The opponent rests at {opp_score}!",
         "Geralt didn't defeat the Wild Hunt by giving up! {player} trails {margin}. Fight on!",
         "The path is clear but steep! {player} needs {margin} points to overtake {opp_score}!",
         "Ciri would blink right past this deficit! {player} down {margin}. Cards in hand, hope in heart!",
         "Like climbing the walls of Kaer Morhen! {player} needs {margin} more to beat {opp_score}!",
-        "The ploughing nerve of them! Opponent sits smug at {opp_score}. {player} needs {margin} to win. Time to hunt!",
+        "The ploughing nerve of them! Opponent sits smug at {opp_score}. {player} needs {margin} to win. Time for {him} to hunt!",
         "A Witcher never quits the hunt! {player} trails by {margin}. The prey thinks it's safe. It's not.",
         "The opponent made their bed at {opp_score}! {player} at {score}. Time to burn that bed down!",
-        "Like Geralt chasing the Wild Hunt! {player} down {margin}. No interference, just {player} vs the score!",
+        "Like Geralt chasing the Wild Hunt! {player} down {margin}. No interference, just {him} vs the score!",
         "The tavern holds its breath! {player} needs {margin} points with no opposition. Can they find them?",
     ]
 
@@ -1187,22 +1202,22 @@ class PlayRound(gwent.game.stages.base.GameStage):
     # All templates accept: {player}, {score}, {opp_score}, {margin}
     _PASS_DOMINATING = [
         "{player} passes with supreme confidence! {score} to {opp_score}. A lead of {margin}!",
-        "{player} leans back and smirks. {margin} points ahead. This round is all but won.",
-        "With a {margin}-point cushion, {player} has nothing to prove. Pass!",
+        "{player} leans back and smirks. {margin} points ahead. {He} knows this round is all but won.",
+        "With a {margin}-point cushion, {player} has nothing to prove. {He} passes!",
         "{player} raises a tankard. {score} to {opp_score}? That'll do nicely.",
         "Emhyr would approve of this efficiency! {player} passes at {score}, up {margin}!",
         "{player} passes like Geralt walking away from a dead monster. {margin} ahead. Done.",
         "The bards of Oxenfurt already know the winner! {player} at {score} to {opp_score}. Pass!",
         "Dijkstra counts his coin. {player} passes with {margin} to spare. A profitable round!",
         "Another Gwent victory in the bag! {player} passes at {score} to {opp_score}. {margin} points of pure dominance!",
-        "{player} tosses their cards down and orders another ale. {margin} ahead. This round was never in doubt.",
+        "{player} tosses {his} cards down and orders another ale. {margin} ahead. This round was never in doubt.",
         "Like Emhyr accepting a surrender! {player} passes with {margin} points to spare. Glorious!",
         "The whole tavern knows it's over! {player} passes at {score}. {margin} points ahead. Legendary!",
     ]
     _PASS_AHEAD = [
         "{player} passes, holding a slim lead. {score} to {opp_score}.",
         "A calculated pass from {player}. {margin} points ahead, but is it enough?",
-        "{player} holds steady at {score}. The lead is narrow but the nerve is steel.",
+        "{player} holds steady at {score}. {His} lead is narrow but {his} nerve is steel.",
         "Dandelion would call this bold. {player} passes with just {margin} points to spare!",
         "A Witcher's instinct! {player} passes at {score} to {opp_score}. Trust the lead!",
         "Triss raises an eyebrow. {player} passes with a slim {margin}-point edge. Risky!",
@@ -1210,49 +1225,49 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "Skellige warriors respect the gamble! {player} holds at {score}, {margin} ahead!",
         "A Witcher knows when to sheathe the blade! {player} passes at {score}, {margin} ahead.",
         "Calculated like Dijkstra's spy network! {player} holds at {score} to {opp_score}. Will it hold?",
-        "The gambler's instinct! {player} passes with {margin} to spare. Geralt would nod approvingly.",
-        "{player} reads the board like a Witcher reads tracks. {score} to {opp_score}. Slim but sufficient!",
+        "The gambler's instinct! {player} passes with {margin} to spare. {He} trusts {his} lead. Geralt would nod approvingly.",
+        "{player} reads the board like a Witcher reads tracks. {He} passes at {score} to {opp_score}. Slim but sufficient!",
     ]
     _PASS_TIED = [
         "{player} passes on a knife's edge! {score} to {opp_score}. Dead even!",
-        "All square at {score}! {player} blinks first and passes. A gambler's move!",
+        "All square at {score}! {player} blinks first and passes. {His} gambler's instinct takes over!",
         "{player} passes at {score} all. This could go either way!",
-        "The scores are locked at {score}. {player} passes and holds their breath!",
+        "The scores are locked at {score}. {player} passes and holds {his} breath!",
         "Tied like two Witchers arm-wrestling! {player} passes at {score} to {opp_score}!",
         "Geralt would call it a draw and walk to the tavern. {player} passes at {score} all!",
         "Novigrad's gamblers gasp! {player} passes at a tied {score} to {opp_score}!",
         "The Continent's boldest bluff! {player} passes dead even at {score}!",
         "Balls of steel! {player} passes at a dead heat! {score} to {opp_score}. This takes nerve!",
         "A coinflip at the Passiflora! {player} passes at {score} all. Fortune favors the bold!",
-        "Locked at {score}! {player} throws down the gauntlet. Let fate decide this round!",
+        "Locked at {score}! {player} throws down the gauntlet. {He} lets fate decide this round!",
         "Like two Witchers arm-wrestling! {player} passes at {score} to {opp_score}. Nobody blinks!",
     ]
     _PASS_BEHIND = [
         "{player} passes, trailing by {margin}. A bluff, or out of options?",
         "Down {margin} points, {player} throws in the towel. {opp_score} to {score}.",
-        "{player} concedes the ground. {margin} behind, sometimes discretion is the better part of valor.",
-        "A tactical retreat! {player} passes at {score}, hoping the opponent overextends.",
+        "{player} concedes the ground. {margin} behind, {he} knows sometimes discretion is the better part of valor.",
+        "A tactical retreat! {player} passes at {score}, hoping {his} opponent overextends.",
         "Like retreating from a leshen's grove! {player} passes down {margin}. Live to fight another round!",
         "Vesemir would call it wisdom. {player} saves cards, down {margin} at {score} to {opp_score}.",
         "The Scoia'tael know when to fade into the forest! {player} passes at {score}, down {margin}.",
         "A strategic withdrawal worthy of Kaer Morhen! {player} passes at {score} to {opp_score}.",
         "A tactical withdrawal! {player} yields at {score} to {opp_score}. Live to fight another round!",
         "Like retreating from a higher vampire! {player} passes, down {margin}. Save the silver for later!",
-        "{player} swallows their pride. {margin} behind at {opp_score} to {score}. The war isn't over.",
+        "{player} swallows {his} pride. {margin} behind at {opp_score} to {score}. The war isn't over.",
         "Discretion over valor! {player} falls back at {score}. {margin} points behind, but cards in reserve!",
     ]
     _PASS_DESPERATE = [
         "{player} passes in desperation! Down {margin} points. The round looks lost.",
         "Mercy! {player} waves the white flag. {opp_score} to {score} is too much to overcome.",
-        "{player} cuts their losses. {margin} points behind. Save the cards for next round!",
-        "Even Geralt couldn't save {player} now. Down {margin}, they pass and pray.",
+        "{player} cuts {his} losses. {margin} points behind. Save the cards for next round!",
+        "Even Geralt couldn't save {player} now. Down {margin}, {he} passes and prays.",
         "The White Frost takes this round! {player} surrenders at {score} to {opp_score}.",
         "Dandelion plays a mournful tune. {player} passes, down {margin}. A dark chapter!",
         "Even Yennefer's portals can't escape this loss! {player} passes at {score} to {opp_score}.",
         "The drowners feast tonight! {player} concedes at {margin} behind. Save what you can!",
         "The white flag rises over {player}'s army! Down {margin}. Not even Ciri could save this round!",
         "{player} throws in the towel like a boxer at Novigrad's arena! {opp_score} to {score}. Brutal.",
-        "A mercy killing! {player} ends their suffering at {score}. Down {margin}, the cards have spoken.",
+        "A mercy killing! {player} ends {his} suffering at {score}. Down {margin}, the cards have spoken.",
         "Like fleeing the Wild Hunt! {player} passes in desperation. {margin} points too far gone at {opp_score} to {score}!",
     ]
 
@@ -1261,22 +1276,22 @@ class PlayRound(gwent.game.stages.base.GameStage):
     _SCORCH_SPECIALTY_PHRASES = [
         "{player}: place {name} on discard. Scorched: {scorched}",
         "{player} plays {name}! The flames consume {scorched}!",
-        "Fire rains down! {player}'s {name} scorches {scorched} to ashes!",
+        "Fire rains down! {player}'s {name} scorches {scorched} to ashes! {He} shows no mercy!",
         "{player} unleashes {name}! {scorched} burned from the field!",
         "Igni! {player}'s {name} incinerates {scorched}!",
         "The Eternal Fire claims its due! {player}'s {name} destroys {scorched}!",
-        "{player} drops {name} like Vilgefortz dropped his enemies! {scorched} scorched!",
-        "By the flames of Loc Muinne! {player}'s {name} burns {scorched} to nothing!",
+        "{player} drops {name} like Vilgefortz dropped {his} enemies! {scorched} scorched!",
+        "By the flames of Loc Muinne! {player}'s {name} burns {scorched} to nothing! {His} flames spare no one!",
     ]
 
     # Templates accept: {player}, {name}
     _SCORCH_SPECIALTY_NO_TARGETS = [
         "{player}: place {name} on discard. No targets.",
         "{player}'s {name} finds nothing to burn. The field stands empty.",
-        "{player} plays {name}, but the flames find no worthy prey!",
-        "The fire fizzles! {player}'s {name} scorches nothing but air!",
+        "{player} plays {name}, but {his} flames find no worthy prey!",
+        "The fire fizzles! {player}'s {name} scorches nothing but air! {His} frustration is palpable.",
         "{player}'s {name} roars, but even drowners know to hide. No targets!",
-        "Wasted flames! {player}'s {name} finds no one standing tall enough to burn!",
+        "Wasted flames! {player}'s {name} finds no one standing tall enough to burn! {He} scowls in frustration.",
     ]
 
     # --- Decoy phrases ---
@@ -1285,11 +1300,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         "{player}: place Decoy on {row}. {target} returned to hand.",
         "{player} pulls off the old switcheroo! {target} slips back to hand from {row}!",
         "A classic Novigrad con! {player} swaps Decoy for {target} on {row}!",
-        "Now you see them, now you don't! {player} recalls {target} from {row}!",
+        "Now you see them, now you don't! {player} recalls {target} from {row} back to {his} hand!",
         "Dijkstra taught {player} well! Decoy replaces {target} on {row}!",
-        "{player} plays the shell game! {target} vanishes from {row} back to hand!",
+        "{player} plays the shell game! {target} vanishes from {row} back to {his} hand!",
         "Misdirection worthy of Dandelion! {player}'s Decoy replaces {target} on {row}!",
-        "The old bait and switch! {player} pulls {target} back from {row}!",
+        "The old bait and switch! {player} pulls {target} back from {row} into {his} hand!",
     ]
 
     # --- Mardroeme phrases ---
@@ -1297,11 +1312,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
     _MARDROEME_PHRASES = [
         "{player}: place {name} on discard. Weather cleared!",
         "{player} plays {name}! The skies clear like dawn over Toussaint!",
-        "Mardroeme magic! {player}'s {name} banishes all weather from the field!",
+        "Mardroeme magic! {player}'s {name} banishes all weather from the field! {His} power is undeniable!",
         "Like Keira Metz lifting a curse! {player}'s {name} clears the weather!",
-        "{player} drops {name} and the storms retreat! The Continent breathes easy!",
+        "{player} drops {name} and the storms retreat! {He} watches as the Continent breathes easy!",
         "The Lodge would approve! {player}'s {name} sweeps the weather clean!",
-        "Clear skies by sorcery! {player} plays {name} and the elements obey!",
+        "Clear skies by sorcery! {player} plays {name} and the elements obey {his} command!",
     ]
 
     # --- Leader ability phrases ---
@@ -1309,10 +1324,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
     _LEADER_PHRASES = {
         "reshuffle_graveyards": [
             "{player}: leader ability. All graveyards reshuffled into decks.",
-            "{player} invokes the ancient rite! All discard piles return to the decks!",
+            "{player} invokes the ancient rite! {He} commands all discard piles to return to the decks!",
             "The dead march again! {player}'s leader reshuffles all graveyards into decks!",
             "Like the Conjunction of the Spheres! {player} reshuffles all discards back to the decks!",
-            "{player}'s leader commands: rise from the graveyard! All discard piles reshuffled!",
+            "{player}'s leader commands: rise from the graveyard! All discard piles reshuffled at {his} word!",
             "Kaer Morhen's deepest secret! {player} restores all graveyards to the living decks!",
         ],
         "clear_weather": [
@@ -1320,7 +1335,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             "{player}'s leader parts the clouds! All weather effects vanish!",
             "By royal decree! {player}'s leader clears every storm from the battlefield!",
             "The skies obey {player}'s command! All weather cleared!",
-            "{player}'s leader waves a hand and the Continent's weather bends to their will!",
+            "{player}'s leader waves a hand and the Continent's weather bends to {his} will!",
             "Triss herself couldn't clear the skies faster! {player}'s leader banishes all weather!",
         ],
         "clear_weather_none": [
@@ -1333,20 +1348,20 @@ class PlayRound(gwent.game.stages.base.GameStage):
             "{player}: leader ability. All spy cards now have doubled strength!",
             "{player}'s spymaster doubles down! All spies on the field surge with power!",
             "Emhyr's intelligence network at full strength! {player} doubles all spy power!",
-            "The shadows grow darker! {player}'s leader doubles every spy's strength!",
+            "The shadows grow darker! {player}'s leader doubles every spy's strength at {his} command!",
             "Dijkstra would kill for this! {player}'s leader doubles all spy card strength!",
             "Double agents, double trouble! {player}'s leader empowers every spy on the field!",
         ],
         "medic_random": [
             "{player}: leader ability. All medic cards now restore random units!",
-            "{player}'s leader decrees: let fate choose the resurrected! Medics go random!",
+            "{player}'s leader decrees: let fate choose the resurrected! {His} medics go random!",
             "The dice of destiny! {player}'s leader makes all medic restores random!",
             "Chaos magic! {player}'s leader ability randomizes all medic resurrections!",
             "Even Geralt can't predict who returns! {player}'s leader randomizes medic picks!",
         ],
         "cancel_leader": [
             "{player}: leader ability. {target}'s ability has been cancelled!",
-            "{player} strikes first! {target}'s leader power is neutralized!",
+            "{player} strikes first! {He} neutralizes {target}'s leader power!",
             "A pre-emptive strike! {player} cancels {target}'s leader ability!",
             "No tricks for you! {player} shuts down {target}'s leader power!",
             "The Lodge of Sorceresses intervenes! {player} cancels {target}'s ability!",
@@ -1354,7 +1369,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         ],
         "cancel_leader_already_used": [
             "{player}: leader ability. {target}'s ability was already used!",
-            "{player} tries to cancel, but {target}'s leader already played their hand!",
+            "{player} tries to cancel, but {target}'s leader already played {his} hand!",
             "Too late! {target}'s ability was already used. {player}'s cancel fizzles!",
             "The horse has bolted! {player} can't cancel what {target} already used!",
         ],
@@ -1364,11 +1379,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
             "Skellige blood runs thick! {player}'s units resist the weather's bite!",
             "The Isles breed hardy folk! {player}'s leader halves all weather penalties!",
             "King Bran's decree! {player}'s units only lose half strength in bad weather!",
-            "Storm-born warriors! {player}'s leader shields the army from the worst of it!",
+            "Storm-born warriors! {player}'s leader shields {his} army from the worst of it!",
         ],
         "optimize_agile": [
             "{player}: leader ability. Optimized agile units: {moves}!",
-            "{player}'s tactical genius shines! Agile units repositioned: {moves}!",
+            "{player}'s tactical genius shines! {He} repositions agile units: {moves}!",
             "A commander's eye for the battlefield! {player} optimizes: {moves}!",
             "The School of the Wolf teaches adaptability! {player} rearranges: {moves}!",
             "Foltest's war room couldn't plan better! {player} optimizes agile units: {moves}!",
@@ -1381,7 +1396,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         ],
         "view_opponent_hand": [
             "{player}: leader ability. Revealed {count} opponent card(s): {names}!",
-            "{player}'s spies report! {count} enemy cards revealed: {names}!",
+            "{player}'s spies report! {He} glimpses {count} enemy cards: {names}!",
             "Intelligence gathered! {player} glimpses {count} of the enemy's cards: {names}!",
             "Dijkstra's network delivers! {player} sees {count} opponent cards: {names}!",
             "{player}'s leader peers behind the curtain! Revealed: {names}!",
@@ -1407,6 +1422,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
+
+            # Publish play_card so the TUI overlay shows the weather card
+            row_name = card.ranges[0] if card.ranges else ""
+            play_msg = gwent.messaging.card_play.Message.with_play_card(str(cur), card, row_name)
+            self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), play_msg)
 
             # Publish weather cleared
             weather_msg = gwent.messaging.card_play.Message.with_weather_change(
@@ -1452,6 +1472,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
             self._board.remove_from_hand(cur, card)
             self._board.players[cur].discard.append(card)
+
+            # Publish play_card so the TUI overlay shows the weather card
+            row_name = card.ranges[0] if card.ranges else ""
+            play_msg = gwent.messaging.card_play.Message.with_play_card(str(cur), card, row_name)
+            self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), play_msg)
+
+            # Play weather SFX
+            self.publish_effect("weather")
 
             if damage > 0 and affected > 0:
                 row_key = card.ranges[0] if card.ranges else "close"
@@ -1549,8 +1577,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), swap_msg)
 
         self._pending_card = None
+        pn = self._player_pronouns(cur)
         self._announce_and_advance(
-            self._msg_decoy(label, target.name, row_name))
+            self._msg_decoy(label, target.name, row_name, **pn))
 
     def _play_scorch_specialty(self, card):
         """Scorch: destroy highest-strength non-hero cards across BOTH players' boards."""
@@ -1586,13 +1615,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.players[cur].discard.append(card)
 
         label = self._player_label(cur)
+        pn = self._player_pronouns(cur)
         if destroyed:
             names = ", ".join(c.name for c in destroyed)
             self._announce_and_advance(
-                self._msg_scorch_specialty(label, card.name, names))
+                self._msg_scorch_specialty(label, card.name, names, **pn))
         else:
             self._announce_and_advance(
-                self._msg_scorch_specialty_empty(label, card.name))
+                self._msg_scorch_specialty_empty(label, card.name, **pn))
 
     def _play_commander_card(self, card):
         """Commander's Horn: double a row's strength."""
@@ -1606,11 +1636,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), horn_msg)
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
+        self.publish_effect("commander")
         label = self._player_label(cur)
+        pn = self._player_pronouns(cur)
         faction = self._board.factions[cur]
         row_str = ', '.join(card.ranges)
         self._announce_and_advance(
-            self._msg_commander(label, card.name, faction, row_str))
+            self._msg_commander(label, card.name, faction, row_str, **pn))
 
     def _play_leader(self, card):
         """Play a leader card ability. Dispatches to specific handler by JSON key."""
@@ -1696,8 +1728,9 @@ class PlayRound(gwent.game.stages.base.GameStage):
             ]
             mfd = gwent.messaging.mfd.Message.with_choices(choices, clear_prompt=False)
             self.publish(gwent.game.CH_MFD_PRESENT, mfd)
+            pn = self._player_pronouns(cur)
             self.publish_prompt(
-                random.choice(self._SIMPLE_LEADER_WEATHER).format(player=label),
+                random.choice(self._SIMPLE_LEADER_WEATHER).format(player=label, **pn),
                 faction=self._current_faction())
 
     def _process_leader_weather_scan(self, card):
@@ -1744,7 +1777,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._awaiting = self.AWAITING_LEADER_DISCARD
             self.publish_prompt(
                 random.choice(self._SIMPLE_LEADER_OPP_DISCARD).format(
-                    player=label, count=len(opp_discard)),
+                    player=label, count=len(opp_discard), **self._player_pronouns(cur)),
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
         else:
@@ -1804,7 +1837,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._awaiting = self.AWAITING_LEADER_OWN_DISCARD
             self.publish_prompt(
                 random.choice(self._SIMPLE_LEADER_OWN_DISCARD).format(
-                    player=label, count=len(non_hero)),
+                    player=label, count=len(non_hero), **self._player_pronouns(cur)),
                 ok=False, cancel=False, clear_choices=True,
                 faction=self._current_faction())
         else:
@@ -1917,7 +1950,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._awaiting = self.AWAITING_LEADER_DISCARD_HAND
         self.publish_prompt(
             random.choice(self._SIMPLE_LEADER_DISCARD_HAND).format(
-                player=label, count=self._leader_discards_remaining),
+                player=label, count=self._leader_discards_remaining, **self._player_pronouns(cur)),
             ok=False, cancel=False, clear_choices=True,
             faction=self._current_faction())
 
@@ -2136,6 +2169,11 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.place_card(target, card, row_name)
         self._board.remove_from_hand(cur, card)
 
+        # Play row-appropriate battle SFX
+        _ROW_SFX = {"close": "close", "ranged": "ranged", "siege": "siege"}
+        if row_name in _ROW_SFX:
+            self.publish_effect(_ROW_SFX[row_name])
+
         # Publish play_card event with full card data
         play_msg = gwent.messaging.card_play.Message.with_play_card(
             str(cur), card, row_name,
@@ -2157,17 +2195,18 @@ class PlayRound(gwent.game.stages.base.GameStage):
         place_msg = f"{label}: place {card.name} on {target_label}"
 
         # Process abilities
+        pn = self._player_pronouns(cur)
         if is_spy:
             deck_size = len(self._board.decks[cur])
             if deck_size == 0:
                 # No cards to draw — skip spy draw phase entirely
-                msg = self._msg_spy(label, card.name, card.strength or 0)
+                msg = self._msg_spy(label, card.name, card.strength or 0, **pn)
                 self._announce_and_advance(
                     f"{msg} Deck empty — no cards to draw!")
                 return
             self._spy_draws_remaining = min(2, deck_size)
             self._awaiting = self.AWAITING_SPY_DRAW
-            msg = self._msg_spy(label, card.name, card.strength or 0)
+            msg = self._msg_spy(label, card.name, card.strength or 0, **pn)
             self.publish_prompt(
                 random.choice(self._SIMPLE_SPY_DRAW).format(msg=msg),
                 ok=False, cancel=False, clear_choices=True,
@@ -2189,13 +2228,13 @@ class PlayRound(gwent.game.stages.base.GameStage):
                     return
                 self._awaiting = self.AWAITING_MEDIC_CHOICE
                 self.publish_prompt(
-                    self._msg_medic_prompt(label, card.name, len(non_hero)),
+                    self._msg_medic_prompt(label, card.name, len(non_hero), **pn),
                     ok=False, cancel=False, clear_choices=True,
                     faction=self._current_faction())
                 return
             else:
                 self._announce_and_advance(
-                    self._msg_medic_empty(label, card.name))
+                    self._msg_medic_empty(label, card.name, **pn))
                 return
 
         if card.has_abilities and "muster" in card.abilities:
@@ -2213,22 +2252,22 @@ class PlayRound(gwent.game.stages.base.GameStage):
                     self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(opp)), rm_msg)
                 scorched = ", ".join(c.name for c in destroyed)
                 self._announce_and_advance(
-                    self._msg_scorch(label, card.name, scorched))
+                    self._msg_scorch(label, card.name, scorched, **pn))
             else:
                 self._announce_and_advance(
-                    self._msg_scorch_no_targets(card.name))
+                    self._msg_scorch_no_targets(card.name, **pn))
             return
 
         # Commander unit
         if card.has_abilities and "commander" in card.abilities:
             faction = self._board.factions[cur]
             self._announce_and_advance(
-                self._msg_commander(label, card.name, faction, row_name))
+                self._msg_commander(label, card.name, faction, row_name, **pn))
             return
 
         # Normal card
         self._announce_and_advance(
-            self._msg_placement(label, card.name, card.strength or 0, row_name))
+            self._msg_placement(label, card.name, card.strength or 0, row_name, **pn))
 
     def _process_leader_discard_scan(self, card):
         """Handle a scanned card during leader draw-from-opponent-discard."""
@@ -2263,6 +2302,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._spy_draws_remaining -= 1
         self._log.info(f"Spy draw: {deck_card.name} from deck ({self._spy_draws_remaining} remaining)")
 
+        # Publish spy_draw event so TUI can show the card overlay
+        spy_msg = gwent.messaging.card_play.Message.with_spy_draw(str(cur), deck_card)
+        self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), spy_msg)
+
         if self._spy_draws_remaining > 0:
             self.publish_prompt(
                 f"{label}: drew {card.name}. Scan {self._spy_draws_remaining} more card(s) from your deck.",
@@ -2294,8 +2337,15 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         discard.remove(resurrected)
         self._board.hands[cur].append(resurrected)
+
+        # Publish medic_resurrect event so TUI can show the card overlay
+        row = resurrected.ranges[0] if resurrected.ranges else ""
+        medic_msg = gwent.messaging.card_play.Message.with_medic_resurrect(str(cur), resurrected, row)
+        self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), medic_msg)
+
+        pn = self._player_pronouns(cur)
         self._announce_and_advance(
-            self._msg_medic_resurrect(label, resurrected.name))
+            self._msg_medic_resurrect(label, resurrected.name, **pn))
 
     @staticmethod
     def _muster_base_name(name):
@@ -2346,13 +2396,14 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(cur)), muster_msg)
 
         label = self._player_label(cur)
+        pn = self._player_pronouns(cur)
         if mustered:
             names = ", ".join(c.name for c in mustered)
             self._announce_and_advance(
-                self._msg_muster(label, card.name, len(mustered), names))
+                self._msg_muster(label, card.name, len(mustered), names, **pn))
         else:
             self._announce_and_advance(
-                self._msg_placement(label, card.name, card.strength or 0, row_name))
+                self._msg_placement(label, card.name, card.strength or 0, row_name, **pn))
 
     # --- Choice processing ---
 
@@ -2375,7 +2426,8 @@ class PlayRound(gwent.game.stages.base.GameStage):
                 self._log.info(f"{label} passed")
                 self._board.current_player = opp
 
-                quip = self._msg_pass(label, cur_score, opp_score, margin)
+                pn = self._player_pronouns(cur)
+                quip = self._msg_pass(label, cur_score, opp_score, margin, **pn)
                 self._last_action_summary = quip
                 self._publish_prompt_then(
                     quip, self._prompt_turn, faction=faction)

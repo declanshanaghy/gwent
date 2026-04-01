@@ -1,0 +1,916 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-27T18:18:05",
+  "active_stage": "PlayRound",
+  "state": {
+    "leader1": {
+      "kind": "card",
+      "faction": "Monsters",
+      "name": "Eredin: Destroyer of Worlds",
+      "leader": {
+        "instructions": "discard 2 card and draw 1 card of your choice from your deck",
+        "discard_and_draw": {
+          "discard": 2,
+          "draw": 1
+        }
+      },
+      "specialty": "leader",
+      "rfid": 481219071443
+    },
+    "leader2": {
+      "kind": "card",
+      "faction": "Northern Realms",
+      "name": "Foltest: Lord Commander of the North",
+      "leader": {
+        "instructions": "clear any weather effects (resulting from biting frost, torrential rain or impenetrable fog cards) in play",
+        "clear_weather": true
+      },
+      "owner": "Dylan Shanaghy",
+      "owner_nickname": "dylan",
+      "specialty": "leader",
+      "rfid": 896253382124
+    },
+    "player1_deck": [
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Geralt of Rivia",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "strength": 15,
+        "content_id": "13a8aad005246699a15af57dcdf997b6",
+        "rfid": 346429869409,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Imlerith",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "starter": true,
+        "strength": 10,
+        "rfid": 964553100774
+      },
+      {
+        "abilities": [
+          "agile",
+          "morale"
+        ],
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Kayran",
+        "ranges": [
+          "close",
+          "ranged"
+        ],
+        "specialty": "hero",
+        "starter": true,
+        "strength": 8,
+        "rfid": 485093756187
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Bovine Defense Force",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 8,
+        "content_id": "6baa8c0b4c82232478f7957261c596d7",
+        "rfid": 275479023098,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "scorch"
+        ],
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Villentretenmerth",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 7,
+        "content_id": "ff44c702dbede72e1d1f0c28759229d6",
+        "rfid": 964737453542,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Crone: Brewess",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 895011802403,
+        "abilities": [
+          "muster"
+        ]
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Fiend",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 6,
+        "content_id": "ba6221f8b3687797a35cafeb04d5727a",
+        "rfid": 1032953482734,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Ghoul: 1",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 1,
+        "rfid": 206374063531,
+        "abilities": [
+          "muster"
+        ]
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Ghoul: 2",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 1,
+        "rfid": 414176660889,
+        "abilities": [
+          "muster"
+        ]
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Biting Frost: 1",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 965039967680
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Fire Elemental",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 3151711533
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Griffin",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 1032567999757
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Forktail",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 550944591184
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Werewolf",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 69958258114
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Arachas: Behemoth",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 345675550136,
+        "abilities": [
+          "muster"
+        ]
+      }
+    ],
+    "player2_deck": [
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Philippa Eilhart",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "ranged"
+        ],
+        "specialty": "hero",
+        "strength": 10,
+        "content_id": "89d8d8e2fa37cdc9a57b974c6736afa0",
+        "rfid": 208604843325,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Triss Merigold",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "strength": 7,
+        "content_id": "789751b5ad5646f40966d6c254b26af6",
+        "rfid": 828539751860,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "medic"
+        ],
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Yennefer of Vengerberg",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "ranged"
+        ],
+        "specialty": "hero",
+        "strength": 7,
+        "content_id": "64709da5ea1f578067fdd2d2dcd5d41e",
+        "rfid": 691167907280,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Catapult",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "siege"
+        ],
+        "strength": 8,
+        "content_id": "d82e5ac57e77c6e36478031cb16a3253",
+        "rfid": 278582611200,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Siege Tower: 1",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 482863238581
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Trebuchet: 1",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 416022809877
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Ballista: 1",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "content_id": "5e70ff9a0aea7141e51e2673a40dd4e8",
+        "rfid": 687410072884
+      },
+      {
+        "abilities": [
+          "spy"
+        ],
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Sigismund Dijkstra",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 4,
+        "content_id": "abf5756dbca5a4ba233b9e9b5bd0f0b7",
+        "rfid": 986860965,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "medic"
+        ],
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Dun Banner Medic",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 687812594970
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Siegfried of Denesle",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 483265891677
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Siege Tower: 2",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "siege"
+        ],
+        "strength": 6,
+        "content_id": "45cf1c939230682b75e8cc3445f0ce31",
+        "rfid": 894658825474,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Trebuchet: 2",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 966164499898
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Ballista: 2",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 415216454997
+      },
+      {
+        "abilities": [
+          "spy"
+        ],
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Prince Stennis",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 71099895090
+      },
+      {
+        "faction": "Northern Realms",
+        "kind": "card",
+        "name": "Dethmold",
+        "ranges": [
+          "ranged"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 2211663133
+      }
+    ],
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "gems": 2,
+          "passed": false,
+          "leader_used": false,
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": []
+        },
+        "PLAYER.TWO": {
+          "gems": 2,
+          "passed": false,
+          "leader_used": false,
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": []
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "kind": "card",
+          "faction": "Monsters",
+          "name": "Eredin: Destroyer of Worlds",
+          "leader": {
+            "instructions": "discard 2 card and draw 1 card of your choice from your deck",
+            "discard_and_draw": {
+              "discard": 2,
+              "draw": 1
+            }
+          },
+          "specialty": "leader",
+          "rfid": 481219071443
+        },
+        "PLAYER.TWO": {
+          "kind": "card",
+          "faction": "Northern Realms",
+          "name": "Foltest: Lord Commander of the North",
+          "leader": {
+            "instructions": "clear any weather effects (resulting from biting frost, torrential rain or impenetrable fog cards) in play",
+            "clear_weather": true
+          },
+          "owner": "Dylan Shanaghy",
+          "owner_nickname": "dylan",
+          "specialty": "leader",
+          "rfid": 896253382124
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Monsters",
+        "PLAYER.TWO": "Northern Realms"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Geralt of Rivia",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "content_id": "13a8aad005246699a15af57dcdf997b6",
+            "rfid": 346429869409,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Imlerith",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 964553100774
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Kayran",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 8,
+            "rfid": 485093756187
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Bovine Defense Force",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 8,
+            "content_id": "6baa8c0b4c82232478f7957261c596d7",
+            "rfid": 275479023098,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 7,
+            "content_id": "ff44c702dbede72e1d1f0c28759229d6",
+            "rfid": 964737453542,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Crone: Brewess",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 895011802403,
+            "abilities": [
+              "muster"
+            ]
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Fiend",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 6,
+            "content_id": "ba6221f8b3687797a35cafeb04d5727a",
+            "rfid": 1032953482734,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Ghoul: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 206374063531,
+            "abilities": [
+              "muster"
+            ]
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Ghoul: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 1,
+            "rfid": 414176660889,
+            "abilities": [
+              "muster"
+            ]
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 965039967680
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Philippa Eilhart",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "strength": 10,
+            "content_id": "89d8d8e2fa37cdc9a57b974c6736afa0",
+            "rfid": 208604843325,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "789751b5ad5646f40966d6c254b26af6",
+            "rfid": 828539751860,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Yennefer of Vengerberg",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "64709da5ea1f578067fdd2d2dcd5d41e",
+            "rfid": 691167907280,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Catapult",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "siege"
+            ],
+            "strength": 8,
+            "content_id": "d82e5ac57e77c6e36478031cb16a3253",
+            "rfid": 278582611200,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Siege Tower: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 482863238581
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Trebuchet: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 416022809877
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Ballista: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "content_id": "5e70ff9a0aea7141e51e2673a40dd4e8",
+            "rfid": 687410072884
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Sigismund Dijkstra",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 4,
+            "content_id": "abf5756dbca5a4ba233b9e9b5bd0f0b7",
+            "rfid": 986860965,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Dun Banner Medic",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 687812594970
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Siegfried of Denesle",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 483265891677
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Fire Elemental",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 3151711533
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Griffin",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 1032567999757
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Forktail",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 550944591184
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Werewolf",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 69958258114
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: Behemoth",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 345675550136,
+            "abilities": [
+              "muster"
+            ]
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Siege Tower: 2",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "siege"
+            ],
+            "strength": 6,
+            "content_id": "45cf1c939230682b75e8cc3445f0ce31",
+            "rfid": 894658825474,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Trebuchet: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 966164499898
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Ballista: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 415216454997
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Prince Stennis",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 71099895090
+          },
+          {
+            "faction": "Northern Realms",
+            "kind": "card",
+            "name": "Dethmold",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 2211663133
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    }
+  }
+}

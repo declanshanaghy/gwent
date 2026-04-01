@@ -36,6 +36,11 @@
       "description": "Short nickname for the owner, displayed in the TUI",
       "type": "string"
     },
+    "pronoun": {
+      "description": "Subject pronoun for the character (he/she/it). Used for in-game narration.",
+      "type": "string",
+      "enum": ["he", "she", "it"]
+    },
     "image": {
       "description": "Relative file path or URL for the card's photo image",
       "type": "string"

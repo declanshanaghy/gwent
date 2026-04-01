@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card Slam Table",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Playing card slapped firmly on a wooden tavern table, crisp impact, 1 second",
+  "duration_seconds": 1.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

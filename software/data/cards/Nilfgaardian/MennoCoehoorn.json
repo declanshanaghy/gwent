@@ -1,5 +1,7 @@
 {
-    "abilities": ["medic"],
+    "abilities": [
+        "medic"
+    ],
     "faction": "Nilfgaardian",
     "kind": "card",
     "name": "Menno Coehoorn",
@@ -15,5 +17,6 @@
     "rfid_written_at": "2026-03-26T17:48:19",
     "image": "../../images/Nilfgaardian/MennoCoehoorn.jpg",
     "card_text": "I'll take an attentive reconnaissance unit over a line cavalry brigade any day.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

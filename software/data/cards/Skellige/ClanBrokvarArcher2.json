@@ -12,5 +12,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Skellige/ClanBrokvarArcher2.jpg",
     "card_text": "So ye can hit a movin' target at two hundred paces. Me too. In a storm.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

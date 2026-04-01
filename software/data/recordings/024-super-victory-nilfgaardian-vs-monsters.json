@@ -1,0 +1,777 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-30T08:13:14.047522+00:00",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "faction": "Nilfgaardian",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick a torrential rain card from your deck and play it instantly",
+            "weather_ranges": [
+              "siege"
+            ]
+          },
+          "name": "Emhyr var Emreis - His Imperial Majesty",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 137554120118,
+          "last_updated": "2026-03-26T16:05:21",
+          "rfid_written_at": "2026-03-26T16:05:21",
+          "content_id": "35b597460804fb34f1acc70fbe5a9c01"
+        },
+        "PLAYER.TWO": {
+          "faction": "Monsters",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick any weather card from your deck and play it instantly",
+            "weather_ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ]
+          },
+          "name": "Eredin - King of the Wild Hunt",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 209511075183,
+          "last_updated": "2026-03-26T12:35:00",
+          "rfid_written_at": "2026-03-26T12:35:00",
+          "content_id": "b4b4b7690faff81ddcda2c950519307a"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Nilfgaardian",
+        "PLAYER.TWO": "Monsters"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Avallac'h",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:48:00",
+            "rfid": 70931926273,
+            "rfid_written_at": "2026-03-29T02:42:00",
+            "content_id": "6c73423c1ab8bcefc3c4e4dc7ee2b178"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Vattier de Rideaux",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 138040855982,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "b03517039a47cf444f76f166d281ce83"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Shilard Fitz-Oesterlen",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 7,
+            "rfid": 4024454466,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "5405a3242ae8be8e29dc71c11866fe5c"
+          },
+          {
+            "abilities": [
+              "spy"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Stefan Skellen",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 9,
+            "rfid": 965291822578,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "44e8f5f51d73673616b84d5d42cb5b89"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 895314251018,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "ad5551cc40252c1b85e3fc776942e996"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 824933830015,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "08e12f76e523de3a9e8ebee93d82839d"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impera Brigade Guard: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 3,
+            "rfid": 414798007645,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "566104666412df20099a745876baf270"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Young Emissary: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 208370879777,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "1da70638b474658a52bb9dd9aba5b83f"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Young Emissary: 2",
+            "ranges": [
+              "close"
+            ],
+            "strength": 5,
+            "owner": "Declan Shanaghy",
+            "rfid": 206273007023,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "27193e138a4994b7ab68563a2dc03bc5"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "rfid": 620267982189,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "12899bbac2df0298e5a38aec9360fd22"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Avallac'h",
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "spy"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:52:00",
+            "rfid": 826074549561,
+            "rfid_written_at": "2026-03-29T04:31:30",
+            "content_id": "37d8f401b4aabcae26bc8d2bbd5d7e63"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 622264733154,
+            "abilities": [
+              "muster"
+            ],
+            "last_updated": "2026-03-27T17:15:32",
+            "rfid_written_at": "2026-03-27T17:15:32",
+            "content_id": "5f1fea8610ca9261b8e6f1a63d1b27e8"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid": 826761760036,
+            "rfid_written_at": "2026-03-29T03:57:50",
+            "content_id": "ed5ac11827cad6bbef3269953dc1d801"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Crone: Brewess",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 895011802403,
+            "abilities": [
+              "muster"
+            ],
+            "last_updated": "2026-03-27T17:15:32",
+            "rfid_written_at": "2026-03-27T17:15:32",
+            "content_id": "167e9bb5445ac18bbf35b86d5c6dccc0"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Crone: Weavess",
+            "strength": 6,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "abilities": [
+              "muster"
+            ],
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid": 964837985754,
+            "rfid_written_at": "2026-03-29T04:24:43",
+            "content_id": "96b33a8d562c12c1d1c8e8affb115494"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Gaunter O'Dimm: Darkness 1",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "strength": 4,
+            "rfid": 550004673814,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "37dd978d43a63651f72795bb22199f2a"
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Kayran",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 8,
+            "rfid": 485093756187,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "3e186132f090903287705432759d9b5e"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Imlerith",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 964553100774,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "43042a7b947201ef31d542ecb577a9c4"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Geralt of Rivia",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "rfid": 346429869409,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "f655b30baafe03d72409b45a8b5b2873"
+          },
+          {
+            "abilities": [
+              "commander"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Dandelion",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 2,
+            "rfid": 618623487232,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "b8a7df62e369e22c71d8d5e5545b2b1d"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Tibor Eggebracht",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 414982688086,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "542971ea5826b5576c5af11b8200c0b4"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Morvran Voorhis",
+            "strength": 10,
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "hero",
+            "rfid": 275059527124,
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-28T13:47:26",
+            "rfid_written_at": "2026-03-28T13:47:26",
+            "content_id": "19351b0c28a860dec293abc53eadf377"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Yennefer of Vengerberg",
+            "strength": 7,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "abilities": [
+              "medic"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-29T03:49:27",
+            "rfid": 68901555597,
+            "rfid_written_at": "2026-03-29T03:49:46",
+            "content_id": "4d9cef56bb7bfe8a6451919485b86ac9"
+          },
+          {
+            "abilities": "medic",
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Menno Coehoorn",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 10,
+            "rfid": 687846149400,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "a7e9fba743ac7f8773d9fed229237fb3"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Villentretenmerth",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "scorch"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:46:00",
+            "rfid": 966046797217,
+            "rfid_written_at": "2026-03-29T03:56:50",
+            "content_id": "bc364e1093a58200786a33cfabd8cc9d"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Decoy: 1",
+            "owner": "Declan Shanaghy",
+            "specialty": "decoy",
+            "strength": 0,
+            "rfid": 2245217563,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "d3dbe5ad9613b4ac1b2b4bc05f09b1a2"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
+            "name": "Etolian Auxiliary Archers: 2",
+            "strength": 1,
+            "ranges": [
+              "ranged"
+            ],
+            "abilities": [
+              "medic"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:47:00",
+            "rfid": 827852869074,
+            "rfid_written_at": "2026-03-29T03:40:01",
+            "content_id": "5d815c1482056e9b92269f7198f00432"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Assire var Anahid",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414915579218,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "9ae796daa35b2aabc5221073721670bf"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Impenetrable Fog: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 482762575295,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "8ae5ec4be72f2c0ae651cfb681ccad13"
+          },
+          {
+            "faction": "Nilfgaardian",
+            "kind": "card",
+            "name": "Clear Weather: 1",
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 347420839195,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "ecec6c14f209aada95e8315709c25e07"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Draug",
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Dylan Shanaghy",
+            "specialty": "hero",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid": 277023247789,
+            "rfid_written_at": "2026-03-29T04:26:57",
+            "content_id": "21bc33a01657f7fa5abe96ac40eaaf57"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Leshen",
+            "strength": 10,
+            "owner": "Dylan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid": 206693223810,
+            "rfid_written_at": "2026-03-29T04:28:01",
+            "content_id": "16cba8f8ae04aec0686b12cbc5c09999"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Triss Merigold",
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-28T16:50:00",
+            "rfid": 825940266272,
+            "rfid_written_at": "2026-03-29T04:28:35",
+            "content_id": "d90019b4a75878a5874bb4a8090a6093"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 482409860530,
+            "abilities": [
+              "muster"
+            ],
+            "last_updated": "2026-03-27T17:15:32",
+            "rfid_written_at": "2026-03-27T17:15:32",
+            "content_id": "29e360763dde30afc940153b1f96195d"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire: Fleder: 2",
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-29T04:44:45",
+            "rfid": 1033944190438,
+            "rfid_written_at": "2026-03-29T04:45:06",
+            "content_id": "3749a41cea2a29e1de04a683daa284b4"
+          },
+          {
+            "abilities": [
+              "muster"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Gaunter O'Dimm: Darkness 2",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "ranged"
+            ],
+            "strength": 4,
+            "rfid": 2211728666,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "247cf5aec374937752d0c4130e0e807d"
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 7,
+            "rfid": 964737453542,
+            "owner_nickname": "dek",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid_written_at": "2026-03-26T17:48:19",
+            "content_id": "f7017be3d04b1753e96132a6a592094e"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Earth Elemental",
+            "strength": 6,
+            "owner": "Dylan Shanaghy",
+            "ranges": [
+              "siege"
+            ],
+            "owner_nickname": "dylan",
+            "last_updated": "2026-03-26T17:48:19",
+            "rfid": 70898502973,
+            "rfid_written_at": "2026-03-29T04:32:02",
+            "content_id": "30a79d5c539050315666b7d54e65742f"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 965039967680,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "a505e7d4bdcc601e830f9f1d634e3e29"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Clear Weather: 1",
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 206340705706,
+            "last_updated": "2026-03-26T16:05:21",
+            "rfid_written_at": "2026-03-26T16:05:21",
+            "content_id": "1a1828de8902e095128ed04caba34c4f"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}

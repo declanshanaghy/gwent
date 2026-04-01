@@ -17,5 +17,6 @@
     "rfid_written_at": "2026-03-29T02:42:00",
     "image": "../../images/Nilfgaardian/Avallach.jpg",
     "card_text": "You humans have...unusual taste.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

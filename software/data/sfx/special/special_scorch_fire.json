@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "special",
+  "title": "Special Scorch Fire",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Intense fire blast erupting, roaring flames consuming everything briefly, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

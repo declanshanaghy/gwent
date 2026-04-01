@@ -12,7 +12,7 @@ import gwent.messaging.card_play
 from gwent.game.constants import PLAYER
 
 DEAL_ANNOUNCEMENTS = [
-    "{l1}, leader of {f1}, musters {n1} soldiers for Player 1. "
+    "{l1}, leader of {f1}, musters {n1} soldiers under {his} command for Player 1. "
     "Across the field, {l2} of {f2} rallies {n2} warriors for Player 2. "
     "Let the battle begin!",
 
@@ -28,8 +28,8 @@ DEAL_ANNOUNCEMENTS = [
     "{l2} of {f2} counters with {n2} for Player 2. "
     "The clash begins!",
 
-    "From the halls of {f1}, {l1} rides forth with {n1} for Player 1. "
-    "{l2} of {f2} meets them with {n2} for Player 2. "
+    "From the halls of {f1}, {l1} rides forth with {n1} at {his} side for Player 1. "
+    "{l2} of {f2} meets {him} with {n2} for Player 2. "
     "Steel yourself for battle!",
 
     "{l1} of {f1} unleashes {n1} upon the battlefield for Player 1. "
@@ -45,7 +45,7 @@ DEAL_ANNOUNCEMENTS = [
     "Wind's howling, and the cards are flying! {l1} of {f1} commands {n1} for Player 1. "
     "{l2} of {f2} answers with {n2} for Player 2. A round of Gwent?",
 
-    "The Continent holds its breath! {l1}, champion of {f1}, wields {n1} cards for Player 1. "
+    "The Continent holds its breath! {l1}, champion of {f1}, wields {n1} cards in {his} grasp for Player 1. "
     "Across the field, {l2} of {f2} readies {n2} for Player 2!",
 
     "Dandelion narrates: {l1} of {f1} musters {n1} souls for Player 1! "
@@ -212,6 +212,17 @@ class DealCards(gwent.game.stages.base.GameStage):
         if gwent.game.BaseComponent.simple_mode:
             summary = f"{p1_leader.name if p1_leader else 'P1'} vs {p2_leader.name if p2_leader else 'P2'}. {len(self._player1_hand)} vs {len(self._player2_hand)} cards."
         else:
+            from gwent.game.pronouns import pronoun_forms
+            p1_pronoun = ''
+            p2_pronoun = ''
+            if p1_leader:
+                p1_pronoun = p1_leader.pronoun if hasattr(p1_leader, 'pronoun') else (
+                    p1_leader.get('pronoun', '') if hasattr(p1_leader, 'get') else '')
+            if p2_leader:
+                p2_pronoun = p2_leader.pronoun if hasattr(p2_leader, 'pronoun') else (
+                    p2_leader.get('pronoun', '') if hasattr(p2_leader, 'get') else '')
+            pn1 = pronoun_forms(p1_pronoun)
+            pn2 = {k + '2': v for k, v in pronoun_forms(p2_pronoun).items()}
             summary = random.choice(DEAL_ANNOUNCEMENTS).format(
                 l1=p1_leader.name if p1_leader else "An unknown commander",
                 f1=p1_leader.faction if p1_leader else self._player1_deck[0].faction,
@@ -219,6 +230,7 @@ class DealCards(gwent.game.stages.base.GameStage):
                 l2=p2_leader.name if p2_leader else "An unknown commander",
                 f2=p2_leader.faction if p2_leader else self._player2_deck[0].faction,
                 n2=len(self._player2_hand),
+                **pn1, **pn2,
             )
 
         # Announce and auto-progress to next stage

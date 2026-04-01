@@ -18,7 +18,6 @@ See the [tasks/000-index.md](tasks/000-index.md) file for an overview of all tas
 The [ADR/](ADR/) directory contains Architecture Decision Records that document significant architectural decisions made during the project. Each ADR explains the context, decision, and consequences of a particular architectural choice.
 
 Current ADRs include:
-- [ADR-000](ADR/000-task-master-roo-code.md): Task Master Integration for AI-Driven Development
 - [ADR-001](ADR/001-audio-and-menu-subsystems.md): Audio and Menu Subsystems Implementation
 - [ADR-002](ADR/002-physical-interface-implementation.md): Physical Interface Implementation with Rotary Encoder and OLED Display
 

@@ -1,0 +1,898 @@
+{
+  "version": 1,
+  "saved_at": "2026-03-28T12:29:02",
+  "active_stage": "PlayRound",
+  "state": {
+    "leader1": {
+      "kind": "card",
+      "faction": "Skellige",
+      "name": "King Bran",
+      "specialty": "leader",
+      "leader": {
+        "instructions": "Units only lose half their strength in bad weather conditions",
+        "half_weather_penalty": true
+      }
+    },
+    "leader2": {
+      "faction": "Monsters",
+      "kind": "card",
+      "leader": {
+        "instructions": "Pick any weather card from your deck and play it instantly",
+        "weather_ranges": [
+          "close",
+          "ranged",
+          "siege"
+        ]
+      },
+      "name": "Eredin - King of the Wild Hunt",
+      "specialty": "leader",
+      "starter": true,
+      "rfid": 209511075183
+    },
+    "player1_deck": [
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Hjalmar",
+        "ranges": [
+          "ranged"
+        ],
+        "specialty": "hero",
+        "starter": true,
+        "strength": 10,
+        "rfid": 2346863908
+      },
+      {
+        "abilities": [
+          "agile",
+          "morale"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Olaf",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close",
+          "ranged"
+        ],
+        "strength": 12,
+        "content_id": "0446b5ea2663388408efc9904b9e61a6",
+        "rfid": 137587477951,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Triss Merigold",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "strength": 7,
+        "content_id": "998e8d2d1627dc161cebdcc1a869d9ed",
+        "rfid": 553007992276,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Clan an Craite Warrior: 1",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 414546414925
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Clan an Craite Warrior: 2",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 414143761829
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Clan an Craite Warrior: 3",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 275161304569
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Blueboy Lugos",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 139836345606
+      },
+      {
+        "abilities": [
+          "medic"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Birna Bran",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 2,
+        "rfid": 622315523548
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Biting Frost: 1",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 622214860262
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Impenetrable Fog: 1",
+        "ranges": [
+          "ranged"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 689071869280
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "War Longship: 1",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 550038883586
+      },
+      {
+        "abilities": [
+          "bond"
+        ],
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "War Longship: 2",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 622231178716
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Clan Brokvar Archer: 1",
+        "ranges": [
+          "ranged"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 1340427751
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Torrential Rain: 1",
+        "ranges": [
+          "siege"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 553780334019
+      },
+      {
+        "faction": "Skellige",
+        "kind": "card",
+        "name": "Clear Weather: 1",
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 895280696588
+      }
+    ],
+    "player2_deck": [
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Geralt of Rivia",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "strength": 15,
+        "content_id": "13a8aad005246699a15af57dcdf997b6",
+        "rfid": 346429869409,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Imlerith",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "hero",
+        "starter": true,
+        "strength": 10,
+        "rfid": 964553100774
+      },
+      {
+        "abilities": [
+          "agile",
+          "morale"
+        ],
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Kayran",
+        "ranges": [
+          "close",
+          "ranged"
+        ],
+        "specialty": "hero",
+        "starter": true,
+        "strength": 8,
+        "rfid": 485093756187
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Bovine Defense Force",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 8,
+        "content_id": "6baa8c0b4c82232478f7957261c596d7",
+        "rfid": 275479023098,
+        "owner_nickname": "dek"
+      },
+      {
+        "abilities": [
+          "scorch"
+        ],
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Villentretenmerth",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 7,
+        "content_id": "ff44c702dbede72e1d1f0c28759229d6",
+        "rfid": 964737453542,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Crone: Brewess",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 895011802403,
+        "abilities": [
+          "muster"
+        ]
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Fiend",
+        "owner": "Declan Shanaghy",
+        "ranges": [
+          "close"
+        ],
+        "strength": 6,
+        "content_id": "ba6221f8b3687797a35cafeb04d5727a",
+        "rfid": 1032953482734,
+        "owner_nickname": "dek"
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Griffin",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 1032567999757
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Forktail",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 5,
+        "rfid": 550944591184
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Arachas: 1",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 4,
+        "rfid": 622264733154,
+        "abilities": [
+          "muster"
+        ]
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Biting Frost: 1",
+        "ranges": [
+          "close"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 965039967680
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Impenetrable Fog: 1",
+        "ranges": [
+          "ranged"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 275462508023
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Torrential Rain",
+        "ranges": [
+          "siege"
+        ],
+        "specialty": "weather",
+        "starter": true,
+        "rfid": 278683602233
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Fire Elemental",
+        "ranges": [
+          "siege"
+        ],
+        "starter": true,
+        "strength": 6,
+        "rfid": 3151711533
+      },
+      {
+        "faction": "Monsters",
+        "kind": "card",
+        "name": "Arachas: 2",
+        "ranges": [
+          "close"
+        ],
+        "starter": true,
+        "strength": 4,
+        "rfid": 482409860530,
+        "abilities": [
+          "muster"
+        ]
+      }
+    ],
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "gems": 2,
+          "passed": false,
+          "leader_used": false,
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": []
+        },
+        "PLAYER.TWO": {
+          "gems": 2,
+          "passed": false,
+          "leader_used": false,
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": []
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "kind": "card",
+          "faction": "Skellige",
+          "name": "King Bran",
+          "specialty": "leader",
+          "leader": {
+            "instructions": "Units only lose half their strength in bad weather conditions",
+            "half_weather_penalty": true
+          }
+        },
+        "PLAYER.TWO": {
+          "faction": "Monsters",
+          "kind": "card",
+          "leader": {
+            "instructions": "Pick any weather card from your deck and play it instantly",
+            "weather_ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ]
+          },
+          "name": "Eredin - King of the Wild Hunt",
+          "specialty": "leader",
+          "starter": true,
+          "rfid": 209511075183
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Skellige",
+        "PLAYER.TWO": "Monsters"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Hjalmar",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 2346863908
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Olaf",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "strength": 12,
+            "content_id": "0446b5ea2663388408efc9904b9e61a6",
+            "rfid": 137587477951,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Triss Merigold",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 7,
+            "content_id": "998e8d2d1627dc161cebdcc1a869d9ed",
+            "rfid": 553007992276,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414546414925
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 414143761829
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan an Craite Warrior: 3",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 275161304569
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Blueboy Lugos",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 139836345606
+          },
+          {
+            "abilities": [
+              "medic"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Birna Bran",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 2,
+            "rfid": 622315523548
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 622214860262
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Impenetrable Fog: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 689071869280
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Geralt of Rivia",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "strength": 15,
+            "content_id": "13a8aad005246699a15af57dcdf997b6",
+            "rfid": 346429869409,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Imlerith",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 10,
+            "rfid": 964553100774
+          },
+          {
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Kayran",
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "strength": 8,
+            "rfid": 485093756187
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Bovine Defense Force",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 8,
+            "content_id": "6baa8c0b4c82232478f7957261c596d7",
+            "rfid": 275479023098,
+            "owner_nickname": "dek"
+          },
+          {
+            "abilities": [
+              "scorch"
+            ],
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Villentretenmerth",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 7,
+            "content_id": "ff44c702dbede72e1d1f0c28759229d6",
+            "rfid": 964737453542,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Crone: Brewess",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 895011802403,
+            "abilities": [
+              "muster"
+            ]
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Fiend",
+            "owner": "Declan Shanaghy",
+            "ranges": [
+              "close"
+            ],
+            "strength": 6,
+            "content_id": "ba6221f8b3687797a35cafeb04d5727a",
+            "rfid": 1032953482734,
+            "owner_nickname": "dek"
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Griffin",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 1032567999757
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Forktail",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 5,
+            "rfid": 550944591184
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 1",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 622264733154,
+            "abilities": [
+              "muster"
+            ]
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 1",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 550038883586
+          },
+          {
+            "abilities": [
+              "bond"
+            ],
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "War Longship: 2",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 622231178716
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clan Brokvar Archer: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 1340427751
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Torrential Rain: 1",
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 553780334019
+          },
+          {
+            "faction": "Skellige",
+            "kind": "card",
+            "name": "Clear Weather: 1",
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 895280696588
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Biting Frost: 1",
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 965039967680
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Impenetrable Fog: 1",
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 275462508023
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Torrential Rain",
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "rfid": 278683602233
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Fire Elemental",
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "strength": 6,
+            "rfid": 3151711533
+          },
+          {
+            "faction": "Monsters",
+            "kind": "card",
+            "name": "Arachas: 2",
+            "ranges": [
+              "close"
+            ],
+            "starter": true,
+            "strength": 4,
+            "rfid": 482409860530,
+            "abilities": [
+              "muster"
+            ]
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      },
+      "spy_doubling": false,
+      "medic_random": false
+    }
+  }
+}

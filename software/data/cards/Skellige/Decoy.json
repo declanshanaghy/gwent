@@ -10,5 +10,6 @@
     "rfid_written_at": "2026-03-29T04:18:02",
     "image": "../../images/Skellige/Decoy.jpg",
     "card_text": "When you run out of peasants, decoys also make decent arrow fodder.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "it"
 }

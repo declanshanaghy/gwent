@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "special",
+  "title": "Special Decoy Thunk",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Hollow wooden object placed on the ground with a thunk, followed by a subtle creak, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

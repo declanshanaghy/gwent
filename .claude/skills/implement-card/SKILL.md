@@ -58,7 +58,7 @@ cd software/gwent && pip install -e . -q
 
 ### 5. Generate or reuse test recording
 
-**Recordings dir**: `software/gwent/gwent/game/recordings/`
+**Recordings dir**: `software/data/recordings/`
 
 Check if an existing recording has the right cards for testing. If not, use `/build-decks` to create one.
 

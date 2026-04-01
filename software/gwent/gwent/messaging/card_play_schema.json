@@ -87,6 +87,11 @@
     "active_turn": {
       "type": "boolean",
       "description": "Whether it is this player's turn"
+    },
+    "pronoun": {
+      "type": "string",
+      "description": "Subject pronoun for the acting leader (he/she/it). Used for narration.",
+      "enum": ["he", "she", "it"]
     }
   }
 }

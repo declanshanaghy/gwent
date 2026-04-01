@@ -31,26 +31,8 @@ class TestAudioFilePlayback:
     
     def test_music_file_exists(self) -> str:
         """Test that the music file exists and can be found."""
-        # Try multiple approaches to find the music file
-        music_file = "music1.mp3"
-        
-        # First try: direct path from the test directory
-        module_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        music_path = os.path.join(module_dir, "gwent", "hal", "music", music_file)
-        
-        if not os.path.exists(music_path):
-            print(f"Music file not found at {music_path}, trying alternative paths")
-            
-            # Second try: try to find it relative to the current directory
-            music_path = os.path.join("gwent", "hal", "music", music_file)
-            
-            if not os.path.exists(music_path):
-                print(f"Music file not found at {music_path}, trying another path")
-                
-                # Third try: try to find it in the package directory
-                import gwent
-                package_dir = os.path.dirname(os.path.dirname(gwent.__file__))
-                music_path = os.path.join(package_dir, "gwent", "hal", "music", music_file)
+        from gwent.game.data_paths import MUSIC_DIR
+        music_path = os.path.join(MUSIC_DIR, "music1.mp3")
         
         # Assert that the file exists
         assert os.path.exists(music_path), f"Music file not found: {music_path}"

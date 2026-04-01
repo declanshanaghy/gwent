@@ -136,6 +136,9 @@ class GwentTUI(App):
         try:
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
         except Exception as e:
+            import sys, traceback
+            print(f"Card overlay error: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
             log.debug("Card overlay error: %s", e)
 
     async def _apply_pending_snapshots(self):

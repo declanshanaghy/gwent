@@ -11,7 +11,7 @@ The argument is the output state filename (without .json extension). If no argum
 Optionally, a second argument can specify a state to load first (to resume from a saved point).
 
 **State files are stored at:**
-`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/gwent/gwent/game/recordings/<name>.json`
+`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/data/recordings/<name>.json`
 
 ## Steps
 

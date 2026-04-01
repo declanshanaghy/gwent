@@ -12,5 +12,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Nilfgaardian/ZerrikanianFireScorpion.jpg",
     "card_text": "The Zerrikanian Desert used to be a lush garden. Then these came along.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

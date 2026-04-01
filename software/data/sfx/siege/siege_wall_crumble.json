@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "siege",
+  "title": "Siege Wall Crumble",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Stone castle wall crumbling from impact, rocks falling and dust cascading, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

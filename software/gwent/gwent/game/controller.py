@@ -56,7 +56,7 @@ class Controller(gwent.game.PubSubComponent):
         super().shutdown()
 
     def run(self):
-        # self.start_music()
+        self.start_music()
         self.start_main_menu()
         super().run()
 
@@ -67,8 +67,8 @@ class Controller(gwent.game.PubSubComponent):
         self.active_stage.activate(completed, cancel, *args, **kwargs)
 
     def start_music(self):
-        self._log.info('Starting music')
-        self.publish_music(music=gwent.messaging.sfx.MUSIC1)
+        self._log.info('Starting random music')
+        self.publish_music()  # random track from software/data/music/
 
     def start_main_menu(self):
         self._log.info('Starting main menu stage')

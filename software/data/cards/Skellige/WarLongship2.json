@@ -15,5 +15,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Skellige/WarLongship2.jpg",
     "image_verified": true,
-    "card_text": "They say Hemdall's heart swells whenever the longships sail out on a raid."
+    "card_text": "They say Hemdall's heart swells whenever the longships sail out on a raid.",
+    "pronoun": "it"
 }

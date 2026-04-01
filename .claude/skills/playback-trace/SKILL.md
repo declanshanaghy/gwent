@@ -12,7 +12,7 @@ followed by optional flags.
 If no argument is given, list available state files and ask the user to pick.
 
 **State files are stored at:**
-`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/gwent/gwent/game/recordings/`
+`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/data/recordings/`
 
 ## Supported flags
 
@@ -27,7 +27,7 @@ If no argument is given, list available state files and ask the user to pick.
 
 1. If no argument given, list available state files:
    ```bash
-   ls software/gwent/gwent/game/recordings/*.json 2>/dev/null
+   ls software/data/recordings/*.json 2>/dev/null
    ```
    Then ask the user which one to load.
 

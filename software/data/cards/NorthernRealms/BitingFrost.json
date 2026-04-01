@@ -13,5 +13,6 @@
     "rfid_written_at": "2026-03-29T02:35:41",
     "image": "../../images/NorthernRealms/BitingFrost.jpg",
     "card_text": "Best part about frost - bodies of the fallen don't rot so quickly.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "it"
 }

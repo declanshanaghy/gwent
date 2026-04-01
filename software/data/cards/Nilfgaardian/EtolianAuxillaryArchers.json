@@ -12,5 +12,6 @@
     "strength": 1,
     "rfid": 345759829369,
     "last_updated": "2026-03-26T16:05:21",
-    "rfid_written_at": "2026-03-26T16:05:21"
+    "rfid_written_at": "2026-03-26T16:05:21",
+    "pronoun": "he"
 }

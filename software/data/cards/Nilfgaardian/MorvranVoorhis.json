@@ -15,5 +15,6 @@
     "rfid_written_at": "2026-03-28T13:47:26",
     "image": "../../images/Nilfgaardian/MorvranVoorhis.jpg",
     "card_text": "Summer sun reflecting in the quiet waters of the Alba that's Nilfgaard to me.",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

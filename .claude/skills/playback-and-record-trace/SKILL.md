@@ -13,13 +13,13 @@ Arguments: `<input-state> <output-state-name>`
 If arguments are missing, list available state files and ask the user.
 
 **State files are stored at:**
-`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/gwent/gwent/game/recordings/`
+`/home/dshanaghy/src/github.com/declanshanaghy/gwent/software/data/recordings/`
 
 ## Steps
 
 1. If arguments are missing, list available state files:
    ```bash
-   ls software/gwent/gwent/game/recordings/*.json 2>/dev/null
+   ls software/data/recordings/*.json 2>/dev/null
    ```
    Ask the user which state to load and what to name the new snapshot.
 

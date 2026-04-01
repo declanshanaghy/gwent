@@ -1,0 +1,9 @@
+{
+  "type": "sfx",
+  "use_for": "ranged",
+  "title": "Sword blade swish",
+  "source": "mixkit",
+  "source_url": "https://assets.mixkit.co/active_storage/sfx/2789/2789-preview.mp3",
+  "mixkit_id": 2789,
+  "license": "Mixkit Free License"
+}

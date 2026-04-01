@@ -1,7 +1,7 @@
 {
     "faction": "Northern Realms",
     "kind": "card",
-    "name": "S\u00edle de Tansarville",
+    "name": "Síle de Tansarville",
     "ranges": [
         "ranged"
     ],
@@ -11,5 +11,6 @@
     "last_updated": "2026-03-26T16:05:21",
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/NorthernRealms/SileDeTansarville.jpg",
-    "card_text": "The Lodge lacks humility. Our lust for power may yet be our undoing."
+    "card_text": "The Lodge lacks humility. Our lust for power may yet be our undoing.",
+    "pronoun": "she"
 }

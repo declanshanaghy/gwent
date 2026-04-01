@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "special",
+  "title": "Special Muster Horn",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Urgent rally horn with three rapid blasts, echoing across a mountainous landscape, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

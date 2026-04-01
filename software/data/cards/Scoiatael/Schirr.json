@@ -1,7 +1,7 @@
 {
     "kind": "card",
     "faction": "Scoia'tael",
-    "name": "Schirr\u00fa",
+    "name": "Schirrú",
     "strength": 8,
     "ranges": [
         "siege"
@@ -9,5 +9,6 @@
     "abilities": [
         "scorch"
     ],
-    "last_updated": "2026-03-26T16:42:44"
+    "last_updated": "2026-03-26T16:42:44",
+    "pronoun": "he"
 }

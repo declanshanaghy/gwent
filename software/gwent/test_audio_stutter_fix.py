@@ -29,21 +29,12 @@ def test_audio_playback() -> None:
     audio_state.initialize()
     
     # Find music file
-    music_file = "music1.mp3"
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    music_path = os.path.join(module_dir, "gwent", "hal", "music", music_file)
-    
+    from gwent.game.data_paths import MUSIC_DIR
+    music_path = os.path.join(MUSIC_DIR, "music1.mp3")
+
     if not os.path.exists(music_path):
-        print(f"Music file not found at {music_path}, trying alternative paths")
-        
-        # Try to find it in the package directory
-        import gwent
-        package_dir = os.path.dirname(os.path.dirname(gwent.__file__))
-        music_path = os.path.join(package_dir, "gwent", "hal", "music", music_file)
-        
-        if not os.path.exists(music_path):
-            print(f"Music file not found at any location: {music_file}")
-            return
+        print(f"Music file not found at {music_path}")
+        return
     
     print(f"Found music file at: {music_path}")
     

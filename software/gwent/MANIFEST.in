@@ -1,6 +1,4 @@
-# Include audio files
-include gwent/hal/music/*.mp3
-include gwent/hal/effects/*.wav
+# Audio files now live in software/data/sfx/ and software/data/music/ (outside package)
 
 # Include font files
 include gwent/fonts/*.ttf

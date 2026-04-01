@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "weather",
+  "title": "Weather Storm Wind",
+  "source": "elevenlabs",
+  "prompt": "Sound effect only, no speech, no voices, no words, no narration. Howling storm wind with crashing waves against rocky cliffs, 4 seconds",
+  "duration_seconds": 4.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

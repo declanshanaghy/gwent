@@ -19,5 +19,6 @@
     "rfid_written_at": "2026-03-26T17:48:19",
     "image": "../../images/Skellige/Olaf.jpg",
     "card_text": "Many've tried to defeat Olaf. But you won't hear about it from them - they're dead!",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

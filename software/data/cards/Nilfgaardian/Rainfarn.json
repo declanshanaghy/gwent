@@ -12,5 +12,6 @@
     "rfid_written_at": "2026-03-26T16:05:21",
     "image": "../../images/Nilfgaardian/Rainfarn.jpg",
     "card_text": "You'll die as painfully as that pathetic traitor Windhalm did",
-    "image_verified": true
+    "image_verified": true,
+    "pronoun": "he"
 }

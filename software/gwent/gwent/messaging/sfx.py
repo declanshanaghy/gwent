@@ -14,6 +14,15 @@ EFFECT_CARD_READ = 'card_read'
 EFFECT_MFD_SELECT = 'mfd_select'
 EFFECT_MFD_CHOOSE = 'mfd_choose'
 
+# Row-specific battle SFX (picks random WAV from subdirectory)
+EFFECT_CLOSE = 'close'
+EFFECT_RANGED = 'ranged'
+EFFECT_SIEGE = 'siege'
+EFFECT_COMMANDER = 'commander'
+EFFECT_CARD_PLAY = 'card'
+EFFECT_WEATHER = 'weather'
+EFFECT_SPECIAL = 'special'
+
 MUSIC1 = 'music1'
 
 

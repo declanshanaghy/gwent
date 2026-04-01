@@ -1,6 +1,8 @@
 import functools
+import glob
 import os
 import queue
+import random
 import tempfile
 import time
 import threading
@@ -11,6 +13,7 @@ import pygame.mixer
 import gwent.game
 import gwent.messaging.base
 import gwent.messaging.sfx
+from gwent.game.data_paths import SFX_DIR, MUSIC_DIR
 from gwent.hal.tts import get_provider, DEFAULT_PROVIDER
 
 
@@ -45,14 +48,40 @@ class _SFX(gwent.game.BaseComponent):
         return self._tempdir
 
     def effect_filename(self, sfx: gwent.messaging.sfx.Message) -> str:
-        base = os.path.dirname(__file__)
-        dir = os.path.abspath(base)
-        return os.path.join(dir, 'effects', f'{sfx.effect}.wav')
+        """Resolve effect path.
+
+        1. If effect name is a subdirectory → pick random WAV from it
+        2. If effect name matches a file directly → use it
+        3. Search all subdirs for a matching file (e.g. 'card_read' finds 'ui/card_read.wav')
+        """
+        subdir = os.path.join(SFX_DIR, sfx.effect)
+        if os.path.isdir(subdir):
+            files = glob.glob(os.path.join(subdir, '*.wav'))
+            if files:
+                choice = random.choice(files)
+                self._log.debug(f"Random SFX from {sfx.effect}/: {os.path.basename(choice)}")
+                return choice
+            return None
+        # Direct file at root
+        path = os.path.join(SFX_DIR, f'{sfx.effect}.wav')
+        if os.path.exists(path):
+            return path
+        # Search subdirs for the file
+        matches = glob.glob(os.path.join(SFX_DIR, '*', f'{sfx.effect}.wav'))
+        if matches:
+            return matches[0]
+        return None
 
     def music_filename(self, sfx: gwent.messaging.sfx.Message) -> str:
-        base = os.path.dirname(__file__)
-        dir = os.path.abspath(base)
-        return os.path.join(dir, 'music', f'{sfx.music}.mp3')
+        """Resolve music path. If random, pick from all available tracks."""
+        if sfx.is_random or not sfx._instance.get('music'):
+            files = glob.glob(os.path.join(MUSIC_DIR, '*.mp3'))
+            if files:
+                choice = random.choice(files)
+                self._log.debug(f"Random music: {os.path.basename(choice)}")
+                return choice
+            return None
+        return os.path.join(MUSIC_DIR, f'{sfx.music}.mp3')
 
     def tts_filename(self, msg: gwent.messaging.base.Message,
                     extn='mp3') -> str:
@@ -98,25 +127,29 @@ class _SFX(gwent.game.BaseComponent):
 
     def play_music(self, sfx: gwent.messaging.sfx.Message):
         try:
-            fwav = self.music_filename(sfx)
+            fpath = self.music_filename(sfx)
             self._log.info({
                 'action': 'play_music',
-                'fwav': fwav,
-                'exists': os.path.exists(fwav),
-                'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0,
+                'fpath': fpath,
+                'exists': os.path.exists(fpath) if fpath else False,
+                'size': os.path.getsize(fpath) if fpath and os.path.exists(fpath) else 0,
                 'mixer_initialized': pygame.mixer.get_init() is not None
             })
-            
-            if not os.path.exists(fwav):
-                self._log.error(f"Music file not found: {fwav}")
+
+            if not fpath or not os.path.exists(fpath):
+                self._log.error(f"Music file not found: {fpath}")
                 return
-                
-            pygame.mixer.music.load(fwav)
-            pygame.mixer.music.play(-1)
-            
-            # Verify music is playing
+
+            # Crossfade: fade out current, fade in new
             if pygame.mixer.music.get_busy():
-                self._log.info("Music started playing successfully")
+                pygame.mixer.music.fadeout(2000)
+                time.sleep(2.1)
+
+            pygame.mixer.music.load(fpath)
+            pygame.mixer.music.play(-1, fade_ms=2000)
+
+            if pygame.mixer.music.get_busy():
+                self._log.info(f"Music playing: {os.path.basename(fpath)}")
             else:
                 self._log.error("Music failed to start playing")
         except Exception as e:
@@ -130,15 +163,15 @@ class _SFX(gwent.game.BaseComponent):
                 'action': 'play_effect',
                 'effect': sfx.effect,
                 'fwav': fwav,
-                'exists': os.path.exists(fwav),
-                'size': os.path.getsize(fwav) if os.path.exists(fwav) else 0,
+                'exists': os.path.exists(fwav) if fwav else False,
+                'size': os.path.getsize(fwav) if fwav and os.path.exists(fwav) else 0,
                 'mixer_initialized': pygame.mixer.get_init() is not None
             })
-            
-            if not os.path.exists(fwav):
+
+            if not fwav or not os.path.exists(fwav):
                 self._log.error(f"Effect file not found: {fwav}")
                 return 0
-                
+
             speech = self.load_sound(fwav)
             self.play_sound(speech, CHANNEL_EFFECT)
             

@@ -17,6 +17,7 @@ from typing import List, Optional, Callable, Any, Union, Dict
 
 # Import the logging module
 from ..utils.logging import get_logger, INFO, DEBUG, WARNING, ERROR, VERBOSE
+from ..game.data_paths import MUSIC_DIR
 
 # Get a logger for this module
 logger = get_logger("gwent.logical.menu")
@@ -409,8 +410,7 @@ def register_standard_actions():
     Register standard actions that can be used in menus.
     """
     # Path to the background music file
-    module_dir = os.path.dirname(os.path.abspath(__file__))
-    music_file = os.path.join(module_dir, "../hal/music/music1.mp3")
+    music_file = os.path.join(MUSIC_DIR, "music1.mp3")
     
     def enable_audio(menu_system: MenuSystem) -> None:
         audio_state.enable_audio()
@@ -595,8 +595,7 @@ def load_menu_from_json(json_path: str, display: Any, rotary: Optional[Any] = No
     
     # Start playing background music if audio is enabled
     if audio_state.audio_enabled:
-        module_dir = os.path.dirname(os.path.abspath(__file__))
-        music_file = os.path.join(module_dir, "../hal/music/music1.mp3")
+        music_file = os.path.join(MUSIC_DIR, "music1.mp3")
         if os.path.exists(music_file):
             audio_state.play_music(music_file, volume=0.8, loop=True)
     
@@ -633,7 +632,7 @@ def create_audio_menu(display: Any, rotary: Optional[Any] = None, parent: Option
     audio_state.initialize()
     
     # Path to the background music file
-    music_file = os.path.join(module_dir, "../hal/music/music1.mp3")
+    music_file = os.path.join(MUSIC_DIR, "music1.mp3")
     
     # Define actions for enabling/disabling audio
     def enable_audio() -> None:
