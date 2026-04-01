@@ -96,6 +96,7 @@ Prompts are defined in `generate-sfx.py` — see PROMPTS dict.
 - Ranged: 7 (longbow, crossbow, arrow volleys, impacts, ricochets)
 - Siege: 7 (catapult, trebuchet, ballista, battering ram, wall crumble, fire)
 - Commander: 7 (war horns deep/high, war drums slow/fast, horn signals)
+- Leader: 10 (faction-themed war cries — 2 per faction: Northern Realms, Nilfgaard, Scoia'tael, Monsters, Skellige)
 - Card play: 5 (slam, flip, slide, thud, shuffle)
 - Weather: 5 (frost, fog, rain/thunder, storm, clear skies)
 - Special: 5 (heal chimes, scorch fire, muster horn, spy footsteps, decoy thunk)

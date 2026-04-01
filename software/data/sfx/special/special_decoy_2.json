@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "special",
+  "title": "Special Decoy 2",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: tactical retreat sound, a card being snatched back quickly, the rustle of a swap, wooden decoy thudding into position, a trick well played, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

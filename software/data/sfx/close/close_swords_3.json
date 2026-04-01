@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "close",
+  "title": "Close Swords 3",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: rapid sword fight, three quick steel-on-steel exchanges, a fierce battle cry mid-swing, the clash of a killing blow, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

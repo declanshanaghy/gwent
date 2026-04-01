@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "commander",
+  "title": "Commander 07",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: twin war horns playing a call-and-response melody, one deep one high, followed by synchronized war drums, an army announcing its presence, 5 seconds",
+  "duration_seconds": 5.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

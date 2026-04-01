@@ -238,6 +238,7 @@ class Controller(gwent.game.PubSubComponent):
         self.set_active_stage(self.game_over, complete, cancel, board)
 
     def process_card(self, message: gwent.messaging.card.Message):
+        self.publish_effect("card")
         if self.active_stage:
             self.active_stage.process_card(message)
 

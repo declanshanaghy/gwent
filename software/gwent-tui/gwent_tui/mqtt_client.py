@@ -52,13 +52,13 @@ class MqttSubscriber:
             log.error("MQTT connect failed: %s", e)
             self.state.mqtt_status = "error"
 
-    def _publish_announcement_complete(self, announcement_text):
-        """Publish announcement_complete with source=gwent-tui."""
+    def _publish_announcement_complete(self, content_id):
+        """Publish announcement_complete with original content_id."""
         try:
             payload = json.dumps({
                 "kind": "sfx",
                 "subkind": "announcement_complete",
-                "announcement": announcement_text,
+                "original_content_id": content_id,
                 "source": "gwent-tui",
             })
             self.client.publish("gwent/sfx/complete", payload)
@@ -108,7 +108,8 @@ class MqttSubscriber:
             self.state.on_sfx(data)
             if data.get("subkind") == "announcement":
                 tts.speak(data.get("announcement", ""),
-                          faction=data.get("faction"))
+                          faction=data.get("faction"),
+                          content_id=data.get("content_id"))
 
         elif topic == "gwent/cards/raw/read":
             self.state.on_raw_read(data)

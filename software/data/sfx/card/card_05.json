@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card 05",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval tavern ambience with murmuring crowd. Foreground: deck of cards riffle shuffled with crisp paper sounds, then cut and placed down, ready for the next round, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

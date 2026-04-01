@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card 10",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval tavern ambience with dice rolling nearby. Foreground: two players simultaneously slamming their cards down in a showdown, double impact, crowd holding breath, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

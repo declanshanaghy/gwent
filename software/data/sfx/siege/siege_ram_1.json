@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "siege",
+  "title": "Siege Ram 1",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: battering ram slamming into castle gate, massive boom of wood on wood, iron hinges groaning, soldiers chanting heave, gate splintering, 5 seconds",
+  "duration_seconds": 5.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

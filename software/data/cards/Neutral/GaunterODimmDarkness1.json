@@ -1,7 +1,7 @@
 {
     "kind": "card",
     "faction": "Neutral",
-    "name": "Gaunter O'Dimm: Darkness: 1",
+    "name": "Gaunter O'Dimm - Darkness: 1",
     "strength": 4,
     "ranges": [
         "ranged"
@@ -9,6 +9,6 @@
     "abilities": [
         "muster"
     ],
-    "last_updated": "2026-03-26T16:42:44",
+    "last_updated": "2026-03-31T21:03:49",
     "pronoun": "he"
 }

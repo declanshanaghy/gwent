@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card 04",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval tavern ambience with fire crackling. Foreground: heavy card or token thumped down with authority, the thud reverberating through the table, a decisive play, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

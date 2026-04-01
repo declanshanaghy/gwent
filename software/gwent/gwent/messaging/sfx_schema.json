@@ -16,72 +16,38 @@
         "effect",
         "music"
       ]
-    }
-  },
-  "oneOf": [
-    { "$ref": "#/definitions/Announcement" },
-    { "$ref": "#/definitions/AnnouncementComplete" },
-    { "$ref": "#/definitions/Effect" },
-    { "$ref": "#/definitions/Music" }
-  ],
-  "definitions": {
-    "Announcement": {
-      "type": "object",
-      "required": [
-        "announcement"
-      ],
-      "properties": {
-        "subkind": { "const": "announcement" },
-        "announcement": {
-          "description": "The message to announce via TTS",
-          "type": "string"
-        },
-        "faction": {
-          "description": "Optional faction name to select TTS voice accent",
-          "type": "string"
-        }
-      }
     },
-    "AnnouncementComplete": {
-      "type": "object",
-      "required": [
-        "announcement"
-      ],
-      "properties": {
-        "subkind": { "const": "announcement_complete" },
-        "announcement": {
-          "description": "The announcement that completed",
-          "type": "string"
-        }
-      }
+    "content_id": {
+      "type": "string",
+      "description": "Unique identifier for this message, used for tracking announcement completion"
     },
-    "Effect": {
-      "type": "object",
-      "required": [
-        "effect"
-      ],
-      "properties": {
-        "effect": {
-          "description": "The sound effect to play",
-          "type": "string"
-        }
-      }
+    "announcement": {
+      "description": "The message to announce via TTS (subkind=announcement)",
+      "type": "string"
     },
-    "Music": {
-      "type": "object",
-      "required": [
-        "random"
-      ],
-      "properties": {
-        "music": {
-          "description": "The music file to play in the background",
-          "type": "string"
-        },
-        "random": {
-          "description": "Plays a random background track",
-          "type": "boolean"
-        }
-      }
+    "faction": {
+      "description": "Optional faction name to select TTS voice accent (subkind=announcement)",
+      "type": "string"
+    },
+    "source": {
+      "description": "Which TTS source completed playback: gwent, gwent-tui (subkind=announcement_complete)",
+      "type": "string"
+    },
+    "original_content_id": {
+      "description": "The content_id of the original announcement that completed (subkind=announcement_complete)",
+      "type": "string"
+    },
+    "effect": {
+      "description": "The sound effect category to play: close, ranged, siege, commander, leader, card, weather, special, ui (subkind=effect)",
+      "type": "string"
+    },
+    "music": {
+      "description": "The music file to play (without extension). If omitted with random=true, picks random track (subkind=music)",
+      "type": "string"
+    },
+    "random": {
+      "description": "If true, plays a random background track (subkind=music)",
+      "type": "boolean"
     }
   }
 }

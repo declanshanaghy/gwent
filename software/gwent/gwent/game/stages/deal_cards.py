@@ -302,13 +302,14 @@ class DealCards(gwent.game.stages.base.GameStage):
         self.publish(topic, msg)
 
     def _publish_leader(self, player: PLAYER, deck):
-        """Publish the leader card for a player."""
+        """Publish the leader card for a player and play leader SFX."""
         leader = next((c for c in deck if c.is_leader), None)
         if leader:
             self._log.info(f"Publishing leader {leader.name} for {player}")
             msg = gwent.messaging.card_play.Message.with_deal_leader(str(player), leader)
             topic = gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player))
             self.publish(topic, msg)
+            self.publish_effect("leader")
 
     def _publish_deck_card(self, player: PLAYER, card: gwent.messaging.card.Message):
         """Publish an add_to_deck message for a remaining deck card."""

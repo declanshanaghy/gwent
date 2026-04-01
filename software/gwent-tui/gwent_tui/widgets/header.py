@@ -112,25 +112,26 @@ class HeaderWidget(Static):
             p2f = state.factions.get(P2, "")
             p1e = faction_emoji(p1f)
             p2e = faction_emoji(p2f)
-            p1_tc, p1_bg, p1_fg = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))
-            p2_tc, p2_bg, p2_fg = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))
+            p1_tc, _, p1_fg = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))
+            p2_tc, _, p2_fg = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))
 
+            # Use the faction text color as highlight bg so it matches card colors
             if is_p1_turn:
-                p1_style = f"bold {p1_fg} on {p1_bg}"
+                p1_style = f"bold {p1_fg} on {p1_tc}"
                 p2_style = p2_tc
             else:
                 p1_style = p1_tc
-                p2_style = f"bold {p2_fg} on {p2_bg}"
+                p2_style = f"bold {p2_fg} on {p2_tc}"
 
             # Player name (model name or "Player 1")
             p1_pname = state.player_names.get(P1, "")
             p2_pname = state.player_names.get(P2, "")
 
-            # Leader name (short)
+            # Leader name (full title)
             p1_leader = state.leaders.get(P1)
             p2_leader = state.leaders.get(P2)
-            p1_lname = (p1_leader.get("name", "") if p1_leader else "").split(":")[0].split(" - ")[0].strip()
-            p2_lname = (p2_leader.get("name", "") if p2_leader else "").split(":")[0].split(" - ")[0].strip()
+            p1_lname = p1_leader.get("name", "") if p1_leader else ""
+            p2_lname = p2_leader.get("name", "") if p2_leader else ""
 
             # Build display: "emoji Name (Leader) emoji" or just "emoji Faction emoji"
             if p1_pname and p1_pname not in ("Player 1",):

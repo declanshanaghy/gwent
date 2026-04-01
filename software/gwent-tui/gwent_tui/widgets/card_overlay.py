@@ -53,7 +53,9 @@ class CardAttrsWidget(Static):
         # Build narration line — player plays/draws, pronoun from leader
         poss = _POSSESSIVE.get(self._leader_pronoun, "their")
         player = self._player_name or "Unknown"
-        if self._subkind == "spy_draw":
+        if self._subkind == "deal_leader":
+            narration_text = f"[bold]{player}[/] commands [bold]{card_name}[/]"
+        elif self._subkind == "spy_draw":
             narration_text = f"[bold]{player}[/] draws [bold]{card_name}[/] from the deck"
         elif self._subkind == "medic_resurrect":
             narration_text = f"[bold]{player}[/] resurrects [bold]{card_name}[/] from the graveyard"
@@ -174,7 +176,8 @@ class CardImageOverlay(Horizontal):
         now = time.time()
         elapsed = now - state.last_played_time
 
-        if state.last_played_card and elapsed < DISPLAY_SECONDS:
+        display_secs = getattr(state, 'card_display_seconds', DISPLAY_SECONDS)
+        if state.last_played_card and elapsed < display_secs:
             card = state.last_played_card
             name = card.get("name", "???")
             faction = card.get("faction", "")
@@ -225,24 +228,24 @@ class CardImageOverlay(Horizontal):
                         else:
                             self.move_child(attrs_widget, before=img_widget)
 
-                        # Faction-colored border: player tag top-left, card name centered
+                        # Faction-colored border: P1/P2 + card name top, player/leader bottom
                         fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
                         self.styles.border = ("round", fc[0])
                         self.styles.background = "black"
                         self.styles.border_subtitle_align = "center"
 
-                        # Build title: "P1" flush left, card name centered in 78-char border
-                        # The border line draws as: ──<title>──
-                        # We want: ─ P1 ─────── Card Name ─────────
                         p_tag = "P1" if is_p1 else "P2"
-                        tag_len = len(p_tag) + 1  # tag + leading space
+                        tag_len = len(p_tag) + 1
                         center_pos = max(0, (78 - len(name)) // 2 - tag_len)
-                        fill = "\u2500" * center_pos  # ─ characters
+                        fill = "\u2500" * center_pos
                         self.styles.border_title_align = "left"
                         self.border_title = f" {p_tag} {fill} {name} "
 
-                        leader_name = leader.get("name", "Unknown") if leader else "Unknown"
-                        self.border_subtitle = f" {player_name} / {leader_name} "
+                        leader_name = leader.get("name", "") if leader else ""
+                        if leader_name:
+                            self.border_subtitle = f" {player_name} / {leader_name} "
+                        else:
+                            self.border_subtitle = f" {player_name} "
 
                         # Center over the board
                         self._center_on_board()
@@ -262,10 +265,16 @@ class CardImageOverlay(Horizontal):
                     print(f"WARNING: No image found for card: {name} ({faction})", file=sys.stderr)
                     log.debug("No image for card: %s (%s)", name, faction)
                     self._hide()
+                    # Skip to next queued card
+                    if hasattr(state, 'advance_card_queue'):
+                        state.advance_card_queue()
         else:
             if self.has_class("visible"):
                 self._hide()
                 self._flash_row()
+                # Advance to next queued card if any
+                if hasattr(state, 'advance_card_queue'):
+                    state.advance_card_queue()
 
     def _center_on_board(self):
         """Position the overlay centered on the stage container."""

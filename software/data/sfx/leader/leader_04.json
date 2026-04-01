@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "leader",
+  "title": "Leader 04",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: otherworldly frost horn with alien chromatic melody, ice cracking between notes, spectral howling wind, supernatural dread washing over the battlefield, 5 seconds",
+  "duration_seconds": 5.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

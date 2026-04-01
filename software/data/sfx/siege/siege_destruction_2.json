@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "siege",
+  "title": "Siege Destruction 2",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: boiling oil poured from battlements, liquid sizzling and splashing, screams below, cauldron scraping on stone, defenders shouting, 4 seconds",
+  "duration_seconds": 4.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

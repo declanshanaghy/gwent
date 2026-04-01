@@ -17,7 +17,7 @@ class PlayRoundStage(Horizontal):
     PlayRoundStage #discard-area { height: auto; min-height: 3; }
     PlayRoundStage #scoreboard { height: auto; max-height: 6; }
     PlayRoundStage #hands-area { height: auto; }
-    PlayRoundStage #decks-area { height: 1fr; max-height: 14; }
+    PlayRoundStage #decks-area { height: 1fr; max-height: 13; }
     """
 
     def compose(self):

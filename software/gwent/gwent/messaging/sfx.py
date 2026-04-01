@@ -22,6 +22,7 @@ EFFECT_COMMANDER = 'commander'
 EFFECT_CARD_PLAY = 'card'
 EFFECT_WEATHER = 'weather'
 EFFECT_SPECIAL = 'special'
+EFFECT_LEADER = 'leader'
 
 MUSIC1 = 'music1'
 
@@ -35,8 +36,10 @@ class Message(gwent.messaging.base.Message):
         return Message(instance, subkind=ANNOUNCEMENT)
 
     @staticmethod
-    def with_announcement_complete(announcement, source="gwent"):
-        instance = {ANNOUNCEMENT: announcement, "source": source}
+    def with_announcement_complete(source="gwent", original_content_id=None):
+        instance = {"source": source}
+        if original_content_id:
+            instance["original_content_id"] = original_content_id
         return Message(instance, subkind=ANNOUNCEMENT_COMPLETE)
 
     @staticmethod

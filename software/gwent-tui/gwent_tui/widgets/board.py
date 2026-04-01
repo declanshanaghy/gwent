@@ -101,14 +101,14 @@ class ScoreboardWidget(Static):
         p1_leader_str = f"{p1e[0]}{p1e[1]} [{p1_fc}]{p1_nick}[/{p1_fc}]" if p1_nick else ""
         p2_leader_str = f"[{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[0]}{p2e[1]}" if p2_nick else ""
 
-        # Build: P1 info | score | P2 info (gems first so they don't get clipped)
-        left = f"{p1_gems_str} {p1_pass} {p1_leader_str}"
+        # Build: P1 info | score | P2 info
+        left = f"{p1_leader_str}  {p1_pass}" if p1_pass else f"{p1_leader_str}"
         center = (
             f"\U0001f5e1 {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
             f"  \u2694  "
             f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1"
         )
-        right = f"{p2_leader_str} {p2_pass} {p2_gems_str}"
+        right = f"{p2_pass}  {p2_leader_str}" if p2_pass else f"{p2_leader_str}"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 0))
         table.add_column(ratio=4, justify="left", no_wrap=True)

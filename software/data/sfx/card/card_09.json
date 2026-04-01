@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card 09",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval tavern ambience with wind outside. Foreground: cards being gathered up from the table, paper sliding on wood, stacking neatly, end of a round, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

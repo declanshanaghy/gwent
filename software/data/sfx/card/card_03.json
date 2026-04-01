@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "card",
+  "title": "Card 03",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval tavern ambience with distant lute. Foreground: card flipped dramatically face-up with a sharp paper snap, a gasp from onlookers, 2 seconds",
+  "duration_seconds": 2.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

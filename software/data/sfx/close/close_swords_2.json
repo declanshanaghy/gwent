@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "close",
+  "title": "Close Swords 2",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: duel between champions, slow deliberate heavy sword strikes with deep metallic rings, circling footsteps, then an explosive flurry of blows, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

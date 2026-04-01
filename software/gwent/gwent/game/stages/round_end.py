@@ -8,8 +8,8 @@ import random
 from typing import Callable
 
 import gwent.game
-import gwent.game
 import gwent.game.stages.base
+import gwent.messaging.sfx
 import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.card_play
@@ -123,6 +123,11 @@ class RoundEnd(gwent.game.stages.base.GameStage):
         self._board = board
         self._game_over = False
         self._determine_winner()
+
+    def _announce(self, text, faction=None):
+        """Publish a TTS announcement."""
+        msg = gwent.messaging.sfx.Message.with_announcement(text, faction=faction)
+        self.publish(gwent.game.CH_SFX, msg)
 
     def _msg_round_win(self, winner, loser, w_score, l_score, rnd, w_faction, l_faction, **pn):
         if gwent.game.BaseComponent.simple_mode:
@@ -253,12 +258,19 @@ class RoundEnd(gwent.game.stages.base.GameStage):
                     pb.discard.remove(strongest)
                     pb.rows[row_name].append(strongest)
                     self._log.info(f"Monsters keep {strongest.name} on {row_name}")
+                    self._announce(
+                        f"Monsters faction perk! {strongest.name} refuses to leave the {row_name} row. "
+                        f"The strongest creature endures!",
+                        faction="Monsters")
 
             elif faction == "Northern Realms" and player == winner:
                 # Winner draws 1 extra card from deck
                 drawn = self._board.draw_from_deck(player, 1)
                 if drawn:
                     self._log.info(f"Northern Realms draws {drawn[0].name}")
+                    self._announce(
+                        f"Northern Realms faction perk! Victory earns an extra card: {drawn[0].name} drawn from the deck!",
+                        faction="Northern Realms")
 
             elif faction == "Skellige":
                 # Resurrect 2 random cards from discard to hand
@@ -267,10 +279,15 @@ class RoundEnd(gwent.game.stages.base.GameStage):
                 resurrect_count = min(2, len(non_hero))
                 if resurrect_count > 0:
                     resurrected = random.sample(non_hero, resurrect_count)
+                    names = []
                     for card in resurrected:
                         pb.discard.remove(card)
                         self._board.hands[player].append(card)
+                        names.append(card.name)
                         self._log.info(f"Skellige resurrects {card.name}")
+                    self._announce(
+                        f"Skellige faction perk! The fallen rise again: {' and '.join(names)} return from the graveyard!",
+                        faction="Skellige")
 
     def _advance(self):
         """Progress to the next stage."""

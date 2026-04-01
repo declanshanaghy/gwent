@@ -157,19 +157,20 @@ You MUST respond with ONLY a JSON object. No other text, no markdown, no explana
 # ---------------------------------------------------------------------------
 
 class AnnouncementSync:
-    """Subscribe to MQTT and block until all TTS sources finish announcements.
+    """Subscribe to MQTT and block until specific announcements complete.
 
-    Tracks which TTS sources (gwent, gwent-tui) are expected to publish
-    announcement_complete, and waits for all of them.
+    Tracks pending announcements by content_id and waits for matching
+    announcement_complete messages from all expected sources.
     """
 
     def __init__(self):
         self._lock = threading.Lock()
         self._event = threading.Event()
-        self._last_announcement_time = 0.0
         self._expected_sources = {"gwent"}  # server always expected
-        self._completed_sources = set()
-        self._client = mqtt.Client(client_id='llm-vs-sync',
+        self._pending_ids = set()  # content_ids we're waiting for
+        self._completed_ids = set()  # content_ids that have completed
+        self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
+                                   client_id='llm-vs-sync',
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
         self._client.on_message = self._on_message
@@ -183,64 +184,70 @@ class AnnouncementSync:
             self._expected_sources = set(sources)
         log_debug(f"AnnouncementSync: expecting sources={self._expected_sources}")
 
+    def track(self, content_id):
+        """Register a content_id to wait for completion."""
+        if content_id:
+            with self._lock:
+                self._pending_ids.add(content_id)
+
     def _on_message(self, client, userdata, msg):
         try:
             d = json.loads(msg.payload)
             if d.get('subkind') == 'announcement_complete':
-                source = d.get('source', 'gwent')
-                with self._lock:
-                    self._completed_sources.add(source)
-                    self._last_announcement_time = time.time()
-                    # Only signal when all expected sources have completed
-                    if self._expected_sources.issubset(self._completed_sources):
-                        self._event.set()
+                cid = d.get('original_content_id')
+                if cid:
+                    with self._lock:
+                        self._completed_ids.add(cid)
+                        if self._pending_ids and self._pending_ids.issubset(self._completed_ids):
+                            self._event.set()
+                else:
+                    # Legacy: no content_id, signal anyway
+                    self._event.set()
         except Exception:
             pass
 
     def wait_all(self, timeout=60):
-        """Block until all expected TTS sources finish playing.
-
-        Waits for announcement_complete from all expected sources,
-        then drains any remaining announcements with a gap timer.
-        """
+        """Block until all tracked announcements have completed."""
         deadline = time.time() + timeout
         with self._lock:
-            waiting_for = self._expected_sources - self._completed_sources
-        if waiting_for:
-            log(f"  \u23f3 Waiting for TTS: {waiting_for}")
+            waiting = self._pending_ids - self._completed_ids
+        if waiting:
+            log_debug(f"  \u23f3 Waiting for {len(waiting)} announcement(s)")
         else:
-            log_debug("  TTS: all sources already completed")
+            log_debug("  TTS: nothing pending")
 
-        # Phase 1: wait for all expected sources to complete
+        # Phase 1: wait for all pending content_ids to complete
         while time.time() < deadline:
             with self._lock:
-                if self._expected_sources.issubset(self._completed_sources):
-                    self._completed_sources.clear()
-                    log_debug("  TTS: all sources completed")
+                if not self._pending_ids or self._pending_ids.issubset(self._completed_ids):
+                    log_debug("  TTS: all announcements completed")
                     break
             self._event.clear()
             got = self._event.wait(timeout=min(30, deadline - time.time()))
             if not got:
                 with self._lock:
-                    still_waiting = self._expected_sources - self._completed_sources
-                    self._completed_sources.clear()
-                log(f"  \u26a0 TTS wait timed out (missing: {still_waiting})")
-                return
+                    still = self._pending_ids - self._completed_ids
+                log(f"  \u26a0 TTS wait timed out ({len(still)} pending)")
+                break
 
-        # Phase 2: drain any trailing announcements (gap timer)
+        # Phase 2: drain trailing announcements (gap timer)
         while time.time() < deadline:
-            with self._lock:
-                self._completed_sources.clear()
             self._event.clear()
             got = self._event.wait(timeout=3.0)
             if not got:
-                return
+                break
+
+        # Reset for next round
+        with self._lock:
+            self._pending_ids.clear()
+            self._completed_ids.clear()
 
     def drain(self):
         """Consume any stale events without blocking."""
         self._event.clear()
         with self._lock:
-            self._completed_sources.clear()
+            self._pending_ids.clear()
+            self._completed_ids.clear()
 
     def stop(self):
         self._client.loop_stop()
@@ -396,13 +403,24 @@ def mqpub(topic, payload):
     time.sleep(0.6)
 
 
+_sync_ref = None  # set by main() to the AnnouncementSync instance
+
 def announce(text, faction=None):
-    """Publish a TTS announcement to MQTT (if commentary enabled)."""
+    """Publish a TTS announcement to MQTT (if commentary enabled).
+
+    Generates a content_id and registers it with AnnouncementSync
+    so wait_all() can track completion.
+    """
     if not _commentary_enabled:
         return
-    msg = {"kind": "sfx", "subkind": "announcement", "announcement": text}
+    import hashlib
+    content_id = hashlib.md5(f"{time.time()}:{text}".encode()).hexdigest()
+    msg = {"kind": "sfx", "subkind": "announcement",
+           "announcement": text, "content_id": content_id}
     if faction:
         msg["faction"] = faction
+    if _sync_ref:
+        _sync_ref.track(content_id)
     mqpub('gwent/sfx', json.dumps(msg))
 
 
@@ -596,11 +614,20 @@ def card_summary(c):
 
 
 def rows_summary(board, p):
-    return {
-        rn: [{'name': c['name'], 'strength': c.get('strength', 0)}
-             for c in cards]
-        for rn, cards in board['players'][p]['rows'].items()
-    }
+    weather = set(board.get('weather_rows', []))
+    result = {}
+    for rn, cards in board['players'][p]['rows'].items():
+        row_weathered = rn in weather
+        row_cards = []
+        for c in cards:
+            entry = {'name': c['name'], 'strength': c.get('strength', 0)}
+            is_hero = c.get('specialty') == 'hero'
+            if row_weathered and not is_hero and entry['strength'] > 1:
+                entry['effective_strength'] = 1
+                entry['weathered'] = True
+            row_cards.append(entry)
+        result[rn] = row_cards
+    return result
 
 
 def build_state(board, cur):
@@ -1504,7 +1531,9 @@ def main():
     init_conversations(board)
 
     # 5. Start MQTT announcement sync
+    global _sync_ref
     sync = AnnouncementSync()
+    _sync_ref = sync
     # Drain any announcements from the deal stage
     sync.drain()
 

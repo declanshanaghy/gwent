@@ -1510,6 +1510,17 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._board.remove_from_hand(cur, card)
         self._board.players[cur].discard.append(card)
 
+        # Publish transform events and play SFX for each
+        if transforms:
+            for player, row_name, old, new in transforms:
+                transform_msg = gwent.messaging.card_play.Message.with_transform(
+                    str(player), old, new, row_name)
+                self.publish(gwent.game.make_channel(gwent.game.CH_CARDS_PLAY, str(player)), transform_msg)
+                # Play row-appropriate SFX for the transformed card
+                _ROW_SFX = {"close": "close", "ranged": "ranged", "siege": "siege"}
+                if row_name in _ROW_SFX:
+                    self.publish_effect(_ROW_SFX[row_name])
+
         # Announce
         parts = []
         if had_weather:
@@ -2351,8 +2362,10 @@ class PlayRound(gwent.game.stages.base.GameStage):
     def _muster_base_name(name):
         """Extract muster base name by stripping ': suffix'.
         'Arachas: 1' → 'Arachas', 'Crone: Brewess' → 'Crone',
-        'Vampire: Fleder' → 'Vampire', 'Geralt of Rivia' → 'Geralt of Rivia'.
-        All ': X' suffixes are stripped for muster matching."""
+        'Vampire: Fleder' → 'Vampire', 'Vampire - Fleder: 1' → 'Vampire - Fleder',
+        'Geralt of Rivia' → 'Geralt of Rivia'.
+        Only the last ': X' suffix is stripped for muster matching.
+        Use ' - ' (dash) for sub-variants that should muster together."""
         parts = name.rsplit(": ", 1)
         if len(parts) == 2:
             return parts[0].strip()

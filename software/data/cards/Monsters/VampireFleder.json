@@ -1,7 +1,7 @@
 {
     "kind": "card",
     "faction": "Monsters",
-    "name": "Vampire: Fleder",
+    "name": "Vampire - Fleder: 1",
     "strength": 4,
     "ranges": [
         "close"
@@ -11,7 +11,7 @@
         "muster"
     ],
     "owner_nickname": "dylan",
-    "last_updated": "2026-03-26T17:48:19",
+    "last_updated": "2026-03-31T21:03:09",
     "rfid": 826761760036,
     "rfid_written_at": "2026-03-29T03:57:50",
     "image": "../../images/Monsters/VampireFleder.jpg",

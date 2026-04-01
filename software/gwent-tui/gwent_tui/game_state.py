@@ -8,6 +8,40 @@ from datetime import datetime
 
 log = logging.getLogger("gwent_tui.state")
 
+# Event colors by type (used in _log_event for the events footer)
+_EVENT_COLORS = {
+    "deal_leader":      "bright_yellow",
+    "deal_to_hand":     "dodger_blue2",
+    "play_card":        "orange1",
+    "place_card":       "orange1",
+    "muster":           "orchid",
+    "spy_draw":         "turquoise2",
+    "medic_resurrect":  "green3",
+    "remove_card":      "bright_red",
+    "weather_change":   "grey70",
+    "weather_clear":    "bright_yellow",
+    "commander_horn":   "gold1",
+    "decoy_swap":       "bright_cyan",
+    "transform":        "bright_magenta",
+    "round_clear":      "bright_white",
+    "stage":            "bright_cyan",
+    "error":            "bright_red",
+    "announcement":     "bright_magenta",
+    "choice":           "green1",
+    "card_scan":        "bright_cyan",
+}
+
+# Faction colors for announcements (matches FACTION_STYLE text colors)
+_FACTION_COLORS = {
+    "Monsters":        "#ff0000",
+    "Nilfgaardian":    "#bdbdbd",
+    "Northern Realms": "#1e90ff",
+    "Scoia'tael":      "#00ff00",
+    "Scoiatael":       "#00ff00",
+    "Skellige":        "#9370db",
+    "Neutral":         "#ffffff",
+}
+
 
 # Player key normalization: MQTT uses "player1"/"player2",
 # snapshots use "PLAYER.ONE"/"PLAYER.TWO"
@@ -74,7 +108,8 @@ class GameState:
         # Deal tracking (cards dealt in real-time via MQTT)
         self.dealt_cards = {P1: [], P2: []}
 
-        # Last played card for image overlay
+        # Card overlay queue — cards are displayed in order, shortened when queued
+        self.card_queue = []  # list of (card, subkind, player) tuples
         self.last_played_card = None
         self.last_played_time = 0.0
         self.last_played_subkind = ""
@@ -206,6 +241,11 @@ class GameState:
         for key, leader in leaders.items():
             p = _normalize_player(key)
             self.leaders[p] = leader
+            # Also update reg_leader for card overlay compatibility
+            if p == P1:
+                self.reg_leader1 = leader
+            else:
+                self.reg_leader2 = leader
 
         # Players (rows, discard, gems, passed)
         players = board.get("players", {})
@@ -512,16 +552,52 @@ class GameState:
         """Read-only access to event log. Use log_event() to add entries."""
         return self._event_log
 
-    def _log_event(self, msg):
-        """Append a timestamped event to the log and write to file."""
+    def _log_event(self, msg, color=None):
+        """Append a timestamped event to the log and write to file.
+
+        Args:
+            msg: Event text (may contain Rich markup).
+            color: Optional Rich color to wrap the entire message.
+        """
         ts = datetime.now().strftime("%H:%M:%S")
-        entry = f"{ts} {msg}"
+        if color:
+            entry = f"[dim]{ts}[/dim] [{color}]{msg}[/{color}]"
+        else:
+            entry = f"[dim]{ts}[/dim] {msg}"
         self._event_log.append(entry)
         try:
             with open("/tmp/logs/gwent-tui-events.log", "a") as f:
-                f.write(entry + "\n")
+                # Strip markup for the file log
+                import re
+                plain = re.sub(r'\[/?[^\]]*\]', '', entry)
+                f.write(plain + "\n")
         except Exception:
             pass
+
+    def queue_card(self, card, subkind, player):
+        """Queue a card for overlay display."""
+        self.card_queue.append((card, subkind, player))
+        # If nothing currently showing, pop immediately
+        if not self.last_played_card or (time.time() - self.last_played_time > 3):
+            self._pop_card_queue()
+
+    def _pop_card_queue(self):
+        """Pop the next card from the queue into the display slot."""
+        if self.card_queue:
+            card, subkind, player = self.card_queue.pop(0)
+            self.last_played_card = card
+            self.last_played_time = time.time()
+            self.last_played_subkind = subkind
+            self.last_played_by = player
+
+    def advance_card_queue(self):
+        """Called by the overlay when the current card display expires."""
+        self._pop_card_queue()
+
+    @property
+    def card_display_seconds(self):
+        """5 seconds per card when queued, 8 seconds for single cards."""
+        return 5 if self.card_queue else 8
 
     # --- MQTT event handlers ---
 
@@ -538,7 +614,7 @@ class GameState:
                     self.reg_deck1 = []
                     self.reg_deck2 = []
                 self.stage = stage
-                self._log_event(f"\U0001f3ad Stage: {stage}")
+                self._log_event(f"\U0001f3ad Stage: {stage}", color=_EVENT_COLORS["stage"])
                 if stage in ("GameOver", "DisplayWinner"):
                     # Record final round and save game
                     if self.round_number > self._last_recorded_round:
@@ -559,12 +635,12 @@ class GameState:
             elif subkind == "error":
                 self.last_error = data.get("error", "")
                 self.last_error_time = datetime.now().strftime("%H:%M:%S")
-                self._log_event(f"\u274c {self.last_error}")
+                self._log_event(f"\u274c {self.last_error}", color=_EVENT_COLORS["error"])
             elif subkind == "choices":
                 self.last_choices = data.get("choices", [])
                 labels = [c.get("text", "?") for c in self.last_choices]
                 if labels:
-                    self._log_event(f"\U0001f518 Choices: {' | '.join(labels)}")
+                    self._log_event(f"\U0001f518 Choices: {' | '.join(labels)}", color="bright_yellow")
 
     def on_sfx(self, data):
         """Handle gwent/sfx."""
@@ -572,8 +648,11 @@ class GameState:
             subkind = data.get("subkind", "")
             if subkind == "announcement":
                 self.last_announcement = data.get("announcement", "")
+                # Color by faction if available, otherwise use announcement color
+                faction = data.get("faction", "")
+                fc = _FACTION_COLORS.get(faction, _EVENT_COLORS["announcement"])
                 self._log_event(
-                    f"\U0001f4e2 {self.last_announcement}"
+                    f"\U0001f4e2 {self.last_announcement}", color=fc
                 )
 
     def on_card_play(self, player_suffix, data):
@@ -585,82 +664,63 @@ class GameState:
             if not card:
                 return
             name = card.get("name", "???")
+            ec = _EVENT_COLORS.get(subkind)
             if subkind == "deal_leader":
                 if p == P1:
                     self.reg_leader1 = card
                 else:
                     self.reg_leader2 = card
-                self._log_event(f"\U0001f451 Leader: {name} \u2192 {p}")
+                self._log_event(f"\U0001f451 Leader: {name} \u2192 {p}", color=ec)
+                self.queue_card(card, subkind, p)
             elif subkind == "deal_to_hand":
                 self.dealt_cards[p].append(card)
-                self._log_event(f"\U0001f0cf {name} \u2192 {p}")
+                self._log_event(f"\U0001f0cf {name} \u2192 {p}", color=ec)
             elif subkind in ("play_card", "place_card"):
                 row = data.get("row", "")
                 if not row:
                     row = card.get("ranges", [""])[0] if card.get("ranges") else ""
-                self._log_event(f"\u2694 {name} \u2192 {row or 'board'} ({p})")
-                self.last_played_card = card
-                self.last_played_time = time.time()
-                self.last_played_subkind = subkind
-                self.last_played_by = p
+                self._log_event(f"\u2694 {name} \u2192 {row or 'board'} ({p})", color=ec)
+                self.queue_card(card, subkind, p)
             elif subkind == "muster":
                 row = data.get("row", "")
-                self._log_event(f"\U0001f4e3 Muster: {name} \u2192 {row} ({p})")
-                self.last_played_card = card
-                self.last_played_time = time.time()
-                self.last_played_subkind = subkind
-                self.last_played_by = p
+                self._log_event(f"\U0001f4e3 Muster: {name} \u2192 {row} ({p})", color=ec)
+                self.queue_card(card, subkind, p)
             elif subkind == "spy_draw":
-                self._log_event(f"\U0001f575 Spy draw: {name} ({p})")
-                self.last_played_card = card
-                self.last_played_time = time.time()
-                self.last_played_subkind = subkind
-                self.last_played_by = p
+                self._log_event(f"\U0001f575 Spy draw: {name} ({p})", color=ec)
+                self.queue_card(card, subkind, p)
             elif subkind == "medic_resurrect":
                 row = data.get("row", "")
-                self._log_event(f"\U0001f48a Medic: {name} \u2192 {row} ({p})")
-                self.last_played_card = card
-                self.last_played_time = time.time()
-                self.last_played_subkind = subkind
-                self.last_played_by = p
+                self._log_event(f"\U0001f48a Medic: {name} \u2192 {row} ({p})", color=ec)
+                self.queue_card(card, subkind, p)
             elif subkind == "remove_card":
                 reason = data.get("reason", "")
-                self._log_event(f"\U0001f525 {name} destroyed ({reason}) ({p})")
-                self.last_played_card = card
-                self.last_played_time = time.time()
+                self._log_event(f"\U0001f525 {name} destroyed ({reason}) ({p})", color=ec)
+                self.queue_card(card, subkind, p)
                 self.last_played_subkind = subkind
                 self.last_played_by = p
             elif subkind == "weather_change":
                 rows = data.get("weather_rows", [])
                 if rows:
-                    self._log_event(f"\u2601 Weather: {', '.join(rows)}")
+                    self._log_event(f"\u2601 Weather: {', '.join(rows)}", color=_EVENT_COLORS["weather_change"])
                 else:
-                    self._log_event(f"\u2600 Weather cleared")
-                # weather_change doesn't carry the card — skip overlay
+                    self._log_event(f"\u2600 Weather cleared", color=_EVENT_COLORS["weather_clear"])
             elif subkind == "commander_horn":
                 row = data.get("row", "")
-                self._log_event(f"\U0001f4ef Horn on {row} ({p})")
+                self._log_event(f"\U0001f4ef Horn on {row} ({p})", color=ec)
             elif subkind == "decoy_swap":
                 returned = data.get("returned_card", {})
-                self._log_event(f"\U0001f3ad Decoy: {returned.get('name', '?')} returned ({p})")
-                # Show the returned card in the overlay
+                self._log_event(f"\U0001f3ad Decoy: {returned.get('name', '?')} returned ({p})", color=ec)
                 if returned:
-                    self.last_played_card = returned
-                    self.last_played_time = time.time()
-                    self.last_played_subkind = subkind
-                    self.last_played_by = p
+                    self.queue_card(returned, subkind, p)
             elif subkind == "transform":
                 new_card = data.get("new_card", {})
                 old_name = data.get("old_card", {}).get("name", "?")
                 new_name = new_card.get("name", "?")
-                self._log_event(f"\U0001f500 Transform: {old_name} \u2192 {new_name} ({p})")
+                self._log_event(f"\U0001f500 Transform: {old_name} \u2192 {new_name} ({p})", color=ec)
                 if new_card:
-                    self.last_played_card = new_card
-                    self.last_played_time = time.time()
-                    self.last_played_subkind = subkind
-                    self.last_played_by = p
+                    self.queue_card(new_card, subkind, p)
             elif subkind == "round_clear":
-                self._log_event(f"\U0001f3c1 Round cleared")
+                self._log_event(f"\U0001f3c1 Round cleared", color=_EVENT_COLORS["round_clear"])
             elif subkind == "add_to_deck":
                 if p == P1:
                     self.reg_deck1.append(card)
@@ -672,7 +732,7 @@ class GameState:
         with self.lock:
             text = data.get("text", "")
             if text:
-                self._log_event(f"\u2714 Choice: {text}")
+                self._log_event(f"\u2714 Choice: {text}", color=_EVENT_COLORS["choice"])
 
     def on_raw_read(self, data):
         """Handle gwent/cards/raw/read."""
@@ -680,4 +740,4 @@ class GameState:
             self.last_card_read = data
             self.last_card_read_time = datetime.now().strftime("%H:%M:%S")
             name = data.get("name", "???")
-            self._log_event(f"\U0001f4f1 {name}")
+            self._log_event(f"\U0001f4f1 {name}", color=_EVENT_COLORS["card_scan"])

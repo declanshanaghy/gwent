@@ -287,7 +287,7 @@
           {
             "kind": "card",
             "faction": "Monsters",
-            "name": "Vampire: Fleder",
+            "name": "Vampire - Fleder: 1",
             "strength": 4,
             "ranges": [
               "close"
@@ -652,7 +652,7 @@
           {
             "kind": "card",
             "faction": "Monsters",
-            "name": "Vampire: Fleder: 2",
+            "name": "Vampire - Fleder: 2",
             "strength": 4,
             "ranges": [
               "close"

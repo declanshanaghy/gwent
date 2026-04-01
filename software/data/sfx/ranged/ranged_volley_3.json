@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "ranged",
+  "title": "Ranged Volley 3",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: fire arrows launching, bowstrings twang with crackling flames whooshing through night air, distant fiery impacts and wood catching fire, 4 seconds",
+  "duration_seconds": 4.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}

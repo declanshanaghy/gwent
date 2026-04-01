@@ -46,5 +46,6 @@ class SFX(gwent.game.PubSubComponent):
 
     def _on_announcement_complete(self, msg):
         complete = gwent.messaging.sfx.Message.with_announcement_complete(
-            msg.announcement)
+            source="gwent",
+            original_content_id=msg.content_id)
         self.publish(gwent.game.CH_SFX_COMPLETE, complete)

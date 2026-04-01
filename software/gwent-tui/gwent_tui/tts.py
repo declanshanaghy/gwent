@@ -58,19 +58,19 @@ def _get_provider():
 
 
 def set_on_complete(callback):
-    """Set callback(announcement_text) called after each playback finishes."""
+    """Set callback(content_id) called after each playback finishes."""
     global _on_complete_callback
     _on_complete_callback = callback
 
 
-def speak(text: str, faction: str | None = None):
+def speak(text: str, faction: str | None = None, content_id: str | None = None):
     """Queue text for sequential playback."""
     if not text or _provider_name == "none":
-        if _on_complete_callback:
-            _on_complete_callback(text)
+        if _on_complete_callback and content_id:
+            _on_complete_callback(content_id)
         return
     _ensure_worker()
-    _queue.put((text, faction))
+    _queue.put((text, faction, content_id))
 
 
 def _ensure_worker():
@@ -88,7 +88,7 @@ def _worker():
     global _running
     while _running:
         try:
-            text, faction = _queue.get(timeout=1.0)
+            text, faction, content_id = _queue.get(timeout=1.0)
         except queue.Empty:
             continue
         try:
@@ -96,8 +96,8 @@ def _worker():
         except Exception as e:
             log.debug("TTS worker error: %s", e)
         finally:
-            if _on_complete_callback:
-                _on_complete_callback(text)
+            if _on_complete_callback and content_id:
+                _on_complete_callback(content_id)
             _queue.task_done()
 
 

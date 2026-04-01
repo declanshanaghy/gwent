@@ -1,0 +1,10 @@
+{
+  "type": "sfx",
+  "use_for": "close",
+  "title": "Close Shields 1",
+  "source": "elevenlabs",
+  "prompt": "Realistic foley sound effect, no scripted speech, no text-to-speech, no narration. Medieval dark fantasy battlefield ambience with distant war cries and clashing steel in background. Foreground: shield wall collision, wood and iron crashing together, men roaring as they shove forward, boots scraping dirt, weapons clanging overhead, 3 seconds",
+  "duration_seconds": 3.0,
+  "model": "eleven_text_to_sound_v2",
+  "license": "ElevenLabs subscription"
+}
