@@ -151,36 +151,56 @@ class _Rounds(Static):
 
 
 class _CardsPlayed(Static):
-    """Bottom-left: Cards played summary across the whole game."""
+    """Bottom-left: All cards played by each player across the game."""
+
+    _SUBKIND_ICON = {
+        "play_card": "\u2694",     # ⚔
+        "place_card": "\u2694",
+        "muster": "\U0001f4e3",    # 📣
+        "spy_draw": "\U0001f575",  # 🕵
+        "medic_resurrect": "\U0001f48a",  # 💊
+        "remove_card": "\U0001f525",  # 🔥
+        "commander_horn": "\U0001f4ef",  # 📯
+        "weather_change": "\u2601",  # ☁
+        "decoy_swap": "\U0001f3ad",  # 🎭
+        "transform": "\U0001f500",  # 🔀
+    }
 
     def render(self):
         state = self.app.state
         i = _info(state)
         events = state.card_events
-        play_kinds = {"play_card", "place_card", "muster"}
 
-        t = Table(box=box.SIMPLE, expand=True, show_header=True, padding=(0, 1))
-        t.add_column("Stat", ratio=2, no_wrap=True)
-        t.add_column(Text.from_markup(f"[{i['p1_fc']}]{i['p1_name']}[/]"),
-                     justify="center", ratio=1)
-        t.add_column(Text.from_markup(f"[{i['p2_fc']}]{i['p2_name']}[/]"),
-                     justify="center", ratio=1)
+        play_kinds = {"play_card", "place_card", "muster", "spy_draw",
+                      "medic_resurrect", "weather_change", "commander_horn",
+                      "decoy_swap", "transform"}
 
-        def _c(player, **filt):
-            return sum(1 for e in events if e["player"] == player
-                       and all(e.get(k) == v for k, v in filt.items()))
+        p1_cards = [e for e in events if e["player"] == P1 and e["subkind"] in play_kinds]
+        p2_cards = [e for e in events if e["player"] == P2 and e["subkind"] in play_kinds]
 
-        p1p = sum(1 for e in events if e["player"] == P1 and e["subkind"] in play_kinds)
-        p2p = sum(1 for e in events if e["player"] == P2 and e["subkind"] in play_kinds)
-        t.add_row("\U0001f0cf Cards Played", str(p1p), str(p2p))
-        t.add_row("\U0001f9b8 Heroes", str(_c(P1, specialty="hero")), str(_c(P2, specialty="hero")))
-        t.add_row("\U0001f575 Spy Draws", str(_c(P1, subkind="spy_draw")), str(_c(P2, subkind="spy_draw")))
-        t.add_row("\U0001f4e3 Musters", str(_c(P1, subkind="muster")), str(_c(P2, subkind="muster")))
-        t.add_row("\U0001f48a Resurrections", str(_c(P1, subkind="medic_resurrect")), str(_c(P2, subkind="medic_resurrect")))
-        t.add_row("\U0001f525 Destroyed", str(_c(P1, subkind="remove_card")), str(_c(P2, subkind="remove_card")))
-        t.add_row("\u2601 Weather", str(_c(P1, subkind="weather_change")), str(_c(P2, subkind="weather_change")))
+        t = Table(box=box.SIMPLE, expand=True, show_header=True, padding=(0, 0))
+        t.add_column(Text.from_markup(f"[{i['p1_fc']}]{i['p1_name']}[/] ({len(p1_cards)})"),
+                     ratio=1, no_wrap=True)
+        t.add_column(Text.from_markup(f"[{i['p2_fc']}]{i['p2_name']}[/] ({len(p2_cards)})"),
+                     ratio=1, no_wrap=True)
 
-        return Panel(t, title="\U0001f4ca Game Stats", border_style="dim")
+        max_rows = max(len(p1_cards), len(p2_cards), 1)
+        for idx in range(min(max_rows, 20)):  # Cap at 20 rows
+            def _fmt(cards, idx):
+                if idx >= len(cards):
+                    return ""
+                e = cards[idx]
+                icon = self._SUBKIND_ICON.get(e["subkind"], "\u2022")
+                s = f"({e['strength']})" if e.get("strength") else ""
+                name = e["name"][:18]
+                return f"{icon} {name} {s}"
+
+            t.add_row(
+                Text.from_markup(_fmt(p1_cards, idx)),
+                Text.from_markup(_fmt(p2_cards, idx)),
+            )
+
+        return Panel(t, title="\U0001f0cf Cards Played", border_style="dim")
 
 
 class _Awards(Static):

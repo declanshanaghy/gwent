@@ -1,0 +1,36 @@
+{
+  "id": "https://gwent.shanaghy.com/music.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Music playback message — published to gwent/music (retained)",
+  "type": "object",
+  "required": [
+    "subkind"
+  ],
+  "properties": {
+    "subkind": {
+      "type": "string",
+      "description": "play: start playing a track. complete: track finished playing.",
+      "enum": ["play", "complete"]
+    },
+    "music": {
+      "type": "string",
+      "description": "Track name (without extension). Resolved to software/data/music/{name}.mp3"
+    },
+    "next_music": {
+      "type": "string",
+      "description": "Next track to play after current finishes, for seamless playback"
+    },
+    "source": {
+      "type": "string",
+      "description": "Who completed playback (gwent, gwent-tui)"
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Unique identifier for the current game session"
+    },
+    "content_id": {
+      "type": "string",
+      "description": "Unique message identifier"
+    }
+  }
+}

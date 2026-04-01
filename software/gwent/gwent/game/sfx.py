@@ -1,6 +1,7 @@
 import gwent.game
 import gwent.messaging.factory
 import gwent.messaging.sfx
+import gwent.messaging.music
 import gwent.hal.sfx
 from gwent.hal.tts import DEFAULT_PROVIDER
 
@@ -13,36 +14,79 @@ class SFX(gwent.game.PubSubComponent):
     def init(self):
         super().init()
         self._tts = gwent.hal.sfx.instance(tts_provider=self._tts_provider_name)
+        # SFX: announcements + effects
         self.subscribe(gwent.game.CH_SFX,
                       gwent.messaging.sfx.KIND,
                       self.process_sfx)
+        # Music: play tracks
+        self.subscribe(gwent.game.CH_MUSIC,
+                      gwent.messaging.music.KIND,
+                      self.process_music)
+        # Music completion: queue next track
+        self.subscribe(gwent.game.CH_MUSIC_COMPLETE,
+                      gwent.messaging.music.KIND,
+                      self._on_music_complete)
 
     def shutdown(self):
         self.unsubscribe(gwent.game.CH_SFX)
+        self.unsubscribe(gwent.game.CH_MUSIC)
+        self.unsubscribe(gwent.game.CH_MUSIC_COMPLETE)
         super().shutdown()
 
+    def _is_muted(self):
+        from gwent_shared.tts.none_provider import NoneProvider
+        return isinstance(self._tts._tts_provider, NoneProvider)
+
     def process_sfx(self, sfx: gwent.messaging.sfx.Message):
+        """Handle gwent/sfx — announcements and effects."""
         self._log.info({
             'action': 'received sfx',
             'subkind': sfx.subkind,
-            'body': sfx.body,
         })
+
+        muted = self._is_muted()
 
         try:
             if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
-                self._log.info(f"Playing announcement: {sfx.announcement}")
-                self._tts.announce(sfx, on_complete=self._on_announcement_complete)
+                if muted:
+                    self._on_announcement_complete(sfx)
+                else:
+                    self._log.info(f"Playing announcement: {sfx.announcement}")
+                    self._tts.announce(sfx, on_complete=self._on_announcement_complete)
             elif sfx.subkind == gwent.messaging.sfx.EFFECT:
-                self._log.info(f"Playing effect: {sfx.effect}")
-                self._tts.play_effect(sfx)
-            elif sfx.subkind == gwent.messaging.sfx.MUSIC:
-                music_info = f"music: {sfx.music}" if hasattr(sfx, 'music') else "random music"
-                self._log.info(f"Playing {music_info}")
-                self._tts.play_music(sfx)
+                if not muted:
+                    self._log.info(f"Playing effect: {sfx.effect}")
+                    self._tts.play_effect(sfx)
+            elif sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT_COMPLETE:
+                pass  # handled by game-loop sync, not here
             else:
-                self._log.debug(f'Unhandled subkind: {sfx.subkind}')
+                self._log.debug(f'Unhandled sfx subkind: {sfx.subkind}')
         except Exception as e:
-            self._log.error(f"Error processing audio: {e}", exc_info=True)
+            self._log.error(f"Error processing sfx: {e}", exc_info=True)
+
+    def process_music(self, msg: gwent.messaging.music.Message):
+        """Handle gwent/music — play a track."""
+        self._log.info(f"Music: {msg.music} (next: {msg.next_music})")
+
+        if self._is_muted():
+            return
+
+        try:
+            self._tts.play_music(msg)
+        except Exception as e:
+            self._log.error(f"Error playing music: {e}", exc_info=True)
+
+    def _on_music_complete(self, msg: gwent.messaging.music.Message):
+        """Handle gwent/music/complete — queue next track.
+
+        Only reacts to completions from external sources (gwent-tui),
+        not from server itself, to avoid feedback loops.
+        """
+        if msg.subkind == "complete":
+            source = msg.source
+            if source and source != "gwent":
+                self._log.info(f"Music completed by {source}, publishing next track")
+                self.publish_music()
 
     def _on_announcement_complete(self, msg):
         complete = gwent.messaging.sfx.Message.with_announcement_complete(

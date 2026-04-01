@@ -154,8 +154,65 @@ def _play_audio(path: str) -> subprocess.Popen | None:
         return None
 
 
+_music_proc: subprocess.Popen | None = None
+_music_current_path: str = ""
+_on_music_complete_callback = None
+
+
+def set_on_music_complete(callback):
+    """Set callback() called when a music track finishes playing."""
+    global _on_music_complete_callback
+    _on_music_complete_callback = callback
+
+
+def play_music(path: str):
+    """Play a music file in the background. Fires on_music_complete when done."""
+    global _music_proc, _music_current_path
+    if _provider_name == "none":
+        return
+    # Don't restart if already playing the same track
+    if path == _music_current_path and _music_proc and _music_proc.poll() is None:
+        log.debug("Already playing %s, skipping restart", os.path.basename(path))
+        return
+    stop_music()
+    _music_current_path = path
+    import platform
+    try:
+        if platform.system() == "Darwin":
+            _music_proc = subprocess.Popen(
+                ["afplay", path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            _music_proc = subprocess.Popen(
+                ["mpg123", "-q", path],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        log.info("Music playing: %s (pid=%s)", os.path.basename(path), _music_proc.pid)
+        # Monitor for completion in background thread
+        t = threading.Thread(target=_music_monitor, args=(_music_proc,), daemon=True)
+        t.start()
+    except FileNotFoundError as e:
+        log.debug("Music player not found: %s", e)
+
+
+def _music_monitor(proc):
+    """Wait for music to finish, then fire completion callback."""
+    proc.wait()
+    if _on_music_complete_callback:
+        log.debug("Music track finished, firing completion")
+        _on_music_complete_callback()
+
+
+def stop_music():
+    """Stop background music."""
+    global _music_proc, _music_current_path
+    if _music_proc and _music_proc.poll() is None:
+        _music_proc.terminate()
+    _music_proc = None
+    _music_current_path = ""
+
+
 def stop():
-    """Stop any in-progress speech and clear the queue."""
+    """Stop any in-progress speech and clear the queue. Music continues."""
     global _player_proc, _running
     _running = False
     # Clear pending items

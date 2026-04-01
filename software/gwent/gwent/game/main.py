@@ -131,7 +131,7 @@ class MQTTClient:
             'topic': topic,
         })
     
-    def publish(self, topic, payload, qos=1):
+    def publish(self, topic, payload, qos=1, retain=False):
         """Publish a message to a topic"""
         import gwent.game.tracer as tracer
         tracer.record(topic, payload)
@@ -141,7 +141,7 @@ class MQTTClient:
             'topic': topic,
             'payload': payload,
         })
-        self._client.publish(topic, payload, qos=qos)
+        self._client.publish(topic, payload, qos=qos, retain=retain)
 
 
 class ThreadComponent:

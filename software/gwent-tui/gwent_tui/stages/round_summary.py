@@ -176,44 +176,57 @@ class _Abilities(Static):
 
 
 class _ScoreProgression(Static):
-    """Bottom-left: Score after each play."""
+    """Bottom-left: Score progression from HTTP snapshot history."""
 
     def render(self):
         state = self.app.state
         i = _info(state)
-        events = state.events_for_round(state._summary_round)
-
-        play_kinds = {"play_card", "place_card", "muster"}
-        plays = [e for e in events if e["subkind"] in play_kinds]
+        history = state.score_history_for_round(state._summary_round)
 
         t = Table(box=box.SIMPLE, expand=True, show_header=True, padding=(0, 0))
         t.add_column("#", width=3, justify="center")
-        t.add_column("Card", ratio=2, no_wrap=True)
-        t.add_column("P1", width=4, justify="right")
-        t.add_column("P2", width=4, justify="right")
-        t.add_column("\u0394", width=5, justify="center")
+        t.add_column(Text.from_markup(f"[{i['p1_fc']}]P1[/]"), width=5, justify="right")
+        t.add_column(Text.from_markup(f"[{i['p2_fc']}]P2[/]"), width=5, justify="right")
+        t.add_column("Gap", width=5, justify="center")
+        t.add_column("Lead", ratio=1, no_wrap=True)
 
-        prev_diff = 0
-        for idx, e in enumerate(plays[:12], 1):  # Cap at 12 rows
-            p1s = e.get("p1_score", 0)
-            p2s = e.get("p2_score", 0)
-            diff = p1s - p2s
-            delta = diff - prev_diff
-            prev_diff = diff
+        prev_p1 = 0
+        prev_p2 = 0
+        for idx, s in enumerate(history[:15], 1):  # Cap at 15 entries
+            p1s = s["p1_score"]
+            p2s = s["p2_score"]
+            gap = abs(p1s - p2s)
 
-            delta_str = ""
-            if abs(delta) >= 5:
-                color = "green" if (delta > 0 and e["player"] == P1) or (delta < 0 and e["player"] == P2) else "red"
-                delta_str = f"[{color}]{'+' if delta > 0 else ''}{delta}[/]"
+            # Show who's leading and by how much
+            if p1s > p2s:
+                lead = f"[{i['p1_fc']}]\u25b2 +{gap}[/]"
+            elif p2s > p1s:
+                lead = f"[{i['p2_fc']}]\u25b2 +{gap}[/]"
+            else:
+                lead = "[yellow]TIED[/]"
 
-            name = e["name"][:15]
+            # Highlight big changes
+            p1_delta = p1s - prev_p1
+            p2_delta = p2s - prev_p2
+            p1_str = str(p1s)
+            p2_str = str(p2s)
+            if p1_delta > 0:
+                p1_str = f"[bold]{p1s}[/]"
+            if p2_delta > 0:
+                p2_str = f"[bold]{p2s}[/]"
+
             t.add_row(
                 str(idx),
-                Text.from_markup(name),
-                str(p1s),
-                str(p2s),
-                Text.from_markup(delta_str),
+                Text.from_markup(p1_str),
+                Text.from_markup(p2_str),
+                str(gap),
+                Text.from_markup(lead),
             )
+            prev_p1 = p1s
+            prev_p2 = p2s
+
+        if not history:
+            t.add_row("—", "0", "0", "0", "[dim]No data[/]")
 
         return Panel(t, title="\U0001f4c8 Score Progression", border_style="dim")
 
@@ -223,6 +236,7 @@ class _WeatherAndSwings(Static):
 
     def render(self):
         state = self.app.state
+        i = _info(state)
         events = state.events_for_round(state._summary_round)
 
         lines = []
@@ -239,25 +253,27 @@ class _WeatherAndSwings(Static):
                     lines.append("  \u2600 Weather cleared")
             lines.append("")
 
-        # Big swings (score changed by 10+)
-        play_kinds = {"play_card", "place_card", "muster"}
-        plays = [e for e in events if e["subkind"] in play_kinds]
-        prev_diff = 0
+        # Big swings from score history (gap changed by 10+)
+        history = state.score_history_for_round(state._summary_round)
         swings = []
-        for e in plays:
-            diff = e.get("p1_score", 0) - e.get("p2_score", 0)
-            delta = abs(diff - prev_diff)
+        prev_gap = 0
+        for s in history:
+            gap = s["p1_score"] - s["p2_score"]
+            delta = abs(gap - prev_gap)
             if delta >= 10:
-                swings.append((e["name"], e["player"], delta))
-            prev_diff = diff
+                leader = P1 if gap > prev_gap else P2
+                swings.append((leader, delta, s["p1_score"], s["p2_score"]))
+            prev_gap = gap
 
         if swings:
             lines.append("[bold bright_yellow]\U0001f4a5 Big Swings[/]")
-            for name, player, delta in swings:
-                lines.append(f"  {name} ({player}) \u2014 {delta} pt swing")
+            for leader, delta, p1s, p2s in swings:
+                who = i["p1_name"] if leader == P1 else i["p2_name"]
+                lines.append(f"  {who} \u2014 {delta} pt swing ({p1s}-{p2s})")
             lines.append("")
 
         # Hero cards played
+        play_kinds = {"play_card", "place_card", "muster"}
         heroes = [e for e in events if e.get("specialty") == "hero"
                   and e["subkind"] in play_kinds]
         if heroes:

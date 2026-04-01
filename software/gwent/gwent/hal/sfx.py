@@ -72,16 +72,17 @@ class _SFX(gwent.game.BaseComponent):
             return matches[0]
         return None
 
-    def music_filename(self, sfx: gwent.messaging.sfx.Message) -> str:
-        """Resolve music path. If random, pick from all available tracks."""
-        if sfx.is_random or not sfx._instance.get('music'):
+    def music_filename(self, msg) -> str:
+        """Resolve music path from a music message."""
+        music_name = msg.music if hasattr(msg, 'music') else msg._instance.get('music', '')
+        if not music_name:
             files = glob.glob(os.path.join(MUSIC_DIR, '*.mp3'))
             if files:
                 choice = random.choice(files)
                 self._log.debug(f"Random music: {os.path.basename(choice)}")
                 return choice
             return None
-        return os.path.join(MUSIC_DIR, f'{sfx.music}.mp3')
+        return os.path.join(MUSIC_DIR, f'{music_name}.mp3')
 
     def tts_filename(self, msg: gwent.messaging.base.Message,
                     extn='mp3') -> str:

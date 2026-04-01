@@ -34,19 +34,19 @@ Read `.claude/skills/super-victory/references/synergy-catalog.md` for the full s
 ### 2. Load all RFID card data
 
 ```bash
-# Load all card JSONs that have rfid field
+# Load all card JSONs that have rfid AND image fields
 python3 -c "
 import json, glob
 for f in sorted(glob.glob('software/data/cards/**/*.json', recursive=True)):
     if 'CardReport' in f: continue
     with open(f) as fh:
         c = json.load(fh)
-        if c.get('rfid'):
+        if c.get('rfid') and c.get('image'):
             print(json.dumps(c))
 "
 ```
 
-**CRITICAL**: Only cards with an `rfid` field are eligible. Cards without RFID must be excluded.
+**CRITICAL**: Only cards with BOTH an `rfid` field AND an `image` field are eligible. Cards without RFID or without an image must be excluded — they can't be scanned or displayed in the TUI card overlay.
 
 Group cards by faction. Neutral cards can supplement any faction deck.
 

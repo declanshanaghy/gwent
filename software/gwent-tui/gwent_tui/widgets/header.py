@@ -156,8 +156,8 @@ class HeaderWidget(Static):
             p1_gems = self._gems(state.gems.get(P1, 2))
             p2_gems = self._gems(state.gems.get(P2, 2))
 
-            p1_label = f" {p1e[0]}{p1e[1]} [{p1_style}]{p1_text}[/{p1_style}] {p1_gems}"
-            p2_label = f"{p2_gems} [{p2_style}]{p2_text}[/{p2_style}] {p2e[0]}{p2e[1]} "
+            p1_label = f" {p1_gems} {p1e[0]}{p1e[1]} [{p1_style}]{p1_text}[/{p1_style}]"
+            p2_label = f"[{p2_style}]{p2_text}[/{p2_style}] {p2e[0]}{p2e[1]} {p2_gems} "
 
             row2.add_row(
                 Text.from_markup(p1_label),

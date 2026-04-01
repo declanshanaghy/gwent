@@ -11,8 +11,8 @@ source "${DIR}/install-vars.sh"
 # Ensure ~/.local/bin is on PATH (corepack installs yarn here)
 export PATH="${HOME}/.local/bin:${PATH}"
 
-LOG_DIR="/tmp/logs"
-PID_DIR="/tmp/pids"
+LOG_DIR="${REPO_ROOT}/tmp/logs"
+PID_DIR="${REPO_ROOT}/tmp/pids"
 mkdir -p "${LOG_DIR}" "${PID_DIR}"
 
 # Service definitions
@@ -82,7 +82,7 @@ start_gwent() {
     fi
     touch "${GWENT_LOG}"
     echo "--- start at $(date -Iseconds) ---" >> "${GWENT_LOG}"
-    # gwent manages its own PID file at /tmp/pids/gwent.pid
+    # gwent manages its own PID file at ${PID_DIR}/gwent.pid
     local owner_arg=""
     [ -n "${GWENT_OWNER}" ] && owner_arg="--owner ${GWENT_OWNER}"
     local tts_arg=""

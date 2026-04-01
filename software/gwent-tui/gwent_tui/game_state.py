@@ -118,6 +118,8 @@ class GameState:
 
         # Raw card event recording (for round summary + game over stats)
         self.card_events = []           # all rounds' events
+        self.score_history = []         # [{round, ts, p1_score, p2_score}, ...]
+        self._last_recorded_scores = (0, 0)
         self._show_round_summary = False
         self._summary_round = 0
 
@@ -298,6 +300,22 @@ class GameState:
                 "ranged": p_scores.get("ranged", 0),
                 "siege": p_scores.get("siege", 0),
             }
+
+        # Track score changes for progression display
+        current = (self.scores.get(P1, 0), self.scores.get(P2, 0))
+        if current != self._last_recorded_scores:
+            self.score_history.append({
+                "round": self.round_number,
+                "ts": time.time(),
+                "p1_score": current[0],
+                "p2_score": current[1],
+            })
+            self._last_recorded_scores = current
+
+    def score_history_for_round(self, round_num):
+        """Return score history entries for a specific round."""
+        with self.lock:
+            return [s for s in self.score_history if s["round"] == round_num]
 
     def is_highlighted(self, key):
         """Check if a key is currently highlighted (within TTL)."""
@@ -592,13 +610,18 @@ class GameState:
             self._pop_card_queue()
 
     def _pop_card_queue(self):
-        """Pop the next card from the queue into the display slot."""
+        """Pop the next card from the queue into the display slot.
+
+        Sets all fields atomically (subkind before card) to prevent the
+        overlay from reading a stale subkind with a new card.
+        """
         if self.card_queue:
             card, subkind, player = self.card_queue.pop(0)
-            self.last_played_card = card
-            self.last_played_time = time.time()
+            # Set subkind FIRST so the overlay never sees a new card with old subkind
             self.last_played_subkind = subkind
             self.last_played_by = player
+            self.last_played_time = time.time()
+            self.last_played_card = card  # set last — triggers overlay render
 
     def advance_card_queue(self):
         """Called by the overlay when the current card display expires."""

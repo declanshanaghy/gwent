@@ -6,8 +6,6 @@ KIND = 'sfx'
 ANNOUNCEMENT = 'announcement'
 ANNOUNCEMENT_COMPLETE = 'announcement_complete'
 EFFECT = 'effect'
-MUSIC = 'music'
-RANDOM = 'random'
 FACTION = 'faction'
 
 EFFECT_CARD_READ = 'card_read'
@@ -23,8 +21,6 @@ EFFECT_CARD_PLAY = 'card'
 EFFECT_WEATHER = 'weather'
 EFFECT_SPECIAL = 'special'
 EFFECT_LEADER = 'leader'
-
-MUSIC1 = 'music1'
 
 
 class Message(gwent.messaging.base.Message):
@@ -47,15 +43,6 @@ class Message(gwent.messaging.base.Message):
         instance = {EFFECT: effect}
         return Message(instance, subkind=EFFECT)
 
-    @staticmethod
-    def with_music(music:str=None, random:bool=False):
-        instance = {}
-        if music:
-            instance[MUSIC] = music
-        if random is not None:
-            instance[RANDOM] = random
-        return Message(instance, subkind=MUSIC)
-
     @property
     def kind(self):
         return KIND
@@ -69,17 +56,5 @@ class Message(gwent.messaging.base.Message):
         return self._instance[EFFECT]
 
     @property
-    def music(self):
-        return self._instance[MUSIC]
-
-    @property
     def faction(self):
         return self._instance.get(FACTION)
-
-    @property
-    def is_random(self):
-        return self._instance.get(RANDOM) is True
-
-    @property
-    def random(self):
-        return self._instance[RANDOM]

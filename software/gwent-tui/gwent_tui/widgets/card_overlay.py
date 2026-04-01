@@ -182,6 +182,15 @@ class CardImageOverlay(Horizontal):
             name = card.get("name", "???")
             faction = card.get("faction", "")
 
+            # Skip cards without images — advance queue until we find one
+            image_path = resolve_card_image(card)
+            if not image_path:
+                log.debug("No image for card: %s (%s)", name, faction)
+                self._hide()
+                if hasattr(state, 'advance_card_queue'):
+                    state.advance_card_queue()
+                return
+
             if name != self._current_card_name:
                 self._current_card_name = name
 
@@ -195,79 +204,67 @@ class CardImageOverlay(Horizontal):
                     is_p1 = played_by == P1
                 else:
                     is_p1 = state.current_player != P1
+                try:
+                    img_widget = self.query_one("#overlay-image", TGPImage)
+                    attrs_widget = self.query_one("#overlay-attrs", CardAttrsWidget)
 
-                image_path = resolve_card_image(card)
-                if image_path:
-                    try:
-                        img_widget = self.query_one("#overlay-image", TGPImage)
-                        attrs_widget = self.query_one("#overlay-attrs", CardAttrsWidget)
+                    img_widget.image = image_path
 
-                        img_widget.image = image_path
+                    # Determine player name and pronoun for narration
+                    player_key = P1 if is_p1 else P2
+                    leader = state.reg_leader1 if is_p1 else state.reg_leader2
+                    player_pronoun = getattr(state, 'player_pronouns', {}).get(
+                        player_key, leader.get("pronoun", "he") if leader else "he")
+                    player_name = getattr(state, 'player_names', {}).get(
+                        player_key, "Player 1" if is_p1 else "Player 2")
+                    subkind = getattr(state, 'last_played_subkind', '') or "play_card"
 
-                        # Determine player name and pronoun for narration
-                        player_key = P1 if is_p1 else P2
-                        leader = state.reg_leader1 if is_p1 else state.reg_leader2
-                        # Use player pronoun if set (from server), fall back to leader pronoun
-                        player_pronoun = getattr(state, 'player_pronouns', {}).get(
-                            player_key, leader.get("pronoun", "he") if leader else "he")
-                        player_name = getattr(state, 'player_names', {}).get(
-                            player_key, "Player 1" if is_p1 else "Player 2")
-                        subkind = getattr(state, 'last_played_subkind', '') or "play_card"
+                    attrs_widget.set_card(
+                        card,
+                        player_name=player_name,
+                        leader_pronoun=player_pronoun,
+                        subkind=subkind,
+                        is_p1=is_p1,
+                    )
 
-                        attrs_widget.set_card(
-                            card,
-                            player_name=player_name,
-                            leader_pronoun=player_pronoun,
-                            subkind=subkind,
-                            is_p1=is_p1,
-                        )
+                    # P1: image left, attrs right. P2: attrs left, image right.
+                    if is_p1:
+                        self.move_child(img_widget, before=attrs_widget)
+                    else:
+                        self.move_child(attrs_widget, before=img_widget)
 
-                        # P1: image left, attrs right. P2: attrs left, image right.
-                        if is_p1:
-                            self.move_child(img_widget, before=attrs_widget)
-                        else:
-                            self.move_child(attrs_widget, before=img_widget)
+                    # Faction-colored border: P1/P2 + card name top, player/leader bottom
+                    fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
+                    self.styles.border = ("round", fc[0])
+                    self.styles.background = "black"
+                    self.styles.border_subtitle_align = "center"
 
-                        # Faction-colored border: P1/P2 + card name top, player/leader bottom
-                        fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
-                        self.styles.border = ("round", fc[0])
-                        self.styles.background = "black"
-                        self.styles.border_subtitle_align = "center"
+                    p_tag = "P1" if is_p1 else "P2"
+                    tag_len = len(p_tag) + 1
+                    center_pos = max(0, (78 - len(name)) // 2 - tag_len)
+                    fill = "\u2500" * center_pos
+                    self.styles.border_title_align = "left"
+                    self.border_title = f" {p_tag} {fill} {name} "
 
-                        p_tag = "P1" if is_p1 else "P2"
-                        tag_len = len(p_tag) + 1
-                        center_pos = max(0, (78 - len(name)) // 2 - tag_len)
-                        fill = "\u2500" * center_pos
-                        self.styles.border_title_align = "left"
-                        self.border_title = f" {p_tag} {fill} {name} "
+                    leader_name = leader.get("name", "") if leader else ""
+                    if leader_name:
+                        self.border_subtitle = f" {player_name} / {leader_name} "
+                    else:
+                        self.border_subtitle = f" {player_name} "
 
-                        leader_name = leader.get("name", "") if leader else ""
-                        if leader_name:
-                            self.border_subtitle = f" {player_name} / {leader_name} "
-                        else:
-                            self.border_subtitle = f" {player_name} "
+                    # Center over the board
+                    self._center_on_board()
 
-                        # Center over the board
-                        self._center_on_board()
+                    # Track who played for the flash
+                    self._card_player = str(P1) if is_p1 else str(state.current_player)
 
-                        # Track who played for the flash
-                        self._card_player = str(P1) if is_p1 else str(state.current_player)
-
-                        self.add_class("visible")
-                        log.debug("Showing card image: %s (%s) p1=%s", name, image_path, is_p1)
-                    except Exception as e:
-                        import sys, traceback
-                        print(f"ERROR: Failed to show card image for {name}: {e}", file=sys.stderr)
-                        traceback.print_exc(file=sys.stderr)
-                        log.error("Failed to show card image: %s", e, exc_info=True)
-                else:
-                    import sys
-                    print(f"WARNING: No image found for card: {name} ({faction})", file=sys.stderr)
-                    log.debug("No image for card: %s (%s)", name, faction)
-                    self._hide()
-                    # Skip to next queued card
-                    if hasattr(state, 'advance_card_queue'):
-                        state.advance_card_queue()
+                    self.add_class("visible")
+                    log.debug("Showing card image: %s (%s) p1=%s", name, image_path, is_p1)
+                except Exception as e:
+                    import sys, traceback
+                    print(f"ERROR: Failed to show card image for {name}: {e}", file=sys.stderr)
+                    traceback.print_exc(file=sys.stderr)
+                    log.error("Failed to show card image: %s", e, exc_info=True)
         else:
             if self.has_class("visible"):
                 self._hide()

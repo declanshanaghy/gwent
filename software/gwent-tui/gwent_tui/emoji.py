@@ -172,8 +172,8 @@ FACTION_STYLE = {
     "Monsters":        ("#ff0000",     "#8b0000",        "white"),
     "Nilfgaardian":    ("#bdbdbd",     "#808080",        "white"),
     "Northern Realms": ("#1e90ff",     "#1e90ff",        "white"),
-    "Scoia'tael":      ("#00ff00",     "#006400",        "white"),
-    "Scoiatael":       ("#00ff00",     "#006400",        "white"),
+    "Scoia'tael":      ("#00ff00",     "#006400",        "black"),
+    "Scoiatael":       ("#00ff00",     "#006400",        "black"),
     "Skellige":        ("#9370db",     "#0000ff",        "white"),
     "Neutral":         ("#ffffff",     "#4d4d4d",        "white"),
 }

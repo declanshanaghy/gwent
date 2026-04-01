@@ -30,6 +30,8 @@ CH_MFD_CHOOSE = CH_SEP.join((CH_MFD, 'choose'))
 
 CH_SFX = CH_SEP.join((MAIN_CHANNEL, 'sfx'))
 CH_SFX_COMPLETE = CH_SEP.join((CH_SFX, 'complete'))
+CH_MUSIC = CH_SEP.join((MAIN_CHANNEL, 'music'))
+CH_MUSIC_COMPLETE = CH_SEP.join((CH_MUSIC, 'complete'))
 
 DEFAULT_YIELD_TIME = 0.5
 DEFAULT_ERROR_TIME = 3.0
@@ -171,7 +173,7 @@ class PubSubComponent(ThreadComponent):
                 self._pubsub.unsubscribe(topic, wrapper)
             del self._callbacks[topic]
 
-    def publish(self, topic, message: gwent.messaging.base.Message):
+    def publish(self, topic, message: gwent.messaging.base.Message, retain=False):
         """Publish a message to a topic and record to disk."""
         self._log.info({
             'action': 'publish',
@@ -179,8 +181,9 @@ class PubSubComponent(ThreadComponent):
             'kind': message.kind,
             'content_id': message.content_id,
             'body': message.body,
+            'retain': retain,
         })
-        self._pubsub.publish(topic, message.body, qos=1)
+        self._pubsub.publish(topic, message.body, qos=1, retain=retain)
         # Signal long-poll waiters that state has changed
         cond = getattr(self._pubsub, 'state_condition', None)
         if cond:
@@ -215,10 +218,31 @@ class PubSubComponent(ThreadComponent):
         self.publish(CH_SFX, e)
 
     def publish_music(self, music: str = None):
-        """Publish background music"""
-        self._log.info(f"Publishing background music: {music}")
-        e = gwent.messaging.sfx.Message.with_music(music=music)
-        self.publish(CH_SFX, e)
+        """Publish background music to gwent/music (retained).
+
+        Both server and TUI subscribe to gwent/music — whoever has audio
+        enabled plays it. Retained so late-joining clients get the current track.
+        """
+        import glob as _glob
+        import random as _random
+        from gwent.game.data_paths import MUSIC_DIR
+        import gwent.messaging.music
+
+        tracks = [os.path.splitext(os.path.basename(f))[0]
+                  for f in _glob.glob(os.path.join(MUSIC_DIR, '*.mp3'))]
+
+        if not music and tracks:
+            music = _random.choice(tracks)
+
+        next_track = None
+        if tracks:
+            others = [t for t in tracks if t != music]
+            next_track = _random.choice(others) if others else music
+
+        self._log.info(f"Publishing music: {music}, next: {next_track}")
+        e = gwent.messaging.music.Message.with_play(
+            music=music, next_music=next_track)
+        self.publish(CH_MUSIC, e, retain=True)
 
     def publish_error(self, error: str):
         """Publish an error message"""

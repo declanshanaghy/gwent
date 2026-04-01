@@ -1,7 +1,7 @@
 {
   "id": "https://gwent.shanaghy.com/sfx.schema.json",
   "$schema": "http://json-schema.org/draft-07/schema",
-  "description": "Sound effects message",
+  "description": "Sound effects message — announcements and effects only. Music is on gwent/music.",
   "type": "object",
   "required": [
     "subkind"
@@ -9,45 +9,36 @@
   "properties": {
     "subkind": {
       "type": "string",
-      "description": "Indicates the content of this message",
+      "description": "announcement: TTS speech. announcement_complete: TTS finished. effect: play a sound effect.",
       "enum": [
         "announcement",
         "announcement_complete",
-        "effect",
-        "music"
+        "effect"
       ]
     },
     "content_id": {
       "type": "string",
-      "description": "Unique identifier for this message, used for tracking announcement completion"
+      "description": "Unique identifier for this message"
     },
     "announcement": {
-      "description": "The message to announce via TTS (subkind=announcement)",
+      "description": "The message to announce via TTS",
       "type": "string"
     },
     "faction": {
-      "description": "Optional faction name to select TTS voice accent (subkind=announcement)",
+      "description": "Optional faction name to select TTS voice accent",
       "type": "string"
     },
     "source": {
-      "description": "Which TTS source completed playback: gwent, gwent-tui (subkind=announcement_complete)",
+      "description": "Which TTS source completed playback: gwent, gwent-tui",
       "type": "string"
     },
     "original_content_id": {
-      "description": "The content_id of the original announcement that completed (subkind=announcement_complete)",
+      "description": "The content_id of the original announcement that completed",
       "type": "string"
     },
     "effect": {
-      "description": "The sound effect category to play: close, ranged, siege, commander, leader, card, weather, special, ui (subkind=effect)",
+      "description": "Sound effect category: close, ranged, siege, commander, leader, card, weather, special, ui",
       "type": "string"
-    },
-    "music": {
-      "description": "The music file to play (without extension). If omitted with random=true, picks random track (subkind=music)",
-      "type": "string"
-    },
-    "random": {
-      "description": "If true, plays a random background track (subkind=music)",
-      "type": "boolean"
     },
     "game_id": {
       "type": "string",
