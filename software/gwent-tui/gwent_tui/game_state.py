@@ -743,8 +743,11 @@ class GameState:
                 )
 
     def on_card_play(self, player_suffix, data):
-        """Handle gwent/cards/play/{player} — tracks leaders, dealt cards, deck."""
-        self.game_log.write("cards", data.get("subkind", "unknown"), data)
+        """Handle gwent/cards/play/{player} — tracks leaders, dealt cards, deck.
+
+        Raw MQTT data is NOT written here — _record_card_event writes the
+        enriched version to cards/ for gameplay subkinds.
+        """
         with self.lock:
             p = _normalize_player(player_suffix)
             subkind = data.get("subkind", "")
