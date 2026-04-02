@@ -27,13 +27,8 @@ class _DiscardContent(Static):
         p1_disc = state.discard[P1]
         p2_disc = state.discard[P2]
 
-        # Hide entirely when both discard piles are empty
         p1_ghosts = state.get_ghosts("discard", P1)
         p2_ghosts = state.get_ghosts("discard", P2)
-        if not p1_disc and not p2_disc and not p1_ghosts and not p2_ghosts:
-            self.styles.display = "none"
-            return Text("")
-        self.styles.display = "block"
 
         table = Table(
             box=SPLIT_BOX,
