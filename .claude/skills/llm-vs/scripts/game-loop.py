@@ -1528,13 +1528,31 @@ def game_loop(args, board, sync):
 # Entry point
 # ---------------------------------------------------------------------------
 
+def _build_model_help():
+    """Build help text showing all model aliases grouped by provider."""
+    by_provider = {}
+    for alias, resolved in sorted(MODEL_ALIASES.items()):
+        provider = alias.split("/")[0]
+        by_provider.setdefault(provider, []).append(alias)
+    lines = ["Available models (alias -> resolved):"]
+    for provider in sorted(by_provider):
+        aliases = by_provider[provider]
+        lines.append(f"  {provider}:")
+        for a in aliases:
+            lines.append(f"    {a:35s} -> {MODEL_ALIASES[a]}")
+    return "\n".join(lines)
+
+
 def main():
+    model_help = _build_model_help()
     parser = argparse.ArgumentParser(
-        description='LLM vs LLM Gwent game manager')
+        description='LLM vs LLM Gwent game manager',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=model_help)
     parser.add_argument('--model-p1', default='anthropic/sonnet',
-                        help='Model for P1')
+                        help='Model for P1 (default: anthropic/sonnet). See model list below.')
     parser.add_argument('--model-p2', default=None,
-                        help='Model for P2 (defaults to --model-p1)')
+                        help='Model for P2 (defaults to --model-p1). See model list below.')
     parser.add_argument('--ollama-url', default='http://hal-9005.lan:11434')
     parser.add_argument('--host', default='localhost',
                         help='Gwent server hostname (used for both HTTP and MQTT)')
