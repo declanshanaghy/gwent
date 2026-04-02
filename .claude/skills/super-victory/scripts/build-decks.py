@@ -62,8 +62,8 @@ def group_by_faction(cards):
 def make_card(c):
     """Build a card dict for recordings with content_id."""
     d = {"kind": "card", "faction": c["faction"], "name": c["name"]}
-    for key in ("rfid", "strength", "ranges", "abilities", "specialty",
-                "starter", "owner", "owner_nickname", "leader", "image"):
+    for key in ("rfid", "strength", "ranges", "abilities", "musters_with",
+                "specialty", "starter", "owner", "owner_nickname", "leader", "image"):
         if c.get(key) is not None:
             d[key] = c[key]
     cid = hashlib.md5(json.dumps(d, sort_keys=True, separators=(',', ':')).encode()).hexdigest()

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "saved_at": "2026-04-01T22:44:26.475556",
+  "saved_at": "2026-04-01T22:59:53.897345",
   "active_stage": "PlayRound",
   "state": {
     "board": {
@@ -110,9 +110,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Dwarven Skirmisher: 2",
+              "Dwarven Skirmisher: 3"
+            ],
             "starter": true,
             "image": "../../images/Scoiatael/DwarvenSkirmisher.jpg",
-            "content_id": "961b198fed8f915b1d96c26e2d8afad2"
+            "content_id": "3d14f2065f2487e3bdb84c998a2f117a"
           },
           {
             "kind": "card",
@@ -126,9 +130,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Dwarven Skirmisher: 1",
+              "Dwarven Skirmisher: 3"
+            ],
             "starter": true,
             "image": "../../images/Scoiatael/DwarvenSkirmisher2.jpg",
-            "content_id": "03d676b364f4bcd396ab2d9025925fc7"
+            "content_id": "5bbf77060aabe5e027e8ce373df2e14c"
           },
           {
             "kind": "card",
@@ -142,9 +150,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Dwarven Skirmisher: 1",
+              "Dwarven Skirmisher: 2"
+            ],
             "starter": true,
             "image": "../../images/Scoiatael/DwarvenSkirmisher3.jpg",
-            "content_id": "c2e04d8a37ef29d4c0dff1aade9d5cb4"
+            "content_id": "ebbd74e02ceb7ecb749c9269ee2af3e8"
           },
           {
             "kind": "card",
@@ -158,10 +170,14 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Elven Skirmisher: 1",
+              "Elven Skirmisher: 2"
+            ],
             "owner": "Dylan Shanaghy",
             "owner_nickname": "dylan",
             "image": "../../images/Scoiatael/ElvenSkirmisher.jpg",
-            "content_id": "fb1c9427f1490d86c4c232ad15dd9735"
+            "content_id": "7b16c882a43447ad0eda3d6867b02558"
           },
           {
             "kind": "card",
@@ -175,9 +191,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Elven Skirmisher",
+              "Elven Skirmisher: 2"
+            ],
             "starter": true,
             "image": "../../images/Scoiatael/ElvenSkirmisher.jpg",
-            "content_id": "b7779396a30b08bce1ceeafad44ab46b"
+            "content_id": "8440fe24b526ce93d69290e858006fa1"
           },
           {
             "kind": "card",
@@ -191,9 +211,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Elven Skirmisher",
+              "Elven Skirmisher: 1"
+            ],
             "starter": true,
             "image": "../../images/Scoiatael/ElvenSkirmisher2.jpg",
-            "content_id": "7549e952551da5a5e7a75fd2162bf761"
+            "content_id": "5df9c22088f28d16141aa36591a23fcb"
           },
           {
             "kind": "card",

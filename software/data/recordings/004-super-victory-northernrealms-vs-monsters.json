@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "saved_at": "2026-04-01T22:44:26.455523",
+  "saved_at": "2026-04-01T22:59:53.878987",
   "active_stage": "PlayRound",
   "state": {
     "board": {
@@ -231,9 +231,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Arachas: 2",
+              "Arachas: 3"
+            ],
             "starter": true,
             "image": "../../images/Monsters/Arachas.jpg",
-            "content_id": "5ed6c6bdb73dc3597be59c2a149e966c"
+            "content_id": "0ae624125cbb2deeda37fd3f7cb83b9c"
           },
           {
             "kind": "card",
@@ -247,9 +251,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Arachas: 1",
+              "Arachas: 3"
+            ],
             "starter": true,
             "image": "../../images/Monsters/Arachas2.jpg",
-            "content_id": "e053aadaa8e88079121f42c26c12dcab"
+            "content_id": "69c1eaa9e1db74abcbe5e048b7edcc14"
           },
           {
             "kind": "card",
@@ -263,9 +271,10 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [],
             "starter": true,
             "image": "../../images/Monsters/ArachasBehemoth.jpg",
-            "content_id": "83394e3e2414506604b01eab8c101a4c"
+            "content_id": "f89a39a88a83cbadd2ef512da8b07298"
           },
           {
             "kind": "card",
@@ -279,9 +288,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Crone: Weavess",
+              "Crone: Whispess"
+            ],
             "starter": true,
             "image": "../../images/Monsters/CroneBrewess.jpg",
-            "content_id": "835c7eaef5264ec39eebc342c5d0869d"
+            "content_id": "663b3ece3121e4b8f491cf2b45bce3e6"
           },
           {
             "kind": "card",
@@ -295,10 +308,14 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Crone: Brewess",
+              "Crone: Whispess"
+            ],
             "owner": "Dylan Shanaghy",
             "owner_nickname": "dylan",
             "image": "../../images/Monsters/CroneWeavess.jpg",
-            "content_id": "bc2c781198d26f7d7e408afdaa11ebe7"
+            "content_id": "0fcb2426ad94d563a0fa26d4bf13dec1"
           },
           {
             "kind": "card",
@@ -312,10 +329,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Vampire - Fleder: 2"
+            ],
             "owner": "Dylan Shanaghy",
             "owner_nickname": "dylan",
             "image": "../../images/Monsters/VampireFleder.jpg",
-            "content_id": "79ae16d319709e92d94c9f3563e95d81"
+            "content_id": "c80bebc00030c09d30db595179da597d"
           },
           {
             "kind": "card",
@@ -329,10 +349,13 @@
             "abilities": [
               "muster"
             ],
+            "musters_with": [
+              "Vampire - Fleder: 1"
+            ],
             "owner": "Dylan Shanaghy",
             "owner_nickname": "dylan",
             "image": "../../images/Monsters/VampireFleder.jpg",
-            "content_id": "d52c465c7e39727307592fe578e82868"
+            "content_id": "d8c03e6a81fbdd90ec014400da07d3d2"
           },
           {
             "kind": "card",
