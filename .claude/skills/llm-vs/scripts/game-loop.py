@@ -1453,11 +1453,23 @@ def game_loop(args, board, sync):
 
                 ok = True
                 turn += 1
-                # 1. Confirm state changed (turn advanced or stage changed)
-                log_debug("Waiting for turn advance...")
-                stage, board = wait_for_turn_advance(
-                    args.game_url, cur)
-                log_debug(f"Turn advanced: stage={stage}")
+
+                if act == 'play_leader':
+                    # Leader doesn't change turn — wait for leader_used flag
+                    log_debug("Waiting for leader_used...")
+                    deadline = time.time() + 30
+                    while time.time() < deadline:
+                        time.sleep(0.5)
+                        stage, board = fetch(args.game_url)
+                        if board and board['players'][cur]['leader_used']:
+                            break
+                    log_debug(f"Leader used: {board['players'][cur]['leader_used'] if board else '?'}")
+                else:
+                    # 1. Confirm state changed (turn advanced or stage changed)
+                    log_debug("Waiting for turn advance...")
+                    stage, board = wait_for_turn_advance(
+                        args.game_url, cur)
+                    log_debug(f"Turn advanced: stage={stage}")
                 # 2. Wait for ALL queued announcements to finish playing
                 log_debug("Waiting for announcements...")
                 sync.wait_all()
