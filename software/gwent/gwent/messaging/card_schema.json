@@ -180,5 +180,16 @@
   "rfid_written_at": {
     "description": "ISO timestamp of when this card's RFID chip was last programmed. Stale if last_updated > rfid_written_at",
     "type": "string"
+  },
+  "if": {
+    "properties": {
+      "abilities": {
+        "contains": { "const": "muster" }
+      }
+    },
+    "required": ["abilities"]
+  },
+  "then": {
+    "required": ["musters_with"]
   }
 }

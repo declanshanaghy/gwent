@@ -2362,60 +2362,25 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self._msg_medic_resurrect(label, resurrected.name, **pn))
 
     @staticmethod
-    def _muster_base_name(name):
-        """Extract muster base name by stripping ': suffix'.
-        'Arachas: 1' → 'Arachas', 'Crone: Brewess' → 'Crone',
-        'Vampire: Fleder' → 'Vampire', 'Vampire - Fleder: 1' → 'Vampire - Fleder',
-        'Geralt of Rivia' → 'Geralt of Rivia'.
-        Only the last ': X' suffix is stripped for muster matching.
-        Use ' - ' (dash) for sub-variants that should muster together."""
-        parts = name.rsplit(": ", 1)
-        if len(parts) == 2:
-            return parts[0].strip()
-        return name
-
-    @staticmethod
-    def _is_muster_match(muster_base, candidate_name):
-        """Check if candidate shares the same muster base name.
-        'Crone' matches 'Crone: Weavess', 'Crone: Whispess', 'Crone: Brewess'.
-        'Arachas' matches 'Arachas: 1', 'Arachas: 2'.
-        'Vampire' matches 'Vampire: Fleder', 'Vampire: Katakan'."""
-        candidate_base = PlayRound._muster_base_name(candidate_name)
-        return candidate_base == muster_base
-
     def _process_muster(self, card, row_name):
-        """Auto-play companion cards from hand and deck.
-
-        Uses musters_with field if present (explicit companion list).
-        Falls back to base-name matching for cards without musters_with.
-        """
+        """Auto-play companion cards listed in musters_with from hand and deck."""
         cur = self._board.current_player
         mustered = []
 
-        # Determine which cards to muster
+        # Get explicit companion list from card data
         muster_targets = getattr(card, 'musters_with', None)
         if muster_targets is None:
-            # Card object attribute — try dict-style access
-            muster_targets = card._instance.get('musters_with') if hasattr(card, '_instance') else None
+            muster_targets = card._instance.get('musters_with', []) if hasattr(card, '_instance') else []
 
-        if muster_targets is not None:
-            # Explicit musters_with — only summon named companions
-            target_set = set(muster_targets)
-            use_explicit = True
-        else:
-            # Fallback to base-name matching
-            target_set = None
-            use_explicit = False
-            muster_name = self._muster_base_name(card.name)
+        if not muster_targets:
+            # No companions — standalone muster or missing musters_with
+            self._log.info(f"Muster: {card.name} has no musters_with companions")
 
-        def _is_match(candidate):
-            if use_explicit:
-                return candidate.name in target_set
-            return self._is_muster_match(muster_name, candidate.name)
+        target_set = set(muster_targets)
 
         # From hand
         for hc in list(self._board.hands[cur]):
-            if hc.rfid != card.rfid and _is_match(hc):
+            if hc.rfid != card.rfid and hc.name in target_set:
                 row = hc.ranges[0] if hc.ranges else row_name
                 self._board.place_card(cur, hc, row)
                 self._board.remove_from_hand(cur, hc)
@@ -2425,7 +2390,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
 
         # From deck
         for dc in list(self._board.decks[cur]):
-            if _is_match(dc):
+            if dc.name in target_set:
                 row = dc.ranges[0] if dc.ranges else row_name
                 self._board.place_card(cur, dc, row)
                 self._board.decks[cur].remove(dc)
