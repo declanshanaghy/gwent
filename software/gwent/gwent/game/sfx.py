@@ -30,7 +30,6 @@ class SFX(gwent.game.PubSubComponent):
         self.subscribe(gwent.game.CH_MUSIC_CTRL,
                       gwent.messaging.music.KIND,
                       self._on_music_ctrl)
-        self._music_enabled = True
 
     def shutdown(self):
         self.unsubscribe(gwent.game.CH_SFX)
@@ -74,7 +73,7 @@ class SFX(gwent.game.PubSubComponent):
         """Handle gwent/music — play a track."""
         self._log.info(f"Music: {msg.music} (next: {msg.next_music})")
 
-        if self._is_muted() or not self._music_enabled:
+        if self._is_muted() or not gwent.game.PubSubComponent._music_enabled:
             return
 
         try:
@@ -94,7 +93,7 @@ class SFX(gwent.game.PubSubComponent):
         self._log.info(f"Music complete received: source={msg.source}, music={msg.music}")
         if msg.subkind != "complete":
             return
-        if not self._music_enabled:
+        if not gwent.game.PubSubComponent._music_enabled:
             self._log.info("Music disabled, ignoring complete")
             return
         now = _time.time()
@@ -114,20 +113,16 @@ class SFX(gwent.game.PubSubComponent):
         action = msg._instance.get("action", "")
         self._log.info(f"Music control: action={action}, source={msg.source}")
         if action == "toggle":
-            self._music_enabled = not self._music_enabled
-            self._log.info(f"Music {'enabled' if self._music_enabled else 'disabled'}")
-            if self._music_enabled:
+            gwent.game.PubSubComponent._music_enabled = not gwent.game.PubSubComponent._music_enabled
+            self._log.info(f"Music {'enabled' if gwent.game.PubSubComponent._music_enabled else 'disabled'}")
+            if gwent.game.PubSubComponent._music_enabled:
                 self.publish_music()
             else:
-                try:
-                    import pygame.mixer
-                    pygame.mixer.music.stop()
-                except Exception:
-                    pass
-                # Cancel auto-advance timer
-                if hasattr(self, '_music_timer') and self._music_timer:
-                    self._music_timer.cancel()
-                    self._music_timer = None
+                self._mixer.stop_music()
+                # Cancel shared auto-advance timer
+                if gwent.game.PubSubComponent._music_timer:
+                    gwent.game.PubSubComponent._music_timer.cancel()
+                    gwent.game.PubSubComponent._music_timer = None
 
     def _on_announcement_complete(self, msg):
         complete = gwent.messaging.sfx.Message.with_announcement_complete(

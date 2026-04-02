@@ -200,6 +200,8 @@ class PubSubComponent(ThreadComponent):
     _music_next_track = None  # the next_music promised in the last play message
     _music_index = 0          # current position in the sorted track list
     _music_shuffled = False   # whether we've done the initial shuffle
+    _music_enabled = True     # shared across all instances (toggled by SFX._on_music_ctrl)
+    _music_timer = None       # shared auto-advance timer
 
     def _scan_music_tracks(self):
         """Live-scan music directory. Sorted for stable ordering."""
@@ -264,6 +266,11 @@ class PubSubComponent(ThreadComponent):
 
         dur_str = f", duration: {duration:.0f}s" if duration else ""
         self._log.info(f"Music: {music}, next: {next_track}{dur_str}")
+
+        if not PubSubComponent._music_enabled:
+            self._log.info("Music disabled, skipping publish")
+            return
+
         e = gwent.messaging.music.Message.with_play(
             music=music, next_music=next_track, duration_seconds=duration)
         self.publish(CH_MUSIC, e, retain=True)
@@ -276,11 +283,11 @@ class PubSubComponent(ThreadComponent):
                 complete = gwent.messaging.music.Message.with_complete(
                     music=music, source="gwent-timer")
                 self.publish(CH_MUSIC_COMPLETE, complete)
-            if hasattr(self, '_music_timer') and self._music_timer:
-                self._music_timer.cancel()
-            self._music_timer = threading.Timer(advance_after, _auto_advance)
-            self._music_timer.daemon = True
-            self._music_timer.start()
+            if PubSubComponent._music_timer:
+                PubSubComponent._music_timer.cancel()
+            PubSubComponent._music_timer = threading.Timer(advance_after, _auto_advance)
+            PubSubComponent._music_timer.daemon = True
+            PubSubComponent._music_timer.start()
 
     def publish_error(self, error: str):
         """Publish an error message"""
