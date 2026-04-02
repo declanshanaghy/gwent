@@ -63,7 +63,8 @@ class HeaderWidget(Static):
 
         # --- Row 1: status bar ---
         stage_icon = _STAGE_ICON.get(state.stage, "\u2753")
-        stage_label = f" {stage_icon} [dim]{state.stage}[/dim]"
+        game_id = f" [dim]\u2022 {state.game_id}[/dim]" if state.game_id else ""
+        stage_label = f" {stage_icon} [dim]{state.stage}[/dim]{game_id}"
 
         mqtt_icon, mqtt_c = _CONN_ICON.get(state.mqtt_status, ("\u2753", "grey50"))
         http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))

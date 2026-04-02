@@ -17,7 +17,7 @@ BROKER_PASS = "gwent"
 
 from gwent_shared.topics import (
     CTRL, MFD_PRESENT, MFD_CHOOSE, SFX, SFX_COMPLETE,
-    MUSIC, MUSIC_COMPLETE, CARDS_RAW_READ, CARDS_PLAY,
+    MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
 )
 
 TOPICS = [
@@ -37,6 +37,7 @@ class MqttSubscriber:
         self.state = state
         self._current_music_track = ""
         self._next_music_track = ""
+        self.music_enabled = True
         self.host = host or BROKER_HOST
         self.port = port or BROKER_PORT
         self.client = mqtt.Client(
@@ -74,6 +75,24 @@ class MqttSubscriber:
             self.client.publish(SFX_COMPLETE, payload)
         except Exception as e:
             log.debug("Failed to publish announcement_complete: %s", e)
+
+    def publish_music_toggle(self):
+        """Publish music toggle command to server and toggle local playback."""
+        self.music_enabled = not self.music_enabled
+        log.info("Music %s", "enabled" if self.music_enabled else "disabled")
+        if not self.music_enabled:
+            tts.stop_music()
+        try:
+            payload = json.dumps({
+                "kind": "music",
+                "subkind": "control",
+                "action": "toggle",
+                "source": "gwent-tui",
+            })
+            self.client.publish(MUSIC_CTRL, payload)
+            log.info("Published music toggle")
+        except Exception as e:
+            log.debug("Failed to publish music toggle: %s", e)
 
     def _publish_music_complete(self):
         """Track finished — immediately start next_music, then notify server."""
@@ -183,16 +202,22 @@ class MqttSubscriber:
                 tts.speak(data.get("announcement", ""),
                           faction=data.get("faction"),
                           content_id=data.get("content_id"))
+            elif data.get("subkind") == "effect":
+                effect_name = data.get("effect")
+                if effect_name:
+                    tts.play_effect(effect_name)
 
         elif topic == MUSIC:
             # Retained message — current music track from server
+            self.state.game_log.write("music", data.get("subkind", "play"), data)
             music_name = data.get("music")
             self._next_music_track = data.get("next_music", "")
             started_at = data.get("started_at", "")
             log.info("Music update: %s (next=%s)", music_name, self._next_music_track)
             self.state._log_event(
                 f"\U0001f3b5 Now playing: {music_name or 'random'}", color="plum1")
-            self._play_music(music_name, started_at)
+            if self.music_enabled:
+                self._play_music(music_name, started_at)
 
         elif topic == CARDS_RAW_READ:
             self.state.on_raw_read(data)

@@ -154,6 +154,64 @@ def _play_audio(path: str) -> subprocess.Popen | None:
         return None
 
 
+_volume = 100  # 0-100 percent
+
+
+def adjust_volume(delta: int) -> int:
+    """Adjust system volume by delta percent. Returns new volume."""
+    global _volume
+    _volume = max(0, min(100, _volume + delta))
+    import platform
+    try:
+        if platform.system() == "Darwin":
+            # macOS: set output volume via osascript
+            subprocess.Popen(
+                ["osascript", "-e", f"set volume output volume {_volume}"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        else:
+            # Linux: amixer set Master volume
+            subprocess.Popen(
+                ["amixer", "sset", "Master", f"{_volume}%"],
+                stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    except FileNotFoundError:
+        log.debug("Volume control command not found")
+    log.info("Volume: %d%%", _volume)
+    return _volume
+
+
+def play_effect(effect_name: str):
+    """Play a sound effect WAV file (non-blocking, fire-and-forget)."""
+    from pathlib import Path
+    import glob as _glob
+    import random as _random
+
+    sfx_dir = Path(__file__).resolve().parent.parent.parent / "data" / "sfx"
+
+    # 1. Subdirectory with random WAV (e.g. "close" → sfx/close/*.wav)
+    subdir = sfx_dir / effect_name
+    if subdir.is_dir():
+        files = list(subdir.glob("*.wav"))
+        if files:
+            path = str(_random.choice(files))
+        else:
+            log.debug("No WAV files in SFX dir: %s", subdir)
+            return
+    else:
+        # 2. Direct file at root
+        path = str(sfx_dir / f"{effect_name}.wav")
+        if not os.path.exists(path):
+            # 3. Search subdirs
+            matches = _glob.glob(str(sfx_dir / "*" / f"{effect_name}.wav"))
+            if matches:
+                path = matches[0]
+            else:
+                log.debug("SFX file not found for effect: %s", effect_name)
+                return
+
+    log.info("Playing SFX effect: %s -> %s", effect_name, os.path.basename(path))
+    _play_audio(path)
+
+
 _music_proc: subprocess.Popen | None = None
 _music_current_path: str = ""
 _on_music_complete_callback = None

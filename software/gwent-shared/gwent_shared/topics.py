@@ -22,6 +22,7 @@ SFX_COMPLETE = f'{SFX}/complete'
 # Music (separate from SFX, retained)
 MUSIC = f'{MAIN}/music'
 MUSIC_COMPLETE = f'{MUSIC}/complete'
+MUSIC_CTRL = f'{MUSIC}/ctrl'
 
 # Card events
 CARDS_RAW_READ = f'{MAIN}/cards/raw/read'

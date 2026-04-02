@@ -148,7 +148,8 @@ All scripts: load `.env` automatically, log to `tmp/logs/`, skip existing files,
 **Phase 3: Install (only after user confirmation)**
 7. SFX: ensure WAV 44100Hz stereo, move to `software/data/sfx/{category}/`
 8. Music: move MP3s + JSON sidecars to `software/data/music/`
-9. Clean up: `rm -rf tmp/resources/`
+9. **Sidecar validation:** After install, verify EVERY audio file has a sidecar JSON. Create any missing sidecars. See "Sidecar Backfill" section below.
+10. Clean up: `rm -rf tmp/resources/`
 
 ---
 
@@ -190,7 +191,8 @@ All scripts: load `.env` automatically, log to `tmp/logs/`, skip existing files,
 9. Convert SFX MP3→WAV (44100Hz stereo) via pydub
 10. Move WAVs to `software/data/sfx/{category}/`
 11. Move music MP3s + JSON sidecars to `software/data/music/`
-12. Clean up: `rm -rf tmp/resources/`
+12. **Sidecar validation:** After install, verify EVERY audio file has a sidecar JSON. Create any missing sidecars. See "Sidecar Backfill" section below.
+13. Clean up: `rm -rf tmp/resources/`
 
 ### Known Working Mixkit IDs
 
@@ -266,6 +268,29 @@ All scripts: load `.env` automatically, log to `tmp/logs/`, skip existing files,
   "license": "Mixkit Free License"
 }
 ```
+
+### Sidecar Backfill
+
+After every install, scan the target directories and create sidecars for any audio file missing one:
+
+```bash
+# Check for missing sidecars
+cd software/data/music && for f in *.mp3; do [ -f "${f%.mp3}.json" ] || echo "MISSING: ${f%.mp3}.json"; done
+cd software/data/sfx && for dir in */; do for f in "$dir"*.wav; do [ -f "$f" ] && [ ! -f "${f%.wav}.json" ] && echo "MISSING: ${f%.wav}.json"; done; done
+```
+
+For any missing sidecar, create a JSON file with at minimum:
+```json
+{
+  "type": "music|sfx",
+  "use_for": "<category>",
+  "title": "<Human Readable Title>",
+  "source": "<provider or 'unknown'>",
+  "license": "<license or 'Unknown'>"
+}
+```
+
+Generation scripts already produce sidecars. This backfill catches files that were manually copied or predate the sidecar convention.
 
 ### Important Rules
 - All temp files in `tmp/resources/` relative to repo root (NEVER `/tmp/`)

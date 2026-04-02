@@ -10,6 +10,7 @@ KIND = 'music'
 
 PLAY = 'play'
 COMPLETE = 'complete'
+CONTROL = 'control'
 
 
 class Message(gwent.messaging.base.Message):
@@ -29,6 +30,11 @@ class Message(gwent.messaging.base.Message):
     def with_complete(music: str, source: str = "gwent"):
         instance = {"music": music, "source": source}
         return Message(instance, subkind=COMPLETE)
+
+    @staticmethod
+    def with_control(action: str, source: str = "gwent-tui"):
+        instance = {"action": action, "source": source}
+        return Message(instance, subkind=CONTROL)
 
 
     @property

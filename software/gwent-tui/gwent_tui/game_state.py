@@ -6,8 +6,14 @@ import threading
 import time
 from collections import deque
 from datetime import datetime
+from pathlib import Path
+
+from gwent_tui.game_log import GameLog
 
 log = logging.getLogger("gwent_tui.state")
+
+_REPO_ROOT = Path(os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')))
 
 # Event colors by type (used in _log_event for the events footer)
 _EVENT_COLORS = {
@@ -71,6 +77,7 @@ def _normalize_player(key):
 class GameState:
     def __init__(self):
         self.lock = threading.Lock()
+        self.game_log = GameLog(str(_REPO_ROOT / "tmp" / "games"))
         self._reset()
 
     _ZERO_ROW_SCORES = {"close": 0, "ranged": 0, "siege": 0}
@@ -117,9 +124,7 @@ class GameState:
         self.last_played_subkind = ""
         self.last_played_by = None  # P1 or P2 enum — who played/drew the card
 
-        # Raw card event recording (for round summary + game over stats)
-        self.card_events = []           # all rounds' events
-        self.score_history = []         # [{round, ts, p1_score, p2_score}, ...]
+        # Score dedup gate (for disk writes)
         self._last_recorded_scores = (0, 0)
         self._show_round_summary = False
         self._summary_round = 0
@@ -153,8 +158,6 @@ class GameState:
         # Game identity — reset round history when game_id changes
         self.game_id = ""
 
-        # Round history: [{round, p1_score, p2_score, winner, p1_gems, p2_gems}, ...]
-        self.round_results = []
         self._last_recorded_round = 0
 
         # Move timing
@@ -173,14 +176,15 @@ class GameState:
     _GAME_STAGES = {"PlayRound", "RoundEnd", "GameOver", "DisplayWinner"}
 
     def _load_snapshot_unlocked(self, snapshot):
-        # Detect new game — reset round history when game_id changes
+        # Detect new game — reset game log when game_id changes
         new_game_id = snapshot.get("game_id", "")
         if new_game_id and new_game_id != self.game_id:
             if self.game_id:
-                log.info("New game detected (id=%s → %s), resetting round history",
+                log.info("New game detected (id=%s → %s), resetting game log",
                          self.game_id, new_game_id)
+                self.game_log.reset()
             self.game_id = new_game_id
-            self.round_results = []
+            self.game_log.set_game_id(new_game_id)
             self._last_recorded_round = 0
             self.move_times = {P1: [], P2: []}
 
@@ -213,7 +217,7 @@ class GameState:
         # Record round result when round advances or game ends
         if new_round > self._last_recorded_round and self._last_recorded_round > 0:
             self._record_round_result(self._last_recorded_round)
-        if self.stage in ("GameOver", "DisplayWinner") and self.round_number > self._last_recorded_round:
+        if self.stage in ("GameOver", "DisplayWinner"):
             self._record_round_result(self.round_number)
         self._last_recorded_round = new_round
 
@@ -302,10 +306,11 @@ class GameState:
                 "siege": p_scores.get("siege", 0),
             }
 
-        # Track score changes for progression display
+        # Track score changes to disk
         current = (self.scores.get(P1, 0), self.scores.get(P2, 0))
         if current != self._last_recorded_scores:
-            self.score_history.append({
+            self.game_log.write("snapshots", "score_change", {
+                "subkind": "score_change",
                 "round": self.round_number,
                 "ts": time.time(),
                 "p1_score": current[0],
@@ -314,9 +319,9 @@ class GameState:
             self._last_recorded_scores = current
 
     def score_history_for_round(self, round_num):
-        """Return score history entries for a specific round."""
-        with self.lock:
-            return [s for s in self.score_history if s["round"] == round_num]
+        """Return score history entries for a specific round (from disk)."""
+        return self.game_log.read_filtered(
+            "snapshots", round_num=round_num, subkinds=["score_change"])
 
     def is_highlighted(self, key):
         """Check if a key is currently highlighted (within TTL)."""
@@ -469,7 +474,7 @@ class GameState:
                 self._highlight(f"weather:{row}")
 
     def _record_round_result(self, round_num):
-        """Snapshot the current round's scores and winner into round_results."""
+        """Write round result to disk."""
         # Avoid duplicates
         if any(r["round"] == round_num for r in self.round_results):
             return
@@ -481,7 +486,8 @@ class GameState:
             winner = P2
         else:
             winner = None  # draw
-        self.round_results.append({
+        self.game_log.write("cards", "round_result", {
+            "subkind": "round_result",
             "round": round_num,
             "p1_score": p1s,
             "p2_score": p2s,
@@ -492,13 +498,9 @@ class GameState:
         log.info("Round %d result: P1=%d P2=%d winner=%s", round_num, p1s, p2s, winner)
 
     def save_game_recording(self):
-        """Save game recording to /tmp/gwent-tui/{game-id}.json."""
+        """Save game recording summary to tmp/games/{game-id}.json."""
         import json
-        from datetime import datetime
-        from pathlib import Path
-
-        _repo_root = Path(os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..')))
-        game_dir = _repo_root / "tmp" / "gwent-tui"
+        game_dir = _REPO_ROOT / "tmp" / "games"
         game_dir.mkdir(parents=True, exist_ok=True)
         game_id = self.game_id or datetime.now().strftime("%Y%m%d-%H%M%S")
         path = game_dir / f"{game_id}.json"
@@ -592,8 +594,7 @@ class GameState:
             entry = f"[dim]{ts}[/dim] {msg}"
         self._event_log.append(entry)
         try:
-            _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..'))
-            _events_log = os.path.join(_repo_root, "tmp", "logs", "gwent-tui-events.log")
+            _events_log = os.path.join(str(_REPO_ROOT), "tmp", "logs", "gwent-tui-events.log")
             os.makedirs(os.path.dirname(_events_log), exist_ok=True)
             with open(_events_log, "a") as f:
                 # Strip markup for the file log
@@ -633,21 +634,38 @@ class GameState:
         """5 seconds per card when queued, 8 seconds for single cards."""
         return 5 if self.card_queue else 8
 
+    # Subkinds that represent gameplay events (not deal/registration)
+    _EVENT_SUBKINDS = [
+        "play_card", "place_card", "muster", "spy_draw",
+        "medic_resurrect", "remove_card", "weather_change",
+        "commander_horn", "decoy_swap", "transform",
+    ]
+
+    @property
+    def card_events(self):
+        """All card events across all rounds (from disk)."""
+        return self.game_log.read_filtered("cards", subkinds=self._EVENT_SUBKINDS)
+
     def events_for_round(self, round_num):
-        """Return card events for a specific round (thread-safe copy)."""
-        with self.lock:
-            return [e for e in self.card_events if e["round"] == round_num]
+        """Return card events for a specific round (from disk)."""
+        return self.game_log.read_filtered(
+            "cards", round_num=round_num, subkinds=self._EVENT_SUBKINDS)
+
+    @property
+    def round_results(self):
+        """All round results (from disk)."""
+        return self.game_log.read_filtered("cards", subkinds=["round_result"])
 
     def dismiss_round_summary(self):
         """Called when user dismisses the round summary interstitial."""
         self._show_round_summary = False
 
     def _record_card_event(self, subkind, p, card, data):
-        """Append a compact event record for stats tracking."""
-        self.card_events.append({
+        """Write a compact event record to disk for stats tracking."""
+        self.game_log.write("cards", subkind, {
+            "subkind": subkind,
             "round": self.round_number,
             "ts": time.time(),
-            "subkind": subkind,
             "player": p,
             "name": card.get("name", "???"),
             "row": data.get("row", ""),
@@ -665,6 +683,7 @@ class GameState:
 
     def on_ctrl(self, data):
         """Handle gwent/ctrl stage message."""
+        self.game_log.write("ctrl", data.get("stage", "unknown"), data)
         with self.lock:
             stage = data.get("stage", "")
             active = data.get("active", True)
@@ -684,8 +703,7 @@ class GameState:
                 self._log_event(f"\U0001f3ad Stage: {stage}", color=_EVENT_COLORS["stage"])
                 if stage in ("GameOver", "DisplayWinner"):
                     # Record final round and save game
-                    if self.round_number > self._last_recorded_round:
-                        self._record_round_result(self.round_number)
+                    self._record_round_result(self.round_number)
                     try:
                         self.save_game_recording()
                     except Exception as e:
@@ -693,6 +711,7 @@ class GameState:
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""
+        self.game_log.write("mfd", data.get("subkind", "unknown"), data)
         with self.lock:
             subkind = data.get("subkind", "")
             if subkind == "prompt":
@@ -711,6 +730,7 @@ class GameState:
 
     def on_sfx(self, data):
         """Handle gwent/sfx."""
+        self.game_log.write("sfx", data.get("subkind", "unknown"), data)
         with self.lock:
             subkind = data.get("subkind", "")
             if subkind == "announcement":
@@ -724,6 +744,7 @@ class GameState:
 
     def on_card_play(self, player_suffix, data):
         """Handle gwent/cards/play/{player} — tracks leaders, dealt cards, deck."""
+        self.game_log.write("cards", data.get("subkind", "unknown"), data)
         with self.lock:
             p = _normalize_player(player_suffix)
             subkind = data.get("subkind", "")
@@ -807,6 +828,7 @@ class GameState:
 
     def on_choice(self, data):
         """Handle gwent/mfd/choose — a choice was made (rotary or LLM)."""
+        self.game_log.write("mfd", "choice", data)
         with self.lock:
             text = data.get("text", "")
             if text:
@@ -814,6 +836,7 @@ class GameState:
 
     def on_raw_read(self, data):
         """Handle gwent/cards/raw/read."""
+        self.game_log.write("cards", "raw_read", data)
         with self.lock:
             self.last_card_read = data
             self.last_card_read_time = datetime.now().strftime("%H:%M:%S")
