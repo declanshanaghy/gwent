@@ -1020,8 +1020,27 @@ def execute(board, cur, action, sync=None, game_url=None):
     if act == 'play_leader':
         if board['players'][cur]['leader_used']:
             return False, 'Leader already used.'
-        mqpub('gwent/cards/raw/read', json.dumps(board['leaders'][cur]))
         ld = board['leaders'][cur].get('leader', {})
+
+        # Pre-validate: check if leader ability has valid targets
+        if ld.get('weather_ranges'):
+            allowed = set(ld['weather_ranges'])
+            wc = [c for c in board['decks'][cur]
+                  if c.get('specialty') == 'weather'
+                  and any(r in allowed for r in c.get('ranges', []))]
+            if not wc:
+                return False, f"No matching weather cards in deck for leader ability."
+        if ld.get('draw_own_discard'):
+            nh = [c for c in board['players'][cur]['discard']
+                  if c.get('specialty') != 'hero']
+            if not nh:
+                return False, "No non-hero cards in your discard for leader ability."
+        if ld.get('draw_opponent_discard'):
+            od = board['players'][opp]['discard']
+            if not od:
+                return False, "Opponent's discard pile is empty for leader ability."
+
+        mqpub('gwent/cards/raw/read', json.dumps(board['leaders'][cur]))
         if ld.get('draw_own_discard'):
             nh = [c for c in board['players'][cur]['discard']
                   if c.get('specialty') != 'hero']
