@@ -170,7 +170,7 @@ def card_prefix(card):
 # - fg_on_bg: contrasting text when bg_color is the background
 FACTION_STYLE = {
     "Monsters":        ("#ff0000",     "#8b0000",        "white"),
-    "Nilfgaardian":    ("#bdbdbd",     "#808080",        "white"),
+    "Nilfgaardian":    ("#bdbdbd",     "#808080",        "black"),
     "Northern Realms": ("#1e90ff",     "#1e90ff",        "white"),
     "Scoia'tael":      ("#00ff00",     "#006400",        "black"),
     "Scoiatael":       ("#00ff00",     "#006400",        "black"),
