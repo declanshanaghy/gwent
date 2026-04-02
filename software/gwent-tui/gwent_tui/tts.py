@@ -48,6 +48,10 @@ def _get_mixer():
         return _mixer
     from gwent_shared.audio import get_mixer
     _mixer = get_mixer()
+    # Apply initial volume levels
+    _mixer.set_music_volume(_volume / 100.0)
+    _mixer.set_channel_volume("effect", _sfx_volume / 100.0)
+    _mixer.set_channel_volume("tts", _tts_volume / 100.0)
     return _mixer
 
 
@@ -263,7 +267,9 @@ def play_music(path: str, seek_seconds: float = 0):
         return
 
     _music_current_path = path
-    mixer.play_music(path, volume=_volume / 100.0)
+    # Don't pass volume — let the mixer's stored _music_volume persist
+    # (set by adjust_volume via set_music_volume)
+    mixer.play_music(path)
 
     # Monitor for completion in a background thread
     _start_music_monitor()
