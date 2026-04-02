@@ -2361,7 +2361,6 @@ class PlayRound(gwent.game.stages.base.GameStage):
         self._announce_and_advance(
             self._msg_medic_resurrect(label, resurrected.name, **pn))
 
-    @staticmethod
     def _process_muster(self, card, row_name):
         """Auto-play companion cards listed in musters_with from hand and deck."""
         cur = self._board.current_player
