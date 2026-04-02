@@ -221,6 +221,11 @@ class GameState:
         self._last_recorded_round = new_round
 
         self.round_number = new_round
+
+        # Update summary round for RoundEnd/GameOver display
+        if self.stage in ("RoundEnd", "GameOver", "DisplayWinner"):
+            self._summary_round = new_round
+
         new_player = _normalize_player(board.get("current_player", P1))
 
         # Track move duration when the turn changes
