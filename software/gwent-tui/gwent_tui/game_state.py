@@ -222,9 +222,14 @@ class GameState:
 
         self.round_number = new_round
 
-        # Update summary round for RoundEnd/GameOver display
+        # Set summary round only when stage first transitions TO RoundEnd/GameOver.
+        # Don't update on subsequent snapshots — the server advances round_number
+        # during RoundEnd (clear_round + faction abilities) before the 10s pause.
+        prev_stage = getattr(self, '_prev_snapshot_stage', '')
         if self.stage in ("RoundEnd", "GameOver", "DisplayWinner"):
-            self._summary_round = new_round
+            if prev_stage not in ("RoundEnd", "GameOver", "DisplayWinner"):
+                self._summary_round = new_round
+        self._prev_snapshot_stage = self.stage
 
         new_player = _normalize_player(board.get("current_player", P1))
 
