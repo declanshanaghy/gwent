@@ -202,6 +202,7 @@ class PubSubComponent(ThreadComponent):
     _music_shuffled = False   # whether we've done the initial shuffle
     _music_enabled = True     # shared across all instances (toggled by SFX._on_music_ctrl)
     _music_timer = None       # shared auto-advance timer
+    _client_handles_music = False  # True when a TUI client is connected (skip local playback)
 
     def _scan_music_tracks(self):
         """Live-scan music directory. Sorted for stable ordering."""

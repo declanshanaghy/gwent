@@ -70,10 +70,17 @@ class SFX(gwent.game.PubSubComponent):
             self._log.error(f"Error processing sfx: {e}", exc_info=True)
 
     def process_music(self, msg: gwent.messaging.music.Message):
-        """Handle gwent/music — play a track."""
+        """Handle gwent/music — play a track.
+
+        Skips local playback when a TUI client is connected (it handles
+        music with user-controlled volume).
+        """
         self._log.info(f"Music: {msg.music} (next: {msg.next_music})")
 
         if self._is_muted() or not gwent.game.PubSubComponent._music_enabled:
+            return
+        if gwent.game.PubSubComponent._client_handles_music:
+            self._log.debug("Skipping local music — TUI client handles playback")
             return
 
         try:

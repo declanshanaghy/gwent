@@ -158,6 +158,9 @@ class _Handler(BaseHTTPRequestHandler):
             provider = data.get("provider", "none")
             self.server.client_tts[client_id] = provider
             log.info("Client TTS registered: %s=%s", client_id, provider)
+            # Tell server SFX to skip local music — TUI handles playback
+            import gwent.game
+            gwent.game.PubSubComponent._client_handles_music = True
             cond = self.server.state_condition
             if cond:
                 with cond:
