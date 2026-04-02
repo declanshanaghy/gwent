@@ -219,6 +219,7 @@ class CardImageOverlay(Horizontal):
 
             if name != self._current_card_name:
                 self._current_card_name = name
+                subkind = getattr(state, 'last_played_subkind', '') or "play_card"
 
                 # Play appropriate SFX for this card
                 effect = _sfx_for_card(card, subkind)
@@ -248,7 +249,6 @@ class CardImageOverlay(Horizontal):
                         player_key, leader.get("pronoun", "he") if leader else "he")
                     player_name = getattr(state, 'player_names', {}).get(
                         player_key, "Player 1" if is_p1 else "Player 2")
-                    subkind = getattr(state, 'last_played_subkind', '') or "play_card"
 
                     attrs_widget.set_card(
                         card,
