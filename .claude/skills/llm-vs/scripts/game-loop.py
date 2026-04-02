@@ -1014,6 +1014,56 @@ def find_card(hand, name):
     return None
 
 
+def validate_action(board, cur, action):
+    """Check if an action is valid without executing it. Returns (valid, error_msg)."""
+    opp = 'PLAYER.TWO' if cur == 'PLAYER.ONE' else 'PLAYER.ONE'
+    act = action.get('action', '').lower()
+
+    if act == 'pass':
+        return True, None
+
+    if act == 'play_leader':
+        if board['players'][cur]['leader_used']:
+            return False, 'Leader already used.'
+        ld = board['leaders'][cur].get('leader', {})
+        if ld.get('weather_ranges'):
+            allowed = set(ld['weather_ranges'])
+            wc = [c for c in board['decks'][cur]
+                  if c.get('specialty') == 'weather'
+                  and any(r in allowed for r in c.get('ranges', []))]
+            if not wc:
+                return False, 'No matching weather cards in deck for leader ability.'
+        elif ld.get('draw_own_discard'):
+            nh = [c for c in board['players'][cur]['discard']
+                  if c.get('specialty') != 'hero']
+            if not nh:
+                return False, 'No non-hero cards in your discard for leader ability.'
+        elif ld.get('draw_opponent_discard'):
+            if not board['players'][opp]['discard']:
+                return False, "Opponent's discard pile is empty for leader ability."
+        return True, None
+
+    if act == 'play_card':
+        name = action.get('card_name', '')
+        hand = board['hands'][cur]
+        card = find_card(hand, name)
+        if not card:
+            return False, (f"Card '{name}' not in hand. "
+                           f"Your hand: {[c['name'] for c in hand]}")
+        is_agile = ('agile' in card.get('abilities', [])
+                    and len(card.get('ranges', [])) > 1)
+        if is_agile:
+            row = action.get('row', '').lower()
+            if row not in card['ranges']:
+                return False, f"Agile card needs valid row. Ranges: {card['ranges']}"
+        is_decoy = card.get('specialty') == 'decoy'
+        if is_decoy and not action.get('decoy_target'):
+            return False, 'Decoy needs decoy_target.'
+        return True, None
+
+    return False, f'Unknown action: {act}'
+
+
 def execute(board, cur, action, sync=None, game_url=None):
     opp = 'PLAYER.TWO' if cur == 'PLAYER.ONE' else 'PLAYER.ONE'
     act = action.get('action', '').lower()
@@ -1431,16 +1481,13 @@ def game_loop(args, board, sync):
             card_name = action.get('card_name', '')
             reasoning = action.get('reasoning', '')
 
-            # Validate BEFORE announcing — don't announce invalid plays
+            # 1. Validate without executing
             log_debug(f"Parsed action: {act} {card_name}")
-            sync.drain()
-            log_debug("Executing action...")
-            valid, msg = execute(board, cur, action, sync=sync,
-                                             game_url=args.game_url)
-            log_debug(f"Execute result: valid={valid}, msg={msg}")
+            valid, err = validate_action(board, cur, action)
+            log_debug(f"Validate result: valid={valid}, err={err}")
 
             if valid:
-                # Announce the successful play
+                # 2. Announce FIRST — viewers hear thoughts before seeing the play
                 sentences = reasoning.replace('!', '.').replace('?', '.').split('.')
                 short_reasoning = sentences[0].strip() + '.' if sentences and sentences[0].strip() else ''
                 if act == 'pass':
@@ -1450,6 +1497,21 @@ def game_loop(args, board, sync):
                 else:
                     summary = f"{short_model} plays {card_name}! {short_reasoning}"
                 announce(summary, faction=faction)
+
+                # 3. Wait for announcement to finish playing
+                sync.wait_all()
+
+                # 4. Now execute the validated action
+                sync.drain()
+                log_debug("Executing action...")
+                exec_valid, msg = execute(board, cur, action, sync=sync,
+                                                 game_url=args.game_url)
+                log_debug(f"Execute result: valid={exec_valid}, msg={msg}")
+
+                if not exec_valid:
+                    # Rare: validation passed but execute failed (race condition)
+                    log(f"  {plab}: execute failed after validation: {msg}")
+                    continue
 
                 ok = True
                 turn += 1
@@ -1465,12 +1527,12 @@ def game_loop(args, board, sync):
                             break
                     log_debug(f"Leader used: {board['players'][cur]['leader_used'] if board else '?'}")
                 else:
-                    # 1. Confirm state changed (turn advanced or stage changed)
+                    # Confirm state changed (turn advanced or stage changed)
                     log_debug("Waiting for turn advance...")
                     stage, board = wait_for_turn_advance(
                         args.game_url, cur)
                     log_debug(f"Turn advanced: stage={stage}")
-                # 2. Wait for ALL queued announcements to finish playing
+                # Wait for any server-triggered announcements to finish
                 log_debug("Waiting for announcements...")
                 sync.wait_all()
                 log_debug("Announcements done")
@@ -1503,12 +1565,12 @@ def game_loop(args, board, sync):
                 # Announce the invalid play so viewers know what happened
                 announce(f"{short_model} tried to play {card_name or act} but it was invalid!",
                          faction=faction)
-                err = f"ERROR: {msg}"
+                err_detail = err or "unknown error"
                 with open(os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl'), 'a') as f:
-                    f.write(json.dumps({"role": "user", "content": err})
+                    f.write(json.dumps({"role": "user", "content": f"ERROR: {err}"})
                             + '\n')
                 log(f"  {plab}: INVALID {act} {card_name} -> "
-                    f"{msg} (attempt {attempt + 1})")
+                    f"{err} (attempt {attempt + 1})")
 
         if not ok:
             log(f"  {plab}: FORCED PASS after 3 retries")
