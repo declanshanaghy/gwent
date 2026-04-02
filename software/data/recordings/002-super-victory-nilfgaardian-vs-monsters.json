@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "saved_at": "2026-04-01T20:41:50.147398",
+  "saved_at": "2026-04-01T22:44:26.453009",
   "active_stage": "PlayRound",
   "state": {
     "board": {
@@ -401,6 +401,19 @@
           {
             "kind": "card",
             "faction": "Nilfgaardian",
+            "name": "Torrential Rain",
+            "rfid": 71217532204,
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Nilfgaardian/TorrentialRain.jpg",
+            "content_id": "93ed41e6605066b9382bd1935dee5e45"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
             "name": "Young Emissary: 2",
             "rfid": 206273007023,
             "strength": 5,
@@ -530,22 +543,48 @@
             "starter": true,
             "image": "../../images/Nilfgaardian/AssireVarAnahid.jpg",
             "content_id": "af0f5eb89c5bc16c70b66cef91fdef94"
-          },
-          {
-            "kind": "card",
-            "faction": "Nilfgaardian",
-            "name": "Cahir Mawr Dyffryn aep Ceallach",
-            "rfid": 963194998026,
-            "strength": 6,
-            "ranges": [
-              "close"
-            ],
-            "starter": true,
-            "image": "../../images/Nilfgaardian/CahirMawrDyffrynAepCeallach.jpg",
-            "content_id": "1e1610e2c1576715eedefd2ae6246328"
           }
         ],
         "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Biting Frost: 1",
+            "rfid": 965039967680,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Monsters/BitingFrost.jpg",
+            "content_id": "3e3f92a29de485b5b8b028f282164135"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Impenetrable Fog: 1",
+            "rfid": 275462508023,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Monsters/ImpenetrableFog.jpg",
+            "content_id": "ccee21a26b1e6dde73d14afbedfed30f"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Torrential Rain",
+            "rfid": 278683602233,
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Monsters/TorrentialRain.jpg",
+            "content_id": "9871825dc9547de829c156461efb75d5"
+          },
           {
             "kind": "card",
             "faction": "Monsters",
@@ -606,20 +645,6 @@
           {
             "kind": "card",
             "faction": "Monsters",
-            "name": "Bovine Defense Force",
-            "rfid": 275479023098,
-            "strength": 8,
-            "ranges": [
-              "close"
-            ],
-            "owner": "Declan Shanaghy",
-            "owner_nickname": "dek",
-            "image": "../../images/Monsters/BovineDefenseForce.jpg",
-            "content_id": "0f2a5dc46920d53ad9c53eb44317221f"
-          },
-          {
-            "kind": "card",
-            "faction": "Monsters",
             "name": "Kayran",
             "rfid": 485093756187,
             "strength": 8,
@@ -668,36 +693,6 @@
             "owner_nickname": "dylan",
             "image": "../../images/Monsters/Leshen.jpg",
             "content_id": "24396c85f3fe7b8a1ce35217291a2cce"
-          },
-          {
-            "kind": "card",
-            "faction": "Monsters",
-            "name": "Triss Merigold",
-            "rfid": 825940266272,
-            "strength": 7,
-            "ranges": [
-              "close"
-            ],
-            "specialty": "hero",
-            "owner": "Dylan Shanaghy",
-            "owner_nickname": "dylan",
-            "image": "../../images/Monsters/TrissMerigold.jpg",
-            "content_id": "bff37026e5d0dc68131bffab53b51a60"
-          },
-          {
-            "kind": "card",
-            "faction": "Monsters",
-            "name": "Triss Merigold: 2",
-            "rfid": 622432701911,
-            "strength": 7,
-            "ranges": [
-              "close"
-            ],
-            "specialty": "hero",
-            "owner": "Dylan Shanaghy",
-            "owner_nickname": "dylan",
-            "image": "../../images/Monsters/TrissMerigold.jpg",
-            "content_id": "eff222c557d92ee75d7c94ebf07b54c6"
           }
         ]
       },

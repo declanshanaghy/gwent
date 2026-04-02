@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "saved_at": "2026-04-01T20:41:50.157102",
+  "saved_at": "2026-04-01T22:44:26.462171",
   "active_stage": "PlayRound",
   "state": {
     "board": {
@@ -387,6 +387,19 @@
           {
             "kind": "card",
             "faction": "Nilfgaardian",
+            "name": "Torrential Rain",
+            "rfid": 71217532204,
+            "ranges": [
+              "siege"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Nilfgaardian/TorrentialRain.jpg",
+            "content_id": "93ed41e6605066b9382bd1935dee5e45"
+          },
+          {
+            "kind": "card",
+            "faction": "Nilfgaardian",
             "name": "Young Emissary: 2",
             "rfid": 206273007023,
             "strength": 5,
@@ -516,19 +529,6 @@
             "starter": true,
             "image": "../../images/Nilfgaardian/AssireVarAnahid.jpg",
             "content_id": "af0f5eb89c5bc16c70b66cef91fdef94"
-          },
-          {
-            "kind": "card",
-            "faction": "Nilfgaardian",
-            "name": "Cahir Mawr Dyffryn aep Ceallach",
-            "rfid": 963194998026,
-            "strength": 6,
-            "ranges": [
-              "close"
-            ],
-            "starter": true,
-            "image": "../../images/Nilfgaardian/CahirMawrDyffrynAepCeallach.jpg",
-            "content_id": "1e1610e2c1576715eedefd2ae6246328"
           }
         ],
         "PLAYER.TWO": [

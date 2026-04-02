@@ -151,6 +151,19 @@ def build_deck(faction_name, cards, hand_size=10):
     if not leader and leaders:
         leader = leaders[0]
 
+    # --- Ensure leader ability has required cards in deck ---
+    if leader:
+        ld = leader.get('leader', {})
+        weather_ranges = ld.get('weather_ranges')
+        if weather_ranges:
+            # Leader draws weather from deck — ensure matching weather cards exist.
+            # Must match by ranges field, not just name (some weather cards have ranges=[])
+            for wr in weather_ranges:
+                matching = [c for c in units
+                            if c.get('specialty') == 'weather'
+                            and wr in (c.get('ranges') or [])]
+                add_all(matching, limit=1)
+
     # --- Faction-specific core ---
     if faction_name == "Monsters":
         add_all(pick(units, ability='muster', name_contains='arachas'))
@@ -242,12 +255,55 @@ def build_deck(faction_name, cards, hand_size=10):
         else:
             deck_rest.append(c)
 
+    # Identify cards that MUST stay in deck (leader weather targets)
+    must_stay_in_deck = set()
+    if leader:
+        ld = leader.get('leader', {})
+        if ld.get('weather_ranges'):
+            for wr in ld['weather_ranges']:
+                for c in deck_cards:
+                    if c.get('specialty') == 'weather' and wr in (c.get('ranges') or []):
+                        must_stay_in_deck.add(id(c))
+                        break  # one per range is enough
+
     hand = hand_priority[:hand_size]
     deck = deck_rest + hand_priority[hand_size:]
+
+    # Ensure leader's weather cards are in deck (not hand) — leader draws from deck
+    if leader:
+        ld = leader.get('leader', {})
+        if ld.get('weather_ranges'):
+            for wr in ld['weather_ranges']:
+                # Find matching weather card in hand and move it to deck
+                for c in list(hand):
+                    if c.get('specialty') == 'weather' and wr in (c.get('ranges') or []):
+                        hand.remove(c)
+                        deck.insert(0, c)
+                        # Backfill hand from deck (pick a non-weather card)
+                        for dc in list(deck):
+                            if dc.get('specialty') != 'weather':
+                                deck.remove(dc)
+                                hand.append(dc)
+                                break
+                        break
+                # Also check: is the required weather in the deck at all?
+                in_deck = any(c.get('specialty') == 'weather' and wr in (c.get('ranges') or [])
+                              for c in deck)
+                if not in_deck:
+                    print(f"  WARNING: No weather card with range '{wr}' in deck for leader ability")
     if len(hand) < hand_size:
+        # Backfill hand from deck, but never pull leader-critical weather cards
         needed = hand_size - len(hand)
-        hand.extend(deck[:needed])
-        deck = deck[needed:]
+        backfill = []
+        remaining_deck = []
+        for c in deck:
+            if needed > 0 and id(c) not in must_stay_in_deck:
+                backfill.append(c)
+                needed -= 1
+            else:
+                remaining_deck.append(c)
+        hand.extend(backfill)
+        deck = remaining_deck
 
     total_str = sum(c.get('strength', 0) for c in deck_cards)
     print(f"  {faction_name}: {len(hand)}h+{len(deck)}d, "
