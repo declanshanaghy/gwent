@@ -142,8 +142,8 @@ class GwentTUI(App):
             await self._switch_stage(self.state.stage)
             for widget in self.query("Static"):
                 widget.refresh()
-        except Exception:
-            pass
+        except Exception as e:
+            log.error("Error refreshing widgets: %s", e, exc_info=True)
         # Update card image overlay (separate try to avoid swallowing errors)
         try:
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
@@ -190,8 +190,8 @@ class GwentTUI(App):
         try:
             old = self.query_one("#stage-container")
             await old.remove()
-        except Exception:
-            pass
+        except Exception as e:
+            log.error("Error removing old stage: %s", e, exc_info=True)
 
         new_widget = stage_cls(id="stage-container")
         try:
@@ -209,8 +209,8 @@ class GwentTUI(App):
         try:
             for widget in self.query("Static"):
                 widget.refresh()
-        except Exception:
-            pass
+        except Exception as e:
+            log.error("Error refreshing all widgets: %s", e, exc_info=True)
 
     # --- Actions ---
 
