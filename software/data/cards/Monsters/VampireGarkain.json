@@ -1,17 +1,23 @@
 {
-    "kind": "card",
-    "faction": "Monsters",
-    "name": "Vampire: Garkain",
-    "strength": 4,
-    "ranges": [
-        "close"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-26T16:42:44",
-    "image": "../../images/Monsters/VampireGarkain.jpg",
-    "card_text": "Blood drinkers and corpse eaters so foul their very ugliness paralyzes foes.",
-    "image_verified": true,
-    "pronoun": "it"
+  "kind": "card",
+  "faction": "Monsters",
+  "name": "Vampire: Garkain",
+  "strength": 4,
+  "ranges": [
+    "close"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-26T16:42:44",
+  "image": "../../images/Monsters/VampireGarkain.jpg",
+  "card_text": "Blood drinkers and corpse eaters so foul their very ugliness paralyzes foes.",
+  "image_verified": true,
+  "pronoun": "it",
+  "musters_with": [
+    "Vampire: Bruxa",
+    "Vampire: Ekimmara",
+    "Vampire: Garkhain",
+    "Vampire: Katakan"
+  ]
 }

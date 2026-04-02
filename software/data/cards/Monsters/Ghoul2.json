@@ -1,20 +1,23 @@
 {
-    "faction": "Monsters",
-    "kind": "card",
-    "name": "Ghoul: 2",
-    "ranges": [
-        "close"
-    ],
-    "starter": true,
-    "strength": 1,
-    "rfid": 414176660889,
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-27T17:15:32",
-    "rfid_written_at": "2026-03-27T17:15:32",
-    "image": "../../images/Monsters/Ghoul2.jpg",
-    "card_text": "If ghouls are part of the Circle of Life... then it's a damn vicious circle",
-    "image_verified": true,
-    "pronoun": "it"
+  "faction": "Monsters",
+  "kind": "card",
+  "name": "Ghoul: 2",
+  "ranges": [
+    "close"
+  ],
+  "starter": true,
+  "strength": 1,
+  "rfid": 414176660889,
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-27T17:15:32",
+  "rfid_written_at": "2026-03-27T17:15:32",
+  "image": "../../images/Monsters/Ghoul2.jpg",
+  "card_text": "If ghouls are part of the Circle of Life... then it's a damn vicious circle",
+  "image_verified": true,
+  "pronoun": "it",
+  "musters_with": [
+    "Ghoul: 1"
+  ]
 }

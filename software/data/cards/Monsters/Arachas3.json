@@ -1,17 +1,21 @@
 {
-    "kind": "card",
-    "faction": "Monsters",
-    "name": "Arachas: 3",
-    "strength": 4,
-    "ranges": [
-        "close"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-26T16:42:44",
-    "image": "../../images/Monsters/Arachas.jpg",
-    "image_verified": false,
-    "card_text": "Ugly - Natures way of saying \"Stay the fuck away\".",
-    "pronoun": "it"
+  "kind": "card",
+  "faction": "Monsters",
+  "name": "Arachas: 3",
+  "strength": 4,
+  "ranges": [
+    "close"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-26T16:42:44",
+  "image": "../../images/Monsters/Arachas.jpg",
+  "image_verified": false,
+  "card_text": "Ugly - Natures way of saying \"Stay the fuck away\".",
+  "pronoun": "it",
+  "musters_with": [
+    "Arachas: 1",
+    "Arachas: 2"
+  ]
 }

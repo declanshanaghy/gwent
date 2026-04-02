@@ -1,21 +1,25 @@
 {
-    "kind": "card",
-    "faction": "Scoia'tael",
-    "name": "Elven Skirmisher",
-    "strength": 2,
-    "ranges": [
-        "ranged"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "owner": "Dylan Shanaghy",
-    "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:40:00",
-    "rfid": 618724805900,
-    "rfid_written_at": "2026-03-29T04:26:28",
-    "image": "../../images/Scoiatael/ElvenSkirmisher.jpg",
-    "image_verified": true,
-    "card_text": "No matter what you may have heard, elves don't take human scalps. Too much lice.",
-    "pronoun": "he"
+  "kind": "card",
+  "faction": "Scoia'tael",
+  "name": "Elven Skirmisher",
+  "strength": 2,
+  "ranges": [
+    "ranged"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "owner": "Dylan Shanaghy",
+  "owner_nickname": "dylan",
+  "last_updated": "2026-03-28T16:40:00",
+  "rfid": 618724805900,
+  "rfid_written_at": "2026-03-29T04:26:28",
+  "image": "../../images/Scoiatael/ElvenSkirmisher.jpg",
+  "image_verified": true,
+  "card_text": "No matter what you may have heard, elves don't take human scalps. Too much lice.",
+  "pronoun": "he",
+  "musters_with": [
+    "Elven Skirmisher: 1",
+    "Elven Skirmisher: 2"
+  ]
 }

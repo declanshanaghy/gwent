@@ -1,19 +1,25 @@
 {
-    "kind": "card",
-    "faction": "Monsters",
-    "name": "Vampire: Katakan",
-    "strength": 5,
-    "ranges": [
-        "close"
-    ],
-    "owner": "Dylan Shanaghy",
-    "abilities": [
-        "muster"
-    ],
-    "owner_nickname": "dylan",
-    "last_updated": "2026-03-26T17:48:19",
-    "image": "../../images/Monsters/VampireKatakan.jpg",
-    "card_text": "Drinking the blood of the Continent since the Conjunction.",
-    "image_verified": true,
-    "pronoun": "it"
+  "kind": "card",
+  "faction": "Monsters",
+  "name": "Vampire: Katakan",
+  "strength": 5,
+  "ranges": [
+    "close"
+  ],
+  "owner": "Dylan Shanaghy",
+  "abilities": [
+    "muster"
+  ],
+  "owner_nickname": "dylan",
+  "last_updated": "2026-03-26T17:48:19",
+  "image": "../../images/Monsters/VampireKatakan.jpg",
+  "card_text": "Drinking the blood of the Continent since the Conjunction.",
+  "image_verified": true,
+  "pronoun": "it",
+  "musters_with": [
+    "Vampire: Bruxa",
+    "Vampire: Ekimmara",
+    "Vampire: Garkain",
+    "Vampire: Garkhain"
+  ]
 }

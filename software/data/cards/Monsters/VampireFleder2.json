@@ -1,21 +1,24 @@
 {
-    "kind": "card",
-    "faction": "Monsters",
-    "name": "Vampire - Fleder: 2",
-    "strength": 4,
-    "ranges": [
-        "close"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "owner": "Dylan Shanaghy",
-    "owner_nickname": "dylan",
-    "last_updated": "2026-03-31T21:03:09",
-    "rfid": 1033944190438,
-    "rfid_written_at": "2026-03-29T04:45:06",
-    "image": "../../images/Monsters/VampireFleder.jpg",
-    "image_verified": false,
-    "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds.",
-    "pronoun": "it"
+  "kind": "card",
+  "faction": "Monsters",
+  "name": "Vampire - Fleder: 2",
+  "strength": 4,
+  "ranges": [
+    "close"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "owner": "Dylan Shanaghy",
+  "owner_nickname": "dylan",
+  "last_updated": "2026-03-31T21:03:09",
+  "rfid": 1033944190438,
+  "rfid_written_at": "2026-03-29T04:45:06",
+  "image": "../../images/Monsters/VampireFleder.jpg",
+  "image_verified": false,
+  "card_text": "Higher vampires embrace their victims. Fleders rip them to shreds.",
+  "pronoun": "it",
+  "musters_with": [
+    "Vampire - Fleder: 1"
+  ]
 }

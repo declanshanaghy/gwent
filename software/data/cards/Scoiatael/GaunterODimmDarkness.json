@@ -1,21 +1,25 @@
 {
-    "kind": "card",
-    "faction": "Scoia'tael",
-    "name": "Gaunter O'Dimm: Darkness",
-    "strength": 4,
-    "ranges": [
-        "ranged"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "owner": "Dylan Shanaghy",
-    "owner_nickname": "dylan",
-    "last_updated": "2026-03-28T16:41:00",
-    "rfid": 69303946665,
-    "rfid_written_at": "2026-03-29T04:07:19",
-    "image": "../../images/Scoiatael/GaunterODimmDarkness.jpg",
-    "card_text": "Fear not the shadows, but the light",
-    "image_verified": true,
-    "pronoun": "he"
+  "kind": "card",
+  "faction": "Scoia'tael",
+  "name": "Gaunter O'Dimm: Darkness",
+  "strength": 4,
+  "ranges": [
+    "ranged"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "owner": "Dylan Shanaghy",
+  "owner_nickname": "dylan",
+  "last_updated": "2026-03-28T16:41:00",
+  "rfid": 69303946665,
+  "rfid_written_at": "2026-03-29T04:07:19",
+  "image": "../../images/Scoiatael/GaunterODimmDarkness.jpg",
+  "card_text": "Fear not the shadows, but the light",
+  "image_verified": true,
+  "pronoun": "he",
+  "musters_with": [
+    "Gaunter O'Dimm: Darkness 1",
+    "Gaunter O'Dimm: Darkness 2"
+  ]
 }

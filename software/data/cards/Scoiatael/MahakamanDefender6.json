@@ -1,17 +1,18 @@
 {
-    "kind": "card",
-    "faction": "Scoia'tael",
-    "name": "Mahakaman Defender: 6",
-    "strength": 5,
-    "ranges": [
-        "close"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-26T16:42:44",
-    "image": "../../images/Scoiatael/MahakamanDefender.jpg",
-    "image_verified": false,
-    "card_text": "I'm telling ye, we're born for battle - we slash right at their knees!",
-    "pronoun": "he"
+  "kind": "card",
+  "faction": "Scoia'tael",
+  "name": "Mahakaman Defender: 6",
+  "strength": 5,
+  "ranges": [
+    "close"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-26T16:42:44",
+  "image": "../../images/Scoiatael/MahakamanDefender.jpg",
+  "image_verified": false,
+  "card_text": "I'm telling ye, we're born for battle - we slash right at their knees!",
+  "pronoun": "he",
+  "musters_with": []
 }

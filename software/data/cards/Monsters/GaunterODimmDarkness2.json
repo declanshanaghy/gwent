@@ -1,22 +1,26 @@
 {
-    "abilities": [
-        "muster"
-    ],
-    "faction": "Monsters",
-    "kind": "card",
-    "name": "Gaunter O'Dimm: Darkness 2",
-    "owner": "Declan Shanaghy",
-    "ranges": [
-        "ranged"
-    ],
-    "strength": 4,
-    "content_id": "addc628d625240b97fd584c89931d383",
-    "rfid": 2211728666,
-    "owner_nickname": "dek",
-    "last_updated": "2026-03-26T17:48:19",
-    "rfid_written_at": "2026-03-26T17:48:19",
-    "image": "../../images/Monsters/GaunterODimmDarkness2.jpg",
-    "card_text": "Fear not the shadows, but the light",
-    "image_verified": true,
-    "pronoun": "he"
+  "abilities": [
+    "muster"
+  ],
+  "faction": "Monsters",
+  "kind": "card",
+  "name": "Gaunter O'Dimm: Darkness 2",
+  "owner": "Declan Shanaghy",
+  "ranges": [
+    "ranged"
+  ],
+  "strength": 4,
+  "content_id": "addc628d625240b97fd584c89931d383",
+  "rfid": 2211728666,
+  "owner_nickname": "dek",
+  "last_updated": "2026-03-26T17:48:19",
+  "rfid_written_at": "2026-03-26T17:48:19",
+  "image": "../../images/Monsters/GaunterODimmDarkness2.jpg",
+  "card_text": "Fear not the shadows, but the light",
+  "image_verified": true,
+  "pronoun": "he",
+  "musters_with": [
+    "Gaunter O'Dimm: Darkness",
+    "Gaunter O'Dimm: Darkness 1"
+  ]
 }

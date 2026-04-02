@@ -1,17 +1,23 @@
 {
-    "faction": "Monsters",
-    "kind": "card",
-    "name": "Vampire: Garkhain",
-    "ranges": [
-        "close"
-    ],
-    "starter": true,
-    "strength": 4,
-    "rfid": 552789757359,
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-27T17:15:32",
-    "rfid_written_at": "2026-03-27T17:15:32",
-    "pronoun": "it"
+  "faction": "Monsters",
+  "kind": "card",
+  "name": "Vampire: Garkhain",
+  "ranges": [
+    "close"
+  ],
+  "starter": true,
+  "strength": 4,
+  "rfid": 552789757359,
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-27T17:15:32",
+  "rfid_written_at": "2026-03-27T17:15:32",
+  "pronoun": "it",
+  "musters_with": [
+    "Vampire: Bruxa",
+    "Vampire: Ekimmara",
+    "Vampire: Garkain",
+    "Vampire: Katakan"
+  ]
 }

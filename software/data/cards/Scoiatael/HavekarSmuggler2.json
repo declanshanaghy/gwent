@@ -1,17 +1,21 @@
 {
-    "kind": "card",
-    "faction": "Scoia'tael",
-    "name": "Havekar Smuggler: 2",
-    "strength": 5,
-    "ranges": [
-        "close"
-    ],
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-26T16:42:44",
-    "image": "../../images/Scoiatael/HavekarSmuggler.jpg",
-    "image_verified": false,
-    "card_text": "I fight for whoever's paying the best. Or whoever's easiest to rob.",
-    "pronoun": "she"
+  "kind": "card",
+  "faction": "Scoia'tael",
+  "name": "Havekar Smuggler: 2",
+  "strength": 5,
+  "ranges": [
+    "close"
+  ],
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-26T16:42:44",
+  "image": "../../images/Scoiatael/HavekarSmuggler.jpg",
+  "image_verified": false,
+  "card_text": "I fight for whoever's paying the best. Or whoever's easiest to rob.",
+  "pronoun": "she",
+  "musters_with": [
+    "Havekar Smuggler: 1",
+    "Havekar Smuggler: 3"
+  ]
 }

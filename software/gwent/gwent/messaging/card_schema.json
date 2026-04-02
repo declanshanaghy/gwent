@@ -166,6 +166,13 @@
       ]
     }
   },
+  "musters_with": {
+    "description": "List of card names that this card musters with when played. Empty array means standalone muster (no companions). Numbered suffixes (: 1, : 2) muster together; alpha suffixes (Crone: Brewess/Weavess/Whispess) muster together.",
+    "type": "array",
+    "items": {
+      "type": "string"
+    }
+  },
   "last_updated": {
     "description": "ISO timestamp of when this card's data was last modified",
     "type": "string"

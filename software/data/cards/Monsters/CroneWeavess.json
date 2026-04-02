@@ -1,21 +1,25 @@
 {
-    "kind": "card",
-    "faction": "Monsters",
-    "name": "Crone: Weavess",
-    "strength": 6,
-    "ranges": [
-        "close"
-    ],
-    "owner": "Dylan Shanaghy",
-    "abilities": [
-        "muster"
-    ],
-    "owner_nickname": "dylan",
-    "last_updated": "2026-03-26T17:48:19",
-    "rfid": 964837985754,
-    "rfid_written_at": "2026-03-29T04:24:43",
-    "image": "../../images/Monsters/CroneWeavess.jpg",
-    "card_text": "I sense your pain. I see your fear.",
-    "image_verified": true,
-    "pronoun": "she"
+  "kind": "card",
+  "faction": "Monsters",
+  "name": "Crone: Weavess",
+  "strength": 6,
+  "ranges": [
+    "close"
+  ],
+  "owner": "Dylan Shanaghy",
+  "abilities": [
+    "muster"
+  ],
+  "owner_nickname": "dylan",
+  "last_updated": "2026-03-26T17:48:19",
+  "rfid": 964837985754,
+  "rfid_written_at": "2026-03-29T04:24:43",
+  "image": "../../images/Monsters/CroneWeavess.jpg",
+  "card_text": "I sense your pain. I see your fear.",
+  "image_verified": true,
+  "pronoun": "she",
+  "musters_with": [
+    "Crone: Brewess",
+    "Crone: Whispess"
+  ]
 }

@@ -1,20 +1,24 @@
 {
-    "faction": "Monsters",
-    "kind": "card",
-    "name": "Arachas: 1",
-    "ranges": [
-        "close"
-    ],
-    "starter": true,
-    "strength": 4,
-    "rfid": 622264733154,
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-27T17:15:32",
-    "rfid_written_at": "2026-03-27T17:15:32",
-    "image": "../../images/Monsters/Arachas.jpg",
-    "card_text": "Ugly... Nature's way of saying \"Stay the luck away\".",
-    "image_verified": true,
-    "pronoun": "it"
+  "faction": "Monsters",
+  "kind": "card",
+  "name": "Arachas: 1",
+  "ranges": [
+    "close"
+  ],
+  "starter": true,
+  "strength": 4,
+  "rfid": 622264733154,
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-27T17:15:32",
+  "rfid_written_at": "2026-03-27T17:15:32",
+  "image": "../../images/Monsters/Arachas.jpg",
+  "card_text": "Ugly... Nature's way of saying \"Stay the luck away\".",
+  "image_verified": true,
+  "pronoun": "it",
+  "musters_with": [
+    "Arachas: 2",
+    "Arachas: 3"
+  ]
 }

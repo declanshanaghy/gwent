@@ -1,20 +1,24 @@
 {
-    "faction": "Monsters",
-    "kind": "card",
-    "name": "Crone: Brewess",
-    "ranges": [
-        "close"
-    ],
-    "starter": true,
-    "strength": 6,
-    "rfid": 895011802403,
-    "abilities": [
-        "muster"
-    ],
-    "last_updated": "2026-03-27T17:15:32",
-    "rfid_written_at": "2026-03-27T17:15:32",
-    "image": "../../images/Monsters/CroneBrewess.jpg",
-    "card_text": "We'll cut you up, boy. A fine broth you will make.",
-    "image_verified": true,
-    "pronoun": "she"
+  "faction": "Monsters",
+  "kind": "card",
+  "name": "Crone: Brewess",
+  "ranges": [
+    "close"
+  ],
+  "starter": true,
+  "strength": 6,
+  "rfid": 895011802403,
+  "abilities": [
+    "muster"
+  ],
+  "last_updated": "2026-03-27T17:15:32",
+  "rfid_written_at": "2026-03-27T17:15:32",
+  "image": "../../images/Monsters/CroneBrewess.jpg",
+  "card_text": "We'll cut you up, boy. A fine broth you will make.",
+  "image_verified": true,
+  "pronoun": "she",
+  "musters_with": [
+    "Crone: Weavess",
+    "Crone: Whispess"
+  ]
 }
