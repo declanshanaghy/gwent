@@ -1567,6 +1567,26 @@ def main():
                         help='Run continuously without pausing between turns')
     args = parser.parse_args()
 
+    # Validate model names before doing anything
+    valid_aliases = set(MODEL_ALIASES.keys())
+    valid_resolved = set(MODEL_ALIASES.values())
+    valid_all = valid_aliases | valid_resolved
+    for label, model in [("--model-p1", args.model_p1),
+                         ("--model-p2", args.model_p2)]:
+        if model is None:
+            continue
+        if model not in valid_all:
+            # Check if it at least has a known provider prefix
+            provider = model.split("/")[0] if "/" in model else ""
+            known_providers = {"anthropic", "openai", "gemini", "ollama"}
+            if provider not in known_providers:
+                parser.error(f"{label} '{model}' is not a known model. "
+                             f"Use --help to see available models.")
+            else:
+                print(f"WARNING: {label} '{model}' is not a known alias — "
+                      f"passing through as-is. Use --help to see known models.",
+                      flush=True)
+
     # Derive game_url and mqtt host from --host
     global _mqtt_host
     _mqtt_host = args.host
