@@ -473,12 +473,21 @@ class GameState:
                 self._highlight(f"weather:{row}")
 
     def _record_round_result(self, round_num):
-        """Write round result to disk."""
+        """Write round result to disk using the last score snapshot for this round."""
         # Avoid duplicates
         if any(r["round"] == round_num for r in self.round_results):
             return
-        p1s = self.scores.get(P1, 0)
-        p2s = self.scores.get(P2, 0)
+        # Use last score_change from game log (most accurate — not affected by race)
+        score_history = self.game_log.read_filtered(
+            "snapshots", round_num=round_num, subkinds=["score_change"])
+        if score_history:
+            last = score_history[-1]
+            p1s = last.get("p1_score", 0)
+            p2s = last.get("p2_score", 0)
+        else:
+            # Fallback to current in-memory scores
+            p1s = self.scores.get(P1, 0)
+            p2s = self.scores.get(P2, 0)
         if p1s > p2s:
             winner = P1
         elif p2s > p1s:
