@@ -14,10 +14,36 @@ from textual_image.widget import TGPImage
 from gwent_tui.card_images import resolve_card_image
 from gwent_tui.emoji import FACTION_STYLE
 from gwent_tui.game_state import P1, P2
+from gwent_tui import tts
 
 log = logging.getLogger("gwent_tui.card_overlay")
 
 DISPLAY_SECONDS = 8
+
+
+def _sfx_for_card(card, subkind):
+    """Determine the appropriate SFX effect name for a card being shown."""
+    specialty = card.get("specialty", "")
+    abilities = card.get("abilities") or []
+    ranges = card.get("ranges") or []
+
+    if specialty == "leader" or subkind == "play_leader":
+        return "leader"
+    if specialty == "weather" or subkind == "weather_change":
+        return "weather"
+    if specialty == "scorch":
+        return "special"
+    if specialty == "decoy" or subkind == "decoy_swap":
+        return "special"
+    if "commander" in abilities or subkind == "commander_horn":
+        return "commander"
+    if "spy" in abilities:
+        return "special"
+    # Row-based SFX for unit cards
+    row = ranges[0] if ranges else ""
+    if row in ("close", "ranged", "siege"):
+        return row
+    return "card"
 
 _POSSESSIVE = {"he": "his", "she": "her", "it": "its"}
 
@@ -193,6 +219,11 @@ class CardImageOverlay(Horizontal):
 
             if name != self._current_card_name:
                 self._current_card_name = name
+
+                # Play appropriate SFX for this card
+                effect = _sfx_for_card(card, subkind)
+                if effect:
+                    tts.play_effect(effect)
 
                 # Track target row for flash highlight
                 ranges = card.get("ranges", [])

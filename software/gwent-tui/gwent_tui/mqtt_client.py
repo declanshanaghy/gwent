@@ -202,10 +202,7 @@ class MqttSubscriber:
                 tts.speak(data.get("announcement", ""),
                           faction=data.get("faction"),
                           content_id=data.get("content_id"))
-            elif data.get("subkind") == "effect":
-                effect_name = data.get("effect")
-                if effect_name:
-                    tts.play_effect(effect_name)
+            # SFX effects are triggered by the card overlay when shown
 
         elif topic == MUSIC:
             # Retained message — current music track from server
