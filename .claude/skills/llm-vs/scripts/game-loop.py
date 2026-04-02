@@ -1369,26 +1369,11 @@ def game_loop(args, board, sync):
                 log(f"  {plab}: bad JSON (attempt {attempt + 1})")
                 continue
 
-            # Announce the LLM's decision before executing
             act = action.get('action', '?')
             card_name = action.get('card_name', '')
             reasoning = action.get('reasoning', '')
-            # Trim reasoning to first sentence for TTS
-            sentences = reasoning.replace('!', '.').replace('?', '.').split('.')
-            short_reasoning = sentences[0].strip() + '.' if sentences and sentences[0].strip() else ''
-            if act == 'pass':
-                summary = f"{short_model} passes! {short_reasoning}"
-            elif act == 'play_leader':
-                summary = f"{short_model} uses their leader ability! {short_reasoning}"
-            else:
-                summary = f"{short_model} plays {card_name}! {short_reasoning}"
-            announce(summary, faction=faction)
 
-            # Wait for commentary announcement to finish before executing
-            if _commentary_enabled:
-                sync.wait_all()
-
-            # Drain stale announcements, then execute
+            # Validate BEFORE announcing — don't announce invalid plays
             log_debug(f"Parsed action: {act} {card_name}")
             sync.drain()
             log_debug("Executing action...")
@@ -1397,6 +1382,17 @@ def game_loop(args, board, sync):
             log_debug(f"Execute result: valid={valid}, msg={msg}")
 
             if valid:
+                # Announce the successful play
+                sentences = reasoning.replace('!', '.').replace('?', '.').split('.')
+                short_reasoning = sentences[0].strip() + '.' if sentences and sentences[0].strip() else ''
+                if act == 'pass':
+                    summary = f"{short_model} passes! {short_reasoning}"
+                elif act == 'play_leader':
+                    summary = f"{short_model} uses their leader ability! {short_reasoning}"
+                else:
+                    summary = f"{short_model} plays {card_name}! {short_reasoning}"
+                announce(summary, faction=faction)
+
                 ok = True
                 turn += 1
                 # 1. Confirm state changed (turn advanced or stage changed)
@@ -1434,6 +1430,9 @@ def game_loop(args, board, sync):
                 })
                 break
             else:
+                # Announce the invalid play so viewers know what happened
+                announce(f"{short_model} tried to play {card_name or act} but it was invalid!",
+                         faction=faction)
                 err = f"ERROR: {msg}"
                 with open(os.path.join(REPO_ROOT, 'tmp', 'logs', f'llm-vs-p{pnum}.jsonl'), 'a') as f:
                     f.write(json.dumps({"role": "user", "content": err})
