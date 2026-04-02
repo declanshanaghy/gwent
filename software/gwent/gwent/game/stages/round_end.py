@@ -5,6 +5,7 @@ and checks for game over.
 """
 
 import random
+import time
 from typing import Callable
 
 import gwent.game
@@ -305,6 +306,11 @@ class RoundEnd(gwent.game.stages.base.GameStage):
             # pile and Monsters' kept card can be restored to the board.
             self._board.clear_round()
             self._apply_faction_abilities(self._winner)
+
+            # Pause between rounds so TUI can display the round summary
+            self._log.info("Pausing 10s between rounds")
+            time.sleep(10)
+
             self.complete(self._board, False)
 
     def process_choice(self, choice: gwent.messaging.choice.Message):
