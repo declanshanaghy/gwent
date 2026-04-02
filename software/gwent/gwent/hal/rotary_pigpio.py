@@ -112,15 +112,15 @@ class PiGPIORotaryEncoder:
             try:
                 self.cb_a.cancel()
             except Exception as e:
-                self._log.info(f"Error canceling callback for pin A: {e}")
-            
+                self._log.error(f"Error canceling callback for pin A: {e}")
+
         # Cancel callback for pin B safely
         if hasattr(self, 'cb_b') and self.cb_b:
             self._log.info("Canceling callback for pin B")
             try:
                 self.cb_b.cancel()
             except Exception as e:
-                self._log.info(f"Error canceling callback for pin B: {e}")
+                self._log.error(f"Error canceling callback for pin B: {e}")
             
         self._log.info("Rotary encoder monitoring stopped successfully")
     
@@ -219,18 +219,17 @@ class PiGPIORotaryEncoder:
             try:
                 self.stop()
             except Exception as e:
-                self._log.info(f"Error stopping callbacks: {e}")
-                
+                self._log.error(f"Error stopping callbacks: {e}")
+
             # Try to stop pigpio connection safely
             if hasattr(self, 'pi') and hasattr(self.pi, 'connected') and self.pi.connected:
                 self._log.info("Stopping pigpio connection")
                 try:
                     self.pi.stop()
                 except Exception as e:
-                    self._log.info(f"Error stopping pigpio connection: {e}")
+                    self._log.error(f"Error stopping pigpio connection: {e}")
         except Exception as e:
-            # Catch any exceptions during cleanup to prevent crash
-            pass
+            self._log.error(f"Unexpected error during rotary encoder cleanup: {e}")
 
 
 class PiGPIOSwitch:
@@ -326,15 +325,14 @@ class PiGPIOSwitch:
                 try:
                     self.cb.cancel()
                 except Exception as e:
-                    self._log.info(f"Error canceling callback: {e}")
-                    
+                    self._log.error(f"Error canceling callback: {e}")
+
             # Try to stop pigpio connection safely
             if hasattr(self, 'pi') and hasattr(self.pi, 'connected') and self.pi.connected:
                 self._log.info("Stopping pigpio connection")
                 try:
                     self.pi.stop()
                 except Exception as e:
-                    self._log.info(f"Error stopping pigpio connection: {e}")
+                    self._log.error(f"Error stopping pigpio connection: {e}")
         except Exception as e:
-            # Catch any exceptions during cleanup to prevent crash
-            pass
+            self._log.error(f"Unexpected error during switch cleanup: {e}")

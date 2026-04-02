@@ -10,6 +10,7 @@ setup(
         "gwent-shared",
         "paho-mqtt>=2.1.0",
         "textual>=0.40.0",
+        "textual-image>=0.6.0",
     ],
     entry_points={
         "console_scripts": [
