@@ -69,6 +69,8 @@ class GwentTUI(App):
         Binding("m", "toggle_music", "Music On/Off"),
         Binding("right_square_bracket", "sfx_volume_up", "SFX Vol Up"),
         Binding("left_square_bracket", "sfx_volume_down", "SFX Vol Down"),
+        Binding("equals_sign", "tts_volume_up", "TTS Vol Up"),
+        Binding("minus", "tts_volume_down", "TTS Vol Down"),
         Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
@@ -245,6 +247,7 @@ class GwentTUI(App):
                     ("\u2192", "Next music track"),
                     ("\u2191 / \u2193", "Music volume up/down"),
                     ("] / [", "SFX volume up/down"),
+                    ("= / -", "TTS volume up/down"),
                     ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
@@ -304,6 +307,18 @@ class GwentTUI(App):
         from gwent_tui import tts as tts_mod
         vol = tts_mod.adjust_sfx_volume(-10)
         self.state._log_event(f"\U0001f509 SFX Vol: {vol}%", color="plum1")
+
+    def action_tts_volume_up(self):
+        """Increase TTS announcement volume by 10%."""
+        from gwent_tui import tts as tts_mod
+        vol = tts_mod.adjust_tts_volume(10)
+        self.state._log_event(f"\U0001f50a TTS Vol: {vol}%", color="plum1")
+
+    def action_tts_volume_down(self):
+        """Decrease TTS announcement volume by 10%."""
+        from gwent_tui import tts as tts_mod
+        vol = tts_mod.adjust_tts_volume(-10)
+        self.state._log_event(f"\U0001f509 TTS Vol: {vol}%", color="plum1")
 
     def action_toggle_music(self):
         """Toggle music on/off via MQTT."""

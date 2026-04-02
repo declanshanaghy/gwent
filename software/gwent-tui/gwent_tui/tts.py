@@ -31,7 +31,8 @@ _on_music_complete_callback = None
 
 # Volume state (0-100 percent)
 _volume = 100       # music
-_sfx_volume = 100   # SFX + TTS
+_sfx_volume = 100   # SFX effects
+_tts_volume = 100   # TTS announcements
 
 # Current music track path (for dedup)
 _music_current_path: str = ""
@@ -131,7 +132,7 @@ def _play_one(text: str, faction: str | None = None):
         return
 
     mixer = _get_mixer()
-    vol = _sfx_volume / 100.0
+    vol = _tts_volume / 100.0
 
     try:
         if getattr(provider, 'can_speak_direct', False):
@@ -219,14 +220,23 @@ def adjust_volume(delta: int) -> int:
 
 
 def adjust_sfx_volume(delta: int) -> int:
-    """Adjust SFX/TTS volume by delta percent. Takes effect on next play."""
+    """Adjust SFX effects volume by delta percent."""
     global _sfx_volume
     _sfx_volume = max(0, min(100, _sfx_volume + delta))
     mixer = _get_mixer()
     mixer.set_channel_volume("effect", _sfx_volume / 100.0)
-    mixer.set_channel_volume("tts", _sfx_volume / 100.0)
     log.info("SFX volume: %d%%", _sfx_volume)
     return _sfx_volume
+
+
+def adjust_tts_volume(delta: int) -> int:
+    """Adjust TTS announcement volume by delta percent."""
+    global _tts_volume
+    _tts_volume = max(0, min(100, _tts_volume + delta))
+    mixer = _get_mixer()
+    mixer.set_channel_volume("tts", _tts_volume / 100.0)
+    log.info("TTS volume: %d%%", _tts_volume)
+    return _tts_volume
 
 
 # ------------------------------------------------------------------

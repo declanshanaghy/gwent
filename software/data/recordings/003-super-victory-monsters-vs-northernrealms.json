@@ -1,0 +1,717 @@
+{
+  "version": 1,
+  "saved_at": "2026-04-01T20:41:50.148956",
+  "active_stage": "PlayRound",
+  "state": {
+    "board": {
+      "players": {
+        "PLAYER.ONE": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        },
+        "PLAYER.TWO": {
+          "rows": {
+            "close": [],
+            "ranged": [],
+            "siege": []
+          },
+          "discard": [],
+          "gems": 2,
+          "passed": false,
+          "leader_used": false
+        }
+      },
+      "leaders": {
+        "PLAYER.ONE": {
+          "kind": "card",
+          "faction": "Monsters",
+          "name": "Eredin - King of the Wild Hunt",
+          "rfid": 209511075183,
+          "specialty": "leader",
+          "starter": true,
+          "leader": {
+            "instructions": "Pick any weather card from your deck and play it instantly",
+            "weather_ranges": [
+              "close",
+              "ranged",
+              "siege"
+            ]
+          },
+          "image": "../../images/Monsters/EredinKingOfTheWildHunt.jpg",
+          "content_id": "6d2c169892aec29eb73de4387d99a3f0"
+        },
+        "PLAYER.TWO": {
+          "kind": "card",
+          "faction": "Northern Realms",
+          "name": "Foltest: the Siegemaster",
+          "rfid": 413623274942,
+          "specialty": "leader",
+          "leader": {
+            "instructions": "doubles the strength of all your siege units (unless a commander's horn is also present on that row)",
+            "commander_ranges": [
+              "siege"
+            ]
+          },
+          "image": "../../images/NorthernRealms/FoltestTheSiegemaster.jpg",
+          "content_id": "e9a3c12c01c92e74f57a9fe4538d37b0"
+        }
+      },
+      "factions": {
+        "PLAYER.ONE": "Monsters",
+        "PLAYER.TWO": "Northern Realms"
+      },
+      "hands": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Arachas: 1",
+            "rfid": 622264733154,
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "starter": true,
+            "image": "../../images/Monsters/Arachas.jpg",
+            "content_id": "5ed6c6bdb73dc3597be59c2a149e966c"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Arachas: 2",
+            "rfid": 482409860530,
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "starter": true,
+            "image": "../../images/Monsters/Arachas2.jpg",
+            "content_id": "e053aadaa8e88079121f42c26c12dcab"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Arachas: Behemoth",
+            "rfid": 345675550136,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "starter": true,
+            "image": "../../images/Monsters/ArachasBehemoth.jpg",
+            "content_id": "83394e3e2414506604b01eab8c101a4c"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Crone: Brewess",
+            "rfid": 895011802403,
+            "strength": 6,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "starter": true,
+            "image": "../../images/Monsters/CroneBrewess.jpg",
+            "content_id": "835c7eaef5264ec39eebc342c5d0869d"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Crone: Weavess",
+            "rfid": 964837985754,
+            "strength": 6,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/CroneWeavess.jpg",
+            "content_id": "bc2c781198d26f7d7e408afdaa11ebe7"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire - Fleder: 1",
+            "rfid": 826761760036,
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/VampireFleder.jpg",
+            "content_id": "79ae16d319709e92d94c9f3563e95d81"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Vampire - Fleder: 2",
+            "rfid": 1033944190438,
+            "strength": 4,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "muster"
+            ],
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/VampireFleder.jpg",
+            "content_id": "d52c465c7e39727307592fe578e82868"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Geralt of Rivia",
+            "rfid": 346429869409,
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/Monsters/GeraltOfRivia.jpg",
+            "content_id": "f312768f0b22bef0ea61f702716bbb2f"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Imlerith",
+            "rfid": 964553100774,
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "image": "../../images/Monsters/Imlerith.jpg",
+            "content_id": "51c4c2cbfb97bdcf7c4cccb2f533dec6"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Draug",
+            "rfid": 277023247789,
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/Draug.jpg",
+            "content_id": "02531caa795a9ce0f16ac6f22a714da4"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Cirilla Fiona Elen Riannon",
+            "rfid": 827567459838,
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/CirillaFionaElenRiannon.jpg",
+            "content_id": "28ed6a99ee0d5cc8d5152ae4be37c7d1"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Geralt of Rivia",
+            "rfid": 484825779458,
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/GeraltOfRivia.jpg",
+            "content_id": "f9ab7d05e91acb63d002b6b357ea5963"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Philippa Eilhart",
+            "rfid": 208604843325,
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/NorthernRealms/PhilippaEilhart.jpg",
+            "content_id": "28ade042fbce40743669e32b8ffad5d9"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "John Natalis: 2",
+            "rfid": 1031980600621,
+            "strength": 10,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/JohnNatalis.jpg",
+            "content_id": "1f871c4419052abf56895fa323751f05"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Avallac'h",
+            "rfid": 72038567245,
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "spy"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/Avallach.jpg",
+            "content_id": "723b9caa227bad11e62e3069e65129b3"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Prince Stennis",
+            "rfid": 71099895090,
+            "strength": 5,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "spy"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/PrinceStennis.jpg",
+            "content_id": "47afe34681cc45206359416275b9f757"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Cirilla Fiona Elen Riannon: 2",
+            "rfid": 344936893829,
+            "strength": 15,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/CirillaFionaElenRiannon2.jpg",
+            "content_id": "f77df9c0c202a2c5dd3aff490a6a9716"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Ballista: 1",
+            "rfid": 687410072884,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/Ballista.jpg",
+            "content_id": "eb5a0e35816b50dc18a52962d2ec3714"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Ballista: 2",
+            "rfid": 415216454997,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/Ballista2.jpg",
+            "content_id": "922020422db6c108b1009eb36b2b932a"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Trebuchet: 1",
+            "rfid": 416022809877,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/Trebuchet.jpg",
+            "content_id": "41b18139b71a52ab6122aae3ed041a95"
+          }
+        ]
+      },
+      "decks": {
+        "PLAYER.ONE": [
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Dandelion",
+            "rfid": 618623487232,
+            "strength": 2,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "commander"
+            ],
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/Monsters/Dandelion.jpg",
+            "content_id": "419acef8b28f1076240ccdae002659f8"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Villentretenmerth",
+            "rfid": 964737453542,
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "scorch"
+            ],
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/Monsters/Villentretenmerth.jpg",
+            "content_id": "bf548095f40754ca86b94e7a98f9182d"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Biting Frost: 1",
+            "rfid": 965039967680,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Monsters/BitingFrost.jpg",
+            "content_id": "3e3f92a29de485b5b8b028f282164135"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Clear Weather: 1",
+            "rfid": 206340705706,
+            "specialty": "weather",
+            "starter": true,
+            "image": "../../images/Monsters/ClearWeather.jpg",
+            "content_id": "6e010477ed794a9e4d081fbcf80c1a60"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Bovine Defense Force",
+            "rfid": 275479023098,
+            "strength": 8,
+            "ranges": [
+              "close"
+            ],
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/Monsters/BovineDefenseForce.jpg",
+            "content_id": "0f2a5dc46920d53ad9c53eb44317221f"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Kayran",
+            "rfid": 485093756187,
+            "strength": 8,
+            "ranges": [
+              "close",
+              "ranged"
+            ],
+            "abilities": [
+              "agile",
+              "morale"
+            ],
+            "specialty": "hero",
+            "starter": true,
+            "image": "../../images/Monsters/Kayran.jpg",
+            "content_id": "9a630fce306bdb8b181b22c5200635d1"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Avallac'h",
+            "rfid": 826074549561,
+            "strength": 0,
+            "ranges": [
+              "close"
+            ],
+            "abilities": [
+              "spy"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/Avallach.jpg",
+            "content_id": "e40947c29c052fe88e7cfacb77757ae2"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Leshen",
+            "rfid": 206693223810,
+            "strength": 10,
+            "ranges": [
+              "ranged"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/Leshen.jpg",
+            "content_id": "24396c85f3fe7b8a1ce35217291a2cce"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Triss Merigold",
+            "rfid": 825940266272,
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/TrissMerigold.jpg",
+            "content_id": "bff37026e5d0dc68131bffab53b51a60"
+          },
+          {
+            "kind": "card",
+            "faction": "Monsters",
+            "name": "Triss Merigold: 2",
+            "rfid": 622432701911,
+            "strength": 7,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "hero",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/Monsters/TrissMerigold.jpg",
+            "content_id": "eff222c557d92ee75d7c94ebf07b54c6"
+          }
+        ],
+        "PLAYER.TWO": [
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Trebuchet: 2",
+            "rfid": 966164499898,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/Trebuchet2.jpg",
+            "content_id": "346a8d5e95582f15245aa04cc1c32f76"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Siege Tower: 1",
+            "rfid": 482863238581,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/SiegeTower.jpg",
+            "content_id": "959e67e60204ea3c2e1b2c757415889c"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Siege Tower: 2",
+            "rfid": 894658825474,
+            "strength": 6,
+            "ranges": [
+              "siege"
+            ],
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/NorthernRealms/SiegeTower2.jpg",
+            "content_id": "4c6409bd04810c4f3d586482aa32ec61"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Kaedweni Siege Expert: 1",
+            "rfid": 275025972694,
+            "strength": 1,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/KaedweniSiegeExpert.jpg",
+            "content_id": "a7b04cf0ecaf549473b9b98eb251d9a8"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Kaedweni Siege Expert: 2",
+            "rfid": 3151121700,
+            "strength": 1,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/KaedweniSiegeExpert2.jpg",
+            "content_id": "b799b48ad7ab956d1e9cb1c1fa1b09dd"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Kaedweni Siege Expert: 3",
+            "rfid": 277676707193,
+            "strength": 1,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "morale"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/KaedweniSiegeExpert3.jpg",
+            "content_id": "7b548973642102f907638bc8340721cf"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Dun Banner Medic",
+            "rfid": 687812594970,
+            "strength": 5,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "medic"
+            ],
+            "starter": true,
+            "image": "../../images/NorthernRealms/DunBannerMedic.jpg",
+            "content_id": "10db6fb9d7d5f4c87575cdbf4a19db33"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Biting Frost",
+            "rfid": 344937352588,
+            "ranges": [
+              "close"
+            ],
+            "specialty": "weather",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/BitingFrost.jpg",
+            "content_id": "e73df79558d205ab46b91390e9f417b2"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Clear Weather",
+            "rfid": 412633484768,
+            "specialty": "weather",
+            "owner": "Dylan Shanaghy",
+            "owner_nickname": "dylan",
+            "image": "../../images/NorthernRealms/ClearWeather.jpg",
+            "content_id": "e91c470ee86dd1f99dd4095c2950e483"
+          },
+          {
+            "kind": "card",
+            "faction": "Northern Realms",
+            "name": "Catapult",
+            "rfid": 278582611200,
+            "strength": 8,
+            "ranges": [
+              "siege"
+            ],
+            "abilities": [
+              "bond"
+            ],
+            "owner": "Declan Shanaghy",
+            "owner_nickname": "dek",
+            "image": "../../images/NorthernRealms/Catapult.jpg",
+            "content_id": "6b2b490d023642764f3d8d53f27d3a43"
+          }
+        ]
+      },
+      "weather_rows": [],
+      "commander_horn_rows": {
+        "PLAYER.ONE": [],
+        "PLAYER.TWO": []
+      },
+      "current_player": "PLAYER.ONE",
+      "round_number": 1,
+      "spy_doubling": false,
+      "medic_random": false,
+      "half_weather_penalty": {
+        "PLAYER.ONE": 0,
+        "PLAYER.TWO": 0
+      },
+      "scores": {
+        "PLAYER.ONE": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        },
+        "PLAYER.TWO": {
+          "total": 0,
+          "close": 0,
+          "ranged": 0,
+          "siege": 0
+        }
+      }
+    }
+  }
+}
