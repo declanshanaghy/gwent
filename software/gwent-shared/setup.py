@@ -10,5 +10,8 @@ setup(
         "gtts",
         "elevenlabs",
         "openai",
+        "pygame>=2.1.2",
+        "pydub>=0.24.0",
+        'audioop-lts>=0.2.1; python_version>="3.13"',
     ],
 )
