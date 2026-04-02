@@ -132,51 +132,84 @@ def _play_one(text: str, faction: str | None = None):
         _player_proc.wait()
 
 
+_sfx_volume = 100  # 0-100 percent (SFX + TTS only)
+
+
+def adjust_sfx_volume(delta: int) -> int:
+    """Adjust SFX/TTS volume by delta percent. Returns new volume."""
+    global _sfx_volume
+    _sfx_volume = max(0, min(100, _sfx_volume + delta))
+    log.info("SFX volume: %d%%", _sfx_volume)
+    return _sfx_volume
+
+
 def _play_audio(path: str) -> subprocess.Popen | None:
-    """Play an audio file, returning the subprocess."""
+    """Play an audio file at the current SFX volume, returning the subprocess."""
     import platform
+    vol_frac = _sfx_volume / 100.0
     try:
         if platform.system() == "Darwin":
             return subprocess.Popen(
-                ["afplay", path],
+                ["afplay", "-v", str(vol_frac), path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             if path.endswith(".wav"):
+                # aplay doesn't support volume — use amixer or just play at full
                 return subprocess.Popen(
                     ["aplay", path],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
+                scale = int(vol_frac * 32768)
                 return subprocess.Popen(
-                    ["mpg123", "-q", path],
+                    ["mpg123", "-q", "--scale", str(scale), path],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except FileNotFoundError as e:
         log.debug("Audio player not found: %s", e)
         return None
 
 
-_volume = 100  # 0-100 percent
+_volume = 100  # 0-100 percent (music only)
 
 
 def adjust_volume(delta: int) -> int:
-    """Adjust system volume by delta percent. Returns new volume."""
+    """Adjust music volume by delta percent. Restarts music with new volume.
+
+    Only affects music playback, not SFX or TTS.
+    """
     global _volume
     _volume = max(0, min(100, _volume + delta))
+    log.info("Music volume: %d%%", _volume)
+    # Restart music with new volume if currently playing
+    if _music_proc and _music_proc.poll() is None and _music_current_path:
+        _restart_music_with_volume()
+    return _volume
+
+
+def _restart_music_with_volume():
+    """Restart the current music track with the current volume level."""
+    global _music_proc
+    if not _music_current_path:
+        return
+    # Kill current playback
+    if _music_proc and _music_proc.poll() is None:
+        _music_proc.terminate()
     import platform
+    vol_frac = _volume / 100.0
     try:
         if platform.system() == "Darwin":
-            # macOS: set output volume via osascript
-            subprocess.Popen(
-                ["osascript", "-e", f"set volume output volume {_volume}"],
+            _music_proc = subprocess.Popen(
+                ["afplay", "-v", str(vol_frac), _music_current_path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
-            # Linux: amixer set Master volume
-            subprocess.Popen(
-                ["amixer", "sset", "Master", f"{_volume}%"],
+            scale = int(vol_frac * 32768)
+            _music_proc = subprocess.Popen(
+                ["mpg123", "-q", "--scale", str(scale), _music_current_path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-    except FileNotFoundError:
-        log.debug("Volume control command not found")
-    log.info("Volume: %d%%", _volume)
-    return _volume
+        log.info("Music restarted at volume %d%%", _volume)
+        t = threading.Thread(target=_music_monitor, args=(_music_proc,), daemon=True)
+        t.start()
+    except FileNotFoundError as e:
+        log.debug("Music player not found: %s", e)
 
 
 def play_effect(effect_name: str):
@@ -235,16 +268,19 @@ def play_music(path: str, seek_seconds: float = 0):
     stop_music()
     _music_current_path = path
     import platform
+    vol_frac = _volume / 100.0
     try:
         if platform.system() == "Darwin":
             _music_proc = subprocess.Popen(
-                ["afplay", path],
+                ["afplay", "-v", str(vol_frac), path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
+            scale = int(vol_frac * 32768)
             _music_proc = subprocess.Popen(
-                ["mpg123", "-q", path],
+                ["mpg123", "-q", "--scale", str(scale), path],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        log.info("Music playing: %s (pid=%s)", os.path.basename(path), _music_proc.pid)
+        log.info("Music playing: %s (pid=%s, vol=%d%%)",
+                 os.path.basename(path), _music_proc.pid, _volume)
         t = threading.Thread(target=_music_monitor, args=(_music_proc,), daemon=True)
         t.start()
     except FileNotFoundError as e:
