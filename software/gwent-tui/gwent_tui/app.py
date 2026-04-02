@@ -64,17 +64,22 @@ class GwentTUI(App):
         Binding("question_mark", "help", "Help"),
         Binding("ctrl+s", "save", "Save State"),
         Binding("right", "next_track", "Next Track"),
+        Binding("up", "volume_up", "Volume Up"),
+        Binding("down", "volume_down", "Volume Down"),
+        Binding("m", "toggle_music", "Music On/Off"),
         Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
     def __init__(self, gwent_url: str, mqtt_host: str = "localhost",
-                 mqtt_port: int = 1883, no_snapshot: bool = False):
+                 mqtt_port: int = 1883, no_snapshot: bool = False,
+                 no_splash: bool = False):
         super().__init__()
         self.state = GameState()
         self._gwent_url = gwent_url
         self._mqtt_host = mqtt_host
         self._mqtt_port = mqtt_port
         self._no_snapshot = no_snapshot
+        self._no_splash = no_splash
         self._poller = None
         self._subscriber = None
         self._current_stage_name = None
@@ -90,6 +95,11 @@ class GwentTUI(App):
 
     def on_mount(self):
         log.info("gwent-tui starting (url=%s)", self._gwent_url)
+
+        # Splash screen
+        if not self._no_splash:
+            from gwent_tui.splash import SplashScreen
+            self.push_screen(SplashScreen(duration=6.0))
 
         # MQTT
         self._subscriber = MqttSubscriber(
@@ -153,9 +163,11 @@ class GwentTUI(App):
 
     async def _switch_stage(self, stage_name):
         """Swap the stage container widget if the stage changed."""
-        # Intercept: show round summary interstitial before PlayRound
+        # Intercept: show round summary interstitial before PlayRound (one cycle)
         if stage_name == "PlayRound" and self.state._show_round_summary:
             stage_name = "RoundSummary"
+            # Clear flag so the next refresh cycle switches to PlayRound
+            self.state._show_round_summary = False
 
         if stage_name == self._current_stage_name:
             return
@@ -227,7 +239,9 @@ class GwentTUI(App):
                 table.add_column("Action", style="white")
                 for key, action in [
                     ("?", "Help"),
+                    ("m", "Toggle music on/off"),
                     ("\u2192", "Next music track"),
+                    ("\u2191 / \u2193", "Volume up/down"),
                     ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
@@ -260,9 +274,29 @@ class GwentTUI(App):
         await self._refresh_all()
 
     def action_next_track(self):
-        """Skip to next music track."""
-        if self._subscriber:
+        """Skip to next music track (only if music is enabled)."""
+        if self._subscriber and self._subscriber.music_enabled:
             self._subscriber._publish_music_complete()
+
+    def action_volume_up(self):
+        """Increase music volume by 10%."""
+        from gwent_tui import tts as tts_mod
+        vol = tts_mod.adjust_volume(10)
+        self.state._log_event(f"\U0001f50a Volume: {vol}%", color="plum1")
+
+    def action_volume_down(self):
+        """Decrease music volume by 10%."""
+        from gwent_tui import tts as tts_mod
+        vol = tts_mod.adjust_volume(-10)
+        self.state._log_event(f"\U0001f509 Volume: {vol}%", color="plum1")
+
+    def action_toggle_music(self):
+        """Toggle music on/off via MQTT."""
+        if self._subscriber:
+            self._subscriber.publish_music_toggle()
+            self.state._log_event(
+                f"\U0001f3b5 Music {'ON' if self._subscriber.music_enabled else 'OFF'}",
+                color="plum1")
 
     def _register_client_tts(self):
         """Register this client's TTS provider with the server."""
@@ -307,6 +341,8 @@ def main():
                              "Default: say on macOS, piper on Linux")
     parser.add_argument("--gwent-url", default=None,
                         help="Override HTTP state URL (default: http://<host>:8080/state)")
+    parser.add_argument("--no-splash", action="store_true",
+                        help="Skip the startup splash screen")
     args = parser.parse_args()
 
     # Initialise TTS before app starts
@@ -321,6 +357,7 @@ def main():
         mqtt_host=args.host,
         mqtt_port=args.port,
         no_snapshot=args.no_snapshot,
+        no_splash=args.no_splash,
     )
     try:
         app.run()
