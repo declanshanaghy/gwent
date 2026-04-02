@@ -115,7 +115,7 @@ CARD ABILITIES (effects that unit cards have):
 - commander (ABILITY): unit that also doubles all non-hero strength in its row.
 - agile: can be placed on multiple rows. Specify which row.
 - scorch (ABILITY): destroys the strongest non-hero in the opponent's same row only.
-- muster: auto-summons all cards with the same base name from hand and deck.
+- muster: auto-summons specific companion cards (listed in musters_with) from hand and deck. Check musters_with to see exactly which cards will be summoned. Empty musters_with means no companions.
 
 SCORCH DISTINCTION:
 - Scorch specialty card: destroys strongest across all rows of both players.
@@ -621,6 +621,8 @@ def card_summary(c):
         r['rows'] = rng
     if c.get('abilities'):
         r['abilities'] = c['abilities']
+    if c.get('musters_with'):
+        r['musters_with'] = c['musters_with']
     if c.get('specialty'):
         r['specialty'] = c['specialty']
     return r
