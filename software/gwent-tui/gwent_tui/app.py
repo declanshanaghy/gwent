@@ -152,10 +152,7 @@ class GwentTUI(App):
         try:
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
         except Exception as e:
-            import sys, traceback
-            print(f"Card overlay error: {e}", file=sys.stderr)
-            traceback.print_exc(file=sys.stderr)
-            log.debug("Card overlay error: %s", e)
+            log.error("Card overlay error: %s", e, exc_info=True)
 
     async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
@@ -167,12 +164,6 @@ class GwentTUI(App):
 
     async def _switch_stage(self, stage_name):
         """Swap the stage container widget if the stage changed."""
-        # Intercept: show round summary interstitial before PlayRound (one cycle)
-        if stage_name == "PlayRound" and self.state._show_round_summary:
-            stage_name = "RoundSummary"
-            # Clear flag so the next refresh cycle switches to PlayRound
-            self.state._show_round_summary = False
-
         if stage_name == self._current_stage_name:
             return
 

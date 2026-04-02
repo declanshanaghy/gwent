@@ -1,8 +1,13 @@
-"""TUI stage: RoundEnd — reuses game board view (scores still visible)."""
+"""TUI stage: RoundEnd — shows the round summary while server processes round end."""
 
-from gwent_tui.stages.play_round import PlayRoundStage
+from gwent_tui.stages.round_summary import RoundSummaryStage
 
 
-class RoundEndStage(PlayRoundStage):
-    """Same layout as PlayRound — board stays visible during round end."""
+class RoundEndStage(RoundSummaryStage):
+    """Show round summary during the server's RoundEnd stage.
+
+    The server stays in RoundEnd for ~10 seconds while it processes
+    faction abilities and the between-rounds pause. During that time
+    the TUI shows the round summary with scores and stats.
+    """
     pass

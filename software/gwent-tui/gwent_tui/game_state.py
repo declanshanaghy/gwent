@@ -126,7 +126,6 @@ class GameState:
 
         # Score dedup gate (for disk writes)
         self._last_recorded_scores = (0, 0)
-        self._show_round_summary = False
         self._summary_round = 0
 
         # Event log (recent events for footer)
@@ -657,8 +656,8 @@ class GameState:
         return self.game_log.read_filtered("cards", subkinds=["round_result"])
 
     def dismiss_round_summary(self):
-        """Called when user dismisses the round summary interstitial."""
-        self._show_round_summary = False
+        """No-op — kept for backwards compat with round_summary.py on_key."""
+        pass
 
     def _record_card_event(self, subkind, p, card, data):
         """Write a compact event record to disk for stats tracking."""
@@ -695,10 +694,10 @@ class GameState:
                     self.reg_leader2 = None
                     self.reg_deck1 = []
                     self.reg_deck2 = []
-                # Detect round transition: show interstitial between rounds
-                if stage == "PlayRound" and prev_stage == "RoundEnd":
-                    self._show_round_summary = True
+                # Set summary round when entering RoundEnd (for RoundEndStage display)
+                if stage == "RoundEnd":
                     self._summary_round = self.round_number
+                    self._record_round_result(self.round_number)
                 self.stage = stage
                 self._log_event(f"\U0001f3ad Stage: {stage}", color=_EVENT_COLORS["stage"])
                 if stage in ("GameOver", "DisplayWinner"):
