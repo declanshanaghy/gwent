@@ -212,7 +212,7 @@ class AnnouncementSync:
         with self._lock:
             waiting = self._pending_ids - self._completed_ids
         if waiting:
-            log_debug(f"  \u23f3 Waiting for {len(waiting)} announcement(s)")
+            log(f"  \u23f3 Waiting for {len(waiting)} announcement(s)")
         else:
             log_debug("  TTS: nothing pending")
 
@@ -220,7 +220,7 @@ class AnnouncementSync:
         while time.time() < deadline:
             with self._lock:
                 if not self._pending_ids or self._pending_ids.issubset(self._completed_ids):
-                    log_debug("  TTS: all announcements completed")
+                    log(f"  \u2705 TTS: all announcements completed")
                     break
             self._event.clear()
             got = self._event.wait(timeout=min(30, deadline - time.time()))
@@ -419,6 +419,7 @@ def announce(text, faction=None):
            "announcement": text, "content_id": content_id}
     if faction:
         msg["faction"] = faction
+    log(f"\U0001f4e2 TTS: {text}")
     if _sync_ref:
         _sync_ref.track(content_id)
     mqpub('gwent/sfx', json.dumps(msg))
@@ -673,6 +674,9 @@ def build_state(board, cur):
     has_spy = any('spy' in (c.get('abilities') or []) for c in hand_cards)
     leader_needs_deck = li.get('choose_from') == 'weather_in_deck'
 
+    leader_available = not board['players'][cur]['leader_used']
+    must_pass = len(hand_cards) == 0 and not leader_available
+
     result = {
         'round': board['round_number'],
         'your_gems': board['players'][cur]['gems'],
@@ -690,6 +694,8 @@ def build_state(board, cur):
         'opponent_hand_size': len(board['hands'][opp]),
         'opponent_passed': board['players'][opp]['passed'],
     }
+    if must_pass:
+        result['MUST_PASS'] = "You have no cards in hand and your leader ability is used. You MUST pass."
     if has_spy or leader_needs_deck:
         result['your_deck'] = [card_summary(c) for c in board['decks'][cur]]
     return result
@@ -1030,15 +1036,16 @@ def execute(board, cur, action, sync=None, game_url=None):
                   and any(r in allowed for r in c.get('ranges', []))]
             if not wc:
                 return False, f"No matching weather cards in deck for leader ability."
-        if ld.get('draw_own_discard'):
+        elif ld.get('draw_own_discard'):
             nh = [c for c in board['players'][cur]['discard']
                   if c.get('specialty') != 'hero']
             if not nh:
                 return False, "No non-hero cards in your discard for leader ability."
-        if ld.get('draw_opponent_discard'):
+        elif ld.get('draw_opponent_discard'):
             od = board['players'][opp]['discard']
             if not od:
                 return False, "Opponent's discard pile is empty for leader ability."
+        # commander_ranges, conditional_scorch, etc. always have valid targets
 
         mqpub('gwent/cards/raw/read', json.dumps(board['leaders'][cur]))
         if ld.get('draw_own_discard'):
@@ -1268,17 +1275,30 @@ def game_loop(args, board, sync):
             )
             log(f"\u2694 Commander orders for {plab}: {order_text}")
 
+        # --- Auto-pass if no cards and leader spent ---
+        hand_size = len(board['hands'][cur])
+        leader_used = board['players'][cur]['leader_used']
+        if hand_size == 0 and leader_used:
+            log(f"--- {plab} auto-pass (no cards, leader spent) ---")
+            announce(f"{_short_model_name(args.model_p1 if pnum == '1' else args.model_p2)} "
+                     f"has no cards left and must pass!",
+                     faction=faction)
+            mqpub('gwent/mfd/choose',
+                  json.dumps({"kind": "choice", "id": "p", "text": "Pass"}))
+            wait_for_turn_advance(args.game_url, cur)
+            sync.wait_all()
+            turn += 1
+            continue
+
         state = build_state(board, cur)
         state_json = json.dumps(state)
         if orders_for_cur:
             state_json = orders_for_cur + state_json
 
         # --- Pre-turn input summary ---
-        hand_size = len(board['hands'][cur])
         ps1 = board['scores']['PLAYER.ONE']['total']
         ps2 = board['scores']['PLAYER.TWO']['total']
         weather = board.get('weather_rows', [])
-        leader_used = board['players'][cur]['leader_used']
         log(f"--- {plab} turn {turn} ---")
         log(f"  Hand: {hand_size} cards | Scores: P1={ps1} P2={ps2}")
         log(f"  Weather: {', '.join(weather) if weather else 'clear'} | "
