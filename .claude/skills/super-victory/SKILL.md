@@ -71,7 +71,7 @@ Pick the faction's primary combo from the synergy catalog:
 
 - At least 1 weather card (target opponent's strongest non-hero row)
 - At least 1 Clear Weather (defensive)
-- 1 spy if available (Avallac'h for free card draw)
+- **Maximum 2 spies per deck** (hand + deck combined, never more)
 - 0-1 scorch (Villentretenmerth ability or Scorch specialty)
 - Medic if available
 - Decoy if available (for medic/spy replay)
@@ -270,7 +270,8 @@ The game-loop.py script detects the game is already in PlayRound and starts play
 - Always 20 unit/special cards per deck
 - `--hand` in hand, remainder in deck (default 10 + 10)
 - 1 leader (separate, not counted in size)
-- Only cards with `rfid` field
+- **Only cards with BOTH `rfid` AND `image` fields** — cards without images cannot be displayed in the TUI card overlay
+- **Maximum 2 spies per deck** (hand + deck combined) — more than 2 unbalances games
 - Balance across rows (no more than 8 cards in any single row)
 - Include at least 1 weather + 1 clear weather
 - Target total base strength: 80-120 per deck

@@ -64,7 +64,7 @@ Weather (Frost/Fog/Rain) reduces all non-heroes in targeted row to 1. Heroes imm
 ## Archetype Recommendations
 
 - **Monsters "Muster Swarm"**: Eredin KotWH leader, Arachas/Crone/Vampire muster chains, heroes (Geralt 15, Imlerith 10, Draug 10, Kayran 8 morale), Dandelion commander. Passive keeps strongest hero between rounds.
-- **Nilfgaardian "Spy Engine"**: Emhyr HIM leader, 4 spies (Avallac'h+Vattier+Shilard+Stefan) for +8 cards, Impera 3x bond (18) + Young Emissary 2x bond (15), Dandelion commander to double close. Win ties enables conservative play after spy advantage.
-- **NR "Siege Fortress"**: Foltest Siegemaster leader (horn on siege), 3 spies + 3x Kaedweni morale in siege + Ballista/Trebuchet/Siege Tower units. Leader horn + morale stack = devastating siege row.
+- **Nilfgaardian "Spy Engine"**: Emhyr HIM leader, 2 spies max (pick best 2 from Avallac'h/Vattier/Shilard/Stefan) for +4 cards, Impera 3x bond (18) + Young Emissary 2x bond (15), Dandelion commander to double close. Win ties enables conservative play after spy advantage.
+- **NR "Siege Fortress"**: Foltest Siegemaster leader (horn on siege), 2 spies max + 3x Kaedweni morale in siege + Ballista/Trebuchet/Siege Tower units. Leader horn + morale stack = devastating siege row.
 - **Scoia'tael "Guerrilla Flex"**: Francesca Beautiful leader (horn on ranged), agile units (DBS x3, Filavandrel, Vrihedd x2) flex to ranged for horn, Dwarven Skirmisher x3 muster + Elven Skirmisher x3 muster, 3 Decoys for medic/spy replay.
 - **Skellige "Berserker Blitz"**: Crach an Craite leader, CaC Warrior 3x bond (36 close) + TYV 3x bond (48 ranged) + War Longship 2x bond (18 siege), Dandelion + Commander's Horn, Olaf agile morale. Passive resurrects 2 per round to recycle bond cards.
