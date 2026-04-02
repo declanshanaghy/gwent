@@ -1664,11 +1664,7 @@ class PlayRound(gwent.game.stages.base.GameStage):
             self.publish_error(random.choice(self._SIMPLE_LEADER_USED))
             return
 
-        # Publish leader card to TUI card overlay and play leader SFX
-        play_msg = gwent.messaging.card_play.Message.with_play_card(
-            str(cur), card, "leader")
-        self.publish(gwent.game.make_channel(
-            gwent.game.CH_CARDS_PLAY, str(cur)), play_msg)
+        # Play leader SFX
         self.publish_effect("leader")
 
         pb.leader_used = True
