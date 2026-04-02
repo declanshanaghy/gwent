@@ -210,7 +210,7 @@ def _display_name(card):
 def card_display(card, max_name=None):
     """Format a card for display: emoji + full name + (strength) + ownership."""
     prefix = card_prefix(card)
-    name = _display_name(card)
+    name = card.get("name", "???")
     if max_name:
         name = _truncate_name(name, max_name)
     strength = card.get("strength")
