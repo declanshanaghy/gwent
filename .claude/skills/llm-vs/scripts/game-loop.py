@@ -490,20 +490,32 @@ def build_system_prompt(board, player):
     deck_cards = board['decks'][player]
 
     hand_text = "\n".join(f"  - {card_line(c)}" for c in hand_cards) or "  (empty)"
-    deck_text = "\n".join(f"  - {card_line(c)}" for c in deck_cards) or "  (empty)"
+
+    # Only show deck when the player has a spy in hand (needs spy_draws)
+    # or their leader draws from deck (weather_ranges)
+    has_spy_in_hand = any('spy' in (c.get('abilities') or []) for c in hand_cards)
+    ld = leader.get('leader', {})
+    leader_needs_deck = bool(ld.get('weather_ranges')) and not board['players'][player]['leader_used']
+    show_deck = has_spy_in_hand or leader_needs_deck
+
+    if show_deck:
+        deck_text = "\n".join(f"  - {card_line(c)}" for c in deck_cards) or "  (empty)"
+        deck_section = f"""
+YOUR DECK (draw pile — spy_draws MUST come from here, NOT from your hand):
+{deck_text}"""
+    else:
+        deck_section = f"\nYOUR DECK: {len(deck_cards)} cards (not shown — no cards require choosing from deck)"
 
     section7 = f"""
 YOUR FACTION: {faction}
 YOUR FACTION PASSIVE: {FACTION_PASSIVES.get(faction, 'Unknown')}
 
 YOUR LEADER: {leader['name']}
-LEADER ABILITY: {leader.get('leader', {}).get('instructions', '?')} (one-time use)
+LEADER ABILITY: {ld.get('instructions', '?')} (one-time use)
 
 YOUR HAND (cards you can play):
 {hand_text}
-
-YOUR DECK (draw pile — spy_draws MUST come from here, NOT from your hand):
-{deck_text}
+{deck_section}
 
 OPPONENT FACTION: {opp_faction}
 OPPONENT PASSIVE: {FACTION_PASSIVES.get(opp_faction, 'Unknown')}
@@ -656,14 +668,19 @@ def build_state(board, cur):
                 for c in board['decks'][cur]
                 if c.get('specialty') == 'weather'
                 and any(r in allowed for r in c.get('ranges', []))]
+    # Only include full deck when player has spy in hand or leader draws from deck
+    hand_cards = board['hands'][cur]
+    has_spy = any('spy' in (c.get('abilities') or []) for c in hand_cards)
+    leader_needs_deck = li.get('choose_from') == 'weather_in_deck'
+
     result = {
         'round': board['round_number'],
         'your_gems': board['players'][cur]['gems'],
         'opponent_gems': board['players'][opp]['gems'],
         'your_score': board['scores'][cur]['total'],
         'opponent_score': board['scores'][opp]['total'],
-        'your_hand': [card_summary(c) for c in board['hands'][cur]],
-        'your_deck': [card_summary(c) for c in board['decks'][cur]],
+        'your_hand': [card_summary(c) for c in hand_cards],
+        'your_deck_size': len(board['decks'][cur]),
         'your_discard': [card_summary(c) for c in board['players'][cur]['discard']],
         'opponent_discard': [card_summary(c) for c in board['players'][opp]['discard']],
         'your_board': rows_summary(board, cur),
@@ -673,6 +690,8 @@ def build_state(board, cur):
         'opponent_hand_size': len(board['hands'][opp]),
         'opponent_passed': board['players'][opp]['passed'],
     }
+    if has_spy or leader_needs_deck:
+        result['your_deck'] = [card_summary(c) for c in board['decks'][cur]]
     return result
 
 
