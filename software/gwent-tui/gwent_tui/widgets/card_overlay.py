@@ -7,7 +7,7 @@ from rich.console import Group
 from rich.table import Table
 from rich.text import Text
 from rich import box
-from textual.containers import Horizontal
+from textual.containers import Horizontal, Container
 from textual.widgets import Static
 from textual_image.widget import TGPImage
 
@@ -157,7 +157,7 @@ class CardAttrsWidget(Static):
         return Group(*parts)
 
 
-class CardImageOverlay(Horizontal):
+class CardImageOverlay(Container):
     """Modal overlay showing card image + attributes when a card is played.
 
     Centered over the board area. Border color matches faction.
@@ -168,11 +168,19 @@ class CardImageOverlay(Horizontal):
     CardImageOverlay {
         display: none;
         layer: overlay;
-        width: 80;
-        height: 28;
+        width: 100%;
+        height: 100%;
+        align: center middle;
     }
     CardImageOverlay.visible {
         display: block;
+    }
+    CardImageOverlay #overlay-box {
+        width: 90%;
+        height: 90%;
+        max-width: 80;
+        max-height: 28;
+        layout: horizontal;
     }
     CardImageOverlay #overlay-image {
         width: 1fr;
@@ -193,8 +201,9 @@ class CardImageOverlay(Horizontal):
         self._card_player = ""
 
     def compose(self):
-        yield TGPImage("", id="overlay-image")
-        yield CardAttrsWidget(id="overlay-attrs")
+        with Container(id="overlay-box"):
+            yield TGPImage("", id="overlay-image")
+            yield CardAttrsWidget(id="overlay-attrs")
 
     def check_and_update(self):
         """Called periodically by the app to show/hide the overlay."""
@@ -237,6 +246,7 @@ class CardImageOverlay(Horizontal):
                 else:
                     is_p1 = state.current_player != P1
                 try:
+                    box = self.query_one("#overlay-box", Container)
                     img_widget = self.query_one("#overlay-image", TGPImage)
                     attrs_widget = self.query_one("#overlay-attrs", CardAttrsWidget)
 
@@ -260,31 +270,29 @@ class CardImageOverlay(Horizontal):
 
                     # P1: image left, attrs right. P2: attrs left, image right.
                     if is_p1:
-                        self.move_child(img_widget, before=attrs_widget)
+                        box.move_child(img_widget, before=attrs_widget)
                     else:
-                        self.move_child(attrs_widget, before=img_widget)
+                        box.move_child(attrs_widget, before=img_widget)
 
-                    # Faction-colored border: P1/P2 + card name top, player/leader bottom
+                    # Faction-colored border on the inner box (overlay itself is the full-screen layer)
                     fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))
-                    self.styles.border = ("round", fc[0])
-                    self.styles.background = "black"
-                    self.styles.border_subtitle_align = "center"
+                    box.styles.border = ("round", fc[0])
+                    box.styles.background = "black"
+                    box.styles.border_subtitle_align = "center"
 
                     p_tag = "P1" if is_p1 else "P2"
                     tag_len = len(p_tag) + 1
-                    center_pos = max(0, (78 - len(name)) // 2 - tag_len)
+                    inner_w = box.size.width or 80
+                    center_pos = max(0, (inner_w - 2 - len(name)) // 2 - tag_len)
                     fill = "\u2500" * center_pos
-                    self.styles.border_title_align = "left"
-                    self.border_title = f" {p_tag} {fill} {name} "
+                    box.styles.border_title_align = "left"
+                    box.border_title = f" {p_tag} {fill} {name} "
 
                     leader_name = leader.get("name", "") if leader else ""
                     if leader_name:
-                        self.border_subtitle = f" {player_name} / {leader_name} "
+                        box.border_subtitle = f" {player_name} / {leader_name} "
                     else:
-                        self.border_subtitle = f" {player_name} "
-
-                    # Center over the board
-                    self._center_on_board()
+                        box.border_subtitle = f" {player_name} "
 
                     # Track who played for the flash
                     self._card_player = str(P1) if is_p1 else str(state.current_player)
@@ -303,20 +311,6 @@ class CardImageOverlay(Horizontal):
                 # Advance to next queued card if any
                 if hasattr(state, 'advance_card_queue'):
                     state.advance_card_queue()
-
-    def _center_on_board(self):
-        """Position the overlay centered on the stage container."""
-        try:
-            stage = self.app.query_one("#stage-container")
-            sr = stage.region
-            w = 80
-            h = 28
-            self.styles.offset = (
-                sr.x + (sr.width - w) // 2,
-                sr.y + (sr.height - h) // 2,
-            )
-        except Exception:
-            pass
 
     def _hide(self):
         self.remove_class("visible")

@@ -26,8 +26,10 @@ class SplashScreen(ModalScreen):
         background: $background 90%;
     }
     #splash-box {
-        width: 80;
-        height: 34;
+        width: 90%;
+        height: 90%;
+        max-width: 80;
+        max-height: 34;
         align: center middle;
         background: black;
         border: round yellow;
