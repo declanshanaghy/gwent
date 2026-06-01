@@ -27,3 +27,6 @@ MUSIC_CTRL = f'{MUSIC}/ctrl'
 # Card events
 CARDS_RAW_READ = f'{MAIN}/cards/raw/read'
 CARDS_PLAY = f'{MAIN}/cards/play'  # + /PLAYER.ONE or /PLAYER.TWO
+
+# Server presence (retained, with LWT — payload is "online" or "offline")
+PRESENCE = f'{MAIN}/server/presence'

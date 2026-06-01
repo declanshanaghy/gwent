@@ -9,6 +9,8 @@ from typing import List
 
 import paho.mqtt.client as mqtt
 
+from gwent_shared.topics import PRESENCE
+
 import gwent.game.constants
 import gwent.game.cards
 import gwent.game.controller
@@ -46,7 +48,11 @@ class MQTTClient:
     def _on_connect(self, client, userdata, flags, rc):
         self._log.info(f"Connected to MQTT broker with result code {rc}")
         self._connected.set()
-        
+
+        # Announce server presence (retained). LWT covers abrupt death;
+        # this overrides any stale "offline" from a prior crash.
+        client.publish(PRESENCE, "online", qos=1, retain=True)
+
         # Resubscribe to topics on reconnect
         with self._lock:
             for topic, callbacks in self._subscriptions.items():
@@ -81,13 +87,21 @@ class MQTTClient:
     def connect(self):
         """Connect to the MQTT broker"""
         self._log.info(f"Connecting to MQTT broker at {self._host}")
+        # Last Will: if the server dies without a clean disconnect,
+        # the broker publishes "offline" so clients (TUI) can stop music.
+        self._client.will_set(PRESENCE, "offline", qos=1, retain=True)
         self._client.connect_async(self._host)
         self._client.loop_start()
         return self._connected.wait(timeout=5)
-    
+
     def disconnect(self):
         """Disconnect from the MQTT broker"""
         self._log.info("Disconnecting from MQTT broker")
+        # Graceful shutdown: announce offline so clients stop music immediately.
+        try:
+            self._client.publish(PRESENCE, "offline", qos=1, retain=True).wait_for_publish(timeout=2)
+        except Exception as e:
+            self._log.debug(f"Failed to publish offline presence: {e}")
         self._client.loop_stop()
         self._client.disconnect()
         

@@ -18,6 +18,7 @@ BROKER_PASS = "gwent"
 from gwent_shared.topics import (
     CTRL, MFD_PRESENT, MFD_CHOOSE, SFX, SFX_COMPLETE,
     MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
+    PRESENCE,
 )
 
 TOPICS = [
@@ -27,6 +28,7 @@ TOPICS = [
     (SFX, 0),
     (SFX_COMPLETE, 0),
     (MUSIC, 0),                   # retained: current music track
+    (PRESENCE, 0),                # retained: server online/offline
     (CARDS_RAW_READ, 0),
     (f"{CARDS_PLAY}/+", 0),
 ]
@@ -38,6 +40,7 @@ class MqttSubscriber:
         self._current_music_track = ""
         self._next_music_track = ""
         self.music_enabled = True
+        self._server_online = True   # assume online until presence says otherwise
         self.host = host or BROKER_HOST
         self.port = port or BROKER_PORT
         self.client = mqtt.Client(
@@ -99,10 +102,14 @@ class MqttSubscriber:
         track = self._current_music_track or ""
         next_track = getattr(self, '_next_music_track', "")
 
-        # Start next track immediately (don't wait for server round-trip)
-        if next_track:
+        # Start next track immediately (don't wait for server round-trip).
+        # Skip auto-advance if the server is offline — otherwise music would
+        # loop forever after the server stops.
+        if next_track and self._server_online:
             log.info("Track finished, starting next: %s", next_track)
             self._play_music(next_track, started_at="")
+        elif next_track:
+            log.info("Track finished; server offline, skipping auto-advance")
 
         # Notify server so it can update the retained message
         try:
@@ -175,13 +182,28 @@ class MqttSubscriber:
         self.state._log_event("MQTT disconnected")
 
     def _on_message(self, client, userdata, msg):
+        topic = msg.topic
+
+        # Presence is a plain-text payload ("online"/"offline"), not JSON —
+        # handle it before the JSON parse to avoid the bad-payload early-return.
+        if topic == PRESENCE:
+            status = msg.payload.decode("utf-8", errors="replace").strip()
+            was_online = self._server_online
+            self._server_online = (status == "online")
+            log.info("Server presence: %s", status)
+            if was_online and not self._server_online:
+                self.state._log_event("\U0001f4f4 Server offline — stopping music", color="plum1")
+                tts.stop_music()
+            elif not was_online and self._server_online:
+                self.state._log_event("\U0001f7e2 Server online", color="plum1")
+            return
+
         try:
             data = json.loads(msg.payload.decode("utf-8"))
         except (json.JSONDecodeError, UnicodeDecodeError):
             log.warning("Bad payload on %s", msg.topic)
             return
 
-        topic = msg.topic
         kind = data.get("kind", "")
         subkind = data.get("subkind", "")
         log.debug("MQTT msg topic=%s kind=%s subkind=%s", topic, kind, subkind)
