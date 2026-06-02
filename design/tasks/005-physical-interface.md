@@ -16,77 +16,58 @@ Implement the hardware interface including display, buttons, and rotary encoder 
 Connect display to Raspberry Pi, implement display interface code, integrate rotary encoder and buttons, develop menu navigation system, create score visualization screens, and implement player prompts and error messages.
 
 ### Hardware Components
-#### OLED Display
-- Type: Monochrome 2.42" 128x64 OLED Graphic Display Module Kit (SSD1306)
-- Protocol: SPI
-- Recommended Python Library: luma.oled
-- Purpose: Main output display for user interaction
-- Power Pins:
-  - Pin #1: Ground
-  - Pin #2: 3V Power In
-  - Pin #3: Not used
-- Signal Pins (SPI Configuration):
-  - Pin #4 (DC): GPIO24 - Data/Command pin
-  - Pin #7 (Data0/CLK): GPIO11 (SPI0 SCLK)
-  - Pin #8 (Data1/MOSI): GPIO10 (SPI0 MOSI)
-  - Pin #15 (CS): GPIO8 (SPI0 CE0)
-  - Pin #16 (RESET): GPIO25
+> Canonical pin assignments and library imports are documented in [011-hardware-specification.md](011-hardware-specification.md). The summary below mirrors that doc; if anything diverges, 011 wins.
 
-#### Score Displays
-- Type: LED Charlieplexed Matrix - 9x16 LEDs (IS31FL3731)
-- Protocol: I2C
-- I2C Address: 0x74 (for all displays, accessed via multiplexer)
-- Recommended Python Library: adafruit-circuitpython-is31fl3731
-- Game Score Display:
-  - Quantity: 1 (Red)
-  - Purpose: Display games won for each player
-  - Multiplexer Channel: 0
-- Player 1 Displays:
-  - Quantity: 4 (Blue)
-  - Purpose: Siege, Ranged, Close combat, and Total round scores
-  - Multiplexer Channels: 1-4
-- Player 2 Displays:
-  - Quantity: 4 (Yellow)
-  - Purpose: Siege, Ranged, Close combat, and Total round scores
-  - Multiplexer Channels: 5-7
+#### OLED Display
+- Type: Monochrome 2.42" 128x64 OLED Graphic Display Module (SSD1306)
+- Protocol: SPI (4-wire, BS1=BS2=0)
+- Library: `luma.oled` (`luma.oled.device.ssd1306`)
+- Purpose: Main output display for menus, prompts, and card details
+- Signal Pins:
+  - DC: GPIO24 (Pin 18)
+  - CLK: GPIO11 (Pin 23, SPI0 SCLK)
+  - MOSI: GPIO10 (Pin 19, SPI0 MOSI)
+  - CS: GPIO7 (Pin 26, SPI0 **CE1**)
+  - RESET: GPIO25 (Pin 22) — **shared with MFRC522 RFID reset**, pulsed manually in `hal/oled_ssd1306.py`
+- Power: 3.3V, GND
+
+#### Score / Gem Displays
+- Type: Adafruit IS31FL3731 9x16 charlieplex matrix breakout
+- Protocol: I2C (via TCA9548A multiplexer; all matrices share address 0x74)
+- Library: `adafruit_is31fl3731` (CircuitPython, via `adafruit-blinka`)
+- Quantity: 3 displays
+  - Mux Channel 0 — Round/gem display (lives), shows P1/P2 remaining gems as diamond shapes
+  - Mux Channel 1 — Player 1 score, large centered digit with star indicator when active
+  - Mux Channel 2 — Player 2 score, large centered digit with star indicator when active
 
 #### I2C Multiplexer
-- Type: SparkFun Qwiic Mux Breakout - 8 Channel (TCA9548A)
-- Protocol: I2C
+- Type: SparkFun Qwiic Mux Breakout — 8-Channel (TCA9548A)
+- Protocol: I2C1 (SDA=GPIO2 Pin 3, SCL=GPIO3 Pin 5)
 - I2C Address: 0x70
-- Recommended Python Library: qwiic_tca9548a
-- Pins:
-  - SDA: GPIO2 (I2C1 SDA)
-  - SCL: GPIO3 (I2C1 SCL)
-  - VCC: 3.3V
-  - GND: Ground
+- Library: `qwiic_tca9548a`
+- Channels in use: 0, 1, 2 (3–7 unused)
 
 #### Input Controls
-- Rotary Encoder:
-  - Type: PEC11 Series Rotary Encoder
-  - Purpose: Menu navigation and selection
-  - Interface: GPIO
-  - Pins:
-    - Common (C): Ground
-    - A: GPIO7 with pull-up resistor
-    - B: GPIO9 with pull-up resistor
-    - SW: GPIO2 for push button
-  - Features: 24 pulses per rotation, 4 steps per detent
-- Push Buttons:
-  - Quantity: 2
-  - Purpose: Game control and menu selection
-  - Interface: GPIO
-  - Pins:
-    - Button 1: GPIO17 with pull-up resistor
-    - Button 2: GPIO27 with pull-up resistor
+- Rotary Encoder (with integrated push button):
+  - Type: PEC11 series rotary encoder
+  - Purpose: Menu navigation, selection, and play/pass decisions
+  - Library: `pigpio` (via `gwent.hal.rotary_pigpio.PiGPIORotaryEncoder`); requires `pigpiod` daemon
+  - Pins (BCM, all with internal pull-up):
+    - A: GPIO17 (Pin 11)
+    - B: GPIO22 (Pin 15)
+    - SW: GPIO27 (Pin 13)
+    - Common: GND
+  - Features: 24 pulses/rotation, 4 steps per detent, 50 ms switch debounce
+
+There are no separate push buttons. Game control and menu selection are entirely handled by the rotary encoder's integrated switch. Earlier drafts referenced two extra buttons on GPIO17/27, but those references were aspirational and the pins are now used by the rotary encoder itself.
 
 ### Implementation Requirements
 1. Connect OLED display to Raspberry Pi via SPI
 2. Implement display interface code using luma.oled
 3. Connect LED matrix displays via I2C multiplexer
 4. Implement score display code using adafruit-circuitpython-is31fl3731
-5. Connect rotary encoder and buttons to GPIO pins
-6. Implement input handling code using py-gaugette
+5. Connect rotary encoder to GPIO pins
+6. Implement input handling code using `pigpio` (and ensure the `pigpiod` daemon is enabled at boot)
 7. Develop menu navigation system
 8. Create score visualization screens
 9. Implement player prompts and error messages

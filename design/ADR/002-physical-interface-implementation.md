@@ -26,12 +26,13 @@ We have implemented a comprehensive physical interface with the following compon
 
 ### 1. Rotary Encoder Implementation
 
-- **RotaryEncoder Class**: A robust implementation using direct GPIO access with RPi.GPIO
-  - Implements proper debouncing for reliable input detection
+- **RotaryEncoder Class**: A robust implementation using `pigpio` for edge-detected GPIO callbacks via the `pigpiod` daemon
+  - Implements proper debouncing for reliable input detection (50 ms on the switch; encoder edges debounced by pigpio)
   - Uses an event queue for guaranteed event delivery
   - Provides both callback and queue-based interfaces
   - Handles rotation and button press events
   - Includes fallback to dummy implementation when hardware is unavailable
+  - (Note: `RPi.GPIO` is still used elsewhere for the shared GPIO25 reset between OLED and RFID; the rotary encoder itself is pigpio-only.)
 
 - **Key Features**:
   - Gray code pattern detection for accurate rotation tracking

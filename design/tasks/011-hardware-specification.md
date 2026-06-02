@@ -1,175 +1,167 @@
 # Task 011: Hardware Component Specification
 
 ## Description
-Document detailed specifications for all hardware components including communication protocols, GPIO pins, I2C addresses, and required Python libraries.
+Document the hardware configuration of the Gwent Companion as actually implemented in the codebase. This spec is the canonical source of truth for the PCB design (Pi HAT carrier) and any future hardware iteration. All values below are verified against the live code in `software/gwent/gwent/hal/` — file and line citations are inline.
 
 ## Priority
 🔴 High
 
 ## Status
-🟢 Completed
+🟢 Implemented and verified
 
 ## Dependencies
 - Task 001: Setup Raspberry Pi Development Environment
 
-## Details
-Created comprehensive hardware specifications including: RFID-RC522 reader with GPIO pin assignments, rotary encoder and push button input systems with pin mappings, I2C multiplexer (TCA9548A) configuration at address 0x70, LED matrix displays (IS31FL3731) at address 0x74 for score displays, SSD1306 OLED display with SPI configuration, power requirements, and a complete GPIO pin assignment table. Documented all required Python libraries including mfrc522-python, gaugette, qwiic_tca9548a, adafruit-circuitpython-is31fl3731, and luma.oled.
+## Form Factor Decision
+The hardware ships as a **Raspberry Pi HAT carrier PCB** (65 × 56.5 mm, mounting holes per the official Pi HAT mechanical spec, ID EEPROM optional but recommended for HAT auto-detection). The Pi 4 sits below the HAT; the HAT exposes 0.1″ headers and JST-SH Qwiic connectors so the existing Adafruit/SparkFun breakout modules plug in. A v2 may integrate the I²C devices directly.
 
-### Hardware Components
-#### Raspberry Pi
-- Model: Raspberry Pi 3 Model B (2GB RAM minimum)
-- Processor: Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.5GHz
-- Memory: 2GB LPDDR4-3200 SDRAM
-- Storage: 32GB microSD card (Class 10 minimum)
-- Power: 5V/3A USB power supply
-- Connectivity:
-  - 2.4 GHz and 5.0 GHz IEEE 802.11ac wireless
-  - Bluetooth 5.0
-  - Gigabit Ethernet
-  - 2 × USB 3.0 ports
-  - 2 × USB 2.0 ports
+## Hardware Components
 
-#### RFID Reader
-- Model: RFID-RC522
-- Frequency: 13.56 MHz (HF)
-- Read Range: Up to 10cm
-- Read Speed: < 100ms per card
-- Interface: GPIO
-- Power: 5V DC
-- Recommended Python Library: mfrc522-python
-- Pins:
-  | RF522 Module | Raspberry Pi |
-  | ------------ | ------------ |
-  | SDA          | Pin 24 / GPIO8 (CE0) |
-  | SCK          | Pin 23 / GPIO11 (SCKL) |
-  | MOSI         | Pin 19 / GPIO10 (MOSI) |
-  | MISO         | Pin 21 / GPIO9 (MISO) |
-  | IRQ          | – |
-  | GND          | GND |
-  | RST          | Pin 22 / GPIO25 |
-  | 3.3V         | 3.3V |
+### Compute
+| Field | Value |
+|-------|-------|
+| Model | Raspberry Pi 4 Model B |
+| Power | 5 V / 3 A USB-C, supplied to the Pi (HAT draws power from GPIO 5V rail) |
+| GPIO mode in code | `GPIO.BCM` (pin numbering throughout this doc is BCM) |
 
-#### I2C Multiplexer
-- Type: SparkFun Qwiic Mux Breakout - 8 Channel (TCA9548A)
-- Protocol: I2C
-- I2C Address: 0x70
-- Recommended Python Library: qwiic_tca9548a
-- Pins:
-  - SDA: GPIO2 (I2C1 SDA)
-  - SCL: GPIO3 (I2C1 SCL)
-  - VCC: 3.3V
-  - GND: Ground
+### RFID Reader (MFRC522)
+| Field | Value | Source |
+|-------|-------|--------|
+| Module | MFRC522 breakout, 13.56 MHz HF | — |
+| Bus | SPI0, chip-select **CE0** (`/dev/spidev0.0`) | `hal/rfid.py` |
+| Library | `mfrc522` (`SimpleMFRC522`, `pin_mode=GPIO.BCM`) | `hal/rfid.py:7,128` |
+| Reset pin | **GPIO25** (Pin 22) — **shared with OLED reset** | see "Shared GPIO25 reset" note below |
+| IRQ | not used |
+| Notes | Antenna re-asserted before each read; SPI access serialized via `gwent.hal.spi_lock` (RLock) shared with OLED |
 
-#### LED Matrix Displays
-- Type: LED Charlieplexed Matrix - 9x16 LEDs (IS31FL3731)
-- Protocol: I2C
-- I2C Address: 0x74 (for all displays, accessed via multiplexer)
-- Recommended Python Library: adafruit-circuitpython-is31fl3731
-- Game Score Display:
-  - Quantity: 1 (Red)
-  - Purpose: Display games won for each player
-  - Multiplexer Channel: 0
-- Player 1 Displays:
-  - Quantity: 4 (Blue)
-  - Purpose: Siege, Ranged, Close combat, and Total round scores
-  - Multiplexer Channels: 1-4
-- Player 2 Displays:
-  - Quantity: 4 (Yellow)
-  - Purpose: Siege, Ranged, Close combat, and Total round scores
-  - Multiplexer Channels: 5-7
+### OLED Display (SSD1306)
+| Field | Value | Source |
+|-------|-------|--------|
+| Module | Monochrome 2.42″ 128×64 OLED, SSD1306 controller | — |
+| Bus | SPI0, chip-select **CE1** (`device=1, port=0`) | `hal/oled_ssd1306.py:22,62` |
+| Library | `luma.oled` (`ssd1306` driver) | `hal/oled_ssd1306.py:10` |
+| DC pin | **GPIO24** (Pin 18) | `hal/oled_ssd1306.py` |
+| Reset pin | **GPIO25** (Pin 22) — **shared with RFID reset**, pulsed manually in code; `gpio_RST=None` passed to luma so it does not clean up the pin | `hal/oled_ssd1306.py:48-62` |
+| CS pin | GPIO7 (Pin 26) — SPI0 CE1 |
+| CLK / MOSI | GPIO11 (Pin 23, SCLK) / GPIO10 (Pin 19, MOSI) |
+| Strapping | BS1=0, BS2=0 (4-wire SPI mode) |
+| Notes | SPI access serialized via `gwent.hal.spi_lock` shared with RFID; max contrast (255) at init |
 
-#### OLED Display
-- Type: Monochrome 2.42" 128x64 OLED Graphic Display Module Kit (SSD1306)
-- Protocol: SPI
-- Hardware Jumper Configuration
-  - BS1=0
-  - BS2=0
-- Recommended Python Library: luma.oled
-- Power Pins:
-  - Pin #1: Ground
-  - Pin #2: 3V Power In
-  - Pin #3: Not used
-- Signal Pins (SPI Configuration):
-  - Pin #4 (DC): GPIO24 - Data/Command pin
-  - Pin #7 (Data0/CLK): GPIO11 (SPI0 SCLK)
-  - Pin #8 (Data1/MOSI): GPIO10 (SPI0 MOSI)
-  - Pin #15 (CS): GPIO7 (SPI0 CE1)
-  - Pin #16 (RESET): GPIO25
+### I²C Multiplexer (TCA9548A)
+| Field | Value | Source |
+|-------|-------|--------|
+| Module | SparkFun Qwiic Mux Breakout — 8-Channel (TCA9548A) | — |
+| Bus | I²C1 (SDA=GPIO2 Pin 3, SCL=GPIO3 Pin 5) | `hal/matrix.py:10-23,56` |
+| Address | **0x70** (constant `DEFAULT_MUX_ADDRESS`) | `hal/matrix.py:16` |
+| Library | `qwiic_tca9548a.QwiicTCA9548A` | `hal/matrix.py:10,56` |
+| Reset pin | not connected (no hardware reset implemented) |
+| Channels in use | 0, 1, 2 (channels 3–7 unused) |
 
-#### Input Controls
-- Rotary Encoder:
-  - Type: PEC11 Series Rotary Encoder
-  - Recommended Python Library: py-gaugette
-  - Pins:
-    - Common (C): Ground
-    - A: GPIO7 with pull-up resistor
-    - B: GPIO9 with pull-up resistor
-    - SW: GPIO2 for push button
-  - Features: 24 pulses per rotation, 4 steps per detent
-- Push Buttons:
-  - Quantity: 2
-  - Pins:
-    - Button 1: GPIO17 with pull-up resistor
-    - Button 2: GPIO27 with pull-up resistor
+### LED Matrix Displays (IS31FL3731)
+Three identical 9 × 16 charlieplexed LED matrices fan out from the TCA9548A mux. All three share the same I²C address (0x74); the mux selects between them.
 
-### GPIO Pin Assignment Table
-| Component | GPIO Pin | Pin Number | Function |
-|-----------|---------|------------|----------|
-| RFID-RC522 SDA | GPIO8 | Pin 24 | SPI CE0 |
-| RFID-RC522 SCK | GPIO11 | Pin 23 | SPI SCLK |
-| RFID-RC522 MOSI | GPIO10 | Pin 19 | SPI MOSI |
-| RFID-RC522 MISO | GPIO9 | Pin 21 | SPI MISO |
-| RFID-RC522 RST | GPIO25 | Pin 22 | Reset |
-| Rotary Encoder A | GPIO7 | Pin 26 | Encoder A input |
-| Rotary Encoder B | GPIO9 | Pin 21 | Encoder B input |
-| Rotary Encoder SW | GPIO2 | Pin 3 | Encoder push button |
-| Push Button 1 | GPIO17 | Pin 11 | Game control |
-| Push Button 2 | GPIO27 | Pin 13 | Game control |
-| I2C SDA | GPIO2 | Pin 3 | I2C data |
-| I2C SCL | GPIO3 | Pin 5 | I2C clock |
-| OLED DC | GPIO24 | Pin 18 | OLED data/command |
-| OLED CLK | GPIO11 | Pin 23 | SPI clock |
-| OLED MOSI | GPIO10 | Pin 19 | SPI MOSI |
-| OLED CS | GPIO8 | Pin 24 | SPI chip select |
-| OLED RESET | GPIO25 | Pin 22 | OLED reset |
+| Channel | Role | Color (per BOM) | Source |
+|---------|------|-----------------|--------|
+| 0 | Round/gem display (lives) — shows P1/P2 remaining gems as diamond shapes side by side | Red | `hal/matrix.py:21,654-685`; `game/round_keeper.py:27` |
+| 1 | Player 1 score — large centered digit, star indicator when active player | Blue | `hal/matrix.py:22`; `game/player.py:28`; `game/main.py:294-295` |
+| 2 | Player 2 score — large centered digit, star indicator when active player | Yellow | `hal/matrix.py:23`; `game/player.py:28`; `game/main.py:294-295` |
 
-### GPIO Pin Conflict Management
-The hardware design has several GPIO pin conflicts that must be managed in software:
+| Field | Value | Source |
+|-------|-------|--------|
+| Module | Adafruit IS31FL3731 9×16 charlieplex matrix breakout | — |
+| Address | **0x74** per matrix (constant `DEFAULT_MATRIX_ADDRESS`) | `hal/matrix.py:17` |
+| Library | `adafruit_is31fl3731` (CircuitPython) via `busio.I2C(board.SCL, board.SDA)` | `hal/matrix.py:13` |
+| Default brightness | 10/255 | `hal/matrix.py:18` |
+| Quantity | 3 |
 
-1. **GPIO9 Conflict**: Shared between RFID-RC522 MISO and Rotary Encoder B
-   - Solution: Careful timing of operations to avoid simultaneous access
+### Rotary Encoder + Integrated Push Button
+| Field | Value | Source |
+|-------|-------|--------|
+| Module | PEC11 series rotary encoder (24 PPR, 4 detents/pulse), with integrated SPST push-button | ADR 002 |
+| Library | `pigpio` (via `gwent.hal.rotary_pigpio.PiGPIORotaryEncoder`); requires `pigpiod` daemon | `hal/rotary.py:71-76` |
+| A pin | **GPIO17** (Pin 11) | `hal/rotary.py:74` |
+| B pin | **GPIO22** (Pin 15) | `hal/rotary.py:75` |
+| SW pin | **GPIO27** (Pin 13) | `hal/rotary.py:76` |
+| Common | Ground |
+| Debounce | 50 ms for switch (`DEBOUNCE_TIME = 0.05`); encoder edges debounced by pigpio | `hal/rotary.py:77` |
+| Pull-ups | Pi internal pull-ups on all three lines |
 
-2. **GPIO2 Conflict**: Shared between Rotary Encoder SW and I2C SDA
-   - Solution: Software must manage I2C transactions to avoid interference with button presses
+There are **no separate push buttons** beyond the encoder's integrated switch. Earlier docs referenced two additional buttons on GPIO17/27; those references were aspirational and never implemented. The PCB design does not need to provide for them.
 
-3. **GPIO3 Conflict**: Shared between Power Button and I2C SCL
-   - Solution: Power management must be aware of I2C bus activity
+### Audio Output
+| Field | Value | Source |
+|-------|-------|--------|
+| Path | Raspberry Pi 4 onboard 3.5 mm headphone jack (default ALSA device) | `hal/audio.py:54` |
+| Library | `pygame.mixer` (44.1 kHz, 16-bit signed, stereo, 4096-sample buffer) | `hal/audio.py:54` |
+| Channels | 0 = SFX, 1 = TTS announcements | `hal/sfx.py` |
+| External amplification | Not on this PCB. External powered speakers / amp connect to the Pi's 3.5 mm jack |
 
-4. **SPI Bus Sharing**: Between RFID reader and OLED display
-   - Solution: Implement proper chip select management and bus arbitration
+The HAT does not need to route any audio signals.
 
-### Required Python Libraries
-- mfrc522-python: For RFID reader
-- gaugette: For rotary encoder
-- qwiic_tca9548a: For I2C multiplexer
-- adafruit-circuitpython-is31fl3731: For LED matrix displays
-- luma.oled: For SSD1306 OLED display
-- RPi.GPIO: Basic GPIO control
-- gpiozero: High-level GPIO interface
-- Adafruit-Blinka: CircuitPython support for Raspberry Pi
-- busio: For I2C and SPI communication
-- board: For pin definitions
-- adafruit_framebuf: For display frame buffer operations
+## GPIO Pin Assignment Table (canonical, BCM numbering)
+
+| Component | BCM | Header Pin | Function | Notes |
+|-----------|-----|-----------|----------|-------|
+| RFID-RC522 | GPIO8 | 24 | SPI0 CE0 | RC522 SDA |
+| RFID-RC522 | GPIO11 | 23 | SPI0 SCLK | shared with OLED |
+| RFID-RC522 | GPIO10 | 19 | SPI0 MOSI | shared with OLED |
+| RFID-RC522 | GPIO9 | 21 | SPI0 MISO | shared with OLED |
+| RFID-RC522 | GPIO25 | 22 | RST | **shared with OLED reset** |
+| OLED SSD1306 | GPIO7 | 26 | SPI0 CE1 |  |
+| OLED SSD1306 | GPIO24 | 18 | DC |  |
+| OLED SSD1306 | GPIO25 | 22 | RST | **shared with RFID reset** |
+| TCA9548A mux | GPIO2 | 3 | I²C1 SDA |  |
+| TCA9548A mux | GPIO3 | 5 | I²C1 SCL |  |
+| Rotary encoder A | GPIO17 | 11 | encoder phase A | internal pull-up |
+| Rotary encoder B | GPIO22 | 15 | encoder phase B | internal pull-up |
+| Rotary encoder SW | GPIO27 | 13 | encoder push-button | internal pull-up |
+
+Power rails consumed: **5V** (Pin 2 or 4) for any 5 V devices on the HAT, **3.3V** (Pin 1 or 17) for the mux/matrices/RFID/OLED logic, and **GND** (Pins 6, 9, 14, 20, 25, 30, 34, 39).
+
+## Shared GPIO25 Reset
+
+GPIO25 is the reset line for **both** the MFRC522 and the SSD1306. The OLED driver (`luma.oled`) would normally take exclusive ownership of its reset pin and call `gpio.cleanup()` on shutdown, which would float the line LOW and hold the MFRC522 in permanent reset. The code works around this in `hal/oled_ssd1306.py:48-62`:
+
+1. Manually configures GPIO25 as output via `RPi.GPIO`
+2. Pulses it LOW (10 ms) → HIGH (50 ms) to reset both devices
+3. Passes `gpio_RST=None` to luma's SPI interface so luma never touches the pin again
+
+The PCB must wire GPIO25 to **both** the RC522 RST pin and the SSD1306 RES pin.
+
+## Software Libraries (canonical, derived from code imports)
+
+| Component | Python package | Notes |
+|-----------|---------------|-------|
+| RFID | `mfrc522` (provides `SimpleMFRC522`) | git submodule; `pin_mode=GPIO.BCM` |
+| OLED | `luma.oled` (`luma.core` + `luma.oled.device.ssd1306`) | not Adafruit/CircuitPython |
+| I²C mux | `qwiic_tca9548a` | SparkFun |
+| LED matrices | `adafruit-circuitpython-is31fl3731` | with `adafruit-blinka` (`board`, `busio`) |
+| Rotary encoder | `pigpio` (Python bindings) | `pigpiod` daemon must be running |
+| Audio | `pygame` (`pygame.mixer`) | onboard 3.5 mm output |
+| GPIO baseline | `RPi.GPIO` | used directly for the GPIO25 reset workaround |
+
+## Pin Conflicts and Real Constraints
+
+1. **GPIO25 reset sharing** — addressed in software (see above). **PCB must connect GPIO25 to both RC522 RST and SSD1306 RES.**
+2. **SPI0 bus sharing (RFID + OLED)** — different chip-selects (CE0 / CE1); software arbitrates with `gwent.hal.spi_lock` (RLock). Standard pattern, no PCB constraint beyond routing both CS lines.
+3. **I²C address collision (3× IS31FL3731 at 0x74)** — solved by the TCA9548A mux. PCB must route each matrix to its assigned mux channel (Qwiic-cable daisy or fan-out, depending on layout).
+
+The earlier doc claimed conflicts on GPIO9/GPIO2/GPIO3 from a since-abandoned encoder pinout. **Those conflicts do not exist** in the current design; the rotary encoder is on GPIO17/22/27.
 
 ## Test Strategy
-Verify hardware specifications against physical component datasheets, confirm GPIO pin assignments for non-conflicting usage, test I2C address configurations with i2cdetect utility, validate SPI device configurations, and test each component with their specified Python libraries to ensure compatibility and functionality.
+Verify each component end-to-end against the live software — these tests already exist in `software/gwent/gwent/poc/`:
+
+1. RFID round-trip read/write — `poc/rfid_tests/`
+2. OLED rendering — `poc/display_tests/`
+3. Matrix lighting and animation — `poc/display_tests/` and `hal/matrix.py` self-test entry point
+4. Rotary encoder rotation + button events — `poc/input_tests/`
+5. Bus arbitration regression — exercise SPI lock by reading RFID while updating OLED
+6. GPIO25 reset behavior — confirm RFID still reads after OLED init/shutdown cycle
 
 ### Test Cases
-1. Verify hardware specifications against physical component datasheets
-2. Confirm GPIO pin assignments for non-conflicting usage
-3. Test I2C address configurations with i2cdetect utility
-4. Validate SPI device configurations
-5. Test each component with their specified Python libraries
-6. Verify power requirements and consumption
-7. Test GPIO pin conflict management solutions
-8. Validate hardware integration in prototype assembly
+1. Confirm BCM pin assignments match this doc on real hardware (`gpioinfo` / `pinout`)
+2. Confirm I²C devices respond at 0x70 (mux) and 0x74 on each enabled mux channel (`i2cdetect -y 1` after enabling each channel)
+3. Confirm both SPI devices enumerate (`ls /dev/spidev0.*` should show `spidev0.0` and `spidev0.1`)
+4. Confirm `pigpiod` is running on system boot (systemd unit)
+5. Validate hardware integration in the assembled HAT prototype
+6. Stress-test the GPIO25 reset workaround by repeatedly init/shutdown cycling the OLED while polling RFID

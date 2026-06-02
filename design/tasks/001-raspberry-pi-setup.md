@@ -16,29 +16,27 @@ None
 Install Raspberry Pi OS, configure Python environment, set up version control, install necessary libraries for RFID communication, audio output, and REST API development. Configure development tools and testing frameworks. Set up SQLite database.
 
 ### Hardware Requirements
-- Raspberry Pi 3 Model B (2GB RAM minimum)
-- Processor: Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.5GHz
-- Memory: 2GB LPDDR4-3200 SDRAM
+- Raspberry Pi 4 Model B (2GB RAM minimum)
+- Processor: Broadcom BCM2711, Quad core Cortex-A72 (ARM v8) 64-bit SoC @ 1.5 GHz
+- Memory: 2GB LPDDR4-3200 SDRAM (4GB or 8GB also fine)
 - Storage: 32GB microSD card (Class 10 minimum)
-- Power: 5V/3A USB power supply
+- Power: 5V / 3A USB-C power supply
 
 ### Software Requirements
 - Raspberry Pi OS (64-bit)
 - Python 3.9+
 - Git for version control
-- Required Python libraries:
-  - RPi.GPIO
-  - mfrc522-python
-  - luma.oled
-  - adafruit-circuitpython-is31fl3731
-  - adafruit-circuitpython-tca9548a
-  - py-gaugette
-  - pygame
-  - gtts
-  - aiohttp
-  - websockets
-  - sqlalchemy
-  - pydantic
+- Required Python libraries (matches `software/gwent/` imports):
+  - `RPi.GPIO` — used for the shared GPIO25 reset between OLED and RFID
+  - `pigpio` (Python bindings) — rotary encoder edge detection; requires `pigpiod` daemon enabled at boot
+  - `mfrc522` (`SimpleMFRC522`) — RFID
+  - `luma.oled` — SSD1306 driver
+  - `adafruit-circuitpython-is31fl3731` (with `adafruit-blinka`, `board`, `busio`) — LED matrices
+  - `qwiic_tca9548a` — I²C multiplexer
+  - `pygame` — audio playback (mixer)
+  - `paho-mqtt` — MQTT client
+  - `gtts` (and other TTS providers as configured) — text-to-speech
+  - `pydantic` — data validation
 
 ### Development Environment Setup
 1. Install Raspberry Pi OS using Raspberry Pi Imager
