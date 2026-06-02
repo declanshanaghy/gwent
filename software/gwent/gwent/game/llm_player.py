@@ -267,6 +267,7 @@ class LLMPlayerManager(PubSubComponent):
                 choices.append(gwent.messaging.menu.Choice(
                     id=m.get("id", ""),
                     text=m.get("label", m.get("id", "?")),
+                    description=m.get("description"),
                     icon=m.get("icon", ""),
                 ))
             if not choices:

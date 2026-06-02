@@ -1,45 +1,52 @@
 {
-  "$comment": "Curated LLM model list for the TUI controller picker (Phase 3). The TUI shows these as choices when the user taps a player name. Each entry has an id (passed to game-loop.py --model-pN) and a short display label.",
+  "$comment": "Curated LLM model list for the TUI controller picker (Phase 3). The TUI shows these as choices when the user taps a player name. Each entry has an id (passed to game-loop.py --model-pN), a short display label, and a description rendered as the dimmed second line of the choice.",
   "models": [
     {
       "id": "human",
       "label": "Human (RFID / touch)",
+      "description": "RFID reader / touch UI",
       "icon": "🃏",
       "kind": "human"
     },
     {
       "id": "anthropic/claude-sonnet-4-6",
       "label": "Claude Sonnet 4.6",
+      "description": "Anthropic AI · balanced, very capable",
       "icon": "🟧",
       "kind": "llm"
     },
     {
       "id": "anthropic/claude-opus-4-7",
       "label": "Claude Opus 4.7",
+      "description": "Anthropic AI · the smart one",
       "icon": "🟧",
       "kind": "llm"
     },
     {
       "id": "gemini/flash",
       "label": "Gemini Flash",
+      "description": "Google AI · fast & light",
       "icon": "🔵",
       "kind": "llm"
     },
     {
       "id": "openai/gpt-4o-mini",
       "label": "GPT-4o-mini",
+      "description": "OpenAI · small & quick",
       "icon": "🟢",
       "kind": "llm"
     },
     {
       "id": "ollama/llama3.2:3b",
       "label": "Ollama · Llama 3.2 3B",
+      "description": "Local model · tiny, runs offline",
       "icon": "🟣",
       "kind": "llm"
     },
     {
       "id": "ollama/gemma4",
       "label": "Ollama · Gemma 4",
+      "description": "Local model · small, runs offline",
       "icon": "🟣",
       "kind": "llm"
     }
