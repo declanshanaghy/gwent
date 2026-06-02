@@ -58,6 +58,9 @@ class MenuCorner(Static):
         # Hamburger during play; stage icon (🏠 etc.) elsewhere. Leading space
         # so the narrow glyph sits centered in the button.
         icon = "☰" if stage == "PlayRound" else _STAGE_ICON.get(stage, "☰")
+        # Keep the position in sync with the stage (top normally, bottom in
+        # PlayRound). render() runs on each refresh tick, so this tracks stage.
+        self._recenter()
         return f" {icon}"
 
     def on_mount(self) -> None:
@@ -67,10 +70,16 @@ class MenuCorner(Static):
         self._recenter()
 
     def _recenter(self) -> None:
-        """Float the icon centered horizontally, two rows down from the top."""
+        """Centered horizontally; two rows from the top, or bottom in PlayRound."""
         try:
-            sw = self.app.size.width
-            self.styles.offset = ((sw - self._W) // 2, 2)
+            sw, sh = self.app.size.width, self.app.size.height
+            x = (sw - self._W) // 2
+            stage = getattr(self.app.state, "stage", "")
+            y = (sh - self._H) if stage == "PlayRound" else 2
+            offset = (x, y)
+            if getattr(self, "_last_offset", None) != offset:
+                self._last_offset = offset
+                self.styles.offset = offset
         except Exception as e:
             log.debug("menu-corner recenter failed: %s", e)
 
@@ -105,6 +114,8 @@ class GwentTUI(App):
     Screen.show-header #menu-corner { display: none; }
     /* Hide the menu button while dealing/loading a game (until PlayRound). */
     Screen.dealing #menu-corner { display: none; }
+    /* Hide it whenever an overlay/modal is on top of the board. */
+    Screen.overlay-active #menu-corner { display: none; }
     /* Blurred splash image, full-screen behind everything. Shown only on the
        New Game screen (Screen.newgame). On that screen the panels go
        translucent so the image reads through as a background. */
@@ -289,6 +300,16 @@ class GwentTUI(App):
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
         except Exception as e:
             log.error("Card overlay error: %s", e, exc_info=True)
+        # Hide the menu button while anything is on top of the board: a pushed
+        # modal screen (in-game menu, mixer, card lists, …) or the card overlay.
+        try:
+            card_overlay_up = self.query_one(
+                "#card-overlay", CardImageOverlay).has_class("visible")
+            modal_up = len(self.screen_stack) > 1
+            self.screen_stack[0].set_class(
+                card_overlay_up or modal_up, "overlay-active")
+        except Exception as e:
+            log.debug("overlay-active toggle failed: %s", e)
 
     async def _apply_pending_snapshots(self):
         """Drain poller queue and refresh widgets."""
