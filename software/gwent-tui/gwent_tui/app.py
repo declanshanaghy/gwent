@@ -61,7 +61,10 @@ class GwentTUI(App):
     Screen.newgame #timers { background: transparent 0%; }
     #header { height: 4; }
     #stage-container { height: 1fr; overflow: hidden; }
-    #bottom-bar { height: 8; }
+    /* Events + Timers are hidden by default to give the board/hands more
+       room; toggled on via the in-game menu (Screen.show-panels). */
+    #bottom-bar { height: 8; display: none; }
+    Screen.show-panels #bottom-bar { display: block; }
     #footer { width: 3fr; height: 100%; }
     #timers { width: 1fr; height: 100%; }
     #card-overlay { layer: overlay; }
@@ -289,6 +292,15 @@ class GwentTUI(App):
             log.error("Error refreshing all widgets: %s", e, exc_info=True)
 
     # --- Actions ---
+
+    def action_toggle_panels(self):
+        """Show/hide the Events + Timers bottom bar (more room for the board)."""
+        try:
+            self.screen.toggle_class("show-panels")
+            on = self.screen.has_class("show-panels")
+            log.info("toggle panels -> %s", "shown" if on else "hidden")
+        except Exception as e:
+            log.error("toggle_panels failed: %s", e, exc_info=True)
 
     def action_help(self):
         from textual.screen import ModalScreen

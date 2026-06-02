@@ -52,7 +52,7 @@ class InGameMenuModal(ModalScreen):
     }
     #imm-list {
         height: auto;
-        max-height: 14;
+        max-height: 18;
         background: $surface;
         border: round $primary;
         margin-top: 1;
@@ -84,6 +84,7 @@ class InGameMenuModal(ModalScreen):
         ("reset", "Reset to main menu", "⏏"),
         ("restart-server", "Restart server", "🔄"),
         ("volume", "Volume mixer", "🔊"),
+        ("toggle-panels", "Show / hide Events & Timers", "📊"),
         ("help", "Help / shortcuts", "?"),
         ("cancel", "Cancel (close menu)", "✕"),
     ]
@@ -163,6 +164,13 @@ class InGameMenuModal(ModalScreen):
             self.dismiss()
             from gwent_tui.volume_mixer import VolumeMixerModal
             app.push_screen(VolumeMixerModal())
+            return
+        if action_id == "toggle-panels":
+            self.dismiss()
+            try:
+                app.action_toggle_panels()
+            except Exception as e:
+                log.error("toggle-panels action failed: %s", e, exc_info=True)
             return
         if action_id == "help":
             self.dismiss()
