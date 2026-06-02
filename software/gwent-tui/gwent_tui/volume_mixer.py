@@ -192,7 +192,7 @@ class _ChannelBar(Static):
 
     # Vertical track height (rows) and width of the horizontal thumb.
     _TRACK = 11
-    _WIDTH = 8
+    _WIDTH = 7
 
     def refresh_bar(self) -> None:
         ch = self.channel
