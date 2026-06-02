@@ -101,6 +101,21 @@ def speak(text: str, faction: str | None = None, content_id: str | None = None):
     _queue.put((text, faction, content_id))
 
 
+def clear_pending():
+    """Drop any queued (not-yet-playing) announcements. Used so a New Game
+    re-roll doesn't stack matchup lines — the latest one wins."""
+    drained = 0
+    try:
+        while True:
+            _queue.get_nowait()
+            _queue.task_done()
+            drained += 1
+    except queue.Empty:
+        pass
+    if drained:
+        log.debug("tts.clear_pending dropped %d queued items", drained)
+
+
 def _ensure_worker():
     """Start the worker thread if not already running."""
     global _worker_thread, _running

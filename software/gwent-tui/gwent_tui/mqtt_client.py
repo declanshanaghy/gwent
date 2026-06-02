@@ -229,6 +229,30 @@ class MqttSubscriber:
         except Exception as e:
             log.exception("publish_card_scan failed: %s", e)
 
+    def _announce_matchup(self, data: dict) -> None:
+        """Speak a Witcher-style matchup line when the New Game wizard is shown
+        or re-rolled. Fires once per distinct wizard payload (content_id)."""
+        summary = (data or {}).get("summary") or {}
+        if summary.get("error"):
+            return
+        p1 = (summary.get("p1") or {}).get("faction")
+        p2 = (summary.get("p2") or {}).get("faction")
+        if not p1 or not p2:
+            return
+        cid = data.get("content_id")
+        if cid and cid == getattr(self, "_last_wizard_cid", None):
+            return  # already announced this exact matchup
+        self._last_wizard_cid = cid
+        try:
+            from gwent_tui import matchup_announcer
+            line = matchup_announcer.announce_matchup(p1, p2)
+            log.info("matchup announcement: %s", line)
+            # Drop any queued matchup line so a fast re-roll speaks the latest.
+            tts.clear_pending()
+            tts.speak(line, faction=None)
+        except Exception as e:
+            log.error("matchup announcement failed: %s", e, exc_info=True)
+
     def _on_message(self, client, userdata, msg):
         topic = msg.topic
 
@@ -248,6 +272,8 @@ class MqttSubscriber:
             log.info("menu present menu_id=%s choices=%d",
                      menu_id, len(data.get("choices", [])))
             self.state.on_menu(menu_id, data)
+            if menu_id == "wizard":
+                self._announce_matchup(data)
             return
 
         # Per-side controller state — Phase 3.
