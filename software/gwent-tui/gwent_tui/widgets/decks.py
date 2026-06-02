@@ -1,14 +1,24 @@
-"""Decks widget: P1/P2 remaining deck cards. Scrollable."""
+"""Decks widget: P1/P2 remaining deck cards. Scrollable.
+
+Tapping a deck opens the card-list overlay for that side (left half = P1,
+right half = P2) with a "Draw <NAME> from Deck" action — for when a card must
+be pulled from the deck (spy, leader draw, etc.).
+"""
+
+import logging
 
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
+from textual import events
 from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
 from gwent_tui.widgets.board import SPLIT_BOX
+
+log = logging.getLogger("gwent_tui.decks")
 
 
 class _DecksContent(Static):
@@ -66,6 +76,19 @@ class _DecksContent(Static):
         p1_tag = fmt(p1_count, p1_hl)
         p2_tag = fmt(p2_count, p2_hl)
         return Panel(table, title=f"\U0001f4e6 Deck ({p1_tag} | {p2_tag})")
+
+    def on_click(self, event: events.Click) -> None:
+        """Tap left half → P1 deck, right half → P2 deck (Draw from Deck)."""
+        width = self.size.width or 1
+        player = P1 if event.x < width / 2 else P2
+        cards = list(self.app.state.decks.get(player, []))
+        log.info("Deck tapped x=%d width=%d -> %s (%d cards)",
+                 event.x, width, player, len(cards))
+        try:
+            from gwent_tui.hand_detail_modal import DeckDetailModal
+            self.app.push_screen(DeckDetailModal(player, cards))
+        except Exception as e:
+            log.error("failed to open deck detail: %s", e, exc_info=True)
 
 
 class DecksWidget(Vertical):

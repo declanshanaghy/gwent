@@ -1,14 +1,15 @@
 """Card-list overlay — inspect (and optionally play) a list of cards.
 
-Reused for two things:
-  - Player HAND (playable=True): tap a hand → list left, details right,
-    [Cancel] + [Play <NAME>]. Play is gated to the player whose turn it is
-    (the server plays a scanned card as the *current* player, so playing out
-    of turn would misattribute it). Playing an AI-controlled side on its turn
-    is a human override — the server advances the turn and the AI's in-flight
-    move self-aborts via its fresh-state check.
-  - BOARD section (playable=False): tap a row → same list/detail, view-only
-    ([Cancel] only — board cards cannot be played).
+Reused via the `action` arg:
+  - HAND (action="play"): [Cancel] + [Play <NAME>]. Gated to the player whose
+    turn it is (the server plays a scanned card as the *current* player, so
+    playing out of turn would misattribute it). Playing an AI-controlled side
+    on its turn is a human override — the server advances the turn and the AI's
+    in-flight move self-aborts via its fresh-state check.
+  - DECK (action="draw"): [Cancel] + [Draw <NAME> from Deck], same turn gating
+    — for when a card must be pulled from the deck (spy, leader draw, etc.).
+  - BOARD section (action=None): view-only, [Cancel] only.
+Both "play" and "draw" reach the server as a scan on gwent/cards/raw/read.
 
 Layout (sized for the Pi 7" display, project_pi_display):
   - LEFT : scrollable list, two rows per card (touch-friendly, scrollbar).
@@ -202,19 +203,25 @@ class CardListModal(ModalScreen):
     ]
 
     def __init__(self, title: str, cards: list, *, player_key: str | None = None,
-                 playable: bool = False) -> None:
+                 action: str | None = None) -> None:
         super().__init__()
         self._title = title
         self._cards = list(cards or [])
         self.player_key = player_key
-        self.playable = playable
+        # action: None = view-only (Cancel only); "play" = hand; "draw" = deck.
+        self.action = action
         self._list: ListView | None = None
         self._detail: _CardDetail | None = None
         self._image: TGPImage | None = None
         self._play_btn: Button | None = None
         self._selected: dict | None = None
-        log.info("CardListModal __init__ title=%r cards=%d playable=%s player=%s",
-                 title, len(self._cards), playable, player_key)
+        log.info("CardListModal __init__ title=%r cards=%d action=%s player=%s",
+                 title, len(self._cards), action, player_key)
+
+    def _action_label(self, name: str) -> str:
+        if self.action == "draw":
+            return f"📦 Draw {name} from Deck"
+        return f"▶ Play {name}"
 
     def compose(self) -> ComposeResult:
         with Container(id="cl-box"):
@@ -230,8 +237,8 @@ class CardListModal(ModalScreen):
                     yield self._detail
             with Horizontal(id="cl-buttons"):
                 yield Button("✕ Cancel", id="cl-cancel", variant="error")
-                if self.playable:
-                    self._play_btn = Button("▶ Play", id="cl-play",
+                if self.action:
+                    self._play_btn = Button("", id="cl-action",
                                             variant="success")
                     self._play_btn.display = False
                     yield self._play_btn
@@ -272,7 +279,8 @@ class CardListModal(ModalScreen):
             elif self._is_turn():
                 self._play_btn.display = True
                 self._play_btn.disabled = False
-                self._play_btn.label = f"▶ Play {_truncate(card.get('name', ''))}"
+                self._play_btn.label = self._action_label(
+                    _truncate(card.get("name", "")))
             else:
                 self._play_btn.display = True
                 self._play_btn.disabled = True
@@ -303,28 +311,25 @@ class CardListModal(ModalScreen):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id == "cl-cancel":
             self.dismiss()
-        elif event.button.id == "cl-play":
-            self._play_selected()
+        elif event.button.id == "cl-action":
+            self._do_action()
         event.stop()
 
-    def _play_selected(self) -> None:
+    def _do_action(self) -> None:
+        """Play (hand) or draw (deck) the selected card — both reach the server
+        as a scan on gwent/cards/raw/read, processed per the active stage."""
         card = self._selected
-        if not card or not self.playable or not self._is_turn():
-            log.info("CardListModal: play ignored (card=%s playable=%s turn=%s)",
-                     bool(card), self.playable, self._is_turn())
+        if not card or not self.action or not self._is_turn():
+            log.info("CardListModal: action ignored (card=%s action=%s turn=%s)",
+                     bool(card), self.action, self._is_turn())
             return
-        state = getattr(self.app, "state", None)
-        controllers = getattr(state, "controllers", {}) if state else {}
-        is_override = controllers.get(self.player_key, "human") != "human"
-        log.info("CardListModal: PLAY %s (rfid=%s) for %s override_ai=%s",
-                 card.get("name"), card.get("rfid"), self.player_key, is_override)
+        log.info("CardListModal: %s %s (rfid=%s) for %s",
+                 self.action.upper(), card.get("name"), card.get("rfid"),
+                 self.player_key)
         subscriber = getattr(self.app, "_subscriber", None)
         if subscriber is None:
-            log.error("no _subscriber on app — cannot play card")
+            log.error("no _subscriber on app — cannot scan card")
             return
-        # Server plays the scanned card as current_player (== this side, gated
-        # above) and advances the turn; an AI on this side aborts its in-flight
-        # move via its own fresh-state check.
         subscriber.publish_card_scan(card)
         self.dismiss()
 
@@ -348,4 +353,11 @@ def HandDetailModal(player_key: str, cards: list) -> CardListModal:
     """Convenience: a playable hand overlay for one player."""
     label = "Player 1" if player_key == P1 else "Player 2"
     return CardListModal(f"🃏  {label} — Hand", cards,
-                         player_key=player_key, playable=True)
+                         player_key=player_key, action="play")
+
+
+def DeckDetailModal(player_key: str, cards: list) -> CardListModal:
+    """Convenience: a deck overlay with a 'Draw from Deck' action."""
+    label = "Player 1" if player_key == P1 else "Player 2"
+    return CardListModal(f"📦  {label} — Deck", cards,
+                         player_key=player_key, action="draw")

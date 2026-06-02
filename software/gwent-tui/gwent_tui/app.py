@@ -49,13 +49,16 @@ class MenuCorner(Static):
     hidden. Tapping it opens the hamburger menu.
     """
 
-    _W = 8
-    _H = 4
+    _W = 7
+    _H = 3
 
     def render(self):
         from gwent_tui.widgets.header import _STAGE_ICON
         stage = getattr(self.app.state, "stage", "")
-        return _STAGE_ICON.get(stage, "☰")  # ☰ fallback
+        # Hamburger during play; stage icon (🏠 etc.) elsewhere.
+        if stage == "PlayRound":
+            return "☰"
+        return _STAGE_ICON.get(stage, "☰")
 
     def on_mount(self) -> None:
         self._recenter()
@@ -64,10 +67,10 @@ class MenuCorner(Static):
         self._recenter()
 
     def _recenter(self) -> None:
-        """Float the icon centered horizontally, pinned to the top."""
+        """Float the icon centered horizontally, two rows down from the top."""
         try:
             sw = self.app.size.width
-            self.styles.offset = ((sw - self._W) // 2, 0)
+            self.styles.offset = ((sw - self._W) // 2, 2)
         except Exception as e:
             log.debug("menu-corner recenter failed: %s", e)
 
@@ -91,8 +94,8 @@ class GwentTUI(App):
        the top-left corner so the menu stays reachable while it's hidden. */
     #menu-corner {
         layer: corner;
-        width: 8;
-        height: 4;
+        width: 7;
+        height: 3;
         background: $panel;
         color: $accent;
         border: heavy $accent;

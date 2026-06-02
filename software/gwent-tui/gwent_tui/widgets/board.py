@@ -376,7 +376,7 @@ class _BoardRows(Static):
         try:
             from gwent_tui.hand_detail_modal import CardListModal
             self.app.push_screen(
-                CardListModal(title, cards, player_key=player, playable=False))
+                CardListModal(title, cards, player_key=player))
         except Exception as e:
             log.error("failed to open board section view: %s", e, exc_info=True)
 
