@@ -41,6 +41,21 @@ _music_current_path: str = ""
 _mixer = None
 
 
+def _amp(pct: int) -> float:
+    """Map a 0..100 slider to a 0..1 amplitude on a perceptual (≈dB/log) curve.
+
+    pygame channel volume is linear amplitude, so a linear slider wastes most
+    of its travel near the top. This spreads perceived loudness evenly: 100%→
+    0 dB (1.0), 50%→-20 dB (0.1), 0%→silence (~40 dB usable range).
+    """
+    pct = max(0, min(100, int(pct)))
+    if pct <= 0:
+        return 0.0
+    if pct >= 100:
+        return 1.0
+    return 10 ** ((pct - 100) / 50.0)
+
+
 def _get_mixer():
     """Get or create the shared AudioMixer singleton."""
     global _mixer
@@ -49,9 +64,9 @@ def _get_mixer():
     from gwent_shared.audio import get_mixer
     _mixer = get_mixer()
     # Apply initial volume levels
-    _mixer.set_music_volume(_volume / 100.0)
-    _mixer.set_channel_volume("effect", _sfx_volume / 100.0)
-    _mixer.set_channel_volume("tts", _tts_volume / 100.0)
+    _mixer.set_music_volume(_amp(_volume))
+    _mixer.set_channel_volume("effect", _amp(_sfx_volume))
+    _mixer.set_channel_volume("tts", _amp(_tts_volume))
     return _mixer
 
 
@@ -151,7 +166,7 @@ def _play_one(text: str, faction: str | None = None):
         return
 
     mixer = _get_mixer()
-    vol = _tts_volume / 100.0
+    vol = _amp(_tts_volume)
 
     try:
         if getattr(provider, 'can_speak_direct', False):
@@ -221,7 +236,7 @@ def play_effect(effect_name: str):
 
     log.info("Playing SFX effect: %s -> %s", effect_name, os.path.basename(path))
     mixer = _get_mixer()
-    mixer.play_sound(path, channel="effect", volume=_sfx_volume / 100.0)
+    mixer.play_sound(path, channel="effect", volume=_amp(_sfx_volume))
 
 
 # ------------------------------------------------------------------
@@ -247,7 +262,7 @@ def set_volume(value: int) -> int:
     """Set music volume to an absolute percent (0..100). Returns clamped value."""
     global _volume
     _volume = max(0, min(100, int(value)))
-    _get_mixer().set_music_volume(_volume / 100.0)
+    _get_mixer().set_music_volume(_amp(_volume))
     log.info("Music volume: %d%%", _volume)
     return _volume
 
@@ -256,7 +271,7 @@ def set_sfx_volume(value: int) -> int:
     """Set SFX volume to an absolute percent (0..100). Returns clamped value."""
     global _sfx_volume
     _sfx_volume = max(0, min(100, int(value)))
-    _get_mixer().set_channel_volume("effect", _sfx_volume / 100.0)
+    _get_mixer().set_channel_volume("effect", _amp(_sfx_volume))
     log.info("SFX volume: %d%%", _sfx_volume)
     return _sfx_volume
 
@@ -265,7 +280,7 @@ def set_tts_volume(value: int) -> int:
     """Set TTS volume to an absolute percent (0..100). Returns clamped value."""
     global _tts_volume
     _tts_volume = max(0, min(100, int(value)))
-    _get_mixer().set_channel_volume("tts", _tts_volume / 100.0)
+    _get_mixer().set_channel_volume("tts", _amp(_tts_volume))
     log.info("TTS volume: %d%%", _tts_volume)
     return _tts_volume
 

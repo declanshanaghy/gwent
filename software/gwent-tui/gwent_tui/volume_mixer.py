@@ -87,10 +87,15 @@ class Channel:
 
 # ----- ALSA Master adapter ---------------------------------------------------
 
+# `-M` = mapped volume: ALSA's perceptual (≈log/dB) scale, the same one
+# alsamixer uses. The PCM control spans ~-102 dB..+4 dB, so the raw linear
+# percent crams all useful loudness into the top ~10%. Mapped percent spreads
+# it evenly across 0..100 so the whole slider is useful.
 def _alsa_get() -> int:
     try:
         out = subprocess.check_output(
-            ["amixer", "get", "PCM"], stderr=subprocess.DEVNULL, text=True, timeout=2,
+            ["amixer", "-M", "get", "PCM"], stderr=subprocess.DEVNULL,
+            text=True, timeout=2,
         )
         m = re.search(r"\[(\d+)%\]", out)
         return int(m.group(1)) if m else 0
@@ -103,7 +108,7 @@ def _alsa_set(value: int) -> int:
     value = max(0, min(100, int(value)))
     try:
         subprocess.run(
-            ["amixer", "set", "PCM", f"{value}%"],
+            ["amixer", "-M", "set", "PCM", f"{value}%"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2, check=False,
         )
     except Exception as e:
@@ -173,6 +178,7 @@ class _ChannelBar(Static):
     _ChannelBar {
         height: 1fr;
         content-align: center top;
+        text-align: center;
         padding: 0 1;
     }
     _ChannelBar.muted {
@@ -184,22 +190,34 @@ class _ChannelBar(Static):
         super().__init__("")
         self.channel = channel
 
+    # Vertical track height (rows) and inner width of the thumb/fill.
+    _TRACK = 11
+    _WIDTH = 9
+
     def refresh_bar(self) -> None:
         ch = self.channel
         val = ch.value
-        filled = val // 10
-        half = "▄" if (val % 10) >= 5 else " "
-        bar_lines = []
-        for i in range(10, 0, -1):
-            if i <= filled:
-                bar_lines.append("█")
-            elif i == filled + 1 and half == "▄":
-                bar_lines.append(half)
+        muted = ch.is_muted
+        n, w = self._TRACK, self._WIDTH
+        # Row of the thumb: 0 = top (100%), n-1 = bottom (0%).
+        pos = round((100 - val) / 100 * (n - 1))
+
+        fill_c = "grey42" if muted else "deep_sky_blue2"
+        thumb_c = "grey58" if muted else "bold black on bright_white"
+        rail = " " * ((w - 1) // 2) + "┊" + " " * (w // 2)
+
+        lines = []
+        for i in range(n):
+            if i == pos:
+                # The grabbable thumb — a wide rectangle across the slider.
+                lines.append(f"[{thumb_c}]◀{'█' * (w - 2)}▶[/]")
+            elif i > pos:
+                lines.append(f"[{fill_c}]{'█' * w}[/]")
             else:
-                bar_lines.append(" ")
-        body = "\n".join(bar_lines)
+                lines.append(f"[grey30]{rail}[/]")
+        body = "\n".join(lines)
         self.update(f"{ch.label}\n{body}\n{val:>3}%")
-        if ch.is_muted:
+        if muted:
             self.add_class("muted")
         else:
             self.remove_class("muted")
