@@ -204,17 +204,17 @@ class _ChannelBar(Static):
 
         fill_c = "grey42" if muted else "deep_sky_blue2"
         thumb_c = "grey58" if muted else "bold black on bright_white"
-        rail = " " * ((w - 1) // 2) + "┊" + " " * (w // 2)
 
+        # Thin vertical track (centered by CSS text-align). Exactly ONE wide
+        # horizontal thumb sits at the current value; fill below, rail above.
         lines = []
         for i in range(n):
             if i == pos:
-                # The grabbable thumb — a wide rectangle across the slider.
                 lines.append(f"[{thumb_c}]◀{'█' * (w - 2)}▶[/]")
             elif i > pos:
-                lines.append(f"[{fill_c}]{'█' * w}[/]")
+                lines.append(f"[{fill_c}]┃[/]")
             else:
-                lines.append(f"[grey30]{rail}[/]")
+                lines.append("[grey30]┊[/]")
         body = "\n".join(lines)
         self.update(f"{ch.label}\n{body}\n{val:>3}%")
         if muted:
