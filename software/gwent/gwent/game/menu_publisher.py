@@ -27,8 +27,10 @@ import gwent.game.decks
 import gwent.game.state
 import gwent.messaging.factory
 import gwent.messaging.menu
+import gwent.messaging.game_start
 from gwent.game import (
     CH_MENU_CHOOSE,
+    CH_GAME_START,
     PubSubComponent,
     ch_menu_present,
 )
@@ -60,6 +62,10 @@ class MenuPublisher(PubSubComponent):
         # Rolled whenever we (re)enter the main menu; the TUI renders it as
         # the full-screen new-game screen and re-rolls/starts via menu/choose.
         self._wizard: dict | None = None
+        # Full per-side decks (raw card dicts incl. leader) backing the wizard
+        # summary. Built independently per side on re-roll; START uses them
+        # directly (no re-derivation from ownership / a file).
+        self._wizard_decks: dict = {"p1": [], "p2": []}
 
     # ------------------------------------------------------------------------
     # Lifecycle
@@ -72,7 +78,44 @@ class MenuPublisher(PubSubComponent):
             gwent.messaging.menu.KIND,
             self._on_choose,
         )
+        # Client-initiated game start (New Game wizard sends both decks here).
+        self.subscribe(
+            CH_GAME_START,
+            gwent.messaging.game_start.KIND,
+            self._on_game_start,
+        )
         self._log.info("MenuPublisher initialized")
+
+    def _on_game_start(self, message: "gwent.messaging.game_start.Message"):
+        """Deal a game from two client-proposed decks (faction/leader/cards
+        chosen on the TUI's New Game screen). Each side carries its controller.
+        """
+        p1 = message.p1 or {}
+        p2 = message.p2 or {}
+        deck1 = gwent.game.decks.messages_from_dicts(p1.get("deck") or [])
+        deck2 = gwent.game.decks.messages_from_dicts(p2.get("deck") or [])
+        c1 = p1.get("controller", "human")
+        c2 = p2.get("controller", "human")
+        self._log.info(
+            f"game_start: P1 ctrl={c1} deck={len(deck1)}  "
+            f"P2 ctrl={c2} deck={len(deck2)}")
+        if not deck1 or not deck2:
+            self._log.error("game_start with empty deck(s) — ignoring")
+            return
+        # Assign controllers (deferred LLM spawn happens at PlayRound).
+        if self.llm_player_manager is not None:
+            try:
+                self.llm_player_manager.assign("P1", c1)
+                self.llm_player_manager.assign("P2", c2)
+            except Exception as e:
+                self._log.exception(f"game_start assign failed: {e}")
+        # Clear menus and deal.
+        self.clear_menu(gwent.messaging.menu.MENU_MAIN)
+        self.clear_menu(gwent.messaging.menu.MENU_WIZARD)
+        try:
+            self._controller.start_deal_cards(deck1, deck2)
+        except Exception as e:
+            self._log.exception(f"game_start start_deal_cards failed: {e}")
 
     def shutdown(self):
         self._log.info("MenuPublisher shutting down — clearing retained menus")
@@ -128,13 +171,10 @@ class MenuPublisher(PubSubComponent):
             f"published main menu: {len(recordings)} recordings + random + fresh"
         )
 
-        # Entering the main menu = a fresh new-game suggestion. Roll a random
-        # 1-player matchup + AI model and publish the wizard the TUI renders.
-        try:
-            self.roll_wizard(sides=True, model=True)
-            self.publish_wizard()
-        except Exception as e:
-            self._log.error(f"publish_wizard failed: {e}", exc_info=True)
+        # The New Game wizard is now client-side: the TUI builds the matchup
+        # proposal locally and sends both decks via gwent/game/start on START.
+        # Clear any stale retained server wizard so it doesn't compete.
+        self.clear_menu(gwent.messaging.menu.MENU_WIZARD)
 
     # ------------------------------------------------------------------------
     # Startup wizard (1-player: P1 human, P2 AI)
@@ -152,39 +192,33 @@ class MenuPublisher(PubSubComponent):
             self._roll_model()
 
     def _roll_sides(self) -> None:
-        owner_filter = getattr(self._controller, "_owner_filter", None)
-        matchup = gwent.game.decks.pick_random_matchup(owner_filter=owner_filter)
-        if matchup is None:
-            self._log.error("wizard: not enough factions for a matchup")
+        # Build each side dynamically: random faction → random image leader →
+        # 20 random image units from the card DB. Two distinct factions.
+        sides = gwent.game.decks.pick_random_matchup_sides(deck_size=20)
+        if sides is None:
+            self._log.error("wizard: not enough factions with card art")
             self._wizard["error"] = (
-                "Need 2+ factions with chipped cards to start a game.")
+                "Need 2+ factions with card images to start a game.")
             return
         self._wizard.pop("error", None)
-        (f1, o1), (f2, o2) = matchup
-        s1 = self._safe_deck_summary(f1, o1)
-        s2 = self._safe_deck_summary(f2, o2)
+        s1, s2 = sides
+        self._wizard_decks = {"p1": s1["deck"], "p2": s2["deck"]}
         self._wizard["p1"].update({
-            "faction": f1, "owner": o1,
+            "faction": s1["faction"],
             "controller": "human", "controller_label": "You (RFID / touch)",
             "leader": s1["leader"], "leader_card": s1["leader_card"],
             "strength": s1["strength"], "count": s1["count"],
         })
         self._wizard["p2"].update({
-            "faction": f2, "owner": o2,
+            "faction": s2["faction"],
             "leader": s2["leader"], "leader_card": s2["leader_card"],
             "strength": s2["strength"], "count": s2["count"],
         })
         self._log.info(
-            f"wizard rolled sides: P1={f1}/{o1} (leader={s1['leader']!r} "
-            f"str={s1['strength']})  P2={f2}/{o2} (leader={s2['leader']!r} "
+            f"wizard rolled sides: P1={s1['faction']} "
+            f"(leader={s1['leader']!r} cards={s1['count']} str={s1['strength']})  "
+            f"P2={s2['faction']} (leader={s2['leader']!r} cards={s2['count']} "
             f"str={s2['strength']})")
-
-    @staticmethod
-    def _safe_deck_summary(faction: str, owner: str) -> dict:
-        try:
-            return gwent.game.decks.deck_summary(faction, owner)
-        except Exception:
-            return {"leader": "", "leader_card": None, "strength": 0, "count": 0}
 
     def _roll_model(self) -> None:
         self._wizard.setdefault("p2", {})
@@ -257,8 +291,6 @@ class MenuPublisher(PubSubComponent):
 
         if menu_id == gwent.messaging.menu.MENU_MAIN:
             self._handle_main_choose(choice_id)
-        elif menu_id == gwent.messaging.menu.MENU_WIZARD:
-            self._handle_wizard_choose(choice_id)
         elif menu_id == gwent.messaging.menu.MENU_IN_GAME:
             self._handle_in_game_choose(choice_id)
         elif menu_id in (gwent.messaging.menu.MENU_ASSIGN_P1,

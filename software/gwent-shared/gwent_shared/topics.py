@@ -46,6 +46,9 @@ MENU_PRESENT_PREFIX = f'{MENU}/present'  # subscribe to `+` for all menus
 MENU_PRESENT_WILDCARD = f'{MENU_PRESENT_PREFIX}/+'
 MENU_CHOOSE = f'{MENU}/choose'
 
+# Client-initiated game start (New Game wizard sends both decks here).
+GAME_START = f'{MAIN}/game/start'
+
 
 def menu_present_topic(menu_id: str) -> str:
     """Per-menu present topic. e.g. menu_present_topic("main") -> gwent/menu/present/main"""

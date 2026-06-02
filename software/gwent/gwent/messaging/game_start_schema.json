@@ -1,0 +1,31 @@
+{
+  "id": "https://gwent.shanaghy.com/game_start.schema.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "Client-initiated game start with two pre-built decks",
+  "type": "object",
+  "required": ["p1", "p2"],
+  "properties": {
+    "p1": { "$ref": "#/definitions/side" },
+    "p2": { "$ref": "#/definitions/side" },
+    "kind": { "type": "string" },
+    "content_id": { "type": "string" },
+    "game_id": { "type": "string" }
+  },
+  "definitions": {
+    "side": {
+      "type": "object",
+      "required": ["deck"],
+      "properties": {
+        "controller": {
+          "type": "string",
+          "description": "Controller id (e.g. 'human' or 'anthropic/claude-sonnet-4-6')"
+        },
+        "deck": {
+          "type": "array",
+          "description": "Card objects for this side (leader-specialty card = leader)",
+          "items": { "type": "object" }
+        }
+      }
+    }
+  }
+}

@@ -298,6 +298,102 @@ def build_deck(faction, owner):
     return load_owner_cards(faction, owner)
 
 
+# -----------------------------------------------------------------------------
+# Image-card index + dynamic random decks (New Game wizard)
+# -----------------------------------------------------------------------------
+
+_IMAGE_CARDS = None  # {faction: {"leaders": [dict], "units": [dict]}}
+
+
+def _card_has_image(data, filepath):
+    """True if the card declares an image file that exists on disk."""
+    img = data.get("image")
+    if not img:
+        return False
+    return os.path.exists(os.path.normpath(os.path.join(
+        os.path.dirname(filepath), img)))
+
+
+def preload_image_cards(force=False):
+    """Build (and cache) an index of every card with art, grouped by faction.
+
+    Called once at server startup so the New Game wizard can pick random decks
+    instantly. Returns {faction: {"leaders": [...], "units": [...]}} of raw
+    card dicts (only cards whose image file exists).
+    """
+    global _IMAGE_CARDS
+    if _IMAGE_CARDS is not None and not force:
+        return _IMAGE_CARDS
+    idx = {}
+    for faction in FACTION_TO_DIR:
+        leaders, units = [], []
+        for filepath, data in _load_faction_cards(faction):
+            if not _card_has_image(data, filepath):
+                continue
+            (leaders if data.get("specialty") == "leader" else units).append(data)
+        idx[faction] = {"leaders": leaders, "units": units}
+    _IMAGE_CARDS = idx
+    log.info("preloaded image cards: " + ", ".join(
+        f"{f}:{len(v['leaders'])}L/{len(v['units'])}U" for f, v in idx.items()))
+    return idx
+
+
+def image_factions():
+    """Factions that have at least one image leader and one image unit."""
+    idx = preload_image_cards()
+    return [f for f, v in idx.items() if v["leaders"] and v["units"]]
+
+
+def pick_random_side(faction, deck_size=20):
+    """Build one side dynamically: a random image leader + `deck_size` random
+    image units from `faction`. Returns a dict with display fields and the full
+    `deck` (raw card dicts incl. leader). None if the faction lacks art."""
+    idx = preload_image_cards()
+    pool = idx.get(faction)
+    if not pool or not pool["leaders"] or not pool["units"]:
+        return None
+    leader = random.choice(pool["leaders"])
+    units = pool["units"]
+    chosen = random.sample(units, min(deck_size, len(units)))
+    strength = sum(int(c["strength"]) for c in chosen
+                   if isinstance(c.get("strength"), (int, float)))
+    return {
+        "faction": faction,
+        "leader": leader.get("name", ""),
+        "leader_card": {"name": leader.get("name", ""), "faction": faction,
+                        "image": leader.get("image")},
+        "strength": strength,
+        "count": len(chosen),
+        "deck": [leader] + chosen,
+    }
+
+
+def pick_random_matchup_sides(deck_size=20):
+    """Two independently-built sides with DIFFERENT factions (avoids rfid
+    collisions on the board). Returns (side1, side2) or None."""
+    factions = image_factions()
+    if len(factions) < 2:
+        return None
+    f1, f2 = random.sample(factions, 2)
+    s1 = pick_random_side(f1, deck_size)
+    s2 = pick_random_side(f2, deck_size)
+    if not s1 or not s2:
+        return None
+    return s1, s2
+
+
+def messages_from_dicts(dicts):
+    """Convert raw card dicts to card Messages, skipping any that fail schema
+    validation (so one bad card can't sink the whole deck)."""
+    out = []
+    for d in dicts or []:
+        try:
+            out.append(gwent.messaging.card.Message.from_properties(d))
+        except Exception as e:
+            log.warning(f"skipping invalid card {d.get('name')!r}: {e}")
+    return out
+
+
 def deck_summary(faction, owner):
     """Lightweight preview of a (faction, owner) deck for the New Game wizard.
 

@@ -49,8 +49,8 @@ class MenuCorner(Static):
     hidden. Tapping it opens the hamburger menu.
     """
 
-    _W = 10
-    _H = 5
+    _W = 8
+    _H = 4
 
     def render(self):
         from gwent_tui.widgets.header import _STAGE_ICON
@@ -91,8 +91,8 @@ class GwentTUI(App):
        the top-left corner so the menu stays reachable while it's hidden. */
     #menu-corner {
         layer: corner;
-        width: 10;
-        height: 5;
+        width: 8;
+        height: 4;
         background: $panel;
         color: $accent;
         border: heavy $accent;

@@ -20,6 +20,7 @@ from gwent_shared.topics import (
     MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
     PRESENCE, MAIN,
     MENU_PRESENT_PREFIX, MENU_PRESENT_WILDCARD, MENU_CHOOSE,
+    GAME_START,
 )
 
 # Per-side retained controller state — Phase 3.
@@ -229,6 +230,18 @@ class MqttSubscriber:
         except Exception as e:
             log.exception("publish_card_scan failed: %s", e)
 
+    def publish_game_start(self, p1: dict, p2: dict) -> None:
+        """Publish the client-built matchup to gwent/game/start so the server
+        deals it. p1/p2: {"controller": str, "deck": [card dict, ...]}."""
+        payload = json.dumps({"kind": "game_start", "p1": p1, "p2": p2})
+        log.info("publish_game_start P1 deck=%d ctrl=%s | P2 deck=%d ctrl=%s",
+                 len(p1.get("deck", [])), p1.get("controller"),
+                 len(p2.get("deck", [])), p2.get("controller"))
+        try:
+            self.client.publish(GAME_START, payload, qos=1)
+        except Exception as e:
+            log.exception("publish_game_start failed: %s", e)
+
     def _announce_matchup(self, data: dict) -> None:
         """Speak a Witcher-style matchup line when the New Game wizard is shown
         or re-rolled. Fires once per distinct wizard payload (content_id)."""
@@ -272,8 +285,6 @@ class MqttSubscriber:
             log.info("menu present menu_id=%s choices=%d",
                      menu_id, len(data.get("choices", [])))
             self.state.on_menu(menu_id, data)
-            if menu_id == "wizard":
-                self._announce_matchup(data)
             return
 
         # Per-side controller state — Phase 3.

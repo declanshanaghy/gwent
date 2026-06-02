@@ -45,6 +45,7 @@ CH_SFX_COMPLETE = CH_SEP.join((CH_SFX, 'complete'))
 CH_MUSIC = CH_SEP.join((MAIN_CHANNEL, 'music'))
 CH_MUSIC_COMPLETE = CH_SEP.join((CH_MUSIC, 'complete'))
 CH_MUSIC_CTRL = CH_SEP.join((CH_MUSIC, 'ctrl'))
+CH_GAME_START = CH_SEP.join((MAIN_CHANNEL, 'game', 'start'))
 
 DEFAULT_YIELD_TIME = 0.5
 DEFAULT_ERROR_TIME = 3.0

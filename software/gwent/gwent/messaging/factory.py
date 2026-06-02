@@ -10,6 +10,7 @@ import gwent.messaging.mfd
 import gwent.messaging.menu
 import gwent.messaging.sfx
 import gwent.messaging.music
+import gwent.messaging.game_start
 
 
 _log = get_logger('factory')
@@ -32,6 +33,7 @@ _constructors = {
     gwent.messaging.menu.KIND: gwent.messaging.menu.Message,
     gwent.messaging.sfx.KIND: gwent.messaging.sfx.Message,
     gwent.messaging.music.KIND: gwent.messaging.music.Message,
+    gwent.messaging.game_start.KIND: gwent.messaging.game_start.Message,
 }
 
 def unmarshall(msg: str, expect_kind:str=None) -> gwent.messaging.base.Message:
