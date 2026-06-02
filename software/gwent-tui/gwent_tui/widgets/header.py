@@ -1,14 +1,24 @@
-"""Header widget: factions, round, active player highlight."""
+"""Header widget: factions, round, active player highlight, hamburger menu.
+
+The whole widget is tappable (and also a keyboard target via `m`) — clicking
+anywhere on it opens the in-game hamburger modal (Reset / Volume / Help).
+A ☰ glyph in the top-right hints at the affordance.
+"""
+
+import logging
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
+from textual import events
 from textual.widgets import Static
 
 from gwent_tui.emoji import faction_emoji, FACTION_STYLE
 from gwent_tui.game_state import P1, P2
 import gwent_tui.snapshot as snapshot_mod
 from gwent_tui import tts as tts_mod
+
+log = logging.getLogger("gwent_tui.header")
 
 # Kept here for other widgets that import it
 _STATUS_COLOR = {
@@ -106,7 +116,13 @@ class HeaderWidget(Static):
                 Text(""),
             )
         else:
-            round_label = f"\u2694 Round {state.round_number} \u2694"
+            # \u2630 hamburger sits to the left of the round label \u2014 taps anywhere
+            # on the header open the in-game menu, but the icon now lives in
+            # the central column so it visually anchors with "Round N".
+            round_label = (
+                f"[bold $accent on grey15] \u2630 [/]  "
+                f"\u2694 Round {state.round_number} \u2694"
+            )
 
             is_p1_turn = state.current_player == P1
             p1f = state.factions.get(P1, "")
@@ -134,31 +150,52 @@ class HeaderWidget(Static):
             p1_lname = p1_leader.get("name", "") if p1_leader else ""
             p2_lname = p2_leader.get("name", "") if p2_leader else ""
 
-            # Build display: "emoji Name (Leader) emoji" or just "emoji Faction emoji"
-            if p1_pname and p1_pname not in ("Player 1",):
-                p1_text = f"{p1_pname}"
-                if p1_lname:
-                    p1_text += f" ({p1_lname})"
-            elif p1_lname:
-                p1_text = p1_lname
-            else:
-                p1_text = p1f or "P1"
+            # Controller short-name helper — "anthropic/claude-sonnet-4-6"
+            # → "Sonnet 4.6", "human" → "Human", etc.
+            def _controller_short(cid: str) -> str:
+                if not cid or cid == "human":
+                    return "Human"
+                tail = cid.split("/", 1)[-1]
+                if "claude-" in tail:
+                    return tail.replace("claude-", "").replace("-", " ").title()
+                if "gemini" in tail:
+                    return "Gemini " + tail.split("/")[-1].replace("gemini-", "")
+                if tail.startswith("gpt-"):
+                    return tail.replace("gpt-", "GPT-")
+                return tail
 
-            if p2_pname and p2_pname not in ("Player 2",):
-                p2_text = f"{p2_pname}"
-                if p2_lname:
-                    p2_text += f" ({p2_lname})"
-            elif p2_lname:
-                p2_text = p2_lname
-            else:
-                p2_text = p2f or "P2"
+            # ALWAYS prefix with "P1"/"P2" so users can tell sides apart even
+            # when both names are model-driven. Build a slash-separated label:
+            #   P1 · Sonnet 4.6 (Eredin)
+            #   P2 · Human (Foltest)
+            def _player_text(side_label: str, pname: str, lname: str,
+                             faction: str, controller_id: str) -> str:
+                controller = _controller_short(controller_id)
+                # When controller is human and we have a per-game name (other
+                # than the default placeholder), prefer that.
+                if controller == "Human" and pname and pname not in (
+                        "Player 1", "Player 2"):
+                    controller = pname
+                # Append leader name in parens when we have it.
+                if lname:
+                    return f"{side_label} · {controller} ({lname})"
+                if faction:
+                    return f"{side_label} · {controller} ({faction})"
+                return f"{side_label} · {controller}"
+
+            p1_text = _player_text("P1", p1_pname, p1_lname, p1f,
+                                   state.controllers.get(P1, "human"))
+            p2_text = _player_text("P2", p2_pname, p2_lname, p2f,
+                                   state.controllers.get(P2, "human"))
 
             # Gems
             p1_gems = self._gems(state.gems.get(P1, 2))
             p2_gems = self._gems(state.gems.get(P2, 2))
 
-            p1_label = f" {p1_gems} {p1e[0]}{p1e[1]} [{p1_style}]{p1_text}[/{p1_style}]"
-            p2_label = f"[{p2_style}]{p2_text}[/{p2_style}] {p2e[0]}{p2e[1]} {p2_gems} "
+            p1_label = (f" {p1_gems} {p1e[0]}{p1e[1]} "
+                        f"[{p1_style}]{p1_text}[/{p1_style}]")
+            p2_label = (f"[{p2_style}]{p2_text}[/{p2_style}] "
+                        f"{p2e[0]}{p2e[1]} {p2_gems} ")
 
             row2.add_row(
                 Text.from_markup(p1_label),
@@ -168,3 +205,18 @@ class HeaderWidget(Static):
 
         from rich.console import Group
         return Panel(Group(row1, row2), style="bold")
+
+    # --- Touch / click ------------------------------------------------------
+    # ALL header taps open the in-game hamburger menu (left-anchored).
+    # Player assignment is reachable as a hamburger menu item — never via a
+    # right-side tap zone. See memory: feedback_left_anchored_menus.
+    def on_click(self, event: events.Click) -> None:
+        log.info(
+            "HeaderWidget CLICK widget=(%d,%d) size=(%d,%d) — opening hamburger",
+            event.x, event.y, self.size.width, self.size.height,
+        )
+        try:
+            from gwent_tui.in_game_menu_modal import InGameMenuModal
+            self.app.push_screen(InGameMenuModal())
+        except Exception as e:
+            log.error("on_click handler failed: %s", e, exc_info=True)

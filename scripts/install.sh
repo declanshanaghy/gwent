@@ -9,3 +9,4 @@ ${DIR}/install-system.sh
 ${DIR}/install-venv.sh
 ${DIR}/install-app.sh
 ${DIR}/install-service.sh
+${DIR}/install-kiosk.sh

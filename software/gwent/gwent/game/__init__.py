@@ -28,6 +28,18 @@ CH_MFD = CH_SEP.join((MAIN_CHANNEL, 'mfd'))
 CH_MFD_PRESENT = CH_SEP.join((CH_MFD, 'present'))
 CH_MFD_CHOOSE = CH_SEP.join((CH_MFD, 'choose'))
 
+# TUI menu mirror — same idiom as MFD but each menu is published RETAINED
+# under `gwent/menu/present/{menu_id}`. See gwent_shared.topics.MENU_*.
+CH_MENU = CH_SEP.join((MAIN_CHANNEL, 'menu'))
+CH_MENU_PRESENT_PREFIX = CH_SEP.join((CH_MENU, 'present'))
+CH_MENU_PRESENT_WILDCARD = CH_SEP.join((CH_MENU_PRESENT_PREFIX, '+'))
+CH_MENU_CHOOSE = CH_SEP.join((CH_MENU, 'choose'))
+
+
+def ch_menu_present(menu_id: str) -> str:
+    """Per-menu retained topic. Mirrors gwent_shared.topics.menu_present_topic."""
+    return CH_SEP.join((CH_MENU_PRESENT_PREFIX, menu_id))
+
 CH_SFX = CH_SEP.join((MAIN_CHANNEL, 'sfx'))
 CH_SFX_COMPLETE = CH_SEP.join((CH_SFX, 'complete'))
 CH_MUSIC = CH_SEP.join((MAIN_CHANNEL, 'music'))
@@ -202,7 +214,8 @@ class PubSubComponent(ThreadComponent):
     _music_shuffled = False   # whether we've done the initial shuffle
     _music_enabled = True     # shared across all instances (toggled by SFX._on_music_ctrl)
     _music_timer = None       # shared auto-advance timer
-    _client_handles_music = False  # True when a TUI client is connected (skip local playback)
+    _client_handles_music = False  # True when a TUI client is connected (skip local music playback)
+    _client_handles_tts = False    # True when a TUI client is connected (skip local TTS announcements)
 
     def _scan_music_tracks(self):
         """Live-scan music directory. Sorted for stable ordering."""

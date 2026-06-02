@@ -64,13 +64,9 @@ class GwentTUI(App):
         Binding("question_mark", "help", "Help"),
         Binding("ctrl+s", "save", "Save State"),
         Binding("right", "next_track", "Next Track"),
-        Binding("up", "volume_up", "Volume Up"),
-        Binding("down", "volume_down", "Volume Down"),
-        Binding("m", "toggle_music", "Music On/Off"),
-        Binding("right_square_bracket", "sfx_volume_up", "SFX Vol Up"),
-        Binding("left_square_bracket", "sfx_volume_down", "SFX Vol Down"),
-        Binding("equals_sign", "tts_volume_up", "TTS Vol Up"),
-        Binding("minus", "tts_volume_down", "TTS Vol Down"),
+        Binding("v", "volume_mixer", "Volume Mixer"),
+        Binding("m", "in_game_menu", "Menu"),
+        Binding("ctrl+m", "toggle_music", "Music On/Off"),
         Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
@@ -89,6 +85,7 @@ class GwentTUI(App):
         self._current_stage_name = None
 
     def compose(self) -> ComposeResult:
+        log.debug("compose() start")
         yield HeaderWidget(id="header")
         # Stage container — will be populated dynamically
         yield UnknownStage(id="stage-container")
@@ -96,9 +93,62 @@ class GwentTUI(App):
             yield FooterWidget(id="footer")
             yield TimersWidget(id="timers")
         yield CardImageOverlay(id="card-overlay")
+        log.debug("compose() done")
+
+    # --- profuse input logging (per feedback_profuse_logging) ----------------
+    # These fire for any event that bubbles up to the App (i.e. wasn't handled
+    # by a child widget). Useful for verifying touch → wl_pointer → kitty →
+    # Textual delivery on the kiosk panel.
+
+    def on_mouse_down(self, event):
+        log.debug(
+            "MouseDown x=%d y=%d button=%d screen=(%d,%d)",
+            event.x, event.y, event.button, event.screen_x, event.screen_y,
+        )
+
+    def on_mouse_up(self, event):
+        log.debug(
+            "MouseUp   x=%d y=%d button=%d", event.x, event.y, event.button,
+        )
+
+    def on_click(self, event):
+        log.info(
+            "APP CLICK x=%d y=%d screen=(%d,%d) button=%d ctrl=%s meta=%s",
+            event.x, event.y, event.screen_x, event.screen_y,
+            event.button, event.ctrl, event.meta,
+        )
+
+    def on_key(self, event):
+        log.info(
+            "Key key=%r character=%r name=%s",
+            event.key, event.character, event.name,
+        )
+
+    def on_resize(self, event):
+        log.info("Resize new_size=%dx%d", event.size.width, event.size.height)
+    # -------------------------------------------------------------------------
 
     def on_mount(self):
         log.info("gwent-tui starting (url=%s)", self._gwent_url)
+        log.info(
+            "env: TERM=%s KITTY_WINDOW_ID=%s WAYLAND_DISPLAY=%s XDG_SESSION_TYPE=%s",
+            os.environ.get("TERM"),
+            os.environ.get("KITTY_WINDOW_ID"),
+            os.environ.get("WAYLAND_DISPLAY"),
+            os.environ.get("XDG_SESSION_TYPE"),
+        )
+        log.info(
+            "on_mount: console size=%dx%d driver=%s",
+            self.size.width, self.size.height,
+            type(self._driver).__name__ if self._driver else "?",
+        )
+
+        # Apply persisted mixer volumes (Master / Music / SFX / TTS).
+        try:
+            from gwent_tui.volume_mixer import apply_persisted_state
+            apply_persisted_state()
+        except Exception as e:
+            log.error("Mixer state restore failed: %s", e, exc_info=True)
 
         # Splash screen
         if not self._no_splash:
@@ -146,6 +196,13 @@ class GwentTUI(App):
             await self._switch_stage(self.state.stage)
             for widget in self.query("Static"):
                 widget.refresh()
+            # Menu mirror — if the current stage exposes refresh_menu(),
+            # rebuild its choice list from the cache.
+            for stage in self.query("MainMenuStage"):
+                try:
+                    stage.refresh_menu()
+                except Exception as e:
+                    log.error("refresh_menu failed: %s", e, exc_info=True)
         except Exception as e:
             log.error("Error refreshing widgets: %s", e, exc_info=True)
         # Update card image overlay (separate try to avoid swallowing errors)
@@ -234,11 +291,10 @@ class GwentTUI(App):
                 table.add_column("Action", style="white")
                 for key, action in [
                     ("?", "Help"),
-                    ("m", "Toggle music on/off"),
+                    ("m / tap header", "In-game menu (Reset / Volume / Help)"),
+                    ("v", "Volume mixer (Master / Music / SFX / TTS)"),
+                    ("Ctrl+M", "Toggle music on/off"),
                     ("\u2192", "Next music track"),
-                    ("\u2191 / \u2193", "Music volume up/down"),
-                    ("] / [", "SFX volume up/down"),
-                    ("= / -", "TTS volume up/down"),
                     ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
@@ -275,41 +331,17 @@ class GwentTUI(App):
         if self._subscriber and self._subscriber.music_enabled:
             self._subscriber._publish_music_complete()
 
-    def action_volume_up(self):
-        """Increase music volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_volume(10)
-        self.state._log_event(f"\U0001f50a Volume: {vol}%", color="plum1")
+    def action_volume_mixer(self):
+        """Open the 4-channel volume mixer modal (Master/Music/SFX/TTS)."""
+        from gwent_tui.volume_mixer import VolumeMixerModal
+        log.info("Opening volume mixer modal")
+        self.push_screen(VolumeMixerModal())
 
-    def action_volume_down(self):
-        """Decrease music volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_volume(-10)
-        self.state._log_event(f"\U0001f509 Volume: {vol}%", color="plum1")
-
-    def action_sfx_volume_up(self):
-        """Increase SFX volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_sfx_volume(10)
-        self.state._log_event(f"\U0001f50a SFX Vol: {vol}%", color="plum1")
-
-    def action_sfx_volume_down(self):
-        """Decrease SFX volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_sfx_volume(-10)
-        self.state._log_event(f"\U0001f509 SFX Vol: {vol}%", color="plum1")
-
-    def action_tts_volume_up(self):
-        """Increase TTS announcement volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_tts_volume(10)
-        self.state._log_event(f"\U0001f50a TTS Vol: {vol}%", color="plum1")
-
-    def action_tts_volume_down(self):
-        """Decrease TTS announcement volume by 10%."""
-        from gwent_tui import tts as tts_mod
-        vol = tts_mod.adjust_tts_volume(-10)
-        self.state._log_event(f"\U0001f509 TTS Vol: {vol}%", color="plum1")
+    def action_in_game_menu(self):
+        """Open the in-game hamburger menu (Reset / Volume / Help / Cancel)."""
+        from gwent_tui.in_game_menu_modal import InGameMenuModal
+        log.info("Opening in-game menu modal")
+        self.push_screen(InGameMenuModal())
 
     def action_toggle_music(self):
         """Toggle music on/off via MQTT."""

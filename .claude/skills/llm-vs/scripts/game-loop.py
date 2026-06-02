@@ -303,6 +303,23 @@ signal.signal(signal.SIGUSR1, _toggle_pause)
 signal.signal(signal.SIGUSR2, _toggle_auto_pause)
 
 
+# Clean SIGTERM/SIGINT — exit promptly with PID file cleanup. Used by the
+# backend's LLMPlayerManager to tear down subprocesses on game reset / swap.
+def _graceful_exit(signum, frame):
+    log_debug(f"signal {signum} received — exiting cleanly")
+    try:
+        if os.path.exists(PID_FILE):
+            os.remove(PID_FILE)
+    except Exception:
+        pass
+    # sys.exit() raises SystemExit which most code paths handle as a clean stop.
+    raise SystemExit(0)
+
+
+signal.signal(signal.SIGTERM, _graceful_exit)
+signal.signal(signal.SIGINT, _graceful_exit)
+
+
 def _read_orders(pnum):
     """Read and consume the orders file for a specific player. Returns order text or None."""
     orders_file = ORDERS_FILE_P1 if pnum == '1' else ORDERS_FILE_P2
@@ -743,6 +760,11 @@ MODEL_ALIASES = {
     "anthropic/claude-sonnet":      "anthropic/claude-sonnet-4-20250514",
     "anthropic/opus":               "anthropic/claude-opus-4-20250514",
     "anthropic/claude-opus":        "anthropic/claude-opus-4-20250514",
+    # Latest model IDs used by the TUI controller picker (Phase 3). Passthrough
+    # — Anthropic's API accepts these short IDs directly. Keep in sync with
+    # software/data/llm-models.json.
+    "anthropic/claude-sonnet-4-6":  "anthropic/claude-sonnet-4-6",
+    "anthropic/claude-opus-4-7":    "anthropic/claude-opus-4-7",
     # OpenAI
     "openai/gpt4o":                 "openai/gpt-4o",
     "openai/gpt-4o-mini":           "openai/gpt-4o-mini",
@@ -771,6 +793,8 @@ MODEL_ALIASES = {
     "ollama/phi4":                  "ollama/phi4:14b",
     "ollama/gemma":                 "ollama/gemma3:12b",
     "ollama/gemma3":                "ollama/gemma3:12b",
+    "ollama/gemma4":                "ollama/gemma4:latest",
+    "ollama/llama3.2:3b":           "ollama/llama3.2:3b",
 }
 
 
@@ -1154,6 +1178,34 @@ def execute(board, cur, action, sync=None, game_url=None):
         if is_decoy and not action.get('decoy_target'):
             return False, "Decoy needs decoy_target."
 
+        # FRESH-STATE CHECK: re-fetch right before publishing. TTS / LLM
+        # latency can stretch a turn 10-15s; the server may have advanced
+        # current_player by then. If we publish after that, the server
+        # attributes the play to the new current_player (wrong faction) →
+        # "card not in hand" rejection. Abort silently and let the loop
+        # re-prompt with the new state.
+        try:
+            _, fresh_board = fetch(game_url) if game_url else (None, None)
+        except Exception:
+            fresh_board = None
+        if fresh_board is not None:
+            fresh_cur = fresh_board.get('current_player')
+            if fresh_cur != cur:
+                log_debug(
+                    f"FRESH CHECK: current_player drifted {cur} -> {fresh_cur} "
+                    f"before publishing {card['name']} — aborting play")
+                return False, (f"Turn drifted: current_player is now "
+                               f"{fresh_cur}, was {cur}. Skipping play.")
+            fresh_hand = fresh_board.get('hands', {}).get(cur, [])
+            fresh_card = find_card(fresh_hand, name)
+            if not fresh_card:
+                log_debug(
+                    f"FRESH CHECK: {card['name']} no longer in {cur}'s hand "
+                    f"({len(fresh_hand)} cards); aborting")
+                return False, (f"Card '{name}' vanished from hand between "
+                               f"validation and publish — re-prompt LLM.")
+            card = fresh_card  # use the live card object (matching rfid)
+
         mqpub('gwent/cards/raw/read', json.dumps(card))
 
         if is_agile:
@@ -1305,6 +1357,16 @@ def game_loop(args, board, sync):
             continue
 
         pnum = '1' if cur == 'PLAYER.ONE' else '2'
+        my_side = f"P{pnum}"
+        # --only-side gate — when restricted, observe other-side turns but do
+        # NOT act on them. The opposing subprocess (or RFID-driven human) is
+        # expected to drive that side.
+        if args.only_side and args.only_side != my_side:
+            log_debug(
+                f"observing other-side turn ({my_side}, my only_side={args.only_side}); "
+                "waiting for turn advance")
+            wait_for_turn_advance(args.game_url, cur)
+            continue
         faction = board['factions'][cur]
         plab = f"P{pnum} ({faction})"
 
@@ -1585,7 +1647,7 @@ def game_loop(args, board, sync):
             sync.wait_all()
 
     log(f"\n{turn} turns played.")
-    log(f"Logs: /tmp/logs/llm-vs-p1.jsonl, /tmp/logs/llm-vs-p2.jsonl")
+    log(f"Logs: tmp/logs/llm-vs-p1.jsonl, tmp/logs/llm-vs-p2.jsonl (repo-relative)")
 
 
 # ---------------------------------------------------------------------------
@@ -1617,7 +1679,12 @@ def main():
                         help='Model for P1 (default: anthropic/sonnet). See model list below.')
     parser.add_argument('--model-p2', default=None,
                         help='Model for P2 (defaults to --model-p1). See model list below.')
-    parser.add_argument('--ollama-url', default='http://hal-9005.lan:11434')
+    # Default Ollama URL: respect OLLAMA_BASE_URL env override, fall back to a
+    # network host. The kiosk install sets this via .env / systemd.
+    parser.add_argument('--ollama-url',
+                        default=os.environ.get('OLLAMA_BASE_URL',
+                                               'http://ollama:11434'),
+                        help='Ollama API base URL (or set OLLAMA_BASE_URL env)')
     parser.add_argument('--host', default='localhost',
                         help='Gwent server hostname (used for both HTTP and MQTT)')
     parser.add_argument('--game-url', default=None,
@@ -1629,6 +1696,13 @@ def main():
                         help='Also emit structured JSON events to stdout')
     parser.add_argument('--no-pause', action='store_true',
                         help='Run continuously without pausing between turns')
+    parser.add_argument('--only-side', choices=['P1', 'P2'], default=None,
+                        help='Restrict this process to acting ONLY for the '
+                             'given side. When set, other-side turns are '
+                             'observed (state refreshed) but no action is '
+                             'taken — the opposing subprocess (or human via '
+                             'RFID) is expected to drive them. Required when '
+                             'spawning one game-loop per LLM-controlled side.')
     args = parser.parse_args()
 
     # Validate model names before doing anything

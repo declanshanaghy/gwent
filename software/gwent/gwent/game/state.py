@@ -260,3 +260,62 @@ def get_filepath(name):
     if not name.endswith(".json"):
         name += ".json"
     return os.path.join(STATES_DIR, name)
+
+
+def list_recordings():
+    """Scan RECORDINGS_DIR and return a sorted list of recording metadata.
+
+    Each entry is a dict:
+        {
+            "filename": "007-super-victory-monsters-vs-skellige.json",
+            "stem":     "007-super-victory-monsters-vs-skellige",
+            "path":     "/.../software/data/recordings/007-...json",
+            "active_stage": "PlayRound",
+            "saved_at": "2026-04-01T22:59:53.882714",
+            "factions":  ["Monsters", "Skellige"],   # best-effort
+        }
+
+    Returned sorted by filename ascending (so the leading numeric prefix orders
+    them naturally). Returns [] if the directory is missing.
+    """
+    if not os.path.isdir(RECORDINGS_DIR):
+        log.warning(f"RECORDINGS_DIR not found: {RECORDINGS_DIR}")
+        return []
+
+    results = []
+    for fn in sorted(os.listdir(RECORDINGS_DIR)):
+        if not fn.endswith(".json"):
+            continue
+        path = os.path.join(RECORDINGS_DIR, fn)
+        meta = {
+            "filename": fn,
+            "stem": fn[:-5],
+            "path": path,
+            "active_stage": None,
+            "saved_at": None,
+            "factions": [],
+        }
+        try:
+            with open(path) as f:
+                snap = json.load(f)
+            meta["active_stage"] = snap.get("active_stage")
+            meta["saved_at"] = snap.get("saved_at")
+            state = snap.get("state", {}) or {}
+            board = state.get("board", {}) or {}
+            factions = board.get("factions")
+            if isinstance(factions, dict):
+                # board.factions = {"PLAYER.ONE": "Monsters", ...}
+                meta["factions"] = list(factions.values())
+            elif isinstance(factions, list):
+                meta["factions"] = factions
+            else:
+                # Fall back to leader.faction if present.
+                l1 = state.get("leader1") or {}
+                l2 = state.get("leader2") or {}
+                meta["factions"] = [
+                    f for f in (l1.get("faction"), l2.get("faction")) if f
+                ]
+        except Exception as e:
+            log.warning(f"list_recordings: failed to read {fn}: {e}")
+        results.append(meta)
+    return results

@@ -1,0 +1,57 @@
+{
+  "id": "https://gwent.shanaghy.com/schema_menu.json",
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "description": "TUI menu mirror message (retained per menu_id)",
+  "type": "object",
+  "required": [
+    "menu_id",
+    "choices"
+  ],
+  "properties": {
+    "menu_id": {
+      "type": "string",
+      "description": "Stable identifier for this menu (main, assign-p1, assign-p2, in-game-menu, ...)"
+    },
+    "prompt": {
+      "type": "string",
+      "description": "Optional header/instructions for this menu"
+    },
+    "choices": {
+      "type": "array",
+      "description": "Tappable options",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "text"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable choice identifier (sent back on gwent/menu/choose)"
+          },
+          "text": {
+            "type": "string",
+            "description": "Display text for the choice"
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional secondary text (faction info, date, etc.)"
+          },
+          "icon": {
+            "type": "string",
+            "description": "Optional emoji / single-char icon"
+          },
+          "disabled": {
+            "type": "boolean",
+            "description": "If true, the choice is shown but not selectable"
+          }
+        }
+      }
+    },
+    "game_id": {
+      "type": "string",
+      "description": "Optional current game id"
+    }
+  }
+}

@@ -27,6 +27,11 @@ class AudioMixer:
         self._next_channel_id = 0
         self._lock = threading.Lock()
         self._music_volume = 1.0
+        # When True, all subsequent play_music() calls are no-ops. Set by the
+        # server via disable_music() once a TUI client takes over playback —
+        # prevents an in-flight play_music (which sleeps during fadeout) from
+        # resuming with a fresh track after the takeover.
+        self._music_disabled = False
 
         try:
             import pygame.mixer
@@ -43,8 +48,15 @@ class AudioMixer:
     # ------------------------------------------------------------------
 
     def play_music(self, path, volume=None, fade_ms=2000, loop=True):
-        """Play a music file. Crossfades if something is already playing."""
+        """Play a music file. Crossfades if something is already playing.
+
+        No-op when disable_music() has been called (TUI took over playback).
+        """
         if not self._initialized:
+            return
+        if self._music_disabled:
+            log.info("play_music ignored — mixer's music is disabled: %s",
+                     os.path.basename(path))
             return
         if volume is not None:
             self._music_volume = max(0.0, min(1.0, volume))
@@ -58,6 +70,13 @@ class AudioMixer:
                 pygame.mixer.music.fadeout(fade_ms)
                 time.sleep(fade_ms / 1000.0 + 0.1)
 
+            # Re-check after the blocking fadeout — disable_music() may have
+            # been called during the sleep (e.g. TUI registered mid-fadeout).
+            if self._music_disabled:
+                log.info("play_music aborted mid-fadeout (music disabled): %s",
+                         os.path.basename(path))
+                return
+
             pygame.mixer.music.load(path)
             pygame.mixer.music.set_volume(self._music_volume)
             loops = -1 if loop else 0
@@ -66,6 +85,23 @@ class AudioMixer:
                      os.path.basename(path), self._music_volume * 100, loop)
         except Exception as e:
             log.error("Error playing music: %s", e, exc_info=True)
+
+    def disable_music(self) -> None:
+        """Permanently silence future play_music() calls and stop the current
+        stream. Used by the server when a TUI client takes over playback."""
+        self._music_disabled = True
+        log.info("Music disabled on this AudioMixer instance")
+        if self._initialized:
+            try:
+                import pygame.mixer
+                pygame.mixer.music.stop()
+            except Exception as e:
+                log.warning("disable_music: pygame stop failed: %s", e)
+
+    def enable_music(self) -> None:
+        """Re-enable play_music() after a prior disable_music()."""
+        self._music_disabled = False
+        log.info("Music re-enabled on this AudioMixer instance")
 
     def stop_music(self, fade_ms=2000):
         """Stop music with optional fade-out."""

@@ -14,6 +14,8 @@ from gwent_shared.topics import PRESENCE
 import gwent.game.constants
 import gwent.game.cards
 import gwent.game.controller
+import gwent.game.llm_player
+import gwent.game.menu_publisher
 import gwent.game.mfd
 import gwent.game.player
 import gwent.game.round_keeper
@@ -310,6 +312,15 @@ class Gwent:
         self.components.append(gwent.game.cards.Reader(self.pubsub))
         self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub, tts_provider=getattr(self, '_tts_provider', 'gtts')))
+        # MenuPublisher — TUI menu mirror (retained menu broadcasts + choice dispatch)
+        self._menu_publisher = gwent.game.menu_publisher.MenuPublisher(self.pubsub, controller)
+        self.components.append(self._menu_publisher)
+        # LLMPlayerManager — spawns game-loop.py subprocesses per LLM side
+        # and handles assign-pN dispatch from the TUI controller picker.
+        self._llm_player_manager = gwent.game.llm_player.LLMPlayerManager(
+            self.pubsub, controller)
+        self._menu_publisher.llm_player_manager = self._llm_player_manager
+        self.components.append(self._llm_player_manager)
         
     def initialize_components(self):
         """Initialize all components"""
@@ -365,6 +376,13 @@ class Gwent:
                 game_state.load(state_file, controller)
             else:
                 self._log.error("Cannot load state: controller not found")
+        else:
+            # No recording → publish the retained main menu so the TUI
+            # immediately shows the State A selection screen.
+            try:
+                self._menu_publisher.publish_main_menu()
+            except Exception as e:
+                self._log.error(f"publish_main_menu failed: {e}", exc_info=True)
 
         # Wait for shutdown signal
         try:

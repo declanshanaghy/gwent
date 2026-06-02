@@ -7,6 +7,7 @@ import gwent.messaging.card_play
 import gwent.messaging.ctrl
 import gwent.messaging.choice
 import gwent.messaging.mfd
+import gwent.messaging.menu
 import gwent.messaging.sfx
 import gwent.messaging.music
 
@@ -28,6 +29,7 @@ _constructors = {
     gwent.messaging.ctrl.KIND: gwent.messaging.ctrl.Message,
     gwent.messaging.choice.KIND: gwent.messaging.choice.Message,
     gwent.messaging.mfd.KIND: gwent.messaging.mfd.Message,
+    gwent.messaging.menu.KIND: gwent.messaging.menu.Message,
     gwent.messaging.sfx.KIND: gwent.messaging.sfx.Message,
     gwent.messaging.music.KIND: gwent.messaging.music.Message,
 }

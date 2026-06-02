@@ -108,6 +108,16 @@ sudo apt-get install -y \
   libsdl2-mixer-dev libsdl2-image-dev libsdl2-ttf-dev \
   mosquitto
 
+echo "Installing kiosk display stack (greetd + cage + kitty)..."
+# greetd:         minimal login manager (replaces lightdm) with autologin
+# cage:           single-window Wayland kiosk compositor (wlroots)
+# kitty:          terminal emulator with Kitty Graphics Protocol — required by
+#                 gwent-tui for inline card image overlays via textual-image.
+# python3-evdev:  reads /dev/input/event* and writes to /dev/uinput from the
+#                 gwent-touch.service daemon, bridging touchscreen → wl_pointer
+#                 (cage/kitty don't consume wl_touch on their own).
+sudo apt-get install -y greetd cage kitty python3-evdev
+
 # Default ALSA output to 3.5mm headphone jack instead of HDMI
 ASOUNDRC="${HOME}/.asoundrc"
 if [ ! -f "$ASOUNDRC" ]; then

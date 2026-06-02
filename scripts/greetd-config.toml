@@ -1,0 +1,9 @@
+# gwent kiosk — installed to /etc/greetd/config.toml by install-kiosk.sh.
+# Autologin as dshanaghy on vt1, launch cage running kitty running the TUI.
+
+[terminal]
+vt = 1
+
+[default_session]
+command = "cage -s -- kitty --config=/home/dshanaghy/.config/kitty/kitty.conf -e /home/dshanaghy/src/github.com/declanshanaghy/gwent/scripts/kiosk-tui.sh"
+user = "dshanaghy"

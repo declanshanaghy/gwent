@@ -98,8 +98,40 @@ class ScoreboardWidget(Static):
         p2f = state.factions.get(P2, "")
         p1_fc = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))[0]
         p2_fc = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))[0]
-        p1_leader_str = f"{p1e[0]}{p1e[1]} [{p1_fc}]{p1_nick}[/{p1_fc}]" if p1_nick else ""
-        p2_leader_str = f"[{p2_fc}]{p2_nick}[/{p2_fc}] {p2e[0]}{p2e[1]}" if p2_nick else ""
+
+        # Controller short-name — same logic as header
+        def _ctrl_short(cid: str) -> str:
+            if not cid or cid == "human":
+                return "Human"
+            tail = cid.split("/", 1)[-1]
+            if "claude-" in tail:
+                return tail.replace("claude-", "").replace("-", " ").title()
+            if tail.startswith("gpt-"):
+                return tail.replace("gpt-", "GPT-")
+            if "gemini" in tail or tail in ("flash", "pro"):
+                return "Gemini " + tail.replace("gemini-", "").title()
+            if tail.startswith("llama") or "llama" in tail:
+                return "Llama " + tail.replace("llama", "").lstrip("3.")[:10]
+            return tail
+        p1_ctrl = _ctrl_short(state.controllers.get(P1, "human"))
+        p2_ctrl = _ctrl_short(state.controllers.get(P2, "human"))
+
+        # ALWAYS show "P1 · <controller> · <leader>" so users can tell sides
+        # apart even when both controllers are the same model. Drop leader
+        # if it'd push past the column width.
+        def _build_side(side_label: str, ctrl: str, leader_nick: str,
+                        emoji_pair, faction_color: str, right_align: bool):
+            # Truncate controller to keep within column.
+            ctrl_disp = _mid_truncate(ctrl, 12)
+            ldr_disp = leader_nick or ""
+            body = f"[bold]{side_label}[/bold] · {ctrl_disp}"
+            if ldr_disp:
+                body += f" · [{faction_color}]{ldr_disp}[/{faction_color}]"
+            if right_align:
+                return f"{body} {emoji_pair[0]}{emoji_pair[1]}"
+            return f"{emoji_pair[0]}{emoji_pair[1]} {body}"
+        p1_leader_str = _build_side("P1", p1_ctrl, p1_nick, p1e, p1_fc, right_align=False)
+        p2_leader_str = _build_side("P2", p2_ctrl, p2_nick, p2e, p2_fc, right_align=True)
 
         # Build: P1 info | score | P2 info
         left = f"{p1_leader_str}  {p1_pass}" if p1_pass else f"{p1_leader_str}"

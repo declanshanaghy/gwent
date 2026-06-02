@@ -158,9 +158,26 @@ class _Handler(BaseHTTPRequestHandler):
             provider = data.get("provider", "none")
             self.server.client_tts[client_id] = provider
             log.info("Client TTS registered: %s=%s", client_id, provider)
-            # Tell server SFX to skip local music — TUI handles playback
+            # Tell server SFX to skip local music AND TTS — TUI handles both
             import gwent.game
+            already_handled = gwent.game.PubSubComponent._client_handles_music
             gwent.game.PubSubComponent._client_handles_music = True
+            gwent.game.PubSubComponent._client_handles_tts = True
+            # If the server was already playing music when the client
+            # registered, the existing pygame stream keeps running at 100%
+            # forever (subsequent plays are skipped). Stop it now so the
+            # TUI's stream is the only source.
+            if not already_handled:
+                try:
+                    from gwent_shared.audio import get_mixer
+                    mixer = get_mixer()
+                    log.info("TUI took over music — disabling local server playback")
+                    # disable_music() both stops the current pygame stream
+                    # AND blocks any in-flight play_music() (which may be
+                    # mid-fadeout sleep) from resuming with a fresh track.
+                    mixer.disable_music()
+                except Exception as e:
+                    log.warning("failed to disable local music on client takeover: %s", e)
             cond = self.server.state_condition
             if cond:
                 with cond:

@@ -56,6 +56,19 @@ restart *args:
 tui *args:
     "{{tui_bin}}" {{args}}
 
+# Touch verification — launches scripts/test-touch.py inside kitty
+touch-test:
+    bash scripts/test-touch.sh
+
+# Programmatic test of the volume mixer modal (Textual Pilot, headless)
+test-volume-mixer:
+    "{{venv_bin}}/python" scripts/test-volume-mixer.py
+
+# Interactive volume mixer test — drives the REAL modal on the panel.
+# Requires running inside the kiosk's kitty so touch + visuals are exercised.
+test-volume-mixer-ui:
+    "{{venv_bin}}/python" scripts/test-volume-mixer-interactive.py
+
 # Dump current game state (sends SIGUSR1 to gwent)
 dump-state *args:
     kill -USR1 $(pgrep -f "{{venv_bin}}/gwent") 2>/dev/null || echo "gwent not running"

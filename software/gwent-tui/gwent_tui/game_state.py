@@ -114,6 +114,19 @@ class GameState:
         self.reg_deck1 = []
         self.reg_deck2 = []
 
+        # TUI menu mirror cache — {menu_id: payload-dict} from retained
+        # `gwent/menu/present/+` messages. Cleared per-menu when the backend
+        # publishes an empty payload (retained slot cleared).
+        self.menus: dict[str, dict] = {}
+
+        # Per-side controller from retained `gwent/players/controller/PLAYER.*`.
+        # Default "human" when nothing has been published yet.
+        self.controllers: dict = {P1: "human", P2: "human"}
+
+        # Toasts received on gwent/toast — list of dicts, newest last. The
+        # toast widget pops the oldest after its display duration.
+        self.toasts: list[dict] = []
+
         # Deal tracking (cards dealt in real-time via MQTT)
         self.dealt_cards = {P1: [], P2: []}
 
@@ -726,6 +739,57 @@ class GameState:
                         self.save_game_recording()
                     except Exception as e:
                         log.warning("Failed to save game recording: %s", e)
+
+    def on_controller(self, player: str, controller: str) -> None:
+        """Handle a retained `gwent/players/controller/PLAYER.*` update.
+
+        `player` is the suffix after `controller/` (e.g. 'PLAYER.ONE').
+        """
+        with self.lock:
+            if player.endswith("ONE"):
+                self.controllers[P1] = controller
+            elif player.endswith("TWO"):
+                self.controllers[P2] = controller
+            log.info("controller %s = %s", player, controller)
+
+    def on_toast(self, payload: dict) -> None:
+        """Handle a `gwent/toast` event — render to event log + cache for widget."""
+        text = payload.get("text", "")
+        level = payload.get("level", "info")
+        with self.lock:
+            self.toasts.append({
+                "ts": payload.get("ts") or 0,
+                "level": level,
+                "text": text,
+            })
+            if len(self.toasts) > 5:
+                self.toasts = self.toasts[-5:]
+        # Mirror to the event log so it's visible immediately in the footer.
+        color = {
+            "info": "cyan",
+            "warn": "yellow",
+            "error": "red",
+        }.get(level, "white")
+        icon = {"info": "ℹ", "warn": "⚠", "error": "✖"}.get(level, "•")
+        self._log_event(f"{icon} {text}", color=color)
+        log.info("toast queued level=%s text=%r", level, text)
+
+    def on_menu(self, menu_id: str, payload: dict | None):
+        """Handle a retained `gwent/menu/present/{menu_id}` update.
+
+        `payload=None` means the retained slot was cleared (empty payload).
+        Stores or removes the entry from self.menus. Caller is responsible
+        for triggering any UI refresh.
+        """
+        self.game_log.write("menu", menu_id, payload or {})
+        with self.lock:
+            if payload is None or not payload.get("choices"):
+                self.menus.pop(menu_id, None)
+                log.info("menu cleared: %s", menu_id)
+            else:
+                self.menus[menu_id] = payload
+                log.info("menu cached: %s (%d choices)",
+                         menu_id, len(payload.get("choices", [])))
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""

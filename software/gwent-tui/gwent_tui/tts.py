@@ -215,31 +215,55 @@ def play_effect(effect_name: str):
 
 def adjust_volume(delta: int) -> int:
     """Adjust music volume by delta percent. Takes effect immediately."""
-    global _volume
-    _volume = max(0, min(100, _volume + delta))
-    mixer = _get_mixer()
-    mixer.set_music_volume(_volume / 100.0)
-    log.info("Music volume: %d%%", _volume)
-    return _volume
+    return set_volume(_volume + delta)
 
 
 def adjust_sfx_volume(delta: int) -> int:
     """Adjust SFX effects volume by delta percent."""
-    global _sfx_volume
-    _sfx_volume = max(0, min(100, _sfx_volume + delta))
-    mixer = _get_mixer()
-    mixer.set_channel_volume("effect", _sfx_volume / 100.0)
-    log.info("SFX volume: %d%%", _sfx_volume)
-    return _sfx_volume
+    return set_sfx_volume(_sfx_volume + delta)
 
 
 def adjust_tts_volume(delta: int) -> int:
     """Adjust TTS announcement volume by delta percent."""
+    return set_tts_volume(_tts_volume + delta)
+
+
+def set_volume(value: int) -> int:
+    """Set music volume to an absolute percent (0..100). Returns clamped value."""
+    global _volume
+    _volume = max(0, min(100, int(value)))
+    _get_mixer().set_music_volume(_volume / 100.0)
+    log.info("Music volume: %d%%", _volume)
+    return _volume
+
+
+def set_sfx_volume(value: int) -> int:
+    """Set SFX volume to an absolute percent (0..100). Returns clamped value."""
+    global _sfx_volume
+    _sfx_volume = max(0, min(100, int(value)))
+    _get_mixer().set_channel_volume("effect", _sfx_volume / 100.0)
+    log.info("SFX volume: %d%%", _sfx_volume)
+    return _sfx_volume
+
+
+def set_tts_volume(value: int) -> int:
+    """Set TTS volume to an absolute percent (0..100). Returns clamped value."""
     global _tts_volume
-    _tts_volume = max(0, min(100, _tts_volume + delta))
-    mixer = _get_mixer()
-    mixer.set_channel_volume("tts", _tts_volume / 100.0)
+    _tts_volume = max(0, min(100, int(value)))
+    _get_mixer().set_channel_volume("tts", _tts_volume / 100.0)
     log.info("TTS volume: %d%%", _tts_volume)
+    return _tts_volume
+
+
+def get_volume() -> int:
+    return _volume
+
+
+def get_sfx_volume() -> int:
+    return _sfx_volume
+
+
+def get_tts_volume() -> int:
     return _tts_volume
 
 

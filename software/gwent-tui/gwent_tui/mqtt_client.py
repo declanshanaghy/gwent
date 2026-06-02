@@ -18,8 +18,15 @@ BROKER_PASS = "gwent"
 from gwent_shared.topics import (
     CTRL, MFD_PRESENT, MFD_CHOOSE, SFX, SFX_COMPLETE,
     MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
-    PRESENCE,
+    PRESENCE, MAIN,
+    MENU_PRESENT_PREFIX, MENU_PRESENT_WILDCARD, MENU_CHOOSE,
 )
+
+# Per-side retained controller state — Phase 3.
+PLAYERS_CONTROLLER_PREFIX = f"{MAIN}/players/controller"
+PLAYERS_CONTROLLER_WILDCARD = f"{PLAYERS_CONTROLLER_PREFIX}/+"
+# Transient TUI banner topic — Phase 3.
+TOAST = f"{MAIN}/toast"
 
 TOPICS = [
     (CTRL, 0),
@@ -31,6 +38,9 @@ TOPICS = [
     (PRESENCE, 0),                # retained: server online/offline
     (CARDS_RAW_READ, 0),
     (f"{CARDS_PLAY}/+", 0),
+    (MENU_PRESENT_WILDCARD, 0),   # retained: TUI menu mirror (per menu_id)
+    (PLAYERS_CONTROLLER_WILDCARD, 0),  # retained: which controller drives each side
+    (TOAST, 0),                   # transient: failover / status banners
 ]
 
 
@@ -181,8 +191,67 @@ class MqttSubscriber:
         self.state.mqtt_status = "error"
         self.state._log_event("MQTT disconnected")
 
+    def publish_choose(self, menu_id: str, choice_id: str) -> None:
+        """Publish a `gwent/menu/choose` selection. Profuse logging per
+        feedback_profuse_logging — every selection should be inspectable
+        post-hoc."""
+        payload = json.dumps({
+            "kind": "menu",
+            "menu_id": menu_id,
+            "id": choice_id,
+        })
+        log.info("publish_choose menu_id=%s id=%s", menu_id, choice_id)
+        try:
+            result = self.client.publish(MENU_CHOOSE, payload, qos=1)
+            log.debug("publish_choose result rc=%s mid=%s", result.rc, result.mid)
+        except Exception as e:
+            log.exception("publish_choose failed: %s", e)
+
     def _on_message(self, client, userdata, msg):
         topic = msg.topic
+
+        # Retained menu present — topic is `gwent/menu/present/{menu_id}`.
+        # An EMPTY payload means the retained slot was cleared.
+        if topic.startswith(MENU_PRESENT_PREFIX + "/"):
+            menu_id = topic[len(MENU_PRESENT_PREFIX) + 1:]
+            if not msg.payload:
+                log.info("menu present CLEARED menu_id=%s", menu_id)
+                self.state.on_menu(menu_id, None)
+                return
+            try:
+                data = json.loads(msg.payload.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log.warning("Bad menu payload on %s", topic)
+                return
+            log.info("menu present menu_id=%s choices=%d",
+                     menu_id, len(data.get("choices", [])))
+            self.state.on_menu(menu_id, data)
+            return
+
+        # Per-side controller state — Phase 3.
+        if topic.startswith(PLAYERS_CONTROLLER_PREFIX + "/"):
+            player_id = topic[len(PLAYERS_CONTROLLER_PREFIX) + 1:]
+            if not msg.payload:
+                log.info("controller CLEARED player=%s", player_id)
+                self.state.on_controller(player_id, "human")
+                return
+            try:
+                data = json.loads(msg.payload.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log.warning("Bad controller payload on %s", topic)
+                return
+            self.state.on_controller(player_id, data.get("controller", "human"))
+            return
+
+        # Transient toast — Phase 3.
+        if topic == TOAST:
+            try:
+                data = json.loads(msg.payload.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log.warning("Bad toast payload")
+                return
+            self.state.on_toast(data)
+            return
 
         # Presence is a plain-text payload ("online"/"offline"), not JSON —
         # handle it before the JSON parse to avoid the bad-payload early-return.

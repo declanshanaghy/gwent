@@ -55,6 +55,13 @@ class SFX(gwent.game.PubSubComponent):
             if sfx.subkind == gwent.messaging.sfx.ANNOUNCEMENT:
                 if muted:
                     self._on_announcement_complete(sfx)
+                elif gwent.game.PubSubComponent._client_handles_tts:
+                    # TUI is registered and synthesizes/plays its own audio.
+                    # It publishes gwent/sfx/complete (source=gwent-tui), which
+                    # the stages use to advance — we don't need to fire
+                    # _on_announcement_complete locally.
+                    self._log.debug(
+                        "Skipping local TTS announcement — TUI client handles playback")
                 else:
                     self._log.info(f"Playing announcement: {sfx.announcement}")
                     self._tts.announce(sfx, on_complete=self._on_announcement_complete)

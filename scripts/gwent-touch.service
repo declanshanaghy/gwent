@@ -1,0 +1,23 @@
+[Unit]
+Description=Gwent Touchscreen → Mouse Bridge
+# Must come up before greetd so cage discovers the virtual pointer at startup.
+Before=greetd.service display-manager.service
+After=systemd-udevd.service
+
+[Service]
+Type=simple
+# Runs as root because /dev/uinput is root-only and we need to read raw
+# /dev/input/event* before user sessions begin.
+User=root
+# Use system python3 + apt python3-evdev so we don't depend on a user venv.
+ExecStart=/usr/bin/python3 /home/dshanaghy/src/github.com/declanshanaghy/gwent/scripts/touch-to-mouse.py
+Restart=on-failure
+RestartSec=2
+# SIGTERM only — per project rule, no SIGKILL on graceful shutdown.
+KillSignal=SIGTERM
+TimeoutStopSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
