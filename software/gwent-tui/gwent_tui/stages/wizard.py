@@ -32,6 +32,16 @@ log = logging.getLogger("gwent_tui.stages.wizard")
 
 WIZARD_MENU = "wizard"
 
+# Big block-art "VS" — looks larger than a glyph without scaling the font.
+# All lines padded to equal width so content-align centers it as a block.
+_VS_ART = "\n".join([
+    "█   █ ████",
+    "█   █ █   ",
+    "█   █ ████",
+    " █ █     █",
+    "  █   ████",
+])
+
 
 def _summary(app) -> dict:
     state = getattr(app, "state", None)
@@ -91,6 +101,18 @@ class _Side(Vertical):
         if self._img is not None:
             self._img.image = path or ""
 
+    def on_click(self, event) -> None:
+        """Tap a leader to blow it up full-screen for inspection."""
+        card = (_summary(self.app).get(self.side) or {}).get("leader_card")
+        if not card:
+            return
+        log.info("WizardStage: zoom leader %s", card.get("name"))
+        try:
+            from gwent_tui.card_zoom import CardZoomModal
+            self.app.push_screen(CardZoomModal(card))
+        except Exception as e:
+            log.error("leader zoom failed: %s", e, exc_info=True)
+
 
 class WizardStage(Container):
     """Full-screen new-game wizard."""
@@ -99,12 +121,6 @@ class WizardStage(Container):
     WizardStage {
         height: 1fr;
         layout: vertical;
-    }
-    #wiz-title {
-        height: 1;
-        content-align: center middle;
-        text-style: bold;
-        color: $accent;
     }
     #wiz-main {
         height: 1fr;
@@ -141,7 +157,7 @@ class WizardStage(Container):
     #wiz-footer {
         dock: bottom;
         width: 100%;
-        height: 4;
+        height: 3;
         align: center middle;
     }
     #wiz-buttons {
@@ -165,12 +181,6 @@ class WizardStage(Container):
         background: #a98ee0;
         color: black;
     }
-    #wiz-hint {
-        width: 100%;
-        height: 1;
-        content-align: center middle;
-        color: $text-muted;
-    }
     #wiz-error {
         height: 1fr;
         content-align: center middle;
@@ -185,11 +195,10 @@ class WizardStage(Container):
         self._last_cid = None
 
     def compose(self) -> ComposeResult:
-        yield Static("🎲  New Game", id="wiz-title")
         with Horizontal(id="wiz-main"):
             self._p1 = _Side("p1", id="wiz-p1")
             yield self._p1
-            yield Static("⚔\nVS\n⚔", id="wiz-vs")
+            yield Static(f"[bold yellow]{_VS_ART}[/]", id="wiz-vs")
             self._p2 = _Side("p2", id="wiz-p2")
             yield self._p2
         with Vertical(id="wiz-footer"):
@@ -197,7 +206,6 @@ class WizardStage(Container):
                 yield Button("🎲 Re-select Sides", id="wiz-reroll-sides")
                 yield Button("🤖 Re-select Model", id="wiz-reroll-model")
                 yield Button("▶ START", id="wiz-start", variant="success")
-            yield Static("Tap a button to set up your game", id="wiz-hint")
 
     def on_mount(self) -> None:
         log.info("WizardStage mounted")

@@ -85,6 +85,7 @@ class InGameMenuModal(ModalScreen):
         ("restart-server", "Restart server", "🔄"),
         ("volume", "Volume mixer", "🔊"),
         ("toggle-panels", "Show / hide Events & Timers", "📊"),
+        ("toggle-header", "Show / hide header", "🖥"),
         ("help", "Help / shortcuts", "?"),
         ("cancel", "Cancel (close menu)", "✕"),
     ]
@@ -171,6 +172,13 @@ class InGameMenuModal(ModalScreen):
                 app.action_toggle_panels()
             except Exception as e:
                 log.error("toggle-panels action failed: %s", e, exc_info=True)
+            return
+        if action_id == "toggle-header":
+            self.dismiss()
+            try:
+                app.action_toggle_header()
+            except Exception as e:
+                log.error("toggle-header action failed: %s", e, exc_info=True)
             return
         if action_id == "help":
             self.dismiss()

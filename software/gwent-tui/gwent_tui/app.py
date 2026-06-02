@@ -41,14 +41,46 @@ def _configure_logging():
     root.addHandler(fh)
 
 
+class MenuCorner(Static):
+    """Tiny top-left affordance that opens the in-game menu.
+
+    Shows the current stage icon (🏠 main menu, ⚔ play round, …) — the same
+    glyph the header uses — so the menu stays reachable when the header is
+    hidden. Tapping it opens the hamburger menu.
+    """
+
+    def render(self):
+        from gwent_tui.widgets.header import _STAGE_ICON
+        stage = getattr(self.app.state, "stage", "")
+        return _STAGE_ICON.get(stage, "☰")  # ☰ fallback
+
+    def on_click(self, event) -> None:
+        try:
+            self.app.action_in_game_menu()
+        except Exception as e:
+            log.error("menu-corner open failed: %s", e, exc_info=True)
+
+
 class GwentTUI(App):
     """Gwent Companion TUI."""
 
     TITLE = "Gwent TUI"
 
     CSS = """
-    Screen { layout: vertical; layers: bg default overlay; }
+    Screen { layout: vertical; layers: bg default overlay corner; }
     * { scrollbar-size: 0 0; }
+    /* Header is hidden by default to maximize board space; toggled via the
+       in-game menu (Screen.show-header). A small stage-icon button floats in
+       the top-left corner so the menu stays reachable while it's hidden. */
+    #menu-corner {
+        layer: corner;
+        width: 4;
+        height: 1;
+        background: $panel;
+        color: $accent;
+        content-align: center middle;
+    }
+    Screen.show-header #menu-corner { display: none; }
     /* Blurred splash image, full-screen behind everything. Shown only on the
        New Game screen (Screen.newgame). On that screen the panels go
        translucent so the image reads through as a background. */
@@ -59,7 +91,8 @@ class GwentTUI(App):
     Screen.newgame #bottom-bar { background: transparent 0%; }
     Screen.newgame #footer { background: transparent 0%; }
     Screen.newgame #timers { background: transparent 0%; }
-    #header { height: 4; }
+    #header { height: 4; display: none; }
+    Screen.show-header #header { display: block; }
     #stage-container { height: 1fr; overflow: hidden; }
     /* Events + Timers are hidden by default to give the board/hands more
        room; toggled on via the in-game menu (Screen.show-panels). */
@@ -114,6 +147,7 @@ class GwentTUI(App):
             yield FooterWidget(id="footer")
             yield TimersWidget(id="timers")
         yield CardImageOverlay(id="card-overlay")
+        yield MenuCorner(id="menu-corner")
         log.debug("compose() done")
 
     # --- profuse input logging (per feedback_profuse_logging) ----------------
@@ -301,6 +335,15 @@ class GwentTUI(App):
             log.info("toggle panels -> %s", "shown" if on else "hidden")
         except Exception as e:
             log.error("toggle_panels failed: %s", e, exc_info=True)
+
+    def action_toggle_header(self):
+        """Show/hide the top header bar (the corner icon still opens the menu)."""
+        try:
+            self.screen.toggle_class("show-header")
+            on = self.screen.has_class("show-header")
+            log.info("toggle header -> %s", "shown" if on else "hidden")
+        except Exception as e:
+            log.error("toggle_header failed: %s", e, exc_info=True)
 
     def action_help(self):
         from textual.screen import ModalScreen
