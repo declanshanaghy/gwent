@@ -82,6 +82,7 @@ class InGameMenuModal(ModalScreen):
         ("assign-p1", "Assign Player 1 controller", "1"),
         ("assign-p2", "Assign Player 2 controller", "2"),
         ("reset", "Reset to main menu", "⏏"),
+        ("restart-server", "Restart server", "🔄"),
         ("volume", "Volume mixer", "🔊"),
         ("help", "Help / shortcuts", "?"),
         ("cancel", "Cancel (close menu)", "✕"),
@@ -182,6 +183,25 @@ class InGameMenuModal(ModalScreen):
             # start_main_menu() + republish main menu.
             subscriber.publish_choose("in-game-menu", "reset")
             self.dismiss()
+            return
+        if action_id == "restart-server":
+            log.info("InGameMenuModal: restarting gwent.service")
+            self.dismiss()
+            import subprocess
+            try:
+                # Restart the server. The TUI loses the HTTP poll → shows the
+                # Offline screen, then reconnects to a fresh server which boots
+                # straight into the New Game (wizard) screen. Detached so the
+                # restart proceeds even as this process keeps running.
+                subprocess.Popen(
+                    ["sudo", "-n", "systemctl", "restart", "gwent"],
+                    start_new_session=True,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+                log.info("restart command launched")
+            except Exception as e:
+                log.error("restart-server failed: %s", e, exc_info=True)
             return
         log.warning("InGameMenuModal unknown action: %s", action_id)
         self.dismiss()
