@@ -1,15 +1,22 @@
 #!/usr/bin/env npx tsx
 /**
- * Fenrir Ledger — Imagen Generator
+ * Imagen — generic, brief-fed image generator (Google Gemini API)
  *
- * Generates images using Google Gemini API with the Fenrir Ledger Norse wolf
- * aesthetic. Supports free-form prompts and built-in presets.
+ * A "meta skill": instead of hardcoding the creative direction, it is *fed* a
+ * brief file (the embedded image-content prompt) and a per-image variant. The
+ * final prompt is composed as:
+ *
+ *     [optional base style]  +  [BRIEF block from --brief file]  +  [variant]
+ *
+ * The brief is the reusable scaffold (e.g. hardware/enclosure/design-outline.md);
+ * the variant is the knob string you feed on the CLI for each concept.
  *
  * Usage:
- *     npx tsx generate.ts "A Norse wolf head logo"
+ *     npx tsx generate.ts --brief hardware/enclosure/design-outline.md "<variant>"
+ *     npx tsx generate.ts "<full prompt>"            # brief auto-detected if present
  *     npx tsx generate.ts --preset fenrir-logo
- *     npx tsx generate.ts --preset fenrir-medallion --size 16:9 --output badge.png
- *     npx tsx generate.ts --preset fenrir-medallion --count 4
+ *     npx tsx generate.ts --brief brief.md "<variant>" --size 4:3 --output out.png --count 2
+ *     GEMINI_IMAGE_MODEL=gemini-2.5-flash-image npx tsx generate.ts ...
  *
  * Requires GOOGLE_API_KEY or GEMINI_API_KEY environment variable.
  */
@@ -25,11 +32,25 @@ const __dirname = dirname(__filename);
 // Constants
 // ---------------------------------------------------------------------------
 
-const GEMINI_ENDPOINT =
-  "https://generativelanguage.googleapis.com/v1beta/models/" +
-  "gemini-3.1-flash-image-preview:generateContent";
+// Model is configurable so the skill survives free-tier/billing/model changes.
+// Override with --model <name> or the GEMINI_IMAGE_MODEL env var.
+// gemini-2.5-flash-image reliably returns image bytes; 3.1-flash-image often
+// returns a 200 with no image for terse prompts.
+const DEFAULT_MODEL = "gemini-2.5-flash-image";
 
-const REQUEST_TIMEOUT_MS = 60_000;
+function endpointFor(model: string): string {
+  return (
+    "https://generativelanguage.googleapis.com/v1beta/models/" +
+    `${model}:generateContent`
+  );
+}
+
+const REQUEST_TIMEOUT_MS = 120_000;
+
+// Default brief locations tried (relative to cwd) when --brief is omitted.
+const DEFAULT_BRIEF_CANDIDATES = [
+  "hardware/enclosure/design-outline.md",
+];
 
 const PRESETS: Record<string, string> = {
   "fenrir-logo":
@@ -54,21 +75,79 @@ const VALID_ASPECT_RATIOS = new Set(["1:1", "16:9", "9:16", "4:3", "3:4"]);
 // ---------------------------------------------------------------------------
 
 function getApiKey(): string | undefined {
-  return process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  const fromEnv = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
+  if (fromEnv) return fromEnv;
+  // Fall back to .secrets (preferred) then .env at the cwd (repo root).
+  for (const file of [".secrets", ".env"]) {
+    try {
+      const p = resolve(process.cwd(), file);
+      if (!existsSync(p)) continue;
+      for (const raw of readFileSync(p, "utf-8").split("\n")) {
+        let line = raw.trim();
+        if (!line || line.startsWith("#")) continue;
+        if (line.startsWith("export ")) line = line.slice(7).trim();
+        const m = line.match(/^(?:GEMINI_API_KEY|GOOGLE_API_KEY)\s*=\s*(.+)$/);
+        if (m) return m[1].trim().replace(/^['"]|['"]$/g, "");
+      }
+    } catch {
+      /* ignore unreadable file */
+    }
+  }
+  return undefined;
 }
 
+function getModel(cliModel?: string): string {
+  return cliModel || process.env.GEMINI_IMAGE_MODEL || DEFAULT_MODEL;
+}
+
+/** Extract the fenced ``` block from a "## Base Prompt"-style style file. */
 function loadBasePrompt(): string {
   const basePromptPath = join(__dirname, "base-prompt.md");
   if (!existsSync(basePromptPath)) return "";
   const content = readFileSync(basePromptPath, "utf-8");
-  // Extract text between ``` fences in the "## Base Prompt" section
   const match = content.match(/```\n([\s\S]*?)```/);
   return match ? match[1].trim() : "";
 }
 
-function buildRequestBody(prompt: string, aspectRatio: string) {
+/**
+ * Load the embedded image-content prompt from a brief file. Resolution order:
+ *   1. Text between <!-- imagen:brief:start --> and <!-- imagen:brief:end -->
+ *   2. The first fenced ``` code block in the file
+ *   3. The whole file, trimmed
+ * This is what makes the skill generic: the creative scaffold lives in the
+ * brief, not in this script.
+ */
+function loadBrief(path: string): string {
+  if (!existsSync(path)) {
+    console.error(`[imagen] Error: brief file not found: ${path}`);
+    process.exit(1);
+  }
+  const content = readFileSync(path, "utf-8");
+  const marked = content.match(
+    /<!--\s*imagen:brief:start\s*-->([\s\S]*?)<!--\s*imagen:brief:end\s*-->/
+  );
+  if (marked) return marked[1].trim();
+  const fenced = content.match(/```[a-zA-Z0-9-]*\n([\s\S]*?)```/);
+  if (fenced) return fenced[1].trim();
+  return content.trim();
+}
+
+/** When --brief is omitted, auto-detect a default brief in the project. */
+function detectDefaultBrief(): string | undefined {
+  for (const cand of DEFAULT_BRIEF_CANDIDATES) {
+    if (existsSync(cand)) return cand;
+  }
+  return undefined;
+}
+
+type RefImage = { mimeType: string; data: string };
+
+function buildRequestBody(prompt: string, aspectRatio: string, ref?: RefImage) {
+  const parts: Array<Record<string, unknown>> = [];
+  if (ref) parts.push({ inlineData: { mimeType: ref.mimeType, data: ref.data } });
+  parts.push({ text: prompt });
   return {
-    contents: [{ parts: [{ text: prompt }] }],
+    contents: [{ parts }],
     generationConfig: {
       responseModalities: ["IMAGE"],
       imageConfig: { aspectRatio },
@@ -76,13 +155,30 @@ function buildRequestBody(prompt: string, aspectRatio: string) {
   };
 }
 
+function loadRefImage(path: string): RefImage {
+  if (!existsSync(path)) {
+    console.error(`[imagen] Error: reference image not found: ${path}`);
+    process.exit(1);
+  }
+  const ext = extname(path).toLowerCase();
+  const mimeType =
+    ext === ".jpg" || ext === ".jpeg"
+      ? "image/jpeg"
+      : ext === ".webp"
+        ? "image/webp"
+        : "image/png";
+  return { mimeType, data: readFileSync(path).toString("base64") };
+}
+
 async function generateImage(
   apiKey: string,
+  model: string,
   prompt: string,
-  aspectRatio: string
+  aspectRatio: string,
+  ref?: RefImage
 ): Promise<Buffer[]> {
-  const url = `${GEMINI_ENDPOINT}?key=${apiKey}`;
-  const body = JSON.stringify(buildRequestBody(prompt, aspectRatio));
+  const url = `${endpointFor(model)}?key=${apiKey}`;
+  const body = JSON.stringify(buildRequestBody(prompt, aspectRatio, ref));
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -108,7 +204,7 @@ async function generateImage(
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => "");
-    console.error(`[imagen] API error: HTTP ${response.status}\n${errorBody}`);
+    console.error(`[imagen] API error: HTTP ${response.status} (model ${model})\n${errorBody}`);
     process.exit(1);
   }
 
@@ -160,27 +256,43 @@ function parseArgs(argv: string[]) {
   const args: {
     prompt?: string;
     preset?: string;
+    brief?: string;
+    model?: string;
+    ref?: string;
     size: string;
     output?: string;
     count: number;
-  } = { size: "1:1", count: 1 };
+    noBase: boolean;
+  } = { size: "1:1", count: 1, noBase: false };
 
   let i = 0;
   while (i < argv.length) {
     const arg = argv[i];
     if (arg === "--preset" && i + 1 < argv.length) {
       args.preset = argv[++i];
+    } else if (arg === "--brief" && i + 1 < argv.length) {
+      args.brief = argv[++i];
+    } else if (arg === "--model" && i + 1 < argv.length) {
+      args.model = argv[++i];
+    } else if (arg === "--ref" && i + 1 < argv.length) {
+      args.ref = argv[++i];
     } else if (arg === "--size" && i + 1 < argv.length) {
       args.size = argv[++i];
     } else if (arg === "--output" && i + 1 < argv.length) {
       args.output = argv[++i];
     } else if (arg === "--count" && i + 1 < argv.length) {
       args.count = parseInt(argv[++i], 10);
+    } else if (arg === "--no-base") {
+      args.noBase = true;
     } else if (arg === "--help" || arg === "-h") {
       console.log(
-        "Usage: npx tsx generate.ts \"<prompt>\" [--preset <name>] [--size <ratio>] [--output <path>] [--count <n>]\n\n" +
+        "Usage: npx tsx generate.ts \"<variant>\" [--brief <file>] [--model <name>] " +
+          "[--preset <name>] [--size <ratio>] [--output <path>] [--count <n>]\n\n" +
+          "The --brief file supplies the embedded image-content prompt (the reusable\n" +
+          "scaffold); the positional <variant> supplies the per-image knob string.\n\n" +
           "Presets: " + Object.keys(PRESETS).join(", ") + "\n" +
-          "Sizes: " + [...VALID_ASPECT_RATIOS].join(", ")
+          "Sizes: " + [...VALID_ASPECT_RATIOS].join(", ") + "\n" +
+          "Model: --model or GEMINI_IMAGE_MODEL (default " + DEFAULT_MODEL + ")"
       );
       process.exit(0);
     } else if (!arg.startsWith("--")) {
@@ -195,10 +307,15 @@ function parseArgs(argv: string[]) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  if (!args.prompt && !args.preset) {
+  // Resolve the brief (explicit --brief, else auto-detect a project default).
+  const briefPath = args.brief ?? detectDefaultBrief();
+  const brief = briefPath ? loadBrief(briefPath) : "";
+
+  // A run must have *something* to say: a brief, a variant, or a preset.
+  if (!brief && !args.prompt && !args.preset) {
     console.error(
-      '[imagen] Error: provide either a prompt or --preset.\n' +
-        'Usage: npx tsx generate.ts "<prompt>" or --preset <name>'
+      "[imagen] Error: nothing to generate. Provide a --brief file, a positional\n" +
+        "<variant> prompt, or a --preset. The meta-skill must be fed content."
     );
     process.exit(1);
   }
@@ -236,13 +353,27 @@ async function main() {
     process.exit(1);
   }
 
-  const userPrompt = args.preset ? PRESETS[args.preset] : args.prompt!;
-  const basePrompt = loadBasePrompt();
-  const prompt = basePrompt ? `${basePrompt}\n\n${userPrompt}` : userPrompt;
+  const model = getModel(args.model);
 
-  if (basePrompt) {
-    console.error("[imagen] Base prompt loaded from base-prompt.md");
+  // Compose: [base style] + [brief scaffold] + [variant/preset].
+  const variant = args.preset ? PRESETS[args.preset] : args.prompt;
+  const layers: string[] = [];
+  const baseStyle = args.noBase ? "" : loadBasePrompt();
+  if (baseStyle) {
+    layers.push(baseStyle);
+    console.error("[imagen] Base style loaded from base-prompt.md");
   }
+  if (brief) {
+    layers.push(brief);
+    console.error(`[imagen] Brief loaded from ${briefPath}`);
+  }
+  if (variant) layers.push(variant);
+  const prompt = layers.join("\n\n");
+
+  console.error(`[imagen] Model: ${model}`);
+
+  const ref = args.ref ? loadRefImage(args.ref) : undefined;
+  if (ref) console.error(`[imagen] Reference image: ${args.ref}`);
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
   const baseOutput = args.output ?? `generated-${timestamp}.png`;
@@ -254,7 +385,7 @@ async function main() {
       console.error(`[imagen] Generating image ${i + 1} of ${args.count}...`);
     }
 
-    const images = await generateImage(apiKey, prompt, args.size);
+    const images = await generateImage(apiKey, model, prompt, args.size, ref);
     const imageData = images[0];
 
     const dest = outputPath(baseOutput, i, args.count);
