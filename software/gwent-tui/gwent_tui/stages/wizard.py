@@ -78,8 +78,10 @@ class _Side(Vertical):
         self._img: TGPImage | None = None
 
     def compose(self) -> ComposeResult:
-        self._img = TGPImage("", classes="wiz-img")
-        yield self._img
+        # Full-width wrapper centers the aspect-sized image horizontally.
+        with Container(classes="wiz-img-wrap"):
+            self._img = TGPImage("", classes="wiz-img")
+            yield self._img
         yield _SideInfo(self.side, classes="wiz-info")
 
     def update_image(self) -> None:
@@ -113,9 +115,14 @@ class WizardStage(Container):
         height: 1fr;
         align: center top;
     }
+    .wiz-img-wrap {
+        width: 100%;
+        height: 1fr;
+        align: center middle;
+    }
     .wiz-img {
         width: auto;
-        height: 1fr;
+        height: 100%;
     }
     .wiz-info {
         width: 100%;
