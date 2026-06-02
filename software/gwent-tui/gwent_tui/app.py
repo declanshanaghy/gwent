@@ -55,10 +55,10 @@ class MenuCorner(Static):
     def render(self):
         from gwent_tui.widgets.header import _STAGE_ICON
         stage = getattr(self.app.state, "stage", "")
-        # Hamburger during play; stage icon (🏠 etc.) elsewhere.
-        if stage == "PlayRound":
-            return "☰"
-        return _STAGE_ICON.get(stage, "☰")
+        # Hamburger during play; stage icon (🏠 etc.) elsewhere. Leading space
+        # so the narrow glyph sits centered in the button.
+        icon = "☰" if stage == "PlayRound" else _STAGE_ICON.get(stage, "☰")
+        return f" {icon}"
 
     def on_mount(self) -> None:
         self._recenter()
