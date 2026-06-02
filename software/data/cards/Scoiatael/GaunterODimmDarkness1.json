@@ -16,5 +16,9 @@
     "image": "../../images/Scoiatael/GaunterODimmDarkness.jpg",
     "image_verified": true,
     "card_text": "Fear not the shadows, but the light.",
-    "pronoun": "he"
+    "pronoun": "he",
+    "musters_with": [
+        "Gaunter O'Dimm: Darkness",
+        "Gaunter O'Dimm: Darkness 2"
+    ]
 }

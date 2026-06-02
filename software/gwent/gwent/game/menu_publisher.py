@@ -193,15 +193,24 @@ class MenuPublisher(PubSubComponent):
             return
         m = self.llm_player_manager.pick_random_model()
         if not m:
-            self._wizard["p2"].update({
-                "controller": "human", "controller_label": "Human", "icon": "🃏"})
+            self._wizard["p2"].update(self._model_fields("human"))
             return
-        self._wizard["p2"].update({
-            "controller": m.get("id"),
-            "controller_label": m.get("label", m.get("id")),
-            "icon": m.get("icon", "🤖"),
-        })
+        self._wizard["p2"].update(self._model_fields(m.get("id")))
         self._log.info(f"wizard rolled model: P2={m.get('id')!r}")
+
+    def _model_fields(self, model_id: str) -> dict:
+        """Wizard summary fields (controller/label/icon) for a model id."""
+        if not model_id or model_id == "human":
+            return {"controller": "human",
+                    "controller_label": "You (RFID / touch)", "icon": "🃏"}
+        models = self.llm_player_manager.models if self.llm_player_manager else []
+        for m in models:
+            if m.get("id") == model_id:
+                return {"controller": model_id,
+                        "controller_label": m.get("label", model_id),
+                        "icon": m.get("icon", "🤖")}
+        return {"controller": model_id, "controller_label": model_id,
+                "icon": "🤖"}
 
     def publish_wizard(self) -> None:
         """Publish (retained) the wizard menu the TUI renders full-screen."""
@@ -325,9 +334,12 @@ class MenuPublisher(PubSubComponent):
 
         f1, o1 = p1["faction"], p1["owner"]
         f2, o2 = p2["faction"], p2["owner"]
-        model = p2.get("controller", "human")
+        # Use whatever controllers the wizard currently holds — these reflect
+        # both the rolled model AND any change made via the Assign menu.
+        c1 = p1.get("controller", "human")
+        c2 = p2.get("controller", "human")
         self._log.info(
-            f"wizard START P1={f1}/{o1} (human)  P2={f2}/{o2} (model={model})")
+            f"wizard START P1={f1}/{o1} (ctrl={c1})  P2={f2}/{o2} (ctrl={c2})")
 
         # Build the decks BEFORE assigning/clearing so we can bail cleanly.
         try:
@@ -344,11 +356,11 @@ class MenuPublisher(PubSubComponent):
             self.publish_wizard()
             return
 
-        # Assign controllers (P1 human, P2 the model). Deferred spawn @PlayRound.
+        # Assign the chosen controllers. Deferred spawn happens at PlayRound.
         if self.llm_player_manager is not None:
             try:
-                self.llm_player_manager.assign("P1", "human")
-                self.llm_player_manager.assign("P2", model)
+                self.llm_player_manager.assign("P1", c1)
+                self.llm_player_manager.assign("P2", c2)
             except Exception as e:
                 self._log.exception(f"wizard assign failed: {e}")
 
@@ -374,8 +386,22 @@ class MenuPublisher(PubSubComponent):
             self._log.info(f"in-game-menu choice deferred to Phase 4: {choice_id}")
 
     def _handle_assign_choose(self, menu_id: str, choice_id: str) -> None:
-        """assign-p1 / assign-p2 → tell LLMPlayerManager to reassign that side."""
+        """assign-p1 / assign-p2 → reassign that side.
+
+        While the New Game wizard is up (game not started), fold the choice into
+        the wizard selection and re-render it — START then applies it. Otherwise
+        (mid-game) reassign live via the LLMPlayerManager.
+        """
         side = "P1" if menu_id == gwent.messaging.menu.MENU_ASSIGN_P1 else "P2"
+
+        if gwent.messaging.menu.MENU_WIZARD in self._published_menus and self._wizard:
+            key = "p1" if side == "P1" else "p2"
+            self._wizard.setdefault(key, {}).update(self._model_fields(choice_id))
+            self._log.info(
+                f"wizard {key} controller set via assign menu -> {choice_id!r}")
+            self.publish_wizard()
+            return
+
         if self.llm_player_manager is None:
             self._log.error(
                 f"assign-{side.lower()} choose received but LLMPlayerManager not wired")

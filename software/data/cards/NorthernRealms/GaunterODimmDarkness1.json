@@ -18,5 +18,9 @@
     "image": "../../images/NorthernRealms/GaunterODimmDarkness.jpg",
     "card_text": "Fear not the shadows, but the light.",
     "image_verified": true,
-    "pronoun": "he"
+    "pronoun": "he",
+    "musters_with": [
+        "Gaunter O'Dimm: Darkness",
+        "Gaunter O'Dimm: Darkness 2"
+    ]
 }
