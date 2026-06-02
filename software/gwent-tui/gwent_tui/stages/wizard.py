@@ -154,6 +154,17 @@ class WizardStage(Container):
         min-width: 22;
         margin: 0 1;
     }
+    /* Re-select buttons: a consistent solid purple with black text, to pair
+       cleanly with the green START button. */
+    #wiz-reroll-sides, #wiz-reroll-model {
+        background: #9370db;
+        color: black;
+        text-style: bold;
+    }
+    #wiz-reroll-sides:hover, #wiz-reroll-model:hover {
+        background: #a98ee0;
+        color: black;
+    }
     #wiz-hint {
         width: 100%;
         height: 1;
