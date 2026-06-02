@@ -321,14 +321,20 @@ def deck_summary(faction, owner):
             total += int(s)
 
     leader = next((c for c in cards if c.get("specialty") == "leader"), None)
-    if leader is None:
+    if leader is None or not leader.get("image"):
         # Owners rarely own a leader card (leaders are shared/starter and
-        # supplemented at deal time) — fall back to the faction's leader card
-        # so the wizard always shows a leader name + image.
-        for _fp, data in _load_faction_cards(faction):
-            if data.get("specialty") == "leader":
-                leader = data
-                break
+        # supplemented at deal time) — fall back to the faction's leader card.
+        # Prefer one that actually has art (ideally the starter leader) so the
+        # wizard never shows a blank image (e.g. Skellige's image-less "King
+        # Bran" → use "Crach an Craite" instead).
+        faction_leaders = [data for _fp, data in _load_faction_cards(faction)
+                           if data.get("specialty") == "leader"]
+        leader = (
+            next((c for c in faction_leaders
+                  if c.get("image") and c.get("starter")), None)
+            or next((c for c in faction_leaders if c.get("image")), None)
+            or leader
+            or (faction_leaders[0] if faction_leaders else None))
     leader_card = None
     if leader:
         leader_card = {
