@@ -9,7 +9,9 @@ Profuse logging per feedback_profuse_logging.
 """
 from __future__ import annotations
 
+import json
 import logging
+import os
 
 from textual import events
 from textual.app import ComposeResult
@@ -18,14 +20,48 @@ from textual.containers import Container
 from textual.screen import ModalScreen
 from textual.widgets import Label, ListItem, ListView, Static
 
+from gwent_tui.game_state import P1, P2
+
 log = logging.getLogger("gwent_tui.in_game_menu")
+
+_MODEL_LABELS = None
+
+
+def _model_labels() -> dict:
+    """id → friendly label from data/llm-models.json (cached)."""
+    global _MODEL_LABELS
+    if _MODEL_LABELS is None:
+        _MODEL_LABELS = {}
+        try:
+            import gwent.game.decks as gdecks
+            path = os.path.join(os.path.dirname(gdecks.CARDS_DIR),
+                                "llm-models.json")
+            for m in json.load(open(path)).get("models", []):
+                _MODEL_LABELS[m.get("id")] = m.get("label", m.get("id"))
+        except Exception as e:
+            log.debug("could not load model labels: %s", e)
+    return _MODEL_LABELS
+
+
+def _controller_desc(state, player) -> str:
+    """'Currently: <controller>' for a player's assigned controller."""
+    cid = (getattr(state, "controllers", {}) or {}).get(player, "human")
+    if not cid or cid == "human":
+        return "Currently: Human (RFID / touch)"
+    label = (_model_labels().get(cid)
+             or (getattr(state, "player_names", {}) or {}).get(player)
+             or cid)
+    return f"Currently: {label}"
 
 
 class _MenuRow(ListItem):
-    """A single action row in the hamburger menu."""
+    """A single action row in the hamburger menu (optional 2nd-line desc)."""
 
-    def __init__(self, action_id: str, label: str, icon: str = "") -> None:
+    def __init__(self, action_id: str, label: str, icon: str = "",
+                 description: str | None = None) -> None:
         text = f"{icon}  {label}" if icon else label
+        if description:
+            text = f"{text}\n   [dim]{description}[/dim]"
         super().__init__(Label(text))
         self.action_id = action_id
 
@@ -98,7 +134,15 @@ class InGameMenuModal(ModalScreen):
     def compose(self) -> ComposeResult:
         with Container(id="imm-box"):
             yield Static("⚙  In-game menu", id="imm-title")
-            rows = [_MenuRow(aid, label, icon) for aid, label, icon in self.ACTIONS]
+            state = getattr(self.app, "state", None)
+            rows = []
+            for aid, label, icon in self.ACTIONS:
+                desc = None
+                if state and aid == "assign-p1":
+                    desc = _controller_desc(state, P1)
+                elif state and aid == "assign-p2":
+                    desc = _controller_desc(state, P2)
+                rows.append(_MenuRow(aid, label, icon, desc))
             self._list = ListView(*rows, id="imm-list")
             yield self._list
             yield Static("↑↓ to move • Enter / tap to select • Esc to close",
