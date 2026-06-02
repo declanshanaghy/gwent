@@ -1,0 +1,57 @@
+Name,Unit,Expression,Value,Comments,Favorite
+nozzle_diameter,mm,0.8 mm,0.8,FDM nozzle width,true
+num_walls,,2,2,wall perimeter count,true
+wall_thickness,mm,nozzle_diameter * num_walls,1.6,shell wall = num_walls perimeters,true
+layer_height,mm,0.4 mm,0.4,print layer height,false
+fit_clearance,mm,0.4 mm,0.4,slip fit for module pockets,false
+hole_compensation,mm,0.4 mm,0.4,added to holes (FDM prints undersize),false
+min_feature,mm,nozzle_diameter,0.8,thinnest printable detail,false
+max_width,mm,325 mm,325,assembled device max width (towers printed separately),true
+max_depth,mm,250 mm,250,device max depth,true
+max_height,mm,250 mm,250,device max height,true
+print_plate,mm,256 mm,256,Bambu X1C build plate (single-part limit),false
+screen_tilt,deg,65 deg,65,fixed screen angle,true
+screen_module_w,mm,194 mm,194,RPi 7in display module width,false
+screen_module_h,mm,110 mm,110,RPi 7in display module height,false
+screen_module_t,mm,20 mm,20,RPi 7in display module depth,false
+screen_visible_w,mm,155 mm,155,7in viewable area width,false
+screen_visible_h,mm,86 mm,86,7in viewable area height,false
+brick_length,mm,112 mm,112,Anker A2683 brick length,false
+brick_width,mm,76 mm,76,Anker A2683 brick width,false
+brick_height,mm,35 mm,35,Anker A2683 brick height,false
+pi_length,mm,85 mm,85,Raspberry Pi 4 board length,false
+pi_width,mm,56 mm,56,Raspberry Pi 4 board width,false
+hat_length,mm,65 mm,65,Gwent HAT PCB length,false
+hat_width,mm,56.5 mm,56.5,Gwent HAT PCB width,false
+score_display_w,mm,50 mm,50,IS31FL3731 score display window width,false
+score_display_h,mm,25 mm,25,IS31FL3731 score display window height,false
+display_bezel,mm,5 mm,5,cover/bezel margin around a display,false
+score_aperture_w,mm,score_display_w + 2 * display_bezel,60,score display housing aperture width,false
+score_aperture_h,mm,score_display_h + 2 * display_bezel,35,score display housing aperture height,false
+gems_display_w,mm,50 mm,50,gems matrix display window width,false
+gems_display_h,mm,25 mm,25,gems matrix display window height,false
+speaker_diameter,mm,50 mm,50,speaker driver diameter (err big),false
+speaker_depth,mm,25 mm,25,speaker driver depth,false
+amp_length,mm,55 mm,55,DROK PAM8406 amp length,false
+amp_width,mm,32 mm,32,DROK PAM8406 amp width,false
+isolator_length,mm,120 mm,120,JABINCO isolator pocket length incl jacks,false
+isolator_width,mm,20 mm,20,JABINCO isolator width,false
+isolator_height,mm,20 mm,20,JABINCO isolator height,false
+card_width,mm,63 mm,63,physical Gwent card width (poker),false
+card_height,mm,88 mm,88,physical Gwent card height (poker),false
+base_width,mm,210 mm,210,central body width (holds 194mm screen; fits X1C plate),true
+base_depth,mm,140 mm,140,central base depth (front to back),false
+base_height,mm,45 mm,45,central base height,false
+tower_width,mm,57 mm,57,DETACHABLE player tower width (fits 50mm speaker; printed separately),false
+tower_depth,mm,60 mm,60,player tower depth,false
+tower_height,mm,130 mm,130,player tower height,true
+tower_taper,mm,12 mm,12,tower top inset for keep taper,false
+tower_toe_in,deg,5 deg,5,tower inward angle toward player,false
+tower_plug_depth,mm,15 mm,15,tower plug tenon depth into base side,false
+gems_crest_width,mm,70 mm,70,gems centerpiece crest width,false
+gems_crest_height,mm,40 mm,40,gems centerpiece crest height,false
+shelf_width,mm,80 mm,80,front card shelf width (narrowed for splitting; holds 63mm card),false
+shelf_depth,mm,90 mm,90,front card shelf depth (~card length),false
+shelf_height,mm,12 mm,12,front card shelf thickness,false
+shelf_ramp_length,mm,25 mm,25,lip-free front ramp run to desk,false
+overall_width,mm,base_width + 2 * tower_width,324,assembled width (must be <= max_width),true
