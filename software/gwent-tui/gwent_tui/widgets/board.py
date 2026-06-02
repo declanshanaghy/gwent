@@ -1,11 +1,22 @@
-"""Board widget: 3 combat rows x 2 players, plus top-level scoreboard."""
+"""Board widget: 3 combat rows x 2 players, plus top-level scoreboard.
+
+Each combat-row section (close/ranged/siege for P1 and P2) is tappable: a tap
+opens a view-only CardListModal listing that section's cards. We record the
+y-band of each combat row during render() so on_click can map a tap to the
+right (player, row). See feedback_left_anchored_menus / project_pi_display.
+"""
+
+import logging
 
 from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 from rich import box
+from textual import events
 from textual.containers import Vertical
 from textual.widgets import Static
+
+log = logging.getLogger("gwent_tui.board")
 
 from gwent_tui.emoji import (
     card_display_short, gems_display, ROW_EMOJI, WEATHER_EMOJI, WEATHER_NAME, FLAG, ZAP,
@@ -161,6 +172,14 @@ class _BoardRows(Static):
     _BoardRows { width: 1fr; height: 1fr; }
     """
 
+    # Filled during render(): list of (row_name, y_start, y_end) in widget
+    # coords. on_click uses it (plus x < width/2 → P1) to open a section view.
+    _bands: list
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._bands = []
+
     def _max_name(self):
         """Compute max card name length based on pane width."""
         col_width = max(10, (self.size.width - 4) // 2)
@@ -252,6 +271,12 @@ class _BoardRows(Static):
         table.add_column(ratio=1)
         table.add_column(ratio=1)
 
+        # Track y-bands for click mapping. y=0 is the Panel's top border line;
+        # interior content starts at y=1. show_lines adds one separator line
+        # between adjacent table rows.
+        self._bands = []
+        y = 1
+
         for row_name in ("close", "ranged", "siege"):
             re = ROW_EMOJI.get(row_name, "")
             weather_active = row_name in state.weather_rows
@@ -275,12 +300,19 @@ class _BoardRows(Static):
 
             table.add_row(p1_text, p2_text)
 
+            # Band = this row's content + its trailing separator line (tapping
+            # the divider maps to the row above — forgiving on touch).
+            h = max(p1_text.count("\n") + 1, p2_text.count("\n") + 1)
+            self._bands.append((row_name, y, y + h + 1))
+            y += h + 1  # content + separator
+
             # Horn indicator between rows — only when active
             if p1_horn or p2_horn:
                 HORN = "\U0001f4ef"
                 p1_horn_str = f"[bold yellow]{HORN} HORN \u00d72 {HORN}[/bold yellow]" if p1_horn else ""
                 p2_horn_str = f"[bold yellow]{HORN} HORN \u00d72 {HORN}[/bold yellow]" if p2_horn else ""
                 table.add_row(p1_horn_str, p2_horn_str)
+                y += 2  # horn row + its separator
 
         # Leader ability footer row — short nickname, faction colored
         from gwent_tui.widgets.header import _leader_nick
@@ -321,6 +353,32 @@ class _BoardRows(Static):
             )
 
         return Panel(table, title="\u2694 Board")
+
+    def on_click(self, event: events.Click) -> None:
+        """Tap a combat-row section \u2192 view-only list of that section's cards."""
+        y = event.y
+        row_name = None
+        for rn, y_start, y_end in (self._bands or []):
+            if y_start <= y < y_end:
+                row_name = rn
+                break
+        if row_name is None:
+            log.debug("Board tap y=%d hit no row band (%s)", y, self._bands)
+            return
+        width = self.size.width or 1
+        player = P1 if event.x < width / 2 else P2
+        state = self.app.state
+        cards = list(state.board_rows[player].get(row_name, []))
+        tag = "P1" if player == P1 else "P2"
+        title = f"\u2694 {tag} \u2014 {row_name.title()} ({len(cards)})"
+        log.info("Board section tapped x=%d y=%d -> %s %s (%d cards)",
+                 event.x, y, player, row_name, len(cards))
+        try:
+            from gwent_tui.hand_detail_modal import CardListModal
+            self.app.push_screen(
+                CardListModal(title, cards, player_key=player, playable=False))
+        except Exception as e:
+            log.error("failed to open board section view: %s", e, exc_info=True)
 
 
 class BoardWidget(Vertical):

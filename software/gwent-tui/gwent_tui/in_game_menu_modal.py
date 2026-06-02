@@ -123,6 +123,23 @@ class InGameMenuModal(ModalScreen):
         log.info("InGameMenuModal dismissed (escape/cancel)")
         self.dismiss()
 
+    def on_click(self, event: events.Click) -> None:
+        """Dismiss when tapping the translucent background outside the modal box."""
+        try:
+            widget, _ = self.get_widget_at(event.screen_x, event.screen_y)
+        except Exception:
+            widget = None
+        # Walk up the DOM — if the click landed inside #imm-box, let it through
+        node = widget
+        while node is not None:
+            if getattr(node, "id", None) == "imm-box":
+                log.debug("InGameMenuModal: click inside modal box, ignoring")
+                return
+            node = getattr(node, "parent", None)
+        log.info("InGameMenuModal: background tap (%d,%d) — dismissing",
+                 event.screen_x, event.screen_y)
+        self.dismiss()
+
     def on_list_view_selected(self, event: ListView.Selected) -> None:
         row = event.item
         if not isinstance(row, _MenuRow):

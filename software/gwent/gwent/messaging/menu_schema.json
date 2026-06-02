@@ -52,6 +52,10 @@
     "game_id": {
       "type": "string",
       "description": "Optional current game id"
+    },
+    "summary": {
+      "type": "object",
+      "description": "Optional structured preview payload (e.g. wizard matchup/model)"
     }
   }
 }

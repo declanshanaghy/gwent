@@ -14,6 +14,7 @@ KIND = 'menu'
 MENU_ID = 'menu_id'
 PROMPT = 'prompt'
 CHOICES = 'choices'
+SUMMARY = 'summary'
 
 # Well-known menu IDs (also strings used by the TUI; keep in sync).
 MENU_MAIN = 'main'
@@ -21,6 +22,7 @@ MENU_ASSIGN_P1 = 'assign-p1'
 MENU_ASSIGN_P2 = 'assign-p2'
 MENU_IN_GAME = 'in-game-menu'
 MENU_STEP = 'step'
+MENU_WIZARD = 'wizard'
 
 
 class Choice(dict):
@@ -49,13 +51,17 @@ class Message(gwent.messaging.base.Message):
 
     @staticmethod
     def with_choices(menu_id: str, choices: List[Choice],
-                     prompt: str = None) -> 'Message':
+                     prompt: str = None, summary: dict = None) -> 'Message':
         body = {
             MENU_ID: menu_id,
             CHOICES: [dict(c) for c in choices],
         }
         if prompt:
             body[PROMPT] = prompt
+        if summary:
+            # Optional structured payload (e.g. wizard matchup/model preview).
+            # The menu schema does not forbid extra properties.
+            body[SUMMARY] = summary
         return Message(body)
 
     @staticmethod
@@ -93,6 +99,10 @@ class Message(gwent.messaging.base.Message):
     @property
     def choices(self) -> list:
         return self._instance.get(CHOICES, [])
+
+    @property
+    def summary(self) -> dict:
+        return self._instance.get(SUMMARY, {})
 
     @property
     def selected_id(self) -> str:

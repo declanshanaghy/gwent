@@ -310,7 +310,13 @@ class Gwent:
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.ONE, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_ONE))
         self.components.append(gwent.game.player.Player(gwent.game.constants.PLAYER.TWO, self.pubsub, mux_channel=gwent.hal.matrix.MATRIX_CHANNEL_PLAYER_TWO))
         self.components.append(gwent.game.cards.Reader(self.pubsub))
-        self.components.append(gwent.game.mfd.MFD(self.pubsub))
+        # MFD = OLED display + rotary encoder. Skipped when GWENT_DISABLE_MFD is
+        # set (touchscreen-kiosk setups don't use it). With it off, the RFID
+        # reader is the only SPI user, so gwent.hal.spi_lock becomes a no-op.
+        if gwent.hal.mfd_disabled():
+            self._log.info("MFD (OLED + rotary encoder) disabled via GWENT_DISABLE_MFD")
+        else:
+            self.components.append(gwent.game.mfd.MFD(self.pubsub))
         self.components.append(gwent.game.sfx.SFX(self.pubsub, tts_provider=getattr(self, '_tts_provider', 'gtts')))
         # MenuPublisher — TUI menu mirror (retained menu broadcasts + choice dispatch)
         self._menu_publisher = gwent.game.menu_publisher.MenuPublisher(self.pubsub, controller)

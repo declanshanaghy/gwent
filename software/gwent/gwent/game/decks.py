@@ -257,3 +257,42 @@ def pick_two_random_decks(owner_filter=None):
         }
 
     return _build_deck(f1, by_faction[f1]), _build_deck(f2, by_faction[f2])
+
+
+def pick_random_matchup(owner_filter=None):
+    """Pick two different factions + an owner for each, WITHOUT loading cards.
+
+    Lightweight counterpart to pick_two_random_decks — used by the startup
+    wizard to preview/re-roll a matchup cheaply (no card I/O until START).
+
+    Returns:
+        ((faction1, owner1), (faction2, owner2)) or None if <2 factions.
+    """
+    all_entries = list_decks(owner_filter=owner_filter)
+    by_faction = {}
+    for owner, faction in all_entries:
+        by_faction.setdefault(faction, []).append(owner)
+
+    factions = list(by_faction.keys())
+    if len(factions) < 2:
+        return None
+
+    f1, f2 = random.sample(factions, 2)
+
+    def _pick_owner(faction):
+        owners = by_faction[faction]
+        owned = [o for o in owners if o != STARTER_OWNER]
+        return random.choice(owned if owned else owners)
+
+    return (f1, _pick_owner(f1)), (f2, _pick_owner(f2))
+
+
+def build_deck(faction, owner):
+    """Load the card list for a (faction, owner) pair.
+
+    Returns list of card Messages — starter cards when owner is STARTER_OWNER,
+    otherwise that owner's cards for the faction.
+    """
+    if owner == STARTER_OWNER:
+        return load_starter_cards(faction)
+    return load_owner_cards(faction, owner)

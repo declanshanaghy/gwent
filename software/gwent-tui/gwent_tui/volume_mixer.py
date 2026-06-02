@@ -12,12 +12,11 @@ Keybindings:
   m       mute selected (remembers prior level for unmute)
   q / Esc close
 
-Touch: tap a column header/bar to select that channel; tap the bar at a given
-height to set the volume directly.
+Touch: tap a column bar to select and set volume at that height.
+       tap the mute button below each channel to toggle mute.
+       tap outside the box to close.
 
 Settings persist to ~/.config/gwent/mixer.json so reboots keep your levels.
-
-Logs profusely to tmp/logs/gwent-tui.log via the shared root logger.
 """
 from __future__ import annotations
 
@@ -33,9 +32,9 @@ from typing import Callable
 from textual import events
 from textual.app import ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal
+from textual.containers import Container, Horizontal, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Static
+from textual.widgets import Button, Static
 
 from gwent_tui import tts as tts_mod
 
@@ -45,7 +44,7 @@ CONFIG_PATH = Path.home() / ".config" / "gwent" / "mixer.json"
 
 
 # -----------------------------------------------------------------------------
-# Channel adapters — each Channel knows how to read/write its volume.
+# Channel adapters
 # -----------------------------------------------------------------------------
 
 class Channel:
@@ -57,7 +56,7 @@ class Channel:
         self.label = label
         self._get = getter
         self._set = setter
-        self._muted_value: int | None = None  # remembered level when muted
+        self._muted_value: int | None = None  # remembered level for unmute
 
     @property
     def value(self) -> int:
@@ -73,20 +72,22 @@ class Channel:
     def is_muted(self) -> bool:
         return self.value == 0
 
-    def toggle_mute(self) -> int:
+    def toggle_mute(self) -> bool:
+        """Toggle mute; returns True if now muted, False if now unmuted."""
         if self.is_muted and self._muted_value is not None:
             log.info("Channel[%s] unmute -> %d", self.key, self._muted_value)
-            return self.set(self._muted_value)
+            self.set(self._muted_value)
+            return False
         else:
-            self._muted_value = self.value
+            self._muted_value = self.value or 80  # fallback if already 0
             log.info("Channel[%s] mute (was %d)", self.key, self._muted_value)
-            return self.set(0)
+            self.set(0)
+            return True
 
 
 # ----- ALSA Master adapter ---------------------------------------------------
 
 def _alsa_get() -> int:
-    """Return ALSA PCM playback percent (0..100), or 0 if amixer fails."""
     try:
         out = subprocess.check_output(
             ["amixer", "get", "PCM"], stderr=subprocess.DEVNULL, text=True, timeout=2,
@@ -99,14 +100,12 @@ def _alsa_get() -> int:
 
 
 def _alsa_set(value: int) -> int:
-    """Set ALSA PCM playback to `value`%. Returns the value we set."""
     value = max(0, min(100, int(value)))
     try:
         subprocess.run(
             ["amixer", "set", "PCM", f"{value}%"],
             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2, check=False,
         )
-        log.debug("amixer set PCM %d%%", value)
     except Exception as e:
         log.warning("amixer set PCM failed: %s", e)
     return value
@@ -117,14 +116,12 @@ def _alsa_set(value: int) -> int:
 # -----------------------------------------------------------------------------
 
 def load_mixer_state() -> dict:
-    """Read mixer.json. Returns {} if missing/unreadable."""
     try:
         with CONFIG_PATH.open() as f:
             data = json.load(f)
             log.info("mixer.json loaded: %s", data)
             return data
     except FileNotFoundError:
-        log.info("mixer.json not found at %s — using current/default values", CONFIG_PATH)
         return {}
     except Exception as e:
         log.warning("mixer.json read failed: %s", e)
@@ -132,7 +129,6 @@ def load_mixer_state() -> dict:
 
 
 def save_mixer_state(state: dict) -> None:
-    """Write mixer.json. Best-effort — logs but doesn't raise."""
     try:
         CONFIG_PATH.parent.mkdir(parents=True, exist_ok=True)
         with CONFIG_PATH.open("w") as f:
@@ -143,10 +139,6 @@ def save_mixer_state(state: dict) -> None:
 
 
 def apply_persisted_state() -> None:
-    """Load mixer.json and apply each known channel.
-
-    Call from the App's on_mount so persisted levels are restored at startup.
-    """
     data = load_mixer_state()
     if not data:
         return
@@ -174,35 +166,28 @@ def current_state_snapshot() -> dict:
 # Widgets
 # -----------------------------------------------------------------------------
 
-class _ChannelColumn(Static):
-    """A vertical bar showing one channel's volume."""
+class _ChannelBar(Static):
+    """Volume bar for one channel — label, block bar, percentage."""
 
     DEFAULT_CSS = """
-    _ChannelColumn {
-        width: 12;
-        height: 100%;
-        background: $surface;
-        color: $text;
+    _ChannelBar {
+        height: 1fr;
         content-align: center top;
-        border: round $primary;
         padding: 0 1;
     }
-    _ChannelColumn.selected {
-        border: heavy $accent;
-        background: $boost;
+    _ChannelBar.muted {
+        color: $text-muted;
     }
     """
 
     def __init__(self, channel: Channel) -> None:
-        super().__init__(self._render_text(channel))
+        super().__init__("")
         self.channel = channel
 
-    @staticmethod
-    def _render_text(ch: Channel) -> str:
+    def refresh_bar(self) -> None:
+        ch = self.channel
         val = ch.value
-        # Build a vertical bar using block characters. 10 segments.
         filled = val // 10
-        # Some "soft" half-block when value % 10 >= 5.
         half = "▄" if (val % 10) >= 5 else " "
         bar_lines = []
         for i in range(10, 0, -1):
@@ -212,13 +197,74 @@ class _ChannelColumn(Static):
                 bar_lines.append(half)
             else:
                 bar_lines.append(" ")
-        # 'M' indicator when muted
-        mute_indicator = "🔇" if ch.is_muted else "  "
         body = "\n".join(bar_lines)
-        return f"{ch.label}\n{mute_indicator}\n{body}\n{val:>3}%"
+        self.update(f"{ch.label}\n{body}\n{val:>3}%")
+        if ch.is_muted:
+            self.add_class("muted")
+        else:
+            self.remove_class("muted")
 
-    def refresh_text(self) -> None:
-        self.update(self._render_text(self.channel))
+    def on_mount(self) -> None:
+        self.refresh_bar()
+
+
+class _ChannelColumn(Vertical):
+    """One mixer channel: volume bar + mute button."""
+
+    DEFAULT_CSS = """
+    _ChannelColumn {
+        width: 12;
+        background: $surface;
+        border: round $primary;
+        padding: 0;
+    }
+    _ChannelColumn.selected {
+        border: heavy $accent;
+        background: $boost;
+    }
+    _ChannelColumn Button.mute-btn {
+        height: 3;
+        width: 100%;
+        min-width: 0;
+        border: tall $primary;
+        margin: 0;
+        content-align: center middle;
+    }
+    _ChannelColumn Button.mute-btn.muted {
+        border: tall $warning;
+        color: $warning;
+    }
+    """
+
+    def __init__(self, channel: Channel) -> None:
+        super().__init__()
+        self.channel = channel
+        self._bar: _ChannelBar | None = None
+        self._btn: Button | None = None
+
+    def compose(self) -> ComposeResult:
+        self._bar = _ChannelBar(self.channel)
+        yield self._bar
+        self._btn = Button(
+            self._mute_label(),
+            id=f"mute-{self.channel.key}",
+            classes="mute-btn",
+        )
+        yield self._btn
+
+    def _mute_label(self) -> str:
+        return "🔇" if self.channel.is_muted else "🔊"
+
+    def refresh_col(self) -> None:
+        if self._bar:
+            self._bar.refresh_bar()
+        if self._btn:
+            muted = self.channel.is_muted
+            self._btn.label = self._mute_label()
+            if muted:
+                self._btn.add_class("muted")
+            else:
+                self._btn.remove_class("muted")
 
     def set_selected(self, selected: bool) -> None:
         if selected:
@@ -226,9 +272,13 @@ class _ChannelColumn(Static):
         else:
             self.remove_class("selected")
 
+    @property
+    def bar(self) -> _ChannelBar | None:
+        return self._bar
+
 
 class VolumeMixerModal(ModalScreen):
-    """alsamixer-style volume modal."""
+    """alsamixer-style volume modal with per-channel mute buttons."""
 
     DEFAULT_CSS = """
     VolumeMixerModal {
@@ -236,7 +286,8 @@ class VolumeMixerModal(ModalScreen):
     }
     #mixer-box {
         width: 60;
-        height: 22;
+        height: 90%;
+        max-height: 26;
         background: $panel;
         border: thick $accent;
         padding: 1;
@@ -248,7 +299,7 @@ class VolumeMixerModal(ModalScreen):
         color: $accent;
     }
     #mixer-row {
-        height: 18;
+        height: 1fr;
         align: center middle;
     }
     #mixer-hint {
@@ -276,7 +327,7 @@ class VolumeMixerModal(ModalScreen):
             Channel("sfx", "SFX", tts_mod.get_sfx_volume, tts_mod.set_sfx_volume),
             Channel("tts", "TTS", tts_mod.get_tts_volume, tts_mod.set_tts_volume),
         ]
-        self._selected_idx = 0  # Master selected by default
+        self._selected_idx = 0
         self._cols: list[_ChannelColumn] = []
         self._last_save = 0.0
         log.info(
@@ -292,7 +343,8 @@ class VolumeMixerModal(ModalScreen):
                     col = _ChannelColumn(c)
                     self._cols.append(col)
                     yield col
-            yield Static("← → channel   ↑ ↓ vol   m mute   q close", id="mixer-hint")
+            yield Static("← → channel   ↑ ↓ vol   m mute   q close",
+                         id="mixer-hint")
 
     def on_mount(self) -> None:
         log.debug("VolumeMixerModal on_mount")
@@ -302,26 +354,27 @@ class VolumeMixerModal(ModalScreen):
 
     def _refresh_all(self) -> None:
         for i, col in enumerate(self._cols):
-            col.refresh_text()
+            col.refresh_col()
             col.set_selected(i == self._selected_idx)
 
     def action_prev_channel(self) -> None:
         self._selected_idx = (self._selected_idx - 1) % len(self._channels)
-        log.debug("prev_channel -> %s", self._channels[self._selected_idx].key)
         self._refresh_all()
 
     def action_next_channel(self) -> None:
         self._selected_idx = (self._selected_idx + 1) % len(self._channels)
-        log.debug("next_channel -> %s", self._channels[self._selected_idx].key)
         self._refresh_all()
 
     # --- adjust ---
 
     def _adjust(self, delta: int) -> None:
         ch = self._channels[self._selected_idx]
+        if ch.is_muted:
+            log.debug("_adjust skipped — %s is muted", ch.key)
+            return
         new_v = ch.set(ch.value + delta)
         log.info("adjust %s by %+d -> %d", ch.key, delta, new_v)
-        self._cols[self._selected_idx].refresh_text()
+        self._cols[self._selected_idx].refresh_col()
         self._save_debounced()
 
     def action_louder(self) -> None:
@@ -330,48 +383,92 @@ class VolumeMixerModal(ModalScreen):
     def action_softer(self) -> None:
         self._adjust(-5)
 
-    def action_toggle_mute(self) -> None:
-        ch = self._channels[self._selected_idx]
-        ch.toggle_mute()
-        self._cols[self._selected_idx].refresh_text()
+    # --- mute ---
+
+    def _do_toggle_mute(self, idx: int) -> None:
+        ch = self._channels[idx]
+        now_muted = ch.toggle_mute()
+        log.info("toggle_mute %s -> muted=%s", ch.key, now_muted)
+        if ch.key == "music":
+            if now_muted:
+                log.info("music muted — stopping playback")
+                tts_mod.pause_music()
+            else:
+                log.info("music unmuted — resuming playback")
+                tts_mod.resume_music()
+        self._cols[idx].refresh_col()
         self._save_debounced()
+
+    def action_toggle_mute(self) -> None:
+        self._do_toggle_mute(self._selected_idx)
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        btn_id = event.button.id or ""
+        if not btn_id.startswith("mute-"):
+            return
+        key = btn_id[len("mute-"):]
+        for i, ch in enumerate(self._channels):
+            if ch.key == key:
+                self._selected_idx = i
+                self._do_toggle_mute(i)
+                break
+        event.stop()
 
     def action_dismiss(self) -> None:
         log.info("VolumeMixerModal dismiss; final state %s", current_state_snapshot())
-        # Force a final save regardless of debounce.
         save_mixer_state(current_state_snapshot())
         self.dismiss()
 
     # --- touch ---
 
     def on_click(self, event: events.Click) -> None:
-        """Tap on a column selects it; tap on a column AT a height sets vol."""
-        # Find which column the click hit by walking widgets at the click pos.
+        """Tap bar to select channel + set volume at that height.
+        Tap mute button to toggle mute (handled by on_button_pressed).
+        Tap outside mixer box to close."""
         try:
             widget, _ = self.get_widget_at(event.screen_x, event.screen_y)
         except Exception:
             widget = None
+
+        # Dismiss on background click (outside #mixer-box)
+        node = widget
+        while node is not None:
+            if getattr(node, "id", None) == "mixer-box":
+                break
+            node = getattr(node, "parent", None)
+        else:
+            log.info("VolumeMixerModal: background tap — dismissing")
+            self.dismiss()
+            return
+
+        # Ignore clicks on mute buttons — Button.Pressed handles those
+        node = widget
+        while node is not None:
+            if isinstance(node, Button):
+                return
+            node = getattr(node, "parent", None)
+
+        # Find which column bar was tapped
         for i, col in enumerate(self._cols):
-            if widget is col or (widget is not None and widget in col.walk_children()):
-                if self._selected_idx != i:
-                    self._selected_idx = i
-                    log.info(
-                        "click selected channel %s via (%d,%d)",
-                        self._channels[i].key, event.screen_x, event.screen_y,
-                    )
-                # Map the y offset within the column to a volume.
-                # The bar occupies the middle 10 rows of the 18-row mixer-row.
-                # Approximate: tapping high in the column = high volume.
-                col_region = col.region
-                if col_region.height > 0:
-                    rel_y = event.screen_y - col_region.y
-                    pct = int(round(100 * (1 - rel_y / max(1, col_region.height - 1))))
+            bar = col.bar
+            if bar is None:
+                continue
+            if widget is bar or widget is col or (
+                    widget is not None and widget in col.walk_children()):
+                self._selected_idx = i
+                ch = self._channels[i]
+                log.info("tap selected channel %s", ch.key)
+                if ch.is_muted:
+                    log.debug("tap ignored — %s is muted", ch.key)
+                    self._refresh_all()
+                    return
+                bar_region = bar.region if bar else col.region
+                if bar_region.height > 0:
+                    rel_y = event.screen_y - bar_region.y
+                    pct = int(round(100 * (1 - rel_y / max(1, bar_region.height - 1))))
                     pct = max(0, min(100, pct))
-                    self._channels[i].set(pct)
-                    log.info(
-                        "click set %s to %d%% (rel_y=%d region_h=%d)",
-                        self._channels[i].key, pct, rel_y, col_region.height,
-                    )
+                    ch.set(pct)
+                    log.info("tap set %s to %d%%", ch.key, pct)
                 self._refresh_all()
                 self._save_debounced()
                 return

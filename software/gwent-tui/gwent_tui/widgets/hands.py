@@ -1,14 +1,23 @@
-"""Hands widget: P1/P2 hands + leaders. Scrollable."""
+"""Hands widget: P1/P2 hands + leaders. Scrollable.
+
+Tapping a hand opens the full-screen HandDetailModal for that side — left
+half = P1, right half = P2 (matching the split-column layout).
+"""
+
+import logging
 
 from rich.panel import Panel
 from rich.table import Table
 from rich import box
+from textual import events
 from textual.containers import Vertical
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
 from gwent_tui.game_state import P1, P2
 from gwent_tui.widgets.board import SPLIT_BOX
+
+log = logging.getLogger("gwent_tui.hands")
 
 
 class _HandsContent(Static):
@@ -67,6 +76,18 @@ class _HandsContent(Static):
             table.add_row(p1, p2)
 
         return Panel(table, title=f"\U0001f0cf Hands ({p1_count} | {p2_count})")
+
+    def on_click(self, event: events.Click) -> None:
+        """Tap left half → P1 hand detail, right half → P2 hand detail."""
+        width = self.size.width or 1
+        player = P1 if event.x < width / 2 else P2
+        log.info("Hands tapped x=%d width=%d -> %s", event.x, width, player)
+        try:
+            from gwent_tui.hand_detail_modal import HandDetailModal
+            cards = list(self.app.state.hands.get(player, []))
+            self.app.push_screen(HandDetailModal(player, cards))
+        except Exception as e:
+            log.error("failed to open hand detail: %s", e, exc_info=True)
 
 
 class HandsWidget(Vertical):

@@ -207,6 +207,28 @@ class MqttSubscriber:
         except Exception as e:
             log.exception("publish_choose failed: %s", e)
 
+    def publish_card_scan(self, card: dict) -> None:
+        """Publish a card to `gwent/cards/raw/read`, simulating an RFID scan.
+
+        The server controller subscribes to this topic and routes the card to
+        the active stage's process_card() — identical to a physical scan. Used
+        by the hand-detail overlay's [Play] button. Profuse logging per
+        feedback_profuse_logging.
+        """
+        payload = dict(card)
+        payload["kind"] = "card"
+        # Drop the server-injected content id so the server recomputes it.
+        payload.pop("content_id", None)
+        data = json.dumps(payload)
+        log.info("publish_card_scan name=%s rfid=%s",
+                 card.get("name"), card.get("rfid"))
+        try:
+            result = self.client.publish(CARDS_RAW_READ, data, qos=1)
+            log.debug("publish_card_scan result rc=%s mid=%s",
+                      result.rc, result.mid)
+        except Exception as e:
+            log.exception("publish_card_scan failed: %s", e)
+
     def _on_message(self, client, userdata, msg):
         topic = msg.topic
 
@@ -240,7 +262,8 @@ class MqttSubscriber:
             except (json.JSONDecodeError, UnicodeDecodeError):
                 log.warning("Bad controller payload on %s", topic)
                 return
-            self.state.on_controller(player_id, data.get("controller", "human"))
+            self.state.on_controller(player_id, data.get("controller", "human"),
+                                       data.get("label"))
             return
 
         # Transient toast — Phase 3.

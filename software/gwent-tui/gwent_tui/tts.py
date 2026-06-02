@@ -326,6 +326,25 @@ def stop_music():
     _music_current_path = ""
 
 
+_paused_music_path: str = ""
+
+
+def pause_music() -> None:
+    """Stop music but remember the track so resume_music() can restart it."""
+    global _paused_music_path, _music_current_path
+    _paused_music_path = _music_current_path or ""
+    log.info("pause_music: saving path %r", _paused_music_path)
+    stop_music()
+
+
+def resume_music() -> None:
+    """Restart the last paused track (no-op if nothing was paused)."""
+    path = _paused_music_path
+    log.info("resume_music: path=%r", path)
+    if path:
+        play_music(path)
+
+
 def stop():
     """Stop any in-progress speech and clear the queue. Music continues."""
     global _running

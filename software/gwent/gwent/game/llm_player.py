@@ -239,6 +239,21 @@ class LLMPlayerManager(PubSubComponent):
     def current_controller(self, side: str) -> str:
         return self._sides.get(side.upper(), _Side(side)).controller
 
+    @property
+    def models(self) -> list[dict]:
+        """The curated model list (id/label/icon/kind dicts)."""
+        return self._models
+
+    def pick_random_model(self) -> dict | None:
+        """Pick a random LLM (non-human) model. Returns a model dict or None."""
+        llms = [m for m in self._models if m.get("kind") == "llm"]
+        if not llms:
+            self._log.warning("pick_random_model: no llm-kind models available")
+            return None
+        choice = random.choice(llms)
+        self._log.info(f"pick_random_model -> {choice.get('id')!r}")
+        return choice
+
     # ------------------------------------------------------------------------
     # Menu publishing
     # ------------------------------------------------------------------------
@@ -271,15 +286,23 @@ class LLMPlayerManager(PubSubComponent):
         """Retained announce of which controller is on each side.
 
         The TUI subscribes to `gwent/players/controller/PLAYER.*` to show e.g.
-        'P1 (Sonnet 4.6)' next to scores.
+        'P1 · Sonnet 4.6' next to scores.
         """
-        topic = f"{gwent.game.MAIN_CHANNEL}/players/controller/PLAYER.{ 'ONE' if side == 'P1' else 'TWO' }"
+        player_str = f"PLAYER.{ 'ONE' if side == 'P1' else 'TWO' }"
+        topic = f"{gwent.game.MAIN_CHANNEL}/players/controller/{player_str}"
+        # Include the human-readable label so the TUI can display it directly.
+        label = controller
+        for m in self._models:
+            if m.get("id") == controller:
+                label = m.get("label", controller)
+                break
         payload = json.dumps({
-            "player": f"PLAYER.{ 'ONE' if side == 'P1' else 'TWO' }",
+            "player": player_str,
             "controller": controller,
+            "label": label,
         })
         self._pubsub.publish(topic, payload, qos=1, retain=True)
-        self._log.info(f"published controller state {topic} -> {controller}")
+        self._log.info(f"published controller state {topic} -> {controller} ({label!r})")
 
     def _publish_toast(self, text: str, level: str = "warn") -> None:
         """Transient banner notification, picked up by the TUI's toast widget."""

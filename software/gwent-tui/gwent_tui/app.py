@@ -47,8 +47,18 @@ class GwentTUI(App):
     TITLE = "Gwent TUI"
 
     CSS = """
-    Screen { layout: vertical; layers: default overlay; }
+    Screen { layout: vertical; layers: bg default overlay; }
     * { scrollbar-size: 0 0; }
+    /* Blurred splash image, full-screen behind everything. Shown only on the
+       New Game screen (Screen.newgame). On that screen the panels go
+       translucent so the image reads through as a background. */
+    #bg-image { layer: bg; width: 100%; height: 100%; display: none; }
+    Screen.newgame #bg-image { display: block; }
+    Screen.newgame #header { background: transparent 0%; }
+    Screen.newgame #stage-container { background: transparent 0%; }
+    Screen.newgame #bottom-bar { background: transparent 0%; }
+    Screen.newgame #footer { background: transparent 0%; }
+    Screen.newgame #timers { background: transparent 0%; }
     #header { height: 4; }
     #stage-container { height: 1fr; overflow: hidden; }
     #bottom-bar { height: 8; }
@@ -86,6 +96,14 @@ class GwentTUI(App):
 
     def compose(self) -> ComposeResult:
         log.debug("compose() start")
+        # Half-cell renderer (not TGP/kitty) so the image is composed of real
+        # colored cells — the New Game panels on higher layers composite over
+        # it. A kitty-graphics image can't sit behind text cells.
+        from textual_image.widget import HalfcellImage
+        import os as _os
+        _bg = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                            "assets", "splash_blur.png")
+        yield HalfcellImage(_bg if _os.path.exists(_bg) else "", id="bg-image")
         yield HeaderWidget(id="header")
         # Stage container — will be populated dynamically
         yield UnknownStage(id="stage-container")
@@ -226,6 +244,12 @@ class GwentTUI(App):
 
         self._current_stage_name = stage_name
 
+        # Show the blurred splash background only on the New Game screen.
+        try:
+            self.screen.set_class(stage_name == "MainMenu", "newgame")
+        except Exception as e:
+            log.debug("set newgame class failed: %s", e)
+
         if stage_name == "Offline":
             stage_cls = OfflineStage
         else:
@@ -304,6 +328,18 @@ class GwentTUI(App):
                 self.query_one("#help-box").update(table)
 
             def on_key(self, event):
+                self.dismiss()
+
+            def on_click(self, event):
+                try:
+                    widget, _ = self.get_widget_at(event.screen_x, event.screen_y)
+                except Exception:
+                    widget = None
+                node = widget
+                while node is not None:
+                    if getattr(node, "id", None) == "help-box":
+                        return
+                    node = getattr(node, "parent", None)
                 self.dismiss()
 
         self.push_screen(HelpScreen())

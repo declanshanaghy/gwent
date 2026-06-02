@@ -1,6 +1,7 @@
 """TUI stage views — one module per game stage, mirroring gwent/game/stages/."""
 
 from gwent_tui.stages.main_menu import MainMenuStage
+from gwent_tui.stages.wizard import WizardStage
 from gwent_tui.stages.register_leaders import RegisterLeadersStage
 from gwent_tui.stages.register_decks import RegisterDecksStage
 from gwent_tui.stages.deal_cards import DealCardsStage
@@ -11,9 +12,11 @@ from gwent_tui.stages.round_summary import RoundSummaryStage
 from gwent_tui.stages.unknown import UnknownStage
 from gwent_tui.stages.offline import OfflineStage
 
-# Map server stage names to TUI stage widgets
+# Map server stage names to TUI stage widgets. The server's idle "MainMenu"
+# stage is rendered by the full-screen new-game WizardStage (the old
+# MainMenuStage list is kept importable but no longer the default view).
 STAGE_WIDGETS = {
-    "MainMenu": MainMenuStage,
+    "MainMenu": WizardStage,
     "RegisterLeaders": RegisterLeadersStage,
     "RegisterDecks": RegisterDecksStage,
     "DealCards": DealCardsStage,

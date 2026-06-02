@@ -57,11 +57,21 @@ class SplashScreen(ModalScreen):
             yield Static(_TITLE, id="splash-title")
 
     def on_mount(self):
+        self._dismissing = False
         self.set_timer(self._duration, self._do_dismiss)
 
     def _do_dismiss(self):
-        """Dismiss via call_later to avoid ScreenError in message handlers."""
-        self.app.call_later(self.dismiss)
+        """Fade out (opacity → 0) so we blend into the New Game screen, which
+        shows the same image blurred as its background."""
+        if getattr(self, "_dismissing", False):
+            return
+        self._dismissing = True
+        try:
+            self.styles.animate(
+                "opacity", value=0.0, duration=0.8,
+                on_complete=lambda: self.app.call_later(self.dismiss))
+        except Exception:
+            self.app.call_later(self.dismiss)
 
     def on_key(self, event):
         """Any key dismisses immediately."""

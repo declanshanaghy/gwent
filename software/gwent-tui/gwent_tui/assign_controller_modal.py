@@ -79,6 +79,20 @@ class AssignControllerModal(ModalScreen):
         log.info("AssignControllerModal dismissed (side=%s)", self.side)
         self.dismiss()
 
+    def on_click(self, event) -> None:
+        """Dismiss when tapping the background outside the modal box."""
+        try:
+            widget, _ = self.get_widget_at(event.screen_x, event.screen_y)
+        except Exception:
+            widget = None
+        node = widget
+        while node is not None:
+            if getattr(node, "id", None) == "acm-box":
+                return
+            node = getattr(node, "parent", None)
+        log.info("AssignControllerModal: background tap, dismissing (side=%s)", self.side)
+        self.dismiss()
+
     def on_list_view_selected(self, event) -> None:
         """ListView.Selected bubbles up from MenuChoicesWidget — auto-close."""
         log.info("AssignControllerModal: selection bubbled, auto-dismissing")

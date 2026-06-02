@@ -740,17 +740,27 @@ class GameState:
                     except Exception as e:
                         log.warning("Failed to save game recording: %s", e)
 
-    def on_controller(self, player: str, controller: str) -> None:
+    def on_controller(self, player: str, controller: str,
+                      label: str | None = None) -> None:
         """Handle a retained `gwent/players/controller/PLAYER.*` update.
 
         `player` is the suffix after `controller/` (e.g. 'PLAYER.ONE').
+        `label` is the human-readable model name from the server (optional).
         """
         with self.lock:
             if player.endswith("ONE"):
                 self.controllers[P1] = controller
+                if not controller or controller == "human":
+                    self.player_names[P1] = "Player 1"
+                elif label and label not in ("human", controller):
+                    self.player_names[P1] = label
             elif player.endswith("TWO"):
                 self.controllers[P2] = controller
-            log.info("controller %s = %s", player, controller)
+                if not controller or controller == "human":
+                    self.player_names[P2] = "Player 2"
+                elif label and label not in ("human", controller):
+                    self.player_names[P2] = label
+            log.info("controller %s = %s (label=%r)", player, controller, label)
 
     def on_toast(self, payload: dict) -> None:
         """Handle a `gwent/toast` event — render to event log + cache for widget."""

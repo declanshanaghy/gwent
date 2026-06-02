@@ -82,6 +82,20 @@ class SaveScreen(ModalScreen[str]):
     def key_escape(self):
         self.dismiss("")
 
+    def on_click(self, event) -> None:
+        """Dismiss when tapping the background outside the dialog."""
+        try:
+            widget, _ = self.get_widget_at(event.screen_x, event.screen_y)
+        except Exception:
+            widget = None
+        node = widget
+        while node is not None:
+            if getattr(node, "id", None) == "save-dialog":
+                return
+            node = getattr(node, "parent", None)
+        log.info("SaveScreen: background tap, dismissing")
+        self.dismiss("")
+
     def _do_save(self):
         name = self.query_one("#save-input").value.strip()
         if not name:

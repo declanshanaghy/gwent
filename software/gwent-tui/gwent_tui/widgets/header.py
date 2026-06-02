@@ -173,8 +173,7 @@ class HeaderWidget(Static):
                 controller = _controller_short(controller_id)
                 # When controller is human and we have a per-game name (other
                 # than the default placeholder), prefer that.
-                if controller == "Human" and pname and pname not in (
-                        "Player 1", "Player 2"):
+                if pname and pname not in ("Player 1", "Player 2"):
                     controller = pname
                 # Append leader name in parens when we have it.
                 if lname:

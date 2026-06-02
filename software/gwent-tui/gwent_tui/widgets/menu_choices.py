@@ -22,6 +22,13 @@ log = logging.getLogger("gwent_tui.menu_choices")
 class _ChoiceRow(ListItem):
     """Single tappable menu row carrying its choice payload."""
 
+    DEFAULT_CSS = """
+    _ChoiceRow {
+        height: 2;
+        padding: 0 1;
+    }
+    """
+
     def __init__(self, choice: dict) -> None:
         text = choice.get("text", "?")
         icon = choice.get("icon", "")
@@ -41,7 +48,7 @@ class MenuChoicesWidget(Container):
 
     DEFAULT_CSS = """
     MenuChoicesWidget {
-        height: auto;
+        height: 1fr;
         padding: 0 1;
     }
     MenuChoicesWidget > Static#mc-prompt {
@@ -51,8 +58,7 @@ class MenuChoicesWidget(Container):
         color: $accent;
     }
     MenuChoicesWidget > ListView {
-        height: auto;
-        max-height: 18;
+        height: 1fr;
         border: round $primary;
         background: $surface;
     }
