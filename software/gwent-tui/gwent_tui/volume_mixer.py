@@ -190,9 +190,9 @@ class _ChannelBar(Static):
         super().__init__("")
         self.channel = channel
 
-    # Vertical track height (rows) and inner width of the thumb/fill.
+    # Vertical track height (rows) and width of the horizontal thumb.
     _TRACK = 11
-    _WIDTH = 9
+    _WIDTH = 8
 
     def refresh_bar(self) -> None:
         ch = self.channel
