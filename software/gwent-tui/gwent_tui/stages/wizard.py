@@ -101,18 +101,6 @@ class _Side(Vertical):
         if self._img is not None:
             self._img.image = path or ""
 
-    def on_click(self, event) -> None:
-        """Tap a leader to blow it up full-screen for inspection."""
-        card = (_summary(self.app).get(self.side) or {}).get("leader_card")
-        if not card:
-            return
-        log.info("WizardStage: zoom leader %s", card.get("name"))
-        try:
-            from gwent_tui.card_zoom import CardZoomModal
-            self.app.push_screen(CardZoomModal(card))
-        except Exception as e:
-            log.error("leader zoom failed: %s", e, exc_info=True)
-
 
 class WizardStage(Container):
     """Full-screen new-game wizard."""

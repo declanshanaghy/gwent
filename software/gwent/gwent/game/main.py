@@ -327,7 +327,19 @@ class Gwent:
             self.pubsub, controller)
         self._menu_publisher.llm_player_manager = self._llm_player_manager
         self.components.append(self._llm_player_manager)
-        
+
+        # On the kiosk the TUI client renders all audio. GWENT_DISABLE_SERVER_TTS
+        # makes the server defer TTS (and music) to the client unconditionally —
+        # not just after a /client-tts registration — so a server restart can't
+        # leave both the server and the TUI speaking the same line (double audio).
+        if os.environ.get("GWENT_DISABLE_SERVER_TTS", "").lower() in (
+                "1", "true", "yes", "on"):
+            gwent.game.PubSubComponent._client_handles_tts = True
+            gwent.game.PubSubComponent._client_handles_music = True
+            controller._tts_provider = "off"  # reflected in the snapshot/header
+            self._log.info(
+                "GWENT_DISABLE_SERVER_TTS set — server defers TTS/music to client")
+
     def initialize_components(self):
         """Initialize all components"""
         for component in self.components:

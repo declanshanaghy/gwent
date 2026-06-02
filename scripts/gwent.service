@@ -22,6 +22,9 @@ Environment=RUNNING_ON_PI=true
 # Disable the OLED display + rotary encoder (touchscreen-kiosk setup). With the
 # OLED off, the RFID reader is the only SPI user and spi_lock becomes a no-op.
 Environment=GWENT_DISABLE_MFD=true
+# The TUI kiosk client renders all audio; keep the server from also speaking
+# (double audio after a server restart).
+Environment=GWENT_DISABLE_SERVER_TTS=true
 ExecStart=/home/dshanaghy/gwent-venv/bin/gwent
 Restart=on-failure
 RestartSec=5
