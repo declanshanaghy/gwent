@@ -107,6 +107,9 @@ celerybeat.pid
 # SageMath parsed files
 *.sage.py
 
+# Editor local history (VS Code Local History extension)
+.history/
+
 # Environments
 .env
 .secrets

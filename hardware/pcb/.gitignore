@@ -1,0 +1,32 @@
+# KiCad project state we don't want to commit
+*-backups/
+*.kicad_pro-bak
+*.kicad_sch-bak
+*.kicad_pcb-bak
+fp-info-cache
+*.lck
+_autosave-*
+*.bak
+
+# KiCad project-local caches
+**/*.kicad_prl
+
+# OS junk
+.DS_Store
+
+# Fab intermediate outputs — only the finalized zips get committed
+fab/*.gbr
+fab/*.drl
+fab/*.gbl
+fab/*.gtl
+fab/*.gbs
+fab/*.gts
+fab/*.gbo
+fab/*.gto
+fab/*.gko
+fab/*.gm1
+fab/*.csv
+fab/intermediate/
+
+# 3D model caches
+**/*.wrl
