@@ -110,58 +110,31 @@ class ScoreboardWidget(Static):
         p1_fc = FACTION_STYLE.get(p1f, ("white", "grey30", "white"))[0]
         p2_fc = FACTION_STYLE.get(p2f, ("white", "grey30", "white"))[0]
 
-        # Controller short-name — same logic as header
-        def _ctrl_short(cid: str) -> str:
-            if not cid or cid == "human":
-                return "Human"
-            tail = cid.split("/", 1)[-1]
-            if "claude-" in tail:
-                return tail.replace("claude-", "").replace("-", " ").title()
-            if tail.startswith("gpt-"):
-                return tail.replace("gpt-", "GPT-")
-            if "gemini" in tail or tail in ("flash", "pro"):
-                return "Gemini " + tail.replace("gemini-", "").title()
-            if tail.startswith("llama") or "llama" in tail:
-                return "Llama " + tail.replace("llama", "").lstrip("3.")[:10]
-            return tail
-        p1_ctrl = _ctrl_short(state.controllers.get(P1, "human"))
-        p2_ctrl = _ctrl_short(state.controllers.get(P2, "human"))
+        # Row 1: LEADER1 vs LEADER2, each leader flanked by its faction
+        # emoji pair, faction-colored, centered.
+        def _leader_cell(nick, emoji_pair, fc):
+            if not nick:
+                return "[dim]-[/dim]"
+            return f"[{fc}]{emoji_pair[0]} {nick} {emoji_pair[1]}[/{fc}]"
+        p1_pass_tag = f"{p1_pass} " if p1_pass else ""
+        p2_pass_tag = f" {p2_pass}" if p2_pass else ""
+        row1 = (f"{p1_pass_tag}{_leader_cell(p1_nick, p1e, p1_fc)}"
+                f"  [bold]vs[/bold]  "
+                f"{_leader_cell(p2_nick, p2e, p2_fc)}{p2_pass_tag}")
 
-        # ALWAYS show "P1 · <controller> · <leader>" so users can tell sides
-        # apart even when both controllers are the same model. Drop leader
-        # if it'd push past the column width.
-        def _build_side(side_label: str, ctrl: str, leader_nick: str,
-                        emoji_pair, faction_color: str, right_align: bool):
-            # Truncate controller to keep within column.
-            ctrl_disp = _mid_truncate(ctrl, 12)
-            ldr_disp = leader_nick or ""
-            body = f"[bold]{side_label}[/bold] · {ctrl_disp}"
-            if ldr_disp:
-                body += f" · [{faction_color}]{ldr_disp}[/{faction_color}]"
-            if right_align:
-                return f"{body} {emoji_pair[0]}{emoji_pair[1]}"
-            return f"{emoji_pair[0]}{emoji_pair[1]} {body}"
-        p1_leader_str = _build_side("P1", p1_ctrl, p1_nick, p1e, p1_fc, right_align=False)
-        p2_leader_str = _build_side("P2", p2_ctrl, p2_nick, p2e, p2_fc, right_align=True)
-
-        # Build: P1 info | score | P2 info
-        left = f"{p1_leader_str}  {p1_pass}" if p1_pass else f"{p1_leader_str}"
-        center = (
-            f"\U0001f5e1 {p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
-            f"  \u2694  "
-            f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close} \U0001f6e1"
+        # Row 2: scores only (no "vs"), centered, with each side's gems.
+        row2 = (
+            f"{p1_gems_str} "
+            f"{p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
+            f"        "
+            f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close}"
+            f" {p2_gems_str}"
         )
-        right = f"{p2_pass}  {p2_leader_str}" if p2_pass else f"{p2_leader_str}"
 
         table = Table(box=None, expand=True, show_header=False, padding=(0, 0))
-        table.add_column(ratio=4, justify="left", no_wrap=True)
-        table.add_column(ratio=2, justify="center")
-        table.add_column(ratio=4, justify="right", no_wrap=True)
-        table.add_row(
-            Text.from_markup(left),
-            Text.from_markup(center),
-            Text.from_markup(right),
-        )
+        table.add_column(justify="center", no_wrap=True)
+        table.add_row(Text.from_markup(row1))
+        table.add_row(Text.from_markup(row2))
 
         return Panel(table, title="\U0001f3c6 Scoreboard")
 
