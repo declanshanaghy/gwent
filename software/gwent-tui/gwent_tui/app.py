@@ -100,6 +100,8 @@ class GwentTUI(App):
         text-style: bold;
     }
     Screen.show-header #menu-corner { display: none; }
+    /* Hide the menu button while dealing/loading a game (until PlayRound). */
+    Screen.dealing #menu-corner { display: none; }
     /* Blurred splash image, full-screen behind everything. Shown only on the
        New Game screen (Screen.newgame). On that screen the panels go
        translucent so the image reads through as a background. */
@@ -303,8 +305,13 @@ class GwentTUI(App):
         # Show the blurred splash background only on the New Game screen.
         try:
             self.screen.set_class(stage_name == "MainMenu", "newgame")
+            # Hide the menu button while a game is being dealt / loaded — keep
+            # it hidden through registration + dealing until PlayRound begins.
+            dealing = stage_name in (
+                "RegisterLeaders", "RegisterDecks", "DealCards")
+            self.screen.set_class(dealing, "dealing")
         except Exception as e:
-            log.debug("set newgame class failed: %s", e)
+            log.debug("set stage classes failed: %s", e)
 
         if stage_name == "Offline":
             stage_cls = OfflineStage
