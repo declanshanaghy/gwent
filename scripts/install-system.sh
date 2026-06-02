@@ -116,7 +116,16 @@ echo "Installing kiosk display stack (greetd + cage + kitty)..."
 # python3-evdev:  reads /dev/input/event* and writes to /dev/uinput from the
 #                 gwent-touch.service daemon, bridging touchscreen → wl_pointer
 #                 (cage/kitty don't consume wl_touch on their own).
-sudo apt-get install -y greetd cage kitty python3-evdev
+# fonts-*:        glyph coverage for the TUI. Liberation Mono (default
+#                 monospace) lacks emoji/symbols, so faction/ability/range
+#                 icons and panel glyphs render as tofu boxes without these.
+#                 Noto Color Emoji = color emoji; Symbola = monochrome catch-all
+#                 for misc symbols/dingbats. kitty falls back to them via
+#                 fontconfig automatically.
+sudo apt-get install -y greetd cage kitty python3-evdev \
+  fonts-noto-color-emoji fonts-symbola
+# Rebuild the fontconfig cache so kitty discovers the new fonts.
+fc-cache -f >/dev/null 2>&1 || true
 
 # Default ALSA output to 3.5mm headphone jack instead of HDMI
 ASOUNDRC="${HOME}/.asoundrc"
