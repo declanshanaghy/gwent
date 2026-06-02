@@ -161,12 +161,30 @@ class MenuPublisher(PubSubComponent):
             return
         self._wizard.pop("error", None)
         (f1, o1), (f2, o2) = matchup
+        s1 = self._safe_deck_summary(f1, o1)
+        s2 = self._safe_deck_summary(f2, o2)
         self._wizard["p1"].update({
             "faction": f1, "owner": o1,
             "controller": "human", "controller_label": "You (RFID / touch)",
+            "leader": s1["leader"], "leader_card": s1["leader_card"],
+            "strength": s1["strength"], "count": s1["count"],
         })
-        self._wizard["p2"].update({"faction": f2, "owner": o2})
-        self._log.info(f"wizard rolled sides: P1={f1}/{o1}  P2={f2}/{o2}")
+        self._wizard["p2"].update({
+            "faction": f2, "owner": o2,
+            "leader": s2["leader"], "leader_card": s2["leader_card"],
+            "strength": s2["strength"], "count": s2["count"],
+        })
+        self._log.info(
+            f"wizard rolled sides: P1={f1}/{o1} (leader={s1['leader']!r} "
+            f"str={s1['strength']})  P2={f2}/{o2} (leader={s2['leader']!r} "
+            f"str={s2['strength']})")
+
+    @staticmethod
+    def _safe_deck_summary(faction: str, owner: str) -> dict:
+        try:
+            return gwent.game.decks.deck_summary(faction, owner)
+        except Exception:
+            return {"leader": "", "leader_card": None, "strength": 0, "count": 0}
 
     def _roll_model(self) -> None:
         self._wizard.setdefault("p2", {})

@@ -296,3 +296,50 @@ def build_deck(faction, owner):
     if owner == STARTER_OWNER:
         return load_starter_cards(faction)
     return load_owner_cards(faction, owner)
+
+
+def deck_summary(faction, owner):
+    """Lightweight preview of a (faction, owner) deck for the New Game wizard.
+
+    Reads raw card JSON (no Message/schema validation, so a card missing a
+    required field can't crash the preview). Returns the deck's leader, a
+    minimal leader card dict for image resolution, the summed strength of all
+    cards, and the card count.
+    """
+    cards = []
+    for _fp, data in _load_faction_cards(faction):
+        if owner == STARTER_OWNER:
+            if data.get("starter"):
+                cards.append(data)
+        elif data.get("owner") == owner:
+            cards.append(data)
+
+    total = 0
+    for c in cards:
+        s = c.get("strength")
+        if isinstance(s, (int, float)):
+            total += int(s)
+
+    leader = next((c for c in cards if c.get("specialty") == "leader"), None)
+    if leader is None:
+        # Owners rarely own a leader card (leaders are shared/starter and
+        # supplemented at deal time) — fall back to the faction's leader card
+        # so the wizard always shows a leader name + image.
+        for _fp, data in _load_faction_cards(faction):
+            if data.get("specialty") == "leader":
+                leader = data
+                break
+    leader_card = None
+    if leader:
+        leader_card = {
+            "name": leader.get("name", ""),
+            "faction": faction,
+            "image": leader.get("image"),
+        }
+
+    return {
+        "leader": leader.get("name", "") if leader else "",
+        "leader_card": leader_card,
+        "strength": total,
+        "count": len(cards),
+    }
