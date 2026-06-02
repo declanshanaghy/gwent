@@ -122,11 +122,21 @@ class ScoreboardWidget(Static):
                 f"  [bold]vs[/bold]  "
                 f"{_leader_cell(p2_nick, p2e, p2_fc)}{p2_pass_tag}")
 
-        # Row 2: scores only (no "vs"), centered, with each side's gems.
+        # Turn indicator: an arrow in the middle pointing at the active side —
+        # ◀ for P1 (left), ▶ for P2 (right), in that side's faction color.
+        cur = getattr(state, "current_player", None)
+        if cur == P1:
+            turn_arrow = f"[bold {p1_fc}]◀◀◀[/]"
+        elif cur == P2:
+            turn_arrow = f"[bold {p2_fc}]▶▶▶[/]"
+        else:
+            turn_arrow = "[dim]—[/dim]"
+
+        # Row 2: scores with the turn arrow between them (no "vs"), centered.
         row2 = (
             f"{p1_gems_str} "
             f"{p1s_open}[bold yellow]{p1s}[/bold yellow]{p1s_close}"
-            f"        "
+            f"   {turn_arrow}   "
             f"{p2s_open}[bold dodger_blue2]{p2s}[/bold dodger_blue2]{p2s_close}"
             f" {p2_gems_str}"
         )
