@@ -248,6 +248,19 @@ class PlayerBarWidget(Static):
                       stats_cell(P2, "dodger_blue2", gems_first=False))
         return Panel(table)
 
+    def on_click(self, event: events.Click) -> None:
+        """Tap a player's half (name / leader / stats) → open the controller
+        picker for that side and live-replace the controller. Left half = P1,
+        right half = P2 (matching the split layout)."""
+        width = self.size.width or 1
+        side = "P1" if event.x < width / 2 else "P2"
+        log.info("PlayerBar tapped x=%d width=%d -> assign %s", event.x, width, side)
+        try:
+            from gwent_tui.assign_controller_modal import AssignControllerModal
+            self.app.push_screen(AssignControllerModal(side))
+        except Exception as e:
+            log.error("failed to open controller picker: %s", e, exc_info=True)
+
 
 class _BoardRows(Static):
     """The 3 combat rows (close, ranged, siege) for both players."""

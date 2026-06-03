@@ -1880,18 +1880,23 @@ def main():
 
     log(f"Game ready: stage={stage}")
 
-    # 3b. Assign random genders and set player names + pronouns on the server
+    # 3b. Assign random genders and set player names + pronouns on the server.
+    # When restricted to one side (--only-side, e.g. spawned per-controller by
+    # the server), set ONLY that side's name — model_p2 defaults to model_p1, so
+    # publishing both would clobber the other slot's real controller name.
     short_p1 = _short_model_name(args.model_p1)
     short_p2 = _short_model_name(args.model_p2)
     g1 = _assign_gender(args.model_p1)
     g2 = _assign_gender(args.model_p2)
     log(f"Players: {short_p1} ({g1}) vs {short_p2} ({g2})")
+    names = {}
+    if args.only_side != "P2":
+        names["PLAYER.ONE"] = {"name": short_p1, "pronoun": g1}
+    if args.only_side != "P1":
+        names["PLAYER.TWO"] = {"name": short_p2, "pronoun": g2}
     try:
-        mqpub('gwent/ctrl/players', json.dumps({
-            "PLAYER.ONE": {"name": short_p1, "pronoun": g1},
-            "PLAYER.TWO": {"name": short_p2, "pronoun": g2},
-        }))
-        log(f"Player names + pronouns set on server")
+        mqpub('gwent/ctrl/players', json.dumps(names))
+        log(f"Player names + pronouns set on server: {list(names)}")
     except Exception as e:
         log_debug(f"Failed to set player names: {e}")
 
