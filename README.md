@@ -84,8 +84,7 @@ flowchart LR
 The core Python service. Runs as a systemd unit (`gwent`).
 
 - **Game stages state machine** -- MainMenu, RegisterLeaders, RegisterDecks, DealCards, PlayRound, RoundEnd, GameOver
-- **MQTT publishing** -- all events (card plays, stage changes, scores, SFX triggers) are published to `gwent/` topics via a Mosquitto broker
-- **REST API** -- `GET /state` (long-poll with ETag), `POST /save`, `PUT /players`, `GET /health`
+- **MQTT command & control** -- all events and full game state are published to `gwent/` topics via a Mosquitto broker. State is a retained snapshot on `gwent/server/state`; commands (players, client-tts, save) come in on `gwent/ctrl/*`. No HTTP.
 - **Hardware abstraction layer** -- SPI (RFID RC522, SSD1306 OLED), I2C (TCA9548A mux, IS31FL3731 LED matrices), GPIO (rotary encoder)
 - **Audio system** -- sound effects and TTS announcements (multiple providers: gTTS, ElevenLabs, OpenAI, Piper, macOS `say`)
 

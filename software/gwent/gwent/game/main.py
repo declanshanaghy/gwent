@@ -238,8 +238,6 @@ class Gwent:
     def shutdown(self):
         """Shutdown the application"""
         self._log.info('Shutting down application')
-        if hasattr(self, '_http_server') and self._http_server:
-            self._http_server.shutdown()
         self.shutdown_components()
         self.close_pubsub()
         self._stop_event.set()
@@ -394,14 +392,6 @@ class Gwent:
             controller._skip_main_menu = True
 
         self.start_components()
-
-        # Start HTTP API server for state access. Kept during the HTTP→MQTT
-        # transition for the llm-vs game-loop + integration tests; shares the
-        # same SessionConfig so HTTP and MQTT stay consistent. The TUI no longer
-        # uses it.
-        from gwent.game.http_api import start_http_server
-        self._http_server = start_http_server(
-            self._get_controller, self.pubsub, session_config=self.session_config)
 
         # Load saved game state to jump to a specific point
         if state_file:

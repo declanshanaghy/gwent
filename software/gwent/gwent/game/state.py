@@ -81,7 +81,7 @@ def _dict_to_card(d):
 def snapshot_dict(controller, player_names=None, player_pronouns=None, client_tts=None):
     """Build the snapshot dict from current game state.
 
-    Used by both save() and the HTTP /state endpoint.
+    Used by save() and the StatePublisher (gwent/server/state).
 
     Args:
         controller: The game Controller instance.

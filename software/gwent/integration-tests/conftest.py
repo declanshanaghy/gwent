@@ -9,8 +9,8 @@ Run with:
 
 import hashlib
 import json
+import threading
 import time
-import urllib.request
 
 import paho.mqtt.client as mqtt
 import pytest
@@ -18,10 +18,10 @@ import pytest
 MQTT_HOST = "localhost"
 MQTT_USER = "geralt"
 MQTT_PASS = "gwent"
-STATE_URL = "http://localhost:8080/state"
 
 TOPIC_CARD_READ = "gwent/cards/raw/read"
 TOPIC_MFD_CHOOSE = "gwent/mfd/choose"
+TOPIC_SERVER_STATE = "gwent/server/state"
 
 
 def pytest_addoption(parser):
@@ -54,16 +54,42 @@ def mqtt_client():
 
 
 class GameAPI:
-    """Helper for interacting with the running gwent game."""
+    """Helper for interacting with the running gwent game over MQTT.
+
+    Game state comes from the retained `gwent/server/state` topic (delivered
+    instantly on subscribe and republished on every change); commands are
+    injected by publishing to the card/choice topics.
+    """
 
     def __init__(self, mqtt_client):
         self._mqtt = mqtt_client
+        self._lock = threading.Lock()
+        self._snapshot = None
+        self._event = threading.Event()
+        mqtt_client.on_message = self._on_message
+        mqtt_client.subscribe(TOPIC_SERVER_STATE, qos=1)
 
-    def get_state(self):
-        """Fetch current game state from HTTP API."""
-        req = urllib.request.Request(STATE_URL)
-        with urllib.request.urlopen(req, timeout=5) as resp:
-            return json.loads(resp.read())
+    def _on_message(self, client, userdata, msg):
+        if msg.topic != TOPIC_SERVER_STATE or not msg.payload:
+            return
+        try:
+            d = json.loads(msg.payload)
+        except Exception:
+            return
+        with self._lock:
+            self._snapshot = d
+        self._event.set()
+
+    def get_state(self, timeout=10):
+        """Return the latest game-state snapshot, waiting for the first one."""
+        deadline = time.time() + timeout
+        while True:
+            with self._lock:
+                if self._snapshot is not None:
+                    return self._snapshot
+            if time.time() >= deadline:
+                raise TimeoutError("no gwent/server/state received")
+            self._event.wait(timeout=0.2)
 
     def get_board(self):
         """Fetch just the board dict."""
@@ -102,37 +128,25 @@ class GameAPI:
         return self.wait_for_state_change(pre_etag, timeout=timeout)
 
     def wait_for_state_change(self, pre_etag, timeout=20):
-        """Poll /state until the ETag changes or timeout."""
+        """Wait until the snapshot hash changes from pre_etag or timeout."""
         deadline = time.time() + timeout
         while time.time() < deadline:
-            try:
-                req = urllib.request.Request(STATE_URL)
-                req.add_header("If-None-Match", pre_etag)
-                remaining = max(1, deadline - time.time())
-                with urllib.request.urlopen(
-                    req, timeout=min(5, remaining)
-                ) as resp:
-                    data = json.loads(resp.read())
-                    new_etag = resp.headers.get("ETag", "")
-                    if new_etag != pre_etag:
-                        return data
-            except urllib.error.HTTPError as e:
-                if e.code == 304:
-                    time.sleep(0.5)
-                    continue
-                raise
-            except Exception:
-                time.sleep(0.5)
+            self._event.clear()
+            data = self.get_state()
+            if self.compute_etag(data) != pre_etag:
+                return data
+            self._event.wait(timeout=min(0.5, max(0.0, deadline - time.time())))
         raise TimeoutError(f"State did not change within {timeout}s")
 
     def wait_for_current_player(self, expected_player, timeout=20):
-        """Poll until current_player matches expected value."""
+        """Wait until current_player matches expected value."""
         deadline = time.time() + timeout
         while time.time() < deadline:
+            self._event.clear()
             board = self.get_board()
             if board["current_player"] == expected_player:
                 return board
-            time.sleep(1)
+            self._event.wait(timeout=min(0.5, max(0.0, deadline - time.time())))
         raise TimeoutError(
             f"current_player did not become {expected_player} within {timeout}s"
         )

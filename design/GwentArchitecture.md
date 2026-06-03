@@ -186,19 +186,20 @@ gwent/
 
 The broker uses authenticated access (user: `geralt`, password: `gwent`).
 
-### REST API
+### Command & control (MQTT)
 
-The HTTP API runs on port 8080 using stdlib `http.server` (no framework dependencies). Endpoints:
+State and commands run entirely over MQTT — there is no HTTP API.
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET` | `/state` | Full game state snapshot. Supports long-polling via `If-None-Match` ETag and `?timeout=N` query param |
-| `GET` | `/health` | Health check |
-| `POST` | `/save?name=filename` | Save current state to recordings |
-| `PUT` | `/players` | Set player names |
-| `PUT` | `/client-tts` | Configure client-side TTS |
+| Direction | Topic | Description |
+|-----------|-------|-------------|
+| server → clients | `gwent/server/state` | Full game-state snapshot, retained (QoS 1). Republished on every change, deduped by content hash. New subscribers get it instantly. |
+| server → clients | `gwent/server/presence` | `online`/`offline`, retained, with LWT. |
+| client → server | `gwent/ctrl/players` | Set player names/pronouns |
+| client → server | `gwent/ctrl/client-tts` | Register a client TTS provider |
+| client → server | `gwent/ctrl/save` | Save current state to recordings (confirms via `gwent/toast`) |
 
-Implementation: `software/gwent/gwent/game/http_api.py`
+Implementation: `state_publisher.py` (publish), `server_commands.py` (commands),
+`session_config.py` (shared player/tts state).
 
 ### Hardware Abstraction Layer
 
