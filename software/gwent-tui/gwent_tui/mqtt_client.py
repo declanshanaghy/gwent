@@ -19,7 +19,7 @@ from gwent_shared.topics import (
     CTRL, MFD_PRESENT, MFD_CHOOSE, SFX, SFX_COMPLETE,
     MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
     PRESENCE, MAIN, SERVER_STATE, TOAST,
-    CTRL_CLIENT_TTS, CTRL_SAVE,
+    CTRL_CLIENT_TTS,
     MENU_PRESENT_PREFIX, MENU_PRESENT_WILDCARD, MENU_CHOOSE,
     GAME_START,
 )
@@ -216,16 +216,6 @@ class MqttSubscriber:
             self.client.publish(CTRL_CLIENT_TTS, payload, qos=1)
         except Exception as e:
             log.debug("publish_client_tts failed: %s", e)
-
-    def publish_save(self, name: str) -> None:
-        """Request the server save the current state (was POST /save). The server
-        confirms via a gwent/toast message."""
-        payload = json.dumps({"name": name})
-        log.info("publish_save name=%s", name)
-        try:
-            self.client.publish(CTRL_SAVE, payload, qos=1)
-        except Exception as e:
-            log.exception("publish_save failed: %s", e)
 
     def publish_card_scan(self, card: dict) -> None:
         """Publish a card to `gwent/cards/raw/read`, simulating an RFID scan.

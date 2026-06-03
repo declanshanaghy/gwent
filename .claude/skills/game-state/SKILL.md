@@ -3,7 +3,8 @@ description: Dump and display the current gwent game state (scores, lives, hands
 user_invocable: true
 ---
 
-Dump the current game state by sending SIGUSR1 to the gwent process, then display it as formatted tables.
+Dump the current game state by reading the retained `gwent/server/state` MQTT
+topic, then display it as formatted tables.
 
 ## Steps
 
@@ -13,11 +14,10 @@ Dump the current game state by sending SIGUSR1 to the gwent process, then displa
    ```
    If not running, tell the user "No gwent process running." and stop.
 
-2. Write a temp path to `/tmp/gwent-save-as` and send SIGUSR1:
+2. Read the retained state snapshot from MQTT into a temp file:
    ```bash
-   echo "/tmp/gwent-game-state.json" > /tmp/gwent-save-as
-   kill -USR1 $(pgrep -f '/home/dshanaghy/gwent-venv/bin/gwent')
-   sleep 2
+   mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1 -W 4 \
+     > /tmp/gwent-game-state.json
    ```
 
 3. Read `/tmp/gwent-game-state.json` using the Read tool.

@@ -152,9 +152,6 @@ class MQTTClient:
     
     def publish(self, topic, payload, qos=1, retain=False):
         """Publish a message to a topic"""
-        import gwent.game.tracer as tracer
-        tracer.record(topic, payload)
-
         self._log.info({
             'action': 'publish',
             'topic': topic,
@@ -248,39 +245,6 @@ class Gwent:
         self._log.info(f'Received exit signal {sig_name}...')
         self.shutdown()
 
-    def save_state_handler(self, signum, frame):
-        """Handle SIGUSR1 — save game state to disk.
-
-        The filename is read from /tmp/gwent-save-as if it exists,
-        otherwise falls back to GWENT_STATE_OUT env var,
-        otherwise uses state-<timestamp>.
-        """
-        import os
-        import gwent.game.state as game_state
-
-        self._log.info("Received SIGUSR1, saving game state...")
-
-        # Check for a dynamic filename request
-        _repo_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..'))
-        save_as_file = os.path.join(_repo_root, "tmp", "gwent-save-as")
-        name = ""
-        if os.path.exists(save_as_file):
-            with open(save_as_file) as f:
-                name = f.read().strip()
-            os.remove(save_as_file)
-
-        if not name:
-            name = os.environ.get("GWENT_STATE_OUT", "")
-        if not name:
-            name = f"state-{int(time.time())}"
-
-        filepath = game_state.get_filepath(name)
-        controller = self._get_controller()
-        if controller:
-            game_state.save(filepath, controller)
-        else:
-            self._log.error("Cannot save state: controller not found")
-
     def _get_controller(self):
         """Find the Controller component."""
         for component in getattr(self, 'components', []):
@@ -293,7 +257,6 @@ class Gwent:
         for sig in (signal.SIGABRT, signal.SIGHUP, signal.SIGINT,
                    signal.SIGQUIT, signal.SIGTERM):
             signal.signal(sig, self.signal_handler)
-        signal.signal(signal.SIGUSR1, self.save_state_handler)
     
     def create_components(self):
         """Create all application components"""
@@ -376,39 +339,18 @@ class Gwent:
             self._log.error('Failed to connect to MQTT broker')
             return
         
-        # Check if we'll be loading a recording — skip main menu if so
-        import os
-        import gwent.game.state as game_state
-        state_file = os.environ.get("GWENT_STATE", "")
-        self._log.info(f"GWENT_STATE env var: '{state_file}'")
-
-        # Create and start components
+        # The game always starts from freshly generated decks (the New Game
+        # wizard) — there is no recording/snapshot loading.
         self.create_components()
         self.initialize_components()
-
-        # Tell controller to skip main menu if loading a recording
-        controller = self._get_controller()
-        if state_file and controller:
-            controller._skip_main_menu = True
-
         self.start_components()
 
-        # Load saved game state to jump to a specific point
-        if state_file:
-            if not os.path.isabs(state_file):
-                state_file = game_state.get_filepath(state_file)
-            self._log.info(f"Loading game state from {state_file}")
-            if controller:
-                game_state.load(state_file, controller)
-            else:
-                self._log.error("Cannot load state: controller not found")
-        else:
-            # No recording → publish the retained main menu so the TUI
-            # immediately shows the State A selection screen.
-            try:
-                self._menu_publisher.publish_main_menu()
-            except Exception as e:
-                self._log.error(f"publish_main_menu failed: {e}", exc_info=True)
+        # Publish the retained main menu so the TUI immediately shows the New
+        # Game wizard (State A).
+        try:
+            self._menu_publisher.publish_main_menu()
+        except Exception as e:
+            self._log.error(f"publish_main_menu failed: {e}", exc_info=True)
 
         # Wait for shutdown signal
         try:

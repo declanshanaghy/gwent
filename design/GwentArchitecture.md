@@ -26,7 +26,6 @@ flowchart TD
         subgraph server["🎮 Game Server (gwent)"]
             controller["⚙️ Controller\nStage Machine"]
             hal["🔧 HAL\nHardware Abstraction"]
-            api["🌐 HTTP API\nport 8080"]
             pubsub["📨 PubSub\nMQTT Client"]
             sfx["🎵 Audio / TTS"]
         end
@@ -51,7 +50,6 @@ flowchart TD
 
     subgraph data["📁 Data"]
         cards["🃏 Card JSONs\nby faction"]
-        recordings["💾 Recordings\nstate snapshots"]
     end
 
     controller <--> pubsub
@@ -65,23 +63,19 @@ flowchart TD
     mux --> score2
     hal --> rotary
     pubsub <--> broker
-    server --> api
 
     broker <--> tui
     broker <--> gameloop
-    api <--> gameloop
-    api <--> tui
 
     controller --> cards
-    controller --> recordings
 
     classDef hardware fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
     classDef software fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
     classDef data fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
 
     class rfid,oled,mux,gems,score1,score2,rotary hardware
-    class controller,hal,api,pubsub,sfx,broker,tui,gameloop software
-    class cards,recordings data
+    class controller,hal,pubsub,sfx,broker,tui,gameloop software
+    class cards data
 ```
 
 ## Server Internals
@@ -196,7 +190,6 @@ State and commands run entirely over MQTT — there is no HTTP API.
 | server → clients | `gwent/server/presence` | `online`/`offline`, retained, with LWT. |
 | client → server | `gwent/ctrl/players` | Set player names/pronouns |
 | client → server | `gwent/ctrl/client-tts` | Register a client TTS provider |
-| client → server | `gwent/ctrl/save` | Save current state to recordings (confirms via `gwent/toast`) |
 
 Implementation: `state_publisher.py` (publish), `server_commands.py` (commands),
 `session_config.py` (shared player/tts state).
@@ -400,10 +393,6 @@ For full card mechanics, see [GwentRules.md](GwentRules.md) and [GwentCardMechan
 ### Decks
 
 Saved player decks in `software/data/decks/`. Each deck file references cards by name and faction.
-
-### Recordings
-
-Game state snapshots in `software/data/recordings/`. These capture the complete board state (hands, board rows, discard piles, scores, gems, round number) and can be loaded to resume a game at any point. Used for testing, replay, and the `playback-trace` workflow.
 
 ## Message Flow Example
 

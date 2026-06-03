@@ -26,8 +26,6 @@ MACHINE_IP="$(hostname -I 2>/dev/null | awk '{print $1}')"
 
 export PYTHONUNBUFFERED=1
 export RUNNING_ON_PI=true
-export GWENT_STATE=${GWENT_STATE:-""}
-export GWENT_STATE_OUT=${GWENT_STATE_OUT:-""}
 GWENT_OWNER=""
 
 # ---------------------------------------------------------------------------
@@ -41,7 +39,6 @@ usage() {
     echo "  action:   start | stop | restart | status"
     echo ""
     echo "Options:"
-    echo "  -r, --recording FILE   Load a game recording on start/restart"
     echo "  -o, --owner NAME       Set card owner"
     echo "  -t, --tts PROVIDER     Set TTS provider"
     echo "  -s, --simple           Use simple announcements"
@@ -176,7 +173,6 @@ while [ $# -gt 0 ]; do
         -o|--owner) GWENT_OWNER="$2"; shift 2 ;;
         -t|--tts)   GWENT_TTS="$2"; shift 2 ;;
         -s|--simple) GWENT_SIMPLE=1; shift ;;
-        -r|--recording) GWENT_STATE="$2"; shift 2 ;;
         *) shift ;;
     esac
 done

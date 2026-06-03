@@ -20,7 +20,7 @@ class UnknownStageWidget(Static):
             f"[red]No TUI screen implemented for this stage.[/red]\n\n"
             f"[dim]The game is running but this stage cannot be displayed.[/dim]\n\n"
             f"[{mc}]MQTT[/{mc}] [{hc}]SRV[/{hc}]\n\n"
-            f"[dim]? for help  Ctrl+S to save state[/dim]"
+            f"[dim]? for help[/dim]"
         )
         text.justify = "center"
         return Align.center(text, vertical="middle")

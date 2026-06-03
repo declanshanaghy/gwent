@@ -13,9 +13,8 @@ CTRL = f'{MAIN}/ctrl'
 # Client→server commands — all incoming commands live under `gwent/ctrl/*`.
 # These are free-form JSON payloads (not the gwent.messaging envelope) handled
 # by the server's ServerCommandHandler.
-CTRL_PLAYERS = f'{CTRL}/players'        # set names/pronouns (was PUT /players)
-CTRL_CLIENT_TTS = f'{CTRL}/client-tts'  # {client_id, provider} (was PUT /client-tts)
-CTRL_SAVE = f'{CTRL}/save'              # {name} (was POST /save)
+CTRL_PLAYERS = f'{CTRL}/players'        # set names/pronouns
+CTRL_CLIENT_TTS = f'{CTRL}/client-tts'  # {client_id, provider}
 
 # Multi-Function Display
 MFD = f'{MAIN}/mfd'
@@ -53,7 +52,7 @@ TOAST = f'{MAIN}/toast'
 # active without a request roundtrip. Clients respond on `gwent/menu/choose`.
 #
 # Menu IDs in use:
-#   main           — server-idle main menu (recordings, random, fresh game)
+#   main           — server-idle main menu (random + fresh game)
 #   assign-p1      — controller picker for player 1 (Phase 3)
 #   assign-p2      — controller picker for player 2 (Phase 3)
 #   in-game-menu   — reset / step-mode / cancel (Phase 4)

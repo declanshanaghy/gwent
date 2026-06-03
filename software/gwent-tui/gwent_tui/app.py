@@ -13,7 +13,6 @@ from textual.widgets import Static
 
 from gwent_tui.game_state import GameState
 from gwent_tui.mqtt_client import MqttSubscriber
-from gwent_tui.save_dialog import SaveScreen
 from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
 from gwent_tui.widgets.timers import TimersWidget
@@ -139,7 +138,6 @@ class GwentTUI(App):
     BINDINGS = [
         Binding("ctrl+c", "quit", "Quit", priority=True),
         Binding("question_mark", "help", "Help"),
-        Binding("ctrl+s", "save", "Save State"),
         Binding("right", "next_track", "Next Track"),
         Binding("v", "volume_mixer", "Volume Mixer"),
         Binding("m", "in_game_menu", "Menu"),
@@ -405,7 +403,6 @@ class GwentTUI(App):
                     ("v", "Volume mixer (Master / Music / SFX / TTS)"),
                     ("Ctrl+M", "Toggle music on/off"),
                     ("\u2192", "Next music track"),
-                    ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
                     ("Esc", "Close dialog/help"),
                 ]:
@@ -428,9 +425,6 @@ class GwentTUI(App):
                 self.dismiss()
 
         self.push_screen(HelpScreen())
-
-    def action_save(self):
-        self.push_screen(SaveScreen(self._subscriber, self.state))
 
     def action_next_track(self):
         """Skip to next music track (only if music is enabled)."""

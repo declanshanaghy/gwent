@@ -129,10 +129,6 @@ Each card is a JSON file in `software/data/cards/{Faction}/CardName.json`:
 
 Five factions: **Monsters**, **Nilfgaardian**, **Northern Realms**, **Scoiatael**, **Skellige**, plus **Neutral** cards.
 
-## Game Recordings
-
-Saved game states live in `software/data/recordings/`. These JSON snapshots capture the full board state and can be loaded to resume or replay games.
-
 ## Development
 
 ```bash

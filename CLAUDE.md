@@ -25,8 +25,8 @@ Gwent Companion — a Raspberry Pi-based digital companion for the physical card
 
 - Python virtualenv: `/home/dshanaghy/gwent-venv/`
 - Run locally: `bash scripts/dev-server.sh gwent start`
-- Game state dump: `kill -USR1 $(pgrep -f gwent-venv/bin/gwent)`
-- Game recordings: `software/data/recordings/`
+- Game state dump: `mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1` (or `/game-state`)
+- Games always start from freshly generated decks — there are no recordings/snapshots
 
 ## Important Conventions
 

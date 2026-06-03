@@ -1,9 +1,9 @@
 """TUI stage: MainMenu — State A.
 
 When the backend is idle (no game) it publishes a retained `gwent/menu/present/main`
-listing recordings + random + fresh-game options. We render that as a touchable
-list. If the backend is mid-game (no main menu retained), we fall back to the
-existing registration progress widget.
+listing random + fresh-game options. We render that as a touchable list. If the
+backend is mid-game (no main menu retained), we fall back to the existing
+registration progress widget.
 """
 import logging
 

@@ -10,7 +10,7 @@ the rotary/OLED still uses. Both channels can carry the same menus.
 
 Menu inventory (Phase 2 ships the first; Phases 3-4 fill in the rest):
 
-  main          server-idle main menu (recordings + random + fresh)
+  main          server-idle main menu (random + fresh)
   assign-p1     P1 controller picker (Phase 3)
   assign-p2     P2 controller picker (Phase 3)
   in-game-menu  reset / step-mode / cancel (Phase 4)
@@ -24,7 +24,6 @@ import paho.mqtt.client as mqtt
 
 import gwent.game
 import gwent.game.decks
-import gwent.game.state
 import gwent.messaging.factory
 import gwent.messaging.menu
 import gwent.messaging.game_start
@@ -134,20 +133,11 @@ class MenuPublisher(PubSubComponent):
     # ------------------------------------------------------------------------
 
     def publish_main_menu(self):
-        """Build + publish (retained) the main menu: recordings, random, fresh."""
-        choices = []
+        """Build + publish (retained) the main menu: random + fresh.
 
-        # Recordings — list from filesystem, newest-first by filename order
-        # (the numeric prefix in the filenames naturally orders them).
-        recordings = gwent.game.state.list_recordings()
-        for rec in recordings:
-            factions = " vs ".join(rec.get("factions") or []) or "?"
-            choices.append(gwent.messaging.menu.Choice(
-                id=f"rec:{rec['stem']}",
-                text=rec["stem"],
-                description=factions,
-                icon="🎞",
-            ))
+        Recordings/snapshots are no longer used — the game only ever deals
+        freshly generated decks."""
+        choices = []
 
         # Built-in options
         choices.append(gwent.messaging.menu.Choice(
@@ -167,9 +157,7 @@ class MenuPublisher(PubSubComponent):
         topic = ch_menu_present(gwent.messaging.menu.MENU_MAIN)
         self.publish(topic, msg, retain=True)
         self._published_menus.add(gwent.messaging.menu.MENU_MAIN)
-        self._log.info(
-            f"published main menu: {len(recordings)} recordings + random + fresh"
-        )
+        self._log.info("published main menu: random + fresh (recordings disabled)")
 
         # The New Game wizard is now client-side: the TUI builds the matchup
         # proposal locally and sends both decks via gwent/game/start on START.
@@ -315,21 +303,6 @@ class MenuPublisher(PubSubComponent):
         if choice_id == "fresh":
             self._log.info("main -> fresh game (register leaders)")
             self._controller.start_register_leaders()
-            return
-
-        if choice_id.startswith("rec:"):
-            stem = choice_id[4:]
-            path = gwent.game.state.get_filepath(stem)
-            self._log.info(f"main -> load recording {stem!r} ({path})")
-            try:
-                gwent.game.state.load(path, self._controller)
-            except FileNotFoundError:
-                self._log.error(f"recording not found: {path}")
-                # Republish so the user can pick again.
-                self.publish_main_menu()
-            except Exception as e:
-                self._log.exception(f"failed to load recording {path}: {e}")
-                self.publish_main_menu()
             return
 
         self._log.warning(f"unknown main choice: {choice_id!r}")
