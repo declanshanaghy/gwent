@@ -149,6 +149,79 @@ class ScoreboardWidget(Static):
         return Panel(table, title="\U0001f3c6 Scoreboard")
 
 
+class PlayerBarWidget(Static):
+    """Top-of-left-column bar: leaders + gems + scores, split P1 | P2.
+
+    Each half:
+      row 1: faction-icon  Leader Name  faction-icon   (centered, faction color)
+      row 2: gems on the outer edge, score (0-padded to 3) toward the divider
+    """
+
+    def render(self):
+        state = self.app.state
+        from gwent_tui.widgets.header import _leader_nick
+
+        def _mid_truncate(name, limit):
+            if len(name) <= limit:
+                return name
+            keep = limit - 1  # room for the ellipsis
+            return name[:(keep + 1) // 2] + "…" + name[-(keep // 2):]
+
+        # Budget the leader name to the per-half width so icon+name+icon fits on
+        # one line (two faction glyphs ≈ 4 cells + 2 spaces).
+        half = max(10, (self.size.width - 4) // 2)
+        name_limit = max(6, half - 8)
+
+        def leader_cell(player):
+            leader = state.leaders.get(player)
+            faction = state.factions.get(player, "")
+            fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))[0]
+            left, right = faction_emoji(faction)
+            if not leader:
+                return "[dim]-[/dim]"
+            nick = _mid_truncate(_leader_nick(leader), name_limit)
+            return f"[{fc}]{left} {nick} {right}[/{fc}]"
+
+        # Gems (outer) + 0-padded 3-digit score (inner, toward the divider),
+        # with the same change-highlights the scoreboard uses.
+        def gems_markup(player):
+            g = gems_display(state.gems.get(player, 0))
+            return f"[on dark_red]{g}[/on dark_red]" if state.is_highlighted(f"gems:{player}") else g
+
+        def score_markup(player, color):
+            s = f"[bold {color}]{state.scores.get(player, 0):03d}[/bold {color}]"
+            return f"[on dark_green]{s}[/on dark_green]" if state.is_highlighted(f"score:{player}") else s
+
+        def stats_cell(player, color, gems_first):
+            t = Table(box=None, expand=True, show_header=False, padding=0)
+            t.add_column(justify="left", ratio=1)
+            t.add_column(justify="right", ratio=1)
+            gems = gems_markup(player)
+            score = score_markup(player, color)
+            # gems_first → gems on the left (outer), score on the right (inner).
+            if gems_first:
+                t.add_row(Text.from_markup(gems), Text.from_markup(score))
+            else:
+                t.add_row(Text.from_markup(score), Text.from_markup(gems))
+            return t
+
+        table = Table(box=SPLIT_BOX, expand=True, show_header=False,
+                      padding=(0, 1), show_edge=False)
+        table.add_column(ratio=1, justify="center", no_wrap=True)
+        table.add_column(ratio=1, justify="center", no_wrap=True)
+
+        def _leader_text(player):
+            t = Text.from_markup(leader_cell(player), justify="center")
+            t.no_wrap = True
+            t.overflow = "crop"
+            return t
+
+        table.add_row(_leader_text(P1), _leader_text(P2))
+        table.add_row(stats_cell(P1, "yellow", gems_first=True),
+                      stats_cell(P2, "dodger_blue2", gems_first=False))
+        return Panel(table)
+
+
 class _BoardRows(Static):
     """The 3 combat rows (close, ranged, siege) for both players."""
     DEFAULT_CSS = """
@@ -296,31 +369,6 @@ class _BoardRows(Static):
                 p2_horn_str = f"[bold yellow]{HORN} HORN \u00d72 {HORN}[/bold yellow]" if p2_horn else ""
                 table.add_row(p1_horn_str, p2_horn_str)
                 y += 2  # horn row + its separator
-
-        # Leader ability footer row — short nickname, faction colored
-        from gwent_tui.widgets.header import _leader_nick
-        p1_ability = ""
-        p2_ability = ""
-        p1_leader = state.leaders.get(P1)
-        p2_leader = state.leaders.get(P2)
-        for p, leader in ((P1, p1_leader), (P2, p2_leader)):
-            if not leader:
-                continue
-            nick = _leader_nick(leader)
-            instr = leader.get("leader", {}).get("instructions", "")
-            used = state.leader_used.get(p, False)
-            faction = leader.get("faction", "")
-            fg = FACTION_STYLE.get(faction, ("white", "grey30", "white"))[0]
-            if used:
-                style = f"strike dim {fg}"
-            else:
-                style = f"italic {fg}"
-            text = f"\U0001f451 [{style}]{nick}: {instr}[/{style}]"
-            if p == P1:
-                p1_ability = text
-            else:
-                p2_ability = text
-        table.add_row(p1_ability, p2_ability)
 
         # Weather summary at bottom
         if state.weather_rows:
