@@ -15,7 +15,7 @@ class MainMenuWidget(Static):
     def render(self):
         state = self.app.state
         mc = _STATUS_COLOR.get(state.mqtt_status, "grey50")
-        hc = _STATUS_COLOR.get(state.http_status, "grey50")
+        hc = "green" if state.server_online else "red"
 
         # Build P1 and P2 columns
         p1_lines = self._build_player_lines(
@@ -47,7 +47,7 @@ class MainMenuWidget(Static):
         prompt = state.last_prompt or "Waiting..."
         status_line = Text.from_markup(
             f"\U0001f4df {prompt}   "
-            f"[{mc}]MQTT[/{mc}] [{hc}]HTTP[/{hc}]"
+            f"[{mc}]MQTT[/{mc}] [{hc}]SRV[/{hc}]"
         )
 
         # Card count summary for registration stages

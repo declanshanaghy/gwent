@@ -93,7 +93,7 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
   [--no-pause] \
   [--json] \
   [--ollama-url URL] \
-  [--game-url URL] \
+  [--host HOST] \
   [--max-turns N]
 ```
 
@@ -107,7 +107,7 @@ python3 .claude/skills/llm-vs/scripts/game-loop.py \
 | `--no-commentary` | off | Disable MQTT announcements for LLM turn commentary |
 | `--json` | off | Also emit structured JSON events per turn |
 | `--ollama-url` | `http://hal-9005.lan:11434` | Ollama API URL |
-| `--game-url` | `http://localhost:8080` | Game server URL |
+| `--host` | `localhost` | Gwent MQTT broker host (state + commands over MQTT) |
 | `--max-turns` | 60 | Safety limit |
 
 ### Pause behavior (DEFAULT — no flag needed)
@@ -141,7 +141,7 @@ Orders are wrapped in faction-themed language before injection (e.g., "The Jarl'
    - Read PID from `/tmp/pids/game-loop.pid`
    - Send `kill -USR1 <pid>` to unpause
    - Do NOT launch a new process
-4. **If NOT running**: check current game state via `curl -s http://localhost:8080/state | python3 -c "import json,sys; print(json.load(sys.stdin).get('active_stage',''))"`:
+4. **If NOT running**: check current game state via `mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1 -W 3 | python3 -c "import json,sys; print(json.load(sys.stdin).get('active_stage',''))"`:
    - If stage is `PlayRound` → launch the game loop
    - If stage is anything else, or server is down → tell the user to start the server and deal cards first (use `/dev-server`)
 5. **Model mapping**: `/llm-vs --model-p1 ollama/deepseek-r1:14b` → `--model-p1 ollama/deepseek-r1:14b`
@@ -158,7 +158,7 @@ The script pauses by default (no flag needed). Use this loop:
 source ~/gwent-venv/bin/activate && \
 source <(grep -v '^#' .env | sed 's/^/export /') && \
 python3 .claude/skills/llm-vs/scripts/game-loop.py \
-  --model-p1 MODEL [--model-p2 MODEL] --game-url http://localhost:8080 &
+  --model-p1 MODEL [--model-p2 MODEL] &
 ```
 
 Capture the PID. The script starts **paused** — send `kill -USR1 <pid>` to begin the first turn. After each turn it pauses again.
@@ -174,7 +174,7 @@ Read the script's stdout for the turn summary, board state, and reasoning.
 
 Then fetch the **full game state** for the rich summary:
 ```bash
-curl -s http://localhost:8080/state | /home/dshanaghy/gwent-venv/bin/python3 -c "
+mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1 -W 3 | /home/dshanaghy/gwent-venv/bin/python3 -c "
 import json, sys
 s = json.load(sys.stdin)
 b = s['state']['board']
@@ -196,7 +196,7 @@ Use this data to render the rich game state summary (see step 3).
 
 ### 3. Present game state summary and AskUserQuestion
 
-After each turn completes, fetch the full game state from `curl -s http://localhost:8080/state` and present a rich, emoji-laden markdown summary **before** the AskUserQuestion. Use this template:
+After each turn completes, fetch the full game state from `mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1 -W 3` and present a rich, emoji-laden markdown summary **before** the AskUserQuestion. Use this template:
 
 ```
 ## ⚔️ Round {round} — Turn {turn}

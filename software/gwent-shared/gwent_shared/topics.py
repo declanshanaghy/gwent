@@ -10,6 +10,13 @@ MAIN = 'gwent'
 # Control
 CTRL = f'{MAIN}/ctrl'
 
+# Client→server commands — all incoming commands live under `gwent/ctrl/*`.
+# These are free-form JSON payloads (not the gwent.messaging envelope) handled
+# by the server's ServerCommandHandler.
+CTRL_PLAYERS = f'{CTRL}/players'        # set names/pronouns (was PUT /players)
+CTRL_CLIENT_TTS = f'{CTRL}/client-tts'  # {client_id, provider} (was PUT /client-tts)
+CTRL_SAVE = f'{CTRL}/save'              # {name} (was POST /save)
+
 # Multi-Function Display
 MFD = f'{MAIN}/mfd'
 MFD_PRESENT = f'{MFD}/present'
@@ -30,6 +37,15 @@ CARDS_PLAY = f'{MAIN}/cards/play'  # + /PLAYER.ONE or /PLAYER.TWO
 
 # Server presence (retained, with LWT — payload is "online" or "offline")
 PRESENCE = f'{MAIN}/server/presence'
+
+# Server-published full game state — retained JSON snapshot (output of
+# game_state.snapshot_dict). New subscribers get the current state instantly.
+# Pair with PRESENCE: a retained snapshot persists in the broker after the
+# server dies, so clients must check presence before trusting it.
+SERVER_STATE = f'{MAIN}/server/state'
+
+# Transient notifications / status banners (e.g. save confirmation). Not retained.
+TOAST = f'{MAIN}/toast'
 
 # TUI menu mirror — same idiom as MFD but distinct topics so the MFD path
 # (rotary + OLED) stays unchanged. Each menu is published RETAINED under

@@ -18,7 +18,8 @@ BROKER_PASS = "gwent"
 from gwent_shared.topics import (
     CTRL, MFD_PRESENT, MFD_CHOOSE, SFX, SFX_COMPLETE,
     MUSIC, MUSIC_COMPLETE, MUSIC_CTRL, CARDS_RAW_READ, CARDS_PLAY,
-    PRESENCE, MAIN,
+    PRESENCE, MAIN, SERVER_STATE, TOAST,
+    CTRL_CLIENT_TTS, CTRL_SAVE,
     MENU_PRESENT_PREFIX, MENU_PRESENT_WILDCARD, MENU_CHOOSE,
     GAME_START,
 )
@@ -26,8 +27,6 @@ from gwent_shared.topics import (
 # Per-side retained controller state — Phase 3.
 PLAYERS_CONTROLLER_PREFIX = f"{MAIN}/players/controller"
 PLAYERS_CONTROLLER_WILDCARD = f"{PLAYERS_CONTROLLER_PREFIX}/+"
-# Transient TUI banner topic — Phase 3.
-TOAST = f"{MAIN}/toast"
 
 TOPICS = [
     (CTRL, 0),
@@ -37,11 +36,12 @@ TOPICS = [
     (SFX_COMPLETE, 0),
     (MUSIC, 0),                   # retained: current music track
     (PRESENCE, 0),                # retained: server online/offline
+    (SERVER_STATE, 1),           # retained: full game-state snapshot
     (CARDS_RAW_READ, 0),
     (f"{CARDS_PLAY}/+", 0),
     (MENU_PRESENT_WILDCARD, 0),   # retained: TUI menu mirror (per menu_id)
     (PLAYERS_CONTROLLER_WILDCARD, 0),  # retained: which controller drives each side
-    (TOAST, 0),                   # transient: failover / status banners
+    (TOAST, 0),                   # transient: failover / status banners + save acks
 ]
 
 
@@ -208,6 +208,25 @@ class MqttSubscriber:
         except Exception as e:
             log.exception("publish_choose failed: %s", e)
 
+    def publish_client_tts(self, provider: str) -> None:
+        """Register this client's TTS provider with the server (was PUT /client-tts)."""
+        payload = json.dumps({"client_id": "gwent-tui", "provider": provider})
+        log.info("publish_client_tts provider=%s", provider)
+        try:
+            self.client.publish(CTRL_CLIENT_TTS, payload, qos=1)
+        except Exception as e:
+            log.debug("publish_client_tts failed: %s", e)
+
+    def publish_save(self, name: str) -> None:
+        """Request the server save the current state (was POST /save). The server
+        confirms via a gwent/toast message."""
+        payload = json.dumps({"name": name})
+        log.info("publish_save name=%s", name)
+        try:
+            self.client.publish(CTRL_SAVE, payload, qos=1)
+        except Exception as e:
+            log.exception("publish_save failed: %s", e)
+
     def publish_card_scan(self, card: dict) -> None:
         """Publish a card to `gwent/cards/raw/read`, simulating an RFID scan.
 
@@ -303,6 +322,19 @@ class MqttSubscriber:
                                        data.get("label"))
             return
 
+        # Full game-state snapshot — retained, replaces the old HTTP /state
+        # long-poll. Feeds the same sink the poller used.
+        if topic == SERVER_STATE:
+            if not msg.payload:
+                return  # cleared retained slot
+            try:
+                data = json.loads(msg.payload.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log.warning("Bad server state payload")
+                return
+            self.state.load_snapshot(data)
+            return
+
         # Transient toast — Phase 3.
         if topic == TOAST:
             try:
@@ -319,6 +351,7 @@ class MqttSubscriber:
             status = msg.payload.decode("utf-8", errors="replace").strip()
             was_online = self._server_online
             self._server_online = (status == "online")
+            self.state.server_online = self._server_online
             log.info("Server presence: %s", status)
             if was_online and not self._server_online:
                 self.state._log_event("\U0001f4f4 Server offline — stopping music", color="plum1")

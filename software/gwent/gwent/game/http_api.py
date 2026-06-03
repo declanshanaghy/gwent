@@ -212,10 +212,7 @@ class _Handler(BaseHTTPRequestHandler):
 
     def _compute_etag(self, snapshot):
         """Compute ETag from snapshot content hash, excluding volatile fields."""
-        stable = dict(snapshot)
-        stable.pop("saved_at", None)
-        raw = json.dumps(stable, sort_keys=True).encode("utf-8")
-        return hashlib.md5(raw).hexdigest()
+        return game_state.state_hash(snapshot)
 
     def _send_json_with_etag(self, code, obj, etag=None):
         """Send JSON response with ETag header."""
@@ -245,22 +242,30 @@ class _GwentHTTPServer(ThreadingMixIn, HTTPServer):
     """Threaded HTTPServer — each request gets its own thread so long-polls don't block others."""
     daemon_threads = True
 
-    def __init__(self, controller_getter, pubsub, port):
+    def __init__(self, controller_getter, pubsub, port, session_config=None):
         self.get_controller = controller_getter
         self.state_condition = getattr(pubsub, 'state_condition', None) if pubsub else None
-        self.player_names = {"PLAYER.ONE": "Player 1", "PLAYER.TWO": "Player 2"}
-        self.player_pronouns = {"PLAYER.ONE": "he", "PLAYER.TWO": "he"}
-        self.client_tts = {}  # {client_id: provider_name}
+        # Share the SessionConfig with the MQTT path so player names/pronouns and
+        # client-tts stay consistent across both transports. The PUT handlers
+        # mutate these dicts in place, so aliasing keeps both views in sync.
+        if session_config is None:
+            from gwent.game.session_config import SessionConfig
+            session_config = SessionConfig()
+        self.session_config = session_config
+        self.player_names = session_config.player_names
+        self.player_pronouns = session_config.player_pronouns
+        self.client_tts = session_config.client_tts
         super().__init__(("", port), _Handler)
 
 
-def start_http_server(controller_getter, pubsub=None, port=None):
+def start_http_server(controller_getter, pubsub=None, port=None, session_config=None):
     """Start the HTTP API server in a daemon thread.
 
     Args:
         controller_getter: Callable that returns the Controller instance.
         pubsub: MQTTClient instance (for state_condition access).
         port: Port to listen on (default: GWENT_HTTP_PORT env or 8080).
+        session_config: Shared SessionConfig (player names/pronouns/client_tts).
 
     Returns:
         The HTTPServer instance (call .shutdown() to stop).
@@ -268,7 +273,7 @@ def start_http_server(controller_getter, pubsub=None, port=None):
     if port is None:
         port = int(os.environ.get("GWENT_HTTP_PORT", str(DEFAULT_PORT)))
 
-    server = _GwentHTTPServer(controller_getter, pubsub, port)
+    server = _GwentHTTPServer(controller_getter, pubsub, port, session_config)
     thread = threading.Thread(target=server.serve_forever, name="http-api", daemon=True)
     thread.start()
     log.info(f"HTTP API listening on port {port}")

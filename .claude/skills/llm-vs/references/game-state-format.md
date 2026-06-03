@@ -12,8 +12,10 @@
 
 ## Fetching state from the game server
 
+State is published on the retained MQTT topic `gwent/server/state`:
+
 ```bash
-curl -s http://localhost:8080/state
+mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1 -W 3
 ```
 
 Returns JSON with structure:

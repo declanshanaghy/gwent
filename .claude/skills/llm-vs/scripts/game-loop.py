@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """LLM vs LLM game loop — connects to a running game server and plays.
 
-The game server must already be running and in PlayRound stage.
+The game server must already be running and in PlayRound stage. State is read
+from the retained MQTT topic gwent/server/state; commands go over MQTT.
 
 Usage:
   python3 game-loop.py [--model-p1 MODEL] [--model-p2 MODEL]
-                       [--ollama-url URL] [--game-url URL] [--max-turns N]
+                       [--ollama-url URL] [--host HOST] [--max-turns N]
 
 Models (prefix determines provider, aliases supported):
   anthropic/sonnet          → claude-sonnet-4-20250514
@@ -442,20 +443,75 @@ def announce(text, faction=None):
     mqpub('gwent/sfx', json.dumps(msg))
 
 
-def fetch(game_url):
-    """Fetch fresh game state — no ETag caching."""
-    r = requests.get(f'{game_url}/state', timeout=10)
-    d = r.json()
+class StateCache:
+    """Cache the server's full game-state snapshot from retained MQTT.
+
+    Subscribes to `gwent/server/state` (retained, QoS 1) so the latest snapshot
+    is delivered instantly on connect and on every change. Replaces the old HTTP
+    `GET /state` polling — fetch()/poll/wait read from here.
+    """
+
+    def __init__(self):
+        self._lock = threading.Lock()
+        self._snapshot = None
+        self._event = threading.Event()
+        self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
+                                   client_id='llm-vs-state',
+                                   protocol=mqtt.MQTTv311)
+        self._client.username_pw_set('geralt', 'gwent')
+        self._client.on_message = self._on_message
+        self._client.connect(_mqtt_host, 1883)
+        self._client.subscribe('gwent/server/state', qos=1)
+        self._client.loop_start()
+
+    def _on_message(self, client, userdata, msg):
+        if not msg.payload:
+            return
+        try:
+            d = json.loads(msg.payload)
+        except Exception:
+            return
+        with self._lock:
+            self._snapshot = d
+        self._event.set()
+
+    def get(self, timeout=10):
+        """Latest snapshot dict, blocking up to `timeout` for the first one."""
+        deadline = time.time() + timeout
+        while True:
+            with self._lock:
+                if self._snapshot is not None:
+                    return self._snapshot
+            if time.time() >= deadline:
+                raise TimeoutError("no gwent/server/state received")
+            self._event.wait(timeout=0.2)
+
+    def wait_change(self, timeout):
+        """Block until a new snapshot arrives or timeout. Returns True if changed."""
+        self._event.clear()
+        return self._event.wait(timeout=max(0.0, timeout))
+
+
+_state_cache = None  # set by main() to the StateCache instance
+
+
+def fetch(game_url=None):
+    """Return (active_stage, board) from the cached MQTT snapshot.
+
+    `game_url` is accepted for call-site compatibility but ignored — state now
+    comes from the retained `gwent/server/state` topic, not HTTP.
+    """
+    d = _state_cache.get()
     return d.get('active_stage', '?'), d.get('state', {}).get('board', {})
 
 
 def poll_until_change(game_url, prev_stage, prev_player, timeout=10):
-    """Poll the game server until state changes or timeout."""
+    """Wait until state changes (stage or current_player) or timeout."""
     deadline = time.time() + timeout
     while time.time() < deadline:
-        time.sleep(0.5)
+        _state_cache.wait_change(min(0.5, deadline - time.time()))
         try:
-            stage, board = fetch(game_url)
+            stage, board = fetch()
             if stage != prev_stage or board.get('current_player') != prev_player:
                 return stage, board
         except Exception:
@@ -464,17 +520,17 @@ def poll_until_change(game_url, prev_stage, prev_player, timeout=10):
 
 
 def wait_for_turn_advance(game_url, cur_player, timeout=30):
-    """Poll until current_player changes or stage transitions away from PlayRound."""
+    """Wait until current_player changes or stage leaves PlayRound."""
     deadline = time.time() + timeout
     while time.time() < deadline:
-        time.sleep(0.5)
+        _state_cache.wait_change(min(0.5, deadline - time.time()))
         try:
-            stage, board = fetch(game_url)
+            stage, board = fetch()
             if stage != 'PlayRound' or board.get('current_player') != cur_player:
                 return stage, board
         except Exception:
             pass
-    return fetch(game_url)
+    return fetch()
 
 
 # ---------------------------------------------------------------------------
@@ -1512,9 +1568,8 @@ def game_loop(args, board, sync):
                     try:
                         pkey = "PLAYER.ONE" if pnum == "1" else "PLAYER.TWO"
                         g = _pn(player_model).get("he", "they")
-                        requests.put(f'{args.game_url}/players',
-                                     json={pkey: {"name": short_model, "pronoun": g}},
-                                     timeout=5)
+                        mqpub('gwent/ctrl/players',
+                              json.dumps({pkey: {"name": short_model, "pronoun": g}}))
                     except Exception:
                         pass
                     if pnum == "1":
@@ -1686,9 +1741,7 @@ def main():
                                                'http://ollama:11434'),
                         help='Ollama API base URL (or set OLLAMA_BASE_URL env)')
     parser.add_argument('--host', default='localhost',
-                        help='Gwent server hostname (used for both HTTP and MQTT)')
-    parser.add_argument('--game-url', default=None,
-                        help='Override HTTP game URL (default: http://<host>:8080)')
+                        help='Gwent MQTT broker hostname')
     parser.add_argument('--max-turns', type=int, default=60)
     parser.add_argument('--no-commentary', action='store_true',
                         help='Disable MQTT announcements for LLM turn commentary')
@@ -1725,11 +1778,12 @@ def main():
                       f"passing through as-is. Use --help to see known models.",
                       flush=True)
 
-    # Derive game_url and mqtt host from --host
+    # MQTT host from --host. game_url is a vestigial truthy sentinel kept only
+    # so execute()'s `if game_url` fresh-state guards still fire — state now
+    # comes from MQTT (StateCache), not HTTP.
     global _mqtt_host
     _mqtt_host = args.host
-    if not args.game_url:
-        args.game_url = f'http://{args.host}:8080'
+    args.game_url = 'mqtt'
 
     log_debug(f"=== game-loop.py starting === PID={os.getpid()}")
 
@@ -1810,11 +1864,13 @@ def main():
         log(f"ERROR: MQTT broker not reachable: {e}")
         return 1
 
-    # 3. Check game is in PlayRound
+    # 3. Subscribe to the server's retained state and check we're in PlayRound
+    global _state_cache
+    _state_cache = StateCache()
     try:
-        stage, board = fetch(args.game_url)
+        stage, board = fetch()
     except Exception as e:
-        log(f"ERROR: Cannot reach game server at {args.game_url}: {e}")
+        log(f"ERROR: No game state on gwent/server/state (is the server running?): {e}")
         return 1
 
     if stage != 'PlayRound':
@@ -1831,12 +1887,10 @@ def main():
     g2 = _assign_gender(args.model_p2)
     log(f"Players: {short_p1} ({g1}) vs {short_p2} ({g2})")
     try:
-        requests.put(f'{args.game_url}/players',
-                     json={
-                         "PLAYER.ONE": {"name": short_p1, "pronoun": g1},
-                         "PLAYER.TWO": {"name": short_p2, "pronoun": g2},
-                     },
-                     timeout=5)
+        mqpub('gwent/ctrl/players', json.dumps({
+            "PLAYER.ONE": {"name": short_p1, "pronoun": g1},
+            "PLAYER.TWO": {"name": short_p2, "pronoun": g2},
+        }))
         log(f"Player names + pronouns set on server")
     except Exception as e:
         log_debug(f"Failed to set player names: {e}")
@@ -1851,9 +1905,9 @@ def main():
     # Drain any announcements from the deal stage
     sync.drain()
 
-    # 5b. Determine active TTS sources from /state
+    # 5b. Determine active TTS sources from the cached snapshot
     try:
-        full_state = requests.get(f'{args.game_url}/state', timeout=10).json()
+        full_state = _state_cache.get()
         server_tts = full_state.get('tts_provider', 'none')
         client_tts = full_state.get('client_tts', {})
         expected = set()

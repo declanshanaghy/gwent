@@ -19,9 +19,12 @@ import gwent.game.menu_publisher
 import gwent.game.mfd
 import gwent.game.player
 import gwent.game.round_keeper
+import gwent.game.server_commands
 import gwent.game.sfx
+import gwent.game.state_publisher
 import gwent.hal
 import gwent.hal.matrix
+from gwent.game.session_config import SessionConfig
 
 from gwent.utils.logging import configure_logging, get_logger, DEBUG
 
@@ -328,6 +331,17 @@ class Gwent:
         self._menu_publisher.llm_player_manager = self._llm_player_manager
         self.components.append(self._llm_player_manager)
 
+        # Per-session config (player names/pronouns + connected-client TTS).
+        # Shared by the StatePublisher (reads into the snapshot), the MQTT
+        # command handlers, and the (dormant) HTTP PUT handlers.
+        self.session_config = SessionConfig()
+        # StatePublisher — mirrors the full snapshot to retained gwent/server/state.
+        self.components.append(gwent.game.state_publisher.StatePublisher(
+            self.pubsub, self._get_controller, self.session_config))
+        # ServerCommandHandler — gwent/ctrl/* commands (players, client-tts, save).
+        self.components.append(gwent.game.server_commands.ServerCommandHandler(
+            self.pubsub, controller, self.session_config))
+
         # On the kiosk the TUI client renders all audio. GWENT_DISABLE_SERVER_TTS
         # makes the server defer TTS (and music) to the client unconditionally —
         # not just after a /client-tts registration — so a server restart can't
@@ -381,9 +395,13 @@ class Gwent:
 
         self.start_components()
 
-        # Start HTTP API server for state access
+        # Start HTTP API server for state access. Kept during the HTTP→MQTT
+        # transition for the llm-vs game-loop + integration tests; shares the
+        # same SessionConfig so HTTP and MQTT stay consistent. The TUI no longer
+        # uses it.
         from gwent.game.http_api import start_http_server
-        self._http_server = start_http_server(self._get_controller, self.pubsub)
+        self._http_server = start_http_server(
+            self._get_controller, self.pubsub, session_config=self.session_config)
 
         # Load saved game state to jump to a specific point
         if state_file:

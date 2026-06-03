@@ -15,7 +15,6 @@ from textual.widgets import Static
 
 from gwent_tui.emoji import faction_emoji, FACTION_STYLE
 from gwent_tui.game_state import P1, P2
-import gwent_tui.snapshot as snapshot_mod
 from gwent_tui import tts as tts_mod
 
 log = logging.getLogger("gwent_tui.header")
@@ -77,7 +76,8 @@ class HeaderWidget(Static):
         stage_label = f" {stage_icon} [dim]{state.stage}[/dim]{game_id}"
 
         mqtt_icon, mqtt_c = _CONN_ICON.get(state.mqtt_status, ("\u2753", "grey50"))
-        http_icon, http_c = _CONN_ICON.get(state.http_status, ("\u2753", "grey50"))
+        srv_icon, srv_c = (("\u2705", "green") if state.server_online
+                           else ("\u274c", "red"))
         server_tts = state.server_tts or "?"
         provider = tts_mod._get_provider()
         client_tts = tts_mod._provider_name or "auto"
@@ -87,12 +87,10 @@ class HeaderWidget(Static):
             client_tts = "off"
         s_color = _TTS_COLOR.get(server_tts, "grey50")
         c_color = _TTS_COLOR.get(client_tts, "grey50")
-        pt = snapshot_mod.POLL_TIMEOUT
         status_str = (
             f"{mqtt_icon} [{mqtt_c}]MQTT[/{mqtt_c}] "
-            f"{http_icon} [{http_c}]HTTP[/{http_c}] "
-            f"\U0001f50a [{s_color}]s:{server_tts}[/{s_color}] [{c_color}]c:{client_tts}[/{c_color}] "
-            f"\U0001f504 {pt}s"
+            f"{srv_icon} [{srv_c}]SRV[/{srv_c}] "
+            f"\U0001f50a [{s_color}]s:{server_tts}[/{s_color}] [{c_color}]c:{client_tts}[/{c_color}]"
         )
 
         row1 = Table(box=None, expand=True, show_header=False, padding=0)
@@ -109,7 +107,7 @@ class HeaderWidget(Static):
         row2.add_column(justify="center", ratio=1)
         row2.add_column(justify="right", ratio=2)
 
-        if state.http_status == "error" or state.stage == "Offline":
+        if not state.server_online or state.stage == "Offline":
             row2.add_row(
                 Text.from_markup(" \u26a0 [bold red]Server Offline[/bold red]"),
                 Text(""),

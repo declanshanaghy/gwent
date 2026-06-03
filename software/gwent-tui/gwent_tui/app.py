@@ -13,18 +13,14 @@ from textual.widgets import Static
 
 from gwent_tui.game_state import GameState
 from gwent_tui.mqtt_client import MqttSubscriber
-from gwent_tui.snapshot import SnapshotPoller
 from gwent_tui.save_dialog import SaveScreen
 from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
 from gwent_tui.widgets.timers import TimersWidget
 from gwent_tui.stages import STAGE_WIDGETS, UnknownStage, OfflineStage
 from gwent_tui.widgets.card_overlay import CardImageOverlay
-import gwent_tui.snapshot as snapshot_mod
 
 log = logging.getLogger("gwent_tui.app")
-
-DEFAULT_GWENT_URL = "http://localhost:8080/state"
 
 
 def _configure_logging():
@@ -148,22 +144,18 @@ class GwentTUI(App):
         Binding("v", "volume_mixer", "Volume Mixer"),
         Binding("m", "in_game_menu", "Menu"),
         Binding("ctrl+m", "toggle_music", "Music On/Off"),
-        Binding("p", "cycle_poll", "Poll timeout", show=False),
     ]
 
-    def __init__(self, gwent_url: str, mqtt_host: str = "localhost",
-                 mqtt_port: int = 1883, no_snapshot: bool = False,
-                 no_splash: bool = False):
+    def __init__(self, mqtt_host: str = "localhost",
+                 mqtt_port: int = 1883, no_splash: bool = False):
         super().__init__()
         self.state = GameState()
-        self._gwent_url = gwent_url
         self._mqtt_host = mqtt_host
         self._mqtt_port = mqtt_port
-        self._no_snapshot = no_snapshot
         self._no_splash = no_splash
-        self._poller = None
         self._subscriber = None
         self._current_stage_name = None
+        self._prev_server_online = True
 
     def compose(self) -> ComposeResult:
         log.debug("compose() start")
@@ -219,7 +211,7 @@ class GwentTUI(App):
     # -------------------------------------------------------------------------
 
     def on_mount(self):
-        log.info("gwent-tui starting (url=%s)", self._gwent_url)
+        log.info("gwent-tui starting (mqtt=%s:%d)", self._mqtt_host, self._mqtt_port)
         log.info(
             "env: TERM=%s KITTY_WINDOW_ID=%s WAYLAND_DISPLAY=%s XDG_SESSION_TYPE=%s",
             os.environ.get("TERM"),
@@ -245,16 +237,11 @@ class GwentTUI(App):
             from gwent_tui.splash import SplashScreen
             self.push_screen(SplashScreen(duration=6.0))
 
-        # MQTT
+        # MQTT — also carries the full game-state snapshot (retained
+        # gwent/server/state), so no separate HTTP poller is needed.
         self._subscriber = MqttSubscriber(
             self.state, host=self._mqtt_host, port=self._mqtt_port)
         self._subscriber.connect()
-
-        # Snapshot long-poller
-        if not self._no_snapshot:
-            self._poller = SnapshotPoller(state=self.state)
-            self._poller.data_ready_callback = self._on_poller_data
-            self._poller.start()
 
         # Register client TTS provider with the server
         self._register_client_tts()
@@ -262,18 +249,16 @@ class GwentTUI(App):
         # Periodic refresh as fallback (1s)
         self.set_interval(1.0, self._check_updates)
 
-    def _on_poller_data(self):
-        """Called from poller thread when new data is available."""
-        try:
-            self.call_from_thread(self._apply_pending_snapshots)
-        except Exception as e:
-            log.debug("call_from_thread failed: %s", e)
-
     async def _check_updates(self):
-        """Periodic check for pending snapshot data and connection status."""
-        await self._apply_pending_snapshots()
-        # Switch to/from offline stage based on HTTP status
-        if self.state.http_status == "error":
+        """Periodic refresh + presence-driven offline handling."""
+        # Re-register client TTS when the server (re)comes online so a server
+        # restart re-learns that this client handles audio.
+        if self.state.server_online and not self._prev_server_online:
+            self._register_client_tts()
+        self._prev_server_online = self.state.server_online
+
+        # Switch to/from offline stage based on MQTT presence.
+        if not self.state.server_online:
             if self._current_stage_name != "Offline":
                 self.state.stage = "Offline"
                 await self._refresh_all()
@@ -310,14 +295,6 @@ class GwentTUI(App):
                 card_overlay_up or modal_up, "overlay-active")
         except Exception as e:
             log.debug("overlay-active toggle failed: %s", e)
-
-    async def _apply_pending_snapshots(self):
-        """Drain poller queue and refresh widgets."""
-        if self._poller:
-            count = self._poller.drain(self.state)
-            if count > 0:
-                self._register_client_tts()
-                await self._refresh_all()
 
     async def _switch_stage(self, stage_name):
         """Swap the stage container widget if the stage changed."""
@@ -424,7 +401,6 @@ class GwentTUI(App):
                     ("v", "Volume mixer (Master / Music / SFX / TTS)"),
                     ("Ctrl+M", "Toggle music on/off"),
                     ("\u2192", "Next music track"),
-                    ("p", "Cycle poll timeout (5s/30s/60s/5m)"),
                     ("Ctrl+S", "Save state"),
                     ("Ctrl+C", "Quit"),
                     ("Esc", "Close dialog/help"),
@@ -450,22 +426,7 @@ class GwentTUI(App):
         self.push_screen(HelpScreen())
 
     def action_save(self):
-        self.push_screen(SaveScreen(self._gwent_url, self.state))
-
-    _POLL_PRESETS = [5, 30, 60, 300]
-
-    async def action_cycle_poll(self):
-        """Cycle through poll timeout presets."""
-        current = snapshot_mod.POLL_TIMEOUT
-        # Find next preset
-        for preset in self._POLL_PRESETS:
-            if preset > current:
-                snapshot_mod.POLL_TIMEOUT = preset
-                break
-        else:
-            snapshot_mod.POLL_TIMEOUT = self._POLL_PRESETS[0]
-        log.info("Poll timeout: %ds", snapshot_mod.POLL_TIMEOUT)
-        await self._refresh_all()
+        self.push_screen(SaveScreen(self._subscriber, self.state))
 
     def action_next_track(self):
         """Skip to next music track (only if music is enabled)."""
@@ -493,30 +454,16 @@ class GwentTUI(App):
                 color="plum1")
 
     def _register_client_tts(self):
-        """Register this client's TTS provider with the server."""
-        import urllib.request
+        """Register this client's TTS provider with the server over MQTT."""
         from gwent_tui import tts as tts_mod
         provider = tts_mod._provider_name or "auto"
-        try:
-            data = json.dumps({"client_id": "gwent-tui", "provider": provider}).encode()
-            base_url = self._gwent_url.rsplit("/state", 1)[0]
-            req = urllib.request.Request(
-                f"{base_url}/client-tts",
-                data=data,
-                method="PUT",
-                headers={"Content-Type": "application/json"},
-            )
-            urllib.request.urlopen(req, timeout=5)
-            log.info("Registered client TTS: gwent-tui=%s", provider)
-        except Exception as e:
-            log.debug("Failed to register client TTS: %s", e)
+        if self._subscriber:
+            self._subscriber.publish_client_tts(provider)
 
     def on_unmount(self):
         from gwent_tui import tts as tts_mod
         tts_mod.stop_music()
         tts_mod.stop()
-        if self._poller:
-            self._poller.stop()
         if self._subscriber:
             self._subscriber.disconnect()
         log.info("gwent-tui stopped")
@@ -527,14 +474,11 @@ def main():
 
     parser = argparse.ArgumentParser(description="Gwent TUI — live game dashboard")
     parser.add_argument("--host", default="localhost",
-                        help="Gwent server hostname (used for both MQTT and HTTP)")
+                        help="Gwent MQTT broker hostname")
     parser.add_argument("--port", type=int, default=1883, help="MQTT broker port")
-    parser.add_argument("--no-snapshot", action="store_true")
     parser.add_argument("--tts", default=None,
                         help="TTS provider (piper, say, elevenlabs, openai, gtts). "
                              "Default: say on macOS, piper on Linux")
-    parser.add_argument("--gwent-url", default=None,
-                        help="Override HTTP state URL (default: http://<host>:8080/state)")
     parser.add_argument("--no-splash", action="store_true",
                         help="Skip the startup splash screen")
     args = parser.parse_args()
@@ -543,14 +487,9 @@ def main():
     from gwent_tui import tts as tts_mod
     tts_mod.init(args.tts)
 
-    gwent_url = args.gwent_url or f"http://{args.host}:8080/state"
-    snapshot_mod.gwent_state_url = gwent_url
-
     app = GwentTUI(
-        gwent_url=gwent_url,
         mqtt_host=args.host,
         mqtt_port=args.port,
-        no_snapshot=args.no_snapshot,
         no_splash=args.no_splash,
     )
     try:

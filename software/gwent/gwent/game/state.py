@@ -24,6 +24,7 @@ Unknown fields are ignored on load (forward compatible).
 Missing fields default to empty/zero (backward compatible).
 """
 
+import hashlib
 import json
 import os
 import time
@@ -148,6 +149,19 @@ def snapshot_dict(controller, player_names=None, player_pronouns=None, client_tt
     if client_tts:
         result["client_tts"] = client_tts
     return result
+
+
+def state_hash(snapshot):
+    """Stable content hash of a snapshot, ignoring the volatile saved_at field.
+
+    Used to dedupe published state (StatePublisher) and as the HTTP ETag, so a
+    burst of internal publishes that don't actually change the snapshot doesn't
+    cause a redundant republish.
+    """
+    stable = dict(snapshot)
+    stable.pop("saved_at", None)
+    raw = json.dumps(stable, sort_keys=True).encode("utf-8")
+    return hashlib.md5(raw).hexdigest()
 
 
 def save(filepath, controller):

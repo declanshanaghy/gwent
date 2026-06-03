@@ -1,9 +1,6 @@
 """Save state dialog — Textual ModalScreen with filename input and OK/Cancel."""
 
-import json
 import logging
-import urllib.request
-import urllib.error
 
 from textual.screen import ModalScreen
 from textual.widgets import Input, Button, Static, Label
@@ -50,9 +47,9 @@ class SaveScreen(ModalScreen[str]):
     }
     """
 
-    def __init__(self, base_url: str, state=None):
+    def __init__(self, subscriber, state=None):
         super().__init__()
-        self._base_url = base_url
+        self._subscriber = subscriber
         self._state = state
 
     def compose(self):
@@ -105,18 +102,17 @@ class SaveScreen(ModalScreen[str]):
         if not name.endswith(".json"):
             name += ".json"
 
-        save_url = self._base_url.rsplit("/", 1)[0] + f"/save?name={name}"
+        # Fire-and-forget over MQTT; the server confirms via a gwent/toast
+        # message (rendered in the event log), so dismiss optimistically.
         try:
-            req = urllib.request.Request(save_url, method="POST", data=b"")
-            with urllib.request.urlopen(req, timeout=5) as resp:
-                result = json.loads(resp.read().decode("utf-8"))
-            filepath = result.get("filepath", name)
-            log.info("State saved to %s", filepath)
+            if self._subscriber:
+                self._subscriber.publish_save(name)
+            log.info("Save requested: %s", name)
             if self._state:
-                self._state._log_event(f"State saved: {name}")
+                self._state._log_event(f"Save requested: {name}")
             self.dismiss(name)
         except Exception as e:
-            log.error("Save failed: %s", e)
+            log.error("Save request failed: %s", e)
             self.query_one("#save-status").update(f"Error: {e}")
             if self._state:
                 self._state._log_event(f"Save failed: {e}")

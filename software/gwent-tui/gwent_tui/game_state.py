@@ -152,7 +152,7 @@ class GameState:
         self.last_card_read_time = ""
         self._event_log = deque(maxlen=50)
         self.mqtt_status = "off"    # off, polling, processing, error
-        self.http_status = "off"    # off, polling, processing, error
+        self.server_online = True   # driven by gwent/server/presence; gates Offline stage
         self.server_tts = ""       # server TTS provider name (from snapshot)
         self.player_names = {P1: "Player 1", P2: "Player 2"}
         self.player_pronouns = {P1: "he", P2: "he"}

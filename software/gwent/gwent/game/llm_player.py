@@ -388,7 +388,6 @@ class LLMPlayerManager(PubSubComponent):
             str(_GAME_LOOP),
             pflag, model,
             "--only-side", side,    # only act on this side's turns
-            "--game-url", "http://localhost:8080",
             "--no-pause",
         ]
         self._log.info(f"spawning game-loop for side={side}: {' '.join(cmd)}")
