@@ -266,11 +266,15 @@ class GwentTUI(App):
             # Recovered — refresh will pick up the real stage
             await self._refresh_all()
         # Refresh all Static widgets so MQTT-driven updates (dealt cards,
-        # announcements, etc.) appear without waiting for an HTTP snapshot.
+        # announcements, etc.) appear. When a new snapshot has arrived, do a
+        # LAYOUT refresh so auto-height panels (e.g. Hands) recompute their
+        # size — a plain repaint updates text but leaves rows clipped.
         try:
             await self._switch_stage(self.state.stage)
+            layout = self.state.dirty
+            self.state.dirty = False
             for widget in self.query("Static"):
-                widget.refresh()
+                widget.refresh(layout=layout)
             # Menu mirror — if the current stage exposes refresh_menu(),
             # rebuild its choice list from the cache.
             for stage in self.query("MainMenuStage"):

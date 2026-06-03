@@ -153,6 +153,7 @@ class GameState:
         self._event_log = deque(maxlen=50)
         self.mqtt_status = "off"    # off, polling, processing, error
         self.server_online = True   # driven by gwent/server/presence; gates Offline stage
+        self.dirty = False          # set on snapshot load → UI does a layout refresh
         self.server_tts = ""       # server TTS provider name (from snapshot)
         self.player_names = {P1: "Player 1", P2: "Player 2"}
         self.player_pronouns = {P1: "he", P2: "he"}
@@ -178,9 +179,13 @@ class GameState:
         self.move_times = {P1: [], P2: []}  # seconds per move
 
     def load_snapshot(self, snapshot):
-        """Populate state from a JSON snapshot (HTTP API or SIGUSR1)."""
+        """Populate state from a JSON snapshot (gwent/server/state or SIGUSR1)."""
         with self.lock:
             self._load_snapshot_unlocked(snapshot)
+            # Signal the UI to do a LAYOUT refresh (not just a repaint) on the
+            # next tick: hand/board sizes change, and auto-height panels
+            # (e.g. the Hands panel) must recompute or their rows stay clipped.
+            self.dirty = True
             log.debug("Snapshot loaded: stage=%s round=%d scores=%s",
                        self.stage, self.round_number, self.scores)
 
