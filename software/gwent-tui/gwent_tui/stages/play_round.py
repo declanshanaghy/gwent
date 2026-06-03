@@ -2,7 +2,7 @@
 
 from textual.containers import Horizontal, Vertical
 
-from gwent_tui.widgets.board import BoardWidget, ScoreboardWidget, PlayerBarWidget
+from gwent_tui.widgets.board import BoardWidget, PlayerBarWidget
 from gwent_tui.widgets.hands import HandsWidget
 from gwent_tui.widgets.decks import DecksWidget
 from gwent_tui.widgets.discard import DiscardWidget
@@ -16,9 +16,12 @@ class PlayRoundStage(Horizontal):
     PlayRoundStage #player-bar { height: auto; }
     PlayRoundStage #board-area { height: 1fr; }
     PlayRoundStage #discard-area { height: auto; min-height: 3; }
-    PlayRoundStage #scoreboard { height: auto; max-height: 6; }
-    PlayRoundStage #hands-area { height: auto; }
-    PlayRoundStage #decks-area { height: 1fr; max-height: 13; }
+    /* Hands take 75% of the right column, decks the remaining 25%. Both are
+       percentages of #right (which is 1fr of the stage), so the split adjusts
+       automatically as the stage shrinks/grows with the header and the
+       events/timers bottom bar. */
+    PlayRoundStage #hands-area { height: 75%; }
+    PlayRoundStage #decks-area { height: 25%; }
     """
 
     def compose(self):
@@ -27,6 +30,5 @@ class PlayRoundStage(Horizontal):
             yield BoardWidget(id="board-area")
             yield DiscardWidget(id="discard-area")
         with Vertical(id="right"):
-            yield ScoreboardWidget(id="scoreboard")
             yield HandsWidget(id="hands-area")
             yield DecksWidget(id="decks-area")

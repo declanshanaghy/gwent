@@ -154,8 +154,14 @@ class PlayerBarWidget(Static):
 
     Each half:
       row 1: faction-icon  Leader Name  faction-icon   (centered, faction color)
-      row 2: gems on the outer edge, score (0-padded to 3) toward the divider
+      row 2: gems (outer) — leader + pass status (centre) — score 0-padded 3 (inner)
     """
+
+    # Status glyphs shown between gems and score (always visible).
+    _CROWN = "\U0001f451"      # leader NOT played (available)
+    _LEADER_USED = "✅"    # leader played (used) — green check
+    _BATTLE = "⚔"         # not passed (still fighting) — crossed swords
+    # passed → emoji.FLAG (white flag)
 
     def render(self):
         state = self.app.state
@@ -167,10 +173,10 @@ class PlayerBarWidget(Static):
             keep = limit - 1  # room for the ellipsis
             return name[:(keep + 1) // 2] + "…" + name[-(keep // 2):]
 
-        # Budget the leader name to the per-half width so icon+name+icon fits on
-        # one line (two faction glyphs ≈ 4 cells + 2 spaces).
+        # Use as much of the half as possible for the leader name — only the two
+        # faction glyphs (≈4 cells) + 2 spaces are reserved; no-wrap crops if over.
         half = max(10, (self.size.width - 4) // 2)
-        name_limit = max(6, half - 8)
+        name_limit = max(8, half - 6)
 
         def leader_cell(player):
             leader = state.leaders.get(player)
@@ -192,17 +198,27 @@ class PlayerBarWidget(Static):
             s = f"[bold {color}]{state.scores.get(player, 0):03d}[/bold {color}]"
             return f"[on dark_green]{s}[/on dark_green]" if state.is_highlighted(f"score:{player}") else s
 
+        def status_markup(player):
+            # Leader played/not + passed/not, always visible, between gems & score.
+            leader_icon = self._LEADER_USED if state.leader_used.get(player, False) else self._CROWN
+            # ⚔ is a text-presentation glyph — color it so it reads as swords.
+            pass_icon = FLAG if state.passed.get(player, False) else f"[bold red]{self._BATTLE}[/bold red]"
+            return f"{leader_icon} {pass_icon}"
+
         def stats_cell(player, color, gems_first):
             t = Table(box=None, expand=True, show_header=False, padding=0)
-            t.add_column(justify="left", ratio=1)
-            t.add_column(justify="right", ratio=1)
-            gems = gems_markup(player)
-            score = score_markup(player, color)
-            # gems_first → gems on the left (outer), score on the right (inner).
+            t.add_column(justify="left", ratio=2, no_wrap=True)
+            t.add_column(justify="center", ratio=1, no_wrap=True)
+            t.add_column(justify="right", ratio=2, no_wrap=True)
+            gems = Text.from_markup(gems_markup(player))
+            score = Text.from_markup(score_markup(player, color))
+            status = Text.from_markup(status_markup(player))
+            # P1 (gems_first): gems | status | score   — score toward the divider.
+            # P2:              score | status | gems    — score toward the divider.
             if gems_first:
-                t.add_row(Text.from_markup(gems), Text.from_markup(score))
+                t.add_row(gems, status, score)
             else:
-                t.add_row(Text.from_markup(score), Text.from_markup(gems))
+                t.add_row(score, status, gems)
             return t
 
         table = Table(box=SPLIT_BOX, expand=True, show_header=False,
