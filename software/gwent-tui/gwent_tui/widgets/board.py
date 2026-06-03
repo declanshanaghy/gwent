@@ -150,9 +150,10 @@ class ScoreboardWidget(Static):
 
 
 class PlayerBarWidget(Static):
-    """Top-of-left-column bar: leaders + gems + scores, split P1 | P2.
+    """Top-of-left-column bar: player/leader + gems + scores, split P1 | P2.
 
     Each half:
+      row 0: player name (human) or controller/model name (LLM), centered
       row 1: faction-icon  Leader Name  faction-icon   (centered, faction color)
       row 2: gems (outer) — leader + pass status (centre) — score 0-padded 3 (inner)
     """
@@ -232,6 +233,16 @@ class PlayerBarWidget(Static):
             t.overflow = "crop"
             return t
 
+        def _name_text(player):
+            # Player name (human) or controller/model label (LLM) — both already
+            # merged into player_names by on_controller / gwent/ctrl/players.
+            name = _mid_truncate(state.player_names.get(player, ""), max(6, half - 2))
+            t = Text(name, style="bold grey85", justify="center")
+            t.no_wrap = True
+            t.overflow = "crop"
+            return t
+
+        table.add_row(_name_text(P1), _name_text(P2))
         table.add_row(_leader_text(P1), _leader_text(P2))
         table.add_row(stats_cell(P1, "yellow", gems_first=True),
                       stats_cell(P2, "dodger_blue2", gems_first=False))
