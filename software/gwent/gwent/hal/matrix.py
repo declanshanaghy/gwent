@@ -22,30 +22,48 @@ MATRIX_CHANNEL_PLAYER_ROUND_KEEPER = 0
 MATRIX_CHANNEL_PLAYER_ONE = 1
 MATRIX_CHANNEL_PLAYER_TWO = 2
 
+# Channels whose physical matrix is mounted upside-down — compensated in
+# software by rotating every pixel write 180°. P1's score display is mounted
+# rotated 180° in the enclosure.
+ROTATED_CHANNELS = {MATRIX_CHANNEL_PLAYER_ONE}
+
 def instance(channel):
-    return _RealMatrix(channel=channel)
+    return _RealMatrix(channel=channel, rotate180=channel in ROTATED_CHANNELS)
 
 
 class _RealMatrix(gwent.game.BaseComponent):
     def __init__(self, mux_address=DEFAULT_MUX_ADDRESS,
-                 matrix_address=DEFAULT_MATRIX_ADDRESS, channel=MATRIX_CHANNEL_DEFAULT):
+                 matrix_address=DEFAULT_MATRIX_ADDRESS, channel=MATRIX_CHANNEL_DEFAULT,
+                 rotate180=False):
         """
         Initialize the _RealMatrix class.
-        
+
         Args:
             mux_address: I2C address of the TCA9548A multiplexer
             matrix_address: I2C address of the IS31FL3731 matrix
             channel: Channel on the multiplexer where the matrix is connected
+            rotate180: Rotate all output 180° (matrix mounted upside-down)
         """
         super().__init__()
         self._log_verbose = False
         self._mux_address = mux_address
         self._matrix_address = matrix_address
         self._channel = channel
+        self._rotate180 = rotate180
         self._mux = None
         self._matrix = None
         self._i2c = None
         self._initialized = False
+
+    def _pixel(self, x, y, brightness):
+        """Set a pixel, applying the 180° rotation when configured.
+
+        ALL drawing goes through here so a physically rotated matrix renders
+        correctly without callers knowing about the mounting."""
+        if self._rotate180:
+            x = self._matrix.width - 1 - x
+            y = self._matrix.height - 1 - y
+        self._matrix.pixel(x, y, brightness)
         
     def init(self):
         """Initialize the matrix display hardware"""                    
@@ -105,7 +123,7 @@ class _RealMatrix(gwent.game.BaseComponent):
             # Clear all pixels on the matrix
             for x in range(self._matrix.width):
                 for y in range(self._matrix.height):
-                    self._matrix.pixel(x, y, 0)
+                    self._pixel(x, y, 0)
             self._log.info("Display cleared")
         except Exception as e:
             self._log.error(f"Error clearing display: {e}")
@@ -284,7 +302,7 @@ class _RealMatrix(gwent.game.BaseComponent):
             for y, row in enumerate(pattern):
                 for x, pixel in enumerate(row):
                     if pixel:
-                        self._matrix.pixel(x_offset + x, y_offset + y, brightness)
+                        self._pixel(x_offset + x, y_offset + y, brightness)
                         
         except Exception as e:
             self._log.error(f"Error drawing digit: {e}")
@@ -302,13 +320,13 @@ class _RealMatrix(gwent.game.BaseComponent):
         try:
             # First draw the top and bottom edges
             for x in range(self._matrix.width):
-                self._matrix.pixel(x, 0, brightness)
-                self._matrix.pixel(x, self._matrix.height - 1, brightness)
+                self._pixel(x, 0, brightness)
+                self._pixel(x, self._matrix.height - 1, brightness)
                 
             # Now draw the left and right edges
             for y in range(self._matrix.height):
-                self._matrix.pixel(0, y, brightness)
-                self._matrix.pixel(self._matrix.width - 1, y, brightness)
+                self._pixel(0, y, brightness)
+                self._pixel(self._matrix.width - 1, y, brightness)
                 
         except Exception as e:
             self._log.error(f"Error drawing border: {e}")
@@ -349,7 +367,7 @@ class _RealMatrix(gwent.game.BaseComponent):
                 
                 # Draw the frame
                 for x, y, brightness in frame:
-                    self._matrix.pixel(x, y, brightness)
+                    self._pixel(x, y, brightness)
                 
                 # Wait for the specified delay
                 time.sleep(delay)
@@ -454,7 +472,7 @@ class _RealMatrix(gwent.game.BaseComponent):
                 for y, row in enumerate(pattern):
                     for x, pixel in enumerate(row):
                         if pixel:
-                            self._matrix.pixel(plr1_x + x, plr1_y + y, DEFAULT_BRIGHTNESS)
+                            self._pixel(plr1_x + x, plr1_y + y, DEFAULT_BRIGHTNESS)
                 # We only display the first digit since we're using the full 7x7 space
                 break
             
@@ -471,7 +489,7 @@ class _RealMatrix(gwent.game.BaseComponent):
                 for y, row in enumerate(pattern):
                     for x, pixel in enumerate(row):
                         if pixel:
-                            self._matrix.pixel(plr2_x + x, plr2_y + y, DEFAULT_BRIGHTNESS)
+                            self._pixel(plr2_x + x, plr2_y + y, DEFAULT_BRIGHTNESS)
                 # We only display the first digit since we're using the full 7x7 space
                 break
             
@@ -483,8 +501,8 @@ class _RealMatrix(gwent.game.BaseComponent):
             try:
                 self.clear()
                 # Draw a simple representation of the scores
-                self._matrix.pixel(0, 0, DEFAULT_BRIGHTNESS)  # Top left for player 1
-                self._matrix.pixel(self._matrix.width - 1, 0, DEFAULT_BRIGHTNESS)  # Top right for player 2
+                self._pixel(0, 0, DEFAULT_BRIGHTNESS)  # Top left for player 1
+                self._pixel(self._matrix.width - 1, 0, DEFAULT_BRIGHTNESS)  # Top right for player 2
             except Exception as fallback_error:
                 self._log.error(f"Fallback display also failed: {fallback_error}")
     
@@ -666,7 +684,7 @@ class _RealMatrix(gwent.game.BaseComponent):
                 for y, row in enumerate(pattern):
                     for x_rel, pixel in enumerate(row):
                         if pixel:
-                            self._matrix.pixel(x + x_rel, center_y + y, DEFAULT_BRIGHTNESS)
+                            self._pixel(x + x_rel, center_y + y, DEFAULT_BRIGHTNESS)
                 x += digit_width + digit_spacing
 
             # Draw active turn star
@@ -677,11 +695,11 @@ class _RealMatrix(gwent.game.BaseComponent):
                 else:
                     # Star on left side
                     sx = 0
-                self._matrix.pixel(sx + 1, 0, DEFAULT_BRIGHTNESS)
-                self._matrix.pixel(sx,     1, DEFAULT_BRIGHTNESS)
-                self._matrix.pixel(sx + 1, 1, DEFAULT_BRIGHTNESS)
-                self._matrix.pixel(sx + 2, 1, DEFAULT_BRIGHTNESS)
-                self._matrix.pixel(sx + 1, 2, DEFAULT_BRIGHTNESS)
+                self._pixel(sx + 1, 0, DEFAULT_BRIGHTNESS)
+                self._pixel(sx,     1, DEFAULT_BRIGHTNESS)
+                self._pixel(sx + 1, 1, DEFAULT_BRIGHTNESS)
+                self._pixel(sx + 2, 1, DEFAULT_BRIGHTNESS)
+                self._pixel(sx + 1, 2, DEFAULT_BRIGHTNESS)
 
         except Exception as e:
             self._log.error(f"Error displaying centered score: {e}", exc_info=True)
@@ -689,7 +707,7 @@ class _RealMatrix(gwent.game.BaseComponent):
             try:
                 self.clear()
                 # Draw a simple representation of the score
-                self._matrix.pixel(self._matrix.width // 2, self._matrix.height // 2, DEFAULT_BRIGHTNESS)
+                self._pixel(self._matrix.width // 2, self._matrix.height // 2, DEFAULT_BRIGHTNESS)
             except Exception as fallback_error:
                 self._log.error(f"Fallback display also failed: {fallback_error}")
                 
@@ -759,7 +777,7 @@ class _RealMatrix(gwent.game.BaseComponent):
             for dy, row in enumerate(diamond):
                 for dx, val in enumerate(row):
                     if val:
-                        self._matrix.pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
+                        self._pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
         elif gems == 2:
             # Stack vertically since side-by-side won't fit with 5px wide gems
             # in a 7-8px wide region. Offset horizontally for visual interest.
@@ -774,7 +792,7 @@ class _RealMatrix(gwent.game.BaseComponent):
                 for dy, row in enumerate(diamond):
                     for dx, val in enumerate(row):
                         if val:
-                            self._matrix.pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
+                            self._pixel(x + dx, y + dy, DEFAULT_BRIGHTNESS)
 
     def _get_digit_pattern(self, digit):
         """
