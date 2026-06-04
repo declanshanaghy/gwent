@@ -174,20 +174,20 @@ class PlayerBarWidget(Static):
             keep = limit - 1  # room for the ellipsis
             return name[:(keep + 1) // 2] + "…" + name[-(keep // 2):]
 
-        # Use as much of the half as possible for the leader name — only the two
-        # faction glyphs (≈4 cells) + 2 spaces are reserved; no-wrap crops if over.
         half = max(10, (self.size.width - 4) // 2)
-        name_limit = max(8, half - 6)
 
         def leader_cell(player):
+            # ALWAYS the full leader title (e.g. 'Eredin - King of the Wild
+            # Hunt'), no truncation — the line wraps and the bar (height:
+            # auto) grows to fit.
             leader = state.leaders.get(player)
             faction = state.factions.get(player, "")
             fc = FACTION_STYLE.get(faction, ("white", "grey30", "white"))[0]
             left, right = faction_emoji(faction)
             if not leader:
                 return "[dim]-[/dim]"
-            nick = _mid_truncate(_leader_nick(leader), name_limit)
-            return f"[{fc}]{left} {nick} {right}[/{fc}]"
+            title = leader.get("name", "") or _leader_nick(leader)
+            return f"[{fc}]{left} {title} {right}[/{fc}]"
 
         # Gems (outer) + 0-padded 3-digit score (inner, toward the divider),
         # with the same change-highlights the scoreboard uses.
@@ -207,30 +207,34 @@ class PlayerBarWidget(Static):
             return f"{leader_icon} {pass_icon}"
 
         def stats_cell(player, color, gems_first):
-            t = Table(box=None, expand=True, show_header=False, padding=0)
-            t.add_column(justify="left", ratio=2, no_wrap=True)
-            t.add_column(justify="center", ratio=1, no_wrap=True)
-            t.add_column(justify="right", ratio=2, no_wrap=True)
-            gems = Text.from_markup(gems_markup(player))
-            score = Text.from_markup(score_markup(player, color))
-            status = Text.from_markup(status_markup(player))
-            # P1 (gems_first): gems | status | score   — score toward the divider.
-            # P2:              score | status | gems    — score toward the divider.
-            if gems_first:
-                t.add_row(gems, status, score)
-            else:
-                t.add_row(score, status, gems)
+            # Gems / leader / pass / score MUST always display in full — no
+            # ellipsis, no cropping. One centered text; if the half is ever
+            # too narrow it wraps instead of shortening.
+            # P1 (gems_first): gems status score — score toward the divider;
+            # P2 mirrored.
+            parts = [gems_markup(player), status_markup(player),
+                     score_markup(player, color)]
+            if not gems_first:
+                parts.reverse()
+            t = Text.from_markup(" ".join(parts), justify="center")
+            t.no_wrap = False
             return t
 
+        # Columns must allow wrapping so the full leader title can span
+        # multiple lines; cells that should stay single-line (player name)
+        # set no_wrap on their own Text. A fixed 3-col cell sits between the
+        # two halves spanning all 3 rows — the in-game (hamburger) menu
+        # trigger, ☰ centered. Tap bands handled in on_click.
         table = Table(box=SPLIT_BOX, expand=True, show_header=False,
                       padding=(0, 1), show_edge=False)
-        table.add_column(ratio=1, justify="center", no_wrap=True)
-        table.add_column(ratio=1, justify="center", no_wrap=True)
+        table.add_column(ratio=1, justify="center")
+        table.add_column(width=3, justify="left", no_wrap=True)
+        table.add_column(ratio=1, justify="center")
 
         def _leader_text(player):
+            # Full title, wrapping onto extra lines when the half is narrow.
             t = Text.from_markup(leader_cell(player), justify="center")
-            t.no_wrap = True
-            t.overflow = "crop"
+            t.no_wrap = False
             return t
 
         def _name_text(player):
@@ -242,18 +246,35 @@ class PlayerBarWidget(Static):
             t.overflow = "crop"
             return t
 
-        table.add_row(_name_text(P1), _name_text(P2))
-        table.add_row(_leader_text(P1), _leader_text(P2))
-        table.add_row(stats_cell(P1, "yellow", gems_first=True),
+        # Big multi-row hamburger — three chunky bars filling the 3-col menu
+        # slice, one row down from the bar's top rows (leading newline), a
+        # proper touch target.
+        burger = Text("\n▬▬▬\n▬▬▬\n▬▬▬", style="bold yellow",
+                      justify="left")
+        burger.no_wrap = True
+        table.add_row(_name_text(P1), Text(""), _name_text(P2))
+        table.add_row(_leader_text(P1), burger, _leader_text(P2))
+        table.add_row(stats_cell(P1, "yellow", gems_first=True), Text(""),
                       stats_cell(P2, "dodger_blue2", gems_first=False))
         return Panel(table)
 
     def on_click(self, event: events.Click) -> None:
-        """Tap a player's half (name / leader / stats) → open the controller
-        picker for that side and live-replace the controller. Left half = P1,
-        right half = P2 (matching the split layout)."""
+        """Tap routing for the bar:
+        - centre ☰ cell (3 cols + its dividers/padding) → in-game menu
+        - left half  → P1 controller picker (live-replace)
+        - right half → P2 controller picker
+        """
         width = self.size.width or 1
-        side = "P1" if event.x < width / 2 else "P2"
+        center = width / 2
+        if abs(event.x - center) <= 4:
+            log.info("PlayerBar ☰ tapped x=%d width=%d -> in-game menu",
+                     event.x, width)
+            try:
+                self.app.action_in_game_menu()
+            except Exception as e:
+                log.error("failed to open in-game menu: %s", e, exc_info=True)
+            return
+        side = "P1" if event.x < center else "P2"
         log.info("PlayerBar tapped x=%d width=%d -> assign %s", event.x, width, side)
         try:
             from gwent_tui.assign_controller_modal import AssignControllerModal

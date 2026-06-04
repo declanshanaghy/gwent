@@ -116,8 +116,13 @@ class DealCardsWidget(Static):
 
 class DealCardsStage(VerticalScroll):
     DEFAULT_CSS = """
-    DealCardsStage { height: 1fr; }
-    DealCardsStage #deal-cards-content { height: 1fr; min-height: 100%; }
+    DealCardsStage {
+        height: 1fr;
+        scrollbar-size-vertical: 2;
+        scrollbar-color: $accent;
+        scrollbar-background: $surface-darken-1;
+    }
+    DealCardsStage #deal-cards-content { height: auto; min-height: 100%; }
     """
 
     def compose(self):

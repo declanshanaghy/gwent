@@ -208,27 +208,23 @@ def _display_name(card):
 
 
 def card_display(card, max_name=None):
-    """Format a card for display: emoji + full name + (strength) + ownership."""
+    """Format a card for display: emoji + full name + (strength).
+
+    Owner nicknames are deliberately NOT shown in hand/deck/discard lists —
+    card names, strength and icons take priority; the freed width goes to
+    longer names."""
     prefix = card_prefix(card)
     name = card.get("name", "???")
     if max_name:
         name = _truncate_name(name, max_name)
     strength = card.get("strength")
-    owner = card.get("owner", "")
-    starter = card.get("starter", False)
 
     fc = _faction_color(card)
     parts = [prefix, f" [{fc}]", name, f"[/{fc}]"]
     if strength is not None:
         parts.append(f" ({strength})")
-
-    if starter:
+    if card.get("starter", False):
         parts.append(f" {STAR}")
-    elif owner:
-        parts.append(f" {owner_short(card)}")
-    else:
-        parts.append(f" {CUBE}")
-
     return "".join(parts)
 
 

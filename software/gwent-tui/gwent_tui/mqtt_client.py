@@ -192,6 +192,23 @@ class MqttSubscriber:
         self.state.mqtt_status = "error"
         self.state._log_event("MQTT disconnected")
 
+    def publish_mfd_choose(self, choice_id, text: str = "") -> None:
+        """Publish a `gwent/mfd/choose` selection — same shape the rotary
+        sends, so interactive picks (row choice, weather pick, …) can be
+        answered from the touchscreen."""
+        payload = json.dumps({
+            "kind": "choice",
+            "id": str(choice_id),
+            "text": text,
+        })
+        log.info("publish_mfd_choose id=%s text=%s", choice_id, text)
+        try:
+            result = self.client.publish(MFD_CHOOSE, payload, qos=1)
+            log.debug("publish_mfd_choose result rc=%s mid=%s",
+                      result.rc, result.mid)
+        except Exception as e:
+            log.exception("publish_mfd_choose failed: %s", e)
+
     def publish_choose(self, menu_id: str, choice_id: str) -> None:
         """Publish a `gwent/menu/choose` selection. Profuse logging per
         feedback_profuse_logging — every selection should be inspectable

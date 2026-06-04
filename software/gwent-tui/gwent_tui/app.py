@@ -37,26 +37,19 @@ def _configure_logging():
 
 
 class MenuCorner(Static):
-    """Tiny top-left affordance that opens the in-game menu.
+    """Floating affordance that opens the in-game menu.
 
-    Shows the current stage icon (🏠 main menu, ⚔ play round, …) — the same
-    glyph the header uses — so the menu stays reachable when the header is
-    hidden. Tapping it opens the hamburger menu.
+    Renders the SAME chunky three-bar hamburger as the PlayRound player-bar
+    menu cell, so the trigger looks identical on every screen. Hidden in
+    PlayRound (the player bar hosts it there).
     """
 
     _W = 7
-    _H = 3
+    _H = 5
 
     def render(self):
-        from gwent_tui.widgets.header import _STAGE_ICON
-        stage = getattr(self.app.state, "stage", "")
-        # Hamburger during play; stage icon (🏠 etc.) elsewhere. Leading space
-        # so the narrow glyph sits centered in the button.
-        icon = "☰" if stage == "PlayRound" else _STAGE_ICON.get(stage, "☰")
-        # Keep the position in sync with the stage (top normally, bottom in
-        # PlayRound). render() runs on each refresh tick, so this tracks stage.
         self._recenter()
-        return f" {icon}"
+        return "▬▬▬\n▬▬▬\n▬▬▬"
 
     def on_mount(self) -> None:
         self._recenter()
@@ -65,13 +58,10 @@ class MenuCorner(Static):
         self._recenter()
 
     def _recenter(self) -> None:
-        """Centered horizontally; two rows from the top, or bottom in PlayRound."""
+        """Centered horizontally, two rows from the top."""
         try:
-            sw, sh = self.app.size.width, self.app.size.height
-            x = (sw - self._W) // 2
-            stage = getattr(self.app.state, "stage", "")
-            y = (sh - self._H) if stage == "PlayRound" else 2
-            offset = (x, y)
+            sw = self.app.size.width
+            offset = ((sw - self._W) // 2, 2)
             if getattr(self, "_last_offset", None) != offset:
                 self._last_offset = offset
                 self.styles.offset = offset
@@ -93,24 +83,30 @@ class GwentTUI(App):
     CSS = """
     Screen { layout: vertical; layers: bg default overlay corner; }
     * { scrollbar-size: 0 0; }
+    /* Card lists ALWAYS get a right vertical scrollbar. Must live here (App
+       CSS) — widget DEFAULT_CSS loses to the global rule above. */
+    HandsWidget, DecksWidget, DiscardWidget, DealCardsStage, #cl-list, #hd-list,
+    MenuChoicesWidget ListView, #imm-list {
+        scrollbar-size-horizontal: 0;
+        scrollbar-size-vertical: 2;
+        scrollbar-color: $accent;
+        scrollbar-background: $surface-darken-1;
+    }
     /* Header is hidden by default to maximize board space; toggled via the
        in-game menu (Screen.show-header). A small stage-icon button floats in
        the top-left corner so the menu stays reachable while it's hidden. */
     #menu-corner {
         layer: corner;
         width: 7;
-        height: 3;
+        height: 5;
         background: $panel;
         color: $accent;
         border: heavy $accent;
         content-align: center middle;
         text-style: bold;
     }
-    Screen.show-header #menu-corner { display: none; }
-    /* Hide the menu button while dealing/loading a game (until PlayRound). */
-    Screen.dealing #menu-corner { display: none; }
-    /* Hide it whenever an overlay/modal is on top of the board. */
-    Screen.overlay-active #menu-corner { display: none; }
+    /* NOTE: menu-corner show/hide is driven imperatively from
+       _check_updates() (single owner) — not via Screen.<class> rules. */
     /* Blurred splash image, full-screen behind everything. Shown only on the
        New Game screen (Screen.newgame). On that screen the panels go
        translucent so the image reads through as a background. */
@@ -154,6 +150,8 @@ class GwentTUI(App):
         self._subscriber = None
         self._current_stage_name = None
         self._prev_server_online = True
+        # Last mfd_pick seq we popped a modal for (avoid re-pop on dismiss).
+        self._mfd_pick_seen = 0
 
     def compose(self) -> ComposeResult:
         log.debug("compose() start")
@@ -287,16 +285,51 @@ class GwentTUI(App):
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
         except Exception as e:
             log.error("Card overlay error: %s", e, exc_info=True)
-        # Hide the menu button while anything is on top of the board: a pushed
-        # modal screen (in-game menu, mixer, card lists, …) or the card overlay.
+        # Interactive MFD pick popup (agile row / leader weather pick, …) —
+        # pop when a numeric-id choice set is pending, keep its title fresh,
+        # and auto-close if the pick resolves elsewhere (rotary, LLM loop).
         try:
+            from gwent_tui.mfd_choice_modal import MFDChoiceModal
+            pick = self.state.mfd_pick
+            top = self.screen_stack[-1] if len(self.screen_stack) > 1 else None
+            showing = isinstance(top, MFDChoiceModal)
+            if pick is not None:
+                if showing and top.pick.get("seq") == pick.get("seq"):
+                    top.refresh_title()
+                elif not showing and len(self.screen_stack) == 1 and \
+                        pick.get("seq") != self._mfd_pick_seen:
+                    self._mfd_pick_seen = pick.get("seq")
+                    log.info("popping MFDChoiceModal for pick #%s",
+                             pick.get("seq"))
+                    self.push_screen(MFDChoiceModal(pick))
+            elif showing:
+                log.info("mfd pick resolved elsewhere — closing popup")
+                top.dismiss()
+        except Exception as e:
+            log.error("mfd pick popup handling failed: %s", e, exc_info=True)
+
+        # Menu-corner visibility — computed in ONE place every tick and set
+        # inline (the Screen.<class> #menu-corner CSS rules did not reliably
+        # re-evaluate, leaving the corner visible in PlayRound). Hidden when:
+        # anything is on top of the board (modal / card overlay), the header
+        # is shown (it has its own ☰), a deal is in progress, or we're in
+        # PlayRound — there the ☰ lives in the player bar's centre cell.
+        try:
+            base = self.screen_stack[0]
             card_overlay_up = self.query_one(
                 "#card-overlay", CardImageOverlay).has_class("visible")
             modal_up = len(self.screen_stack) > 1
-            self.screen_stack[0].set_class(
-                card_overlay_up or modal_up, "overlay-active")
+            base.set_class(card_overlay_up or modal_up, "overlay-active")
+            hide = (
+                card_overlay_up or modal_up
+                or base.has_class("show-header")
+                or self._current_stage_name in (
+                    "PlayRound",
+                    "RegisterLeaders", "RegisterDecks", "DealCards")
+            )
+            self.query_one("#menu-corner").display = not hide
         except Exception as e:
-            log.debug("overlay-active toggle failed: %s", e)
+            log.debug("menu-corner visibility toggle failed: %s", e)
 
     async def _switch_stage(self, stage_name):
         """Swap the stage container widget if the stage changed."""

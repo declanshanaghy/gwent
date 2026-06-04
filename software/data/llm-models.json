@@ -23,6 +23,13 @@
       "kind": "llm"
     },
     {
+      "id": "anthropic/claude-haiku-4-5",
+      "label": "Claude Haiku 4.5",
+      "description": "Anthropic AI · small & fast",
+      "icon": "🟨",
+      "kind": "llm"
+    },
+    {
       "id": "gemini/flash",
       "label": "Gemini Flash",
       "description": "Google AI · fast & light",

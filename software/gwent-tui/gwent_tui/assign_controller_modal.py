@@ -29,7 +29,8 @@ class AssignControllerModal(ModalScreen):
     }
     #acm-box {
         width: 60;
-        height: 22;
+        height: 24;
+        max-height: 26;
         background: $panel;
         border: thick $accent;
         padding: 1 2;

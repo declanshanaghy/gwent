@@ -11,7 +11,7 @@ from rich.panel import Panel
 from rich.table import Table
 from rich import box
 from textual import events
-from textual.containers import Vertical
+from textual.containers import VerticalScroll
 from textual.widgets import Static
 
 from gwent_tui.emoji import card_display
@@ -30,7 +30,7 @@ class _DecksContent(Static):
     def _max_name(self):
         """Compute max card name length based on pane width."""
         col_width = max(10, (self.size.width - 4) // 2)
-        return max(8, col_width - 12)
+        return max(8, col_width - 8)
 
     def render(self):
         state = self.app.state
@@ -91,12 +91,16 @@ class _DecksContent(Static):
             log.error("failed to open deck detail: %s", e, exc_info=True)
 
 
-class DecksWidget(Vertical):
+class DecksWidget(VerticalScroll):
 
     DEFAULT_CSS = """
     DecksWidget {
         height: 1fr;
+        scrollbar-size-vertical: 2;
+        scrollbar-color: $accent;
+        scrollbar-background: $surface-darken-1;
     }
+    DecksWidget _DecksContent { height: auto; }
     """
 
     def compose(self):
