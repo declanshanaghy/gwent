@@ -1060,14 +1060,25 @@ def _call_openai(model_id, messages):
     api_key = os.environ.get('OPENAI_API_KEY', '')
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY not set")
-    resp = requests.post(
-        'https://api.openai.com/v1/chat/completions',
-        headers={'Authorization': f'Bearer {api_key}',
-                 'Content-Type': 'application/json'},
-        json={'model': model_id, 'messages': messages,
-              'temperature': 0.7,
-              'response_format': {'type': 'json_object'}},
-        timeout=120)
+    payload = {'model': model_id, 'messages': messages,
+               'temperature': 0.7,
+               'response_format': {'type': 'json_object'}}
+    for _ in range(2):
+        resp = requests.post(
+            'https://api.openai.com/v1/chat/completions',
+            headers={'Authorization': f'Bearer {api_key}',
+                     'Content-Type': 'application/json'},
+            json=payload,
+            timeout=120)
+        if (resp.status_code == 400 and 'temperature' in resp.text
+                and 'temperature' in payload):
+            # o-series reasoning models reject non-default temperature —
+            # drop it and retry instead of crashing the driver.
+            log(f"OpenAI 400 re temperature for {model_id} — retrying without it")
+            payload.pop('temperature')
+            continue
+        resp.raise_for_status()
+        return resp.json()['choices'][0]['message']['content']
     resp.raise_for_status()
     return resp.json()['choices'][0]['message']['content']
 
@@ -1086,21 +1097,30 @@ def _call_anthropic(model_id, messages):
             system_text = m['content']
         else:
             api_messages.append(m)
+    payload = {'model': model_id, 'max_tokens': 1024,
+               'system': system_text,
+               'messages': api_messages,
+               'temperature': 0.7}
     for attempt in range(5):
         resp = requests.post(
             'https://api.anthropic.com/v1/messages',
             headers={'x-api-key': api_key,
                      'anthropic-version': '2023-06-01',
                      'Content-Type': 'application/json'},
-            json={'model': model_id, 'max_tokens': 1024,
-                  'system': system_text,
-                  'messages': api_messages,
-                  'temperature': 0.7},
+            json=payload,
             timeout=120)
         if resp.status_code in (429, 529):
             wait = min(2 ** attempt * 5, 60)
             log(f"Anthropic {resp.status_code} (overloaded), retrying in {wait}s...")
             time.sleep(wait)
+            continue
+        if (resp.status_code == 400 and 'temperature' in resp.text
+                and 'temperature' in payload):
+            # Newer models (opus-4-7+) reject the temperature param
+            # ("`temperature` is deprecated for this model") — drop it and
+            # retry instead of crashing the whole driver.
+            log(f"Anthropic 400 re temperature for {model_id} — retrying without it")
+            payload.pop('temperature')
             continue
         if not resp.ok:
             log(f"Anthropic error {resp.status_code}: {resp.text[:500]}")

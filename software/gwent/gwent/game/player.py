@@ -67,13 +67,20 @@ class Player(gwent.game.PubSubComponent):
         elif cp.subkind == gwent.messaging.card_play.UPDATE_GEMS:
             # Gems are displayed by the RoundKeeper, ignore here
             return
-        else:
+        elif gwent.messaging.card_play.CARD in cp._instance:
             self._log.info({
                 'action': f'received {cp.kind}',
                 'subkind': cp.subkind,
                 'faction': cp.card.faction,
                 'name': cp.card.name,
                 'strength': cp.card.strength,
+            })
+        else:
+            # Card-less events (e.g. weather_change carries only
+            # weather_rows) — nothing for the per-player display to do.
+            self._log.debug({
+                'action': f'received {cp.kind} (no card)',
+                'subkind': cp.subkind,
             })
 
         if cp.subkind == gwent.messaging.card_play.ADD_TO_DECK:
