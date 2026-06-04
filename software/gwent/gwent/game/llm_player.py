@@ -381,7 +381,23 @@ class LLMPlayerManager(PubSubComponent):
         except Exception as e:
             self._log.warning(f"external game-loop scan failed: {e}")
             return set()
-        ext = pids - own - {os.getpid()}
+        ext = set()
+        for pid in pids - own - {os.getpid()}:
+            # pgrep -f substring-matches ANY process whose cmdline mentions
+            # game-loop.py (a tail/grep watcher, an editor, …). Only count a
+            # real driver: python interpreter with an argv entry that IS the
+            # script path.
+            try:
+                with open(f"/proc/{pid}/cmdline", "rb") as f:
+                    argv = f.read().decode("utf-8", "replace").split("\0")
+            except Exception:
+                continue  # gone already / unreadable
+            if not argv or "python" not in os.path.basename(argv[0]):
+                continue
+            if not any(a.endswith("/game-loop.py") or a == "game-loop.py"
+                       for a in argv[1:]):
+                continue
+            ext.add(pid)
         if ext:
             self._log.debug(
                 f"external game-loop pids={sorted(ext)} (own={sorted(own)})")
