@@ -1,9 +1,7 @@
 """TUI stage: Offline — shown when the gwent server is unreachable."""
 
 import logging
-import os
 import subprocess
-from pathlib import Path
 
 from rich.panel import Panel
 from rich.text import Text
@@ -11,10 +9,6 @@ from textual.containers import Vertical
 from textual.widgets import Button, Static
 
 log = logging.getLogger("gwent_tui.offline")
-
-_REPO_ROOT = Path(os.path.normpath(
-    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', '..', '..')))
-_SCRIPT = _REPO_ROOT / "scripts" / "dev-server.sh"
 
 
 class _OfflineContent(Static):
@@ -48,10 +42,14 @@ class OfflineStage(Vertical):
     def on_button_pressed(self, event: Button.Pressed) -> None:
         if event.button.id != "offline-start-btn":
             return
-        log.info("OfflineStage: launching gwent server via %s", _SCRIPT)
+        # Restart the systemd service rather than dev-server.sh: a nohup'd
+        # dev server runs without GWENT_DISABLE_SERVER_TTS (so it plays its
+        # own music over the TUI's stream) and its pidfile blocks the real
+        # service from ever starting again.
+        log.info("OfflineStage: restarting gwent.service")
         try:
             subprocess.Popen(
-                ["bash", str(_SCRIPT), "gwent", "start"],
+                ["sudo", "-n", "systemctl", "restart", "gwent"],
                 start_new_session=True,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
