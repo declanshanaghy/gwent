@@ -143,44 +143,74 @@ class LLMPlayerManager(PubSubComponent):
     def assign(self, side: str, controller: str) -> None:
         """Reassign `side` (P1/P2) to a controller id ('human' or model id).
 
-        - human → terminate any running subprocess for that side
-        - LLM id → terminate previous (if any), record desired controller.
-                   If stage == PlayRound, spawn now; otherwise wait for the
-                   stage transition (see _on_ctrl).
+        Every change is published retained on gwent/players/controller/PLAYER.*
+        — that topic is the live source of truth all clients (TUI, game-loop)
+        read. Changes are legal at ANY time: before game start, mid-game,
+        mid-round.
+
+        - human  → terminate any running subprocess for that side
+        - LLM id → if a driver (managed subprocess OR external game-loop) is
+                   already running, it adopts the new model live from the
+                   topic — no respawn. Otherwise spawn at PlayRound (now or
+                   deferred via _on_ctrl).
         """
         side = side.upper()
         if side not in self._sides:
             self._log.warning(f"assign: unknown side {side!r}")
             return
         st = self._sides[side]
+        controller = controller or "human"
         with self._lock:
             self._log.info(
                 f"assign side={side} new_controller={controller!r} "
                 f"prev_controller={st.controller!r} stage={self._current_stage!r}")
-            # Tear down whatever was running for this side.
-            self._terminate(st)
             st.controller = controller
-            st.chain = []
-            st.tried = []
             st.failures = {}
             # Don't reset blacklist — a model that failed earlier this game
             # remains skipped until reset_game().
 
-        # Publish the new controller state (retained per-side). The TUI uses
-        # this for the "(Sonnet 4.6)" label even before the subprocess starts.
+        # Publish the new controller state (retained per-side) FIRST — the
+        # TUI label and any running game-loop pick it up from here.
         self._publish_controller(side, controller)
 
-        if controller == "human" or controller is None or controller == "":
+        if controller == "human":
+            # Tear down any LLM driver we own for that side.
+            with self._lock:
+                st.chain = []
+                st.tried = []
+                self._terminate(st)
+            return
+
+        if st.proc is not None and st.proc.poll() is None:
+            # Our managed driver follows the retained topic live — keep it,
+            # just refresh the fallback chain behind the new model.
+            with self._lock:
+                st.tried = [controller]
+                st.chain = self._chain_others(st, controller)
+            self._log.info(
+                f"side={side} managed driver pid={st.proc.pid} adopts "
+                f"{controller} live from topic (no respawn)")
+            return
+
+        ext = self._external_driver_pids()
+        if ext:
+            # A standalone game-loop (e.g. /llm-vs) is driving — it follows
+            # the retained topic, so don't spawn a competing subprocess.
+            self._log.info(
+                f"side={side} external game-loop pids={sorted(ext)} will "
+                f"adopt {controller} from the topic — not spawning")
             return
 
         if self._current_stage != "PlayRound":
             self._log.info(
                 f"side={side} controller={controller} deferred — "
                 f"stage is {self._current_stage!r}, spawn at PlayRound")
-            self._publish_toast(
-                f"{side}: {controller} queued — will play when round begins",
-                level="info",
-            )
+            if self._current_stage not in ("", "MainMenu", "Offline"):
+                # In-game info; on the New Game screen this is just noise.
+                self._publish_toast(
+                    f"{side}: {controller} queued — will play when round begins",
+                    level="info",
+                )
             return
 
         # Build the fallback chain starting from the chosen model.
@@ -207,7 +237,13 @@ class LLMPlayerManager(PubSubComponent):
                     (s, st.controller) for s, st in self._sides.items()
                     if st.controller not in ("", "human") and st.proc is None
                 ]
+            ext = self._external_driver_pids() if deferred else set()
             for side, controller in deferred:
+                if ext:
+                    self._log.info(
+                        f"PlayRound reached — {side}: {controller} driven by "
+                        f"external game-loop pids={sorted(ext)}, not spawning")
+                    continue
                 self._log.info(
                     f"PlayRound reached — spawning deferred LLM for {side}: {controller}")
                 self._start_chain(side, controller)
@@ -320,15 +356,42 @@ class LLMPlayerManager(PubSubComponent):
     # Fallback chain + subprocess management
     # ------------------------------------------------------------------------
 
-    def _start_chain(self, side: str, first_model: str) -> None:
-        st = self._sides[side]
-        # Build chain: requested model first, then a randomized order of the
-        # other LLM-kind models from the curated list (minus blacklisted).
+    def _chain_others(self, st: _Side, first_model: str) -> list[str]:
+        """Randomized fallback models behind `first_model` (minus blacklisted)."""
         others = [m["id"] for m in self._models
                   if m.get("kind") == "llm" and m.get("id") != first_model
                   and m.get("id") not in st.blacklist]
         random.shuffle(others)
-        st.chain = [first_model] + others
+        return others
+
+    def _external_driver_pids(self) -> set:
+        """PIDs of game-loop.py processes NOT spawned by this manager.
+
+        A standalone run (e.g. the /llm-vs skill) drives sides itself and
+        follows the retained controller topic — when one is alive we only
+        publish the topic and let it adopt, instead of spawning a competing
+        subprocess."""
+        own = {st.proc.pid for st in self._sides.values()
+               if st.proc is not None and st.proc.poll() is None}
+        try:
+            out = subprocess.run(
+                ["pgrep", "-f", r"game-loop\.py"],
+                capture_output=True, text=True, timeout=5)
+            pids = {int(p) for p in out.stdout.split() if p.strip().isdigit()}
+        except Exception as e:
+            self._log.warning(f"external game-loop scan failed: {e}")
+            return set()
+        ext = pids - own - {os.getpid()}
+        if ext:
+            self._log.debug(
+                f"external game-loop pids={sorted(ext)} (own={sorted(own)})")
+        return ext
+
+    def _start_chain(self, side: str, first_model: str) -> None:
+        st = self._sides[side]
+        # Build chain: requested model first, then a randomized order of the
+        # other LLM-kind models from the curated list (minus blacklisted).
+        st.chain = [first_model] + self._chain_others(st, first_model)
         st.tried = []
         self._log.info(
             f"side={side} fallback chain (head): {st.chain[:5]}{'...' if len(st.chain) > 5 else ''}")

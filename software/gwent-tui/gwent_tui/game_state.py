@@ -122,6 +122,9 @@ class GameState:
         # Per-side controller from retained `gwent/players/controller/PLAYER.*`.
         # Default "human" when nothing has been published yet.
         self.controllers: dict = {P1: "human", P2: "human"}
+        # Display labels for the controllers, owned ONLY by the controller
+        # topic — unlike player_names, server snapshots never overwrite these.
+        self.controller_labels: dict = {P1: "", P2: ""}
 
         # Toasts received on gwent/toast — list of dicts, newest last. The
         # toast widget pops the oldest after its display duration.
@@ -140,6 +143,11 @@ class GameState:
         # Score dedup gate (for disk writes)
         self._last_recorded_scores = (0, 0)
         self._summary_round = 0
+
+        # Pending interactive MFD pick (numeric-id choices: agile row,
+        # leader weather card, …). The app pops MFDChoiceModal for it.
+        self.mfd_pick: dict | None = None
+        self._mfd_pick_seq = 0
 
         # Event log (recent events for footer)
         self.last_prompt = ""
@@ -754,17 +762,21 @@ class GameState:
         """
         with self.lock:
             if player.endswith("ONE"):
-                self.controllers[P1] = controller
-                if not controller or controller == "human":
-                    self.player_names[P1] = "Player 1"
-                elif label and label not in ("human", controller):
-                    self.player_names[P1] = label
+                key, default_name = P1, "Player 1"
             elif player.endswith("TWO"):
-                self.controllers[P2] = controller
-                if not controller or controller == "human":
-                    self.player_names[P2] = "Player 2"
-                elif label and label not in ("human", controller):
-                    self.player_names[P2] = label
+                key, default_name = P2, "Player 2"
+            else:
+                log.warning("controller update for unknown player %r", player)
+                return
+            self.controllers[key] = controller
+            if not controller or controller == "human":
+                self.player_names[key] = default_name
+                self.controller_labels[key] = ""
+            else:
+                self.controller_labels[key] = (
+                    label if label and label != "human" else controller)
+                if label and label not in ("human", controller):
+                    self.player_names[key] = label
             log.info("controller %s = %s (label=%r)", player, controller, label)
 
     def on_toast(self, payload: dict) -> None:
@@ -815,6 +827,16 @@ class GameState:
                 self.last_prompt = data.get("prompt", "")
                 self.last_prompt_time = datetime.now().strftime("%H:%M:%S")
                 # Don't log prompts to events pane — too noisy
+                if data.get("clear_choices"):
+                    # Choices resolved/superseded — drop any pending pick so
+                    # the popup closes (it may have been answered via rotary).
+                    if self.mfd_pick is not None:
+                        log.info("mfd pick cleared by prompt (clear_choices)")
+                    self.mfd_pick = None
+                elif self.mfd_pick is not None and self.last_prompt:
+                    # The contextual prompt (e.g. 'Assign X to a row.')
+                    # arrives AFTER the choices — attach it as the title.
+                    self.mfd_pick["prompt"] = self.last_prompt
             elif subkind == "error":
                 self.last_error = data.get("error", "")
                 self.last_error_time = datetime.now().strftime("%H:%M:%S")
@@ -824,6 +846,20 @@ class GameState:
                 labels = [c.get("text", "?") for c in self.last_choices]
                 if labels:
                     self._log_event(f"\U0001f518 Choices: {' | '.join(labels)}", color="bright_yellow")
+                # Interactive picks (agile row, leader weather card, …) use
+                # numeric ids; the per-turn Repeat('h')/Pass('p') choices
+                # don't. Surface numeric-id sets as a popup request so the
+                # touchscreen can answer them (rotary/OLED-only before).
+                if self.last_choices and all(
+                        str(c.get("id", "")).isdigit() for c in self.last_choices):
+                    self._mfd_pick_seq += 1
+                    self.mfd_pick = {
+                        "seq": self._mfd_pick_seq,
+                        "prompt": "",
+                        "choices": list(self.last_choices),
+                    }
+                    log.info("mfd pick #%d posted: %s",
+                             self._mfd_pick_seq, labels)
 
     def on_sfx(self, data):
         """Handle gwent/sfx."""

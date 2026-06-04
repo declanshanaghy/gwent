@@ -87,25 +87,34 @@ class MenuPublisher(PubSubComponent):
 
     def _on_game_start(self, message: "gwent.messaging.game_start.Message"):
         """Deal a game from two client-proposed decks (faction/leader/cards
-        chosen on the TUI's New Game screen). Each side carries its controller.
+        chosen on the TUI's New Game screen).
+
+        Controllers are NOT part of this message anymore — they live on the
+        retained `gwent/players/controller/PLAYER.*` topics and are assigned
+        via the assign-pN menus, so whatever the player picked on the New
+        Game screen (or mid-game) stays in effect. A `controller` field is
+        still honoured when explicitly present (back-compat).
         """
         p1 = message.p1 or {}
         p2 = message.p2 or {}
         deck1 = gwent.game.decks.messages_from_dicts(p1.get("deck") or [])
         deck2 = gwent.game.decks.messages_from_dicts(p2.get("deck") or [])
-        c1 = p1.get("controller", "human")
-        c2 = p2.get("controller", "human")
+        c1 = p1.get("controller")
+        c2 = p2.get("controller")
         self._log.info(
-            f"game_start: P1 ctrl={c1} deck={len(deck1)}  "
-            f"P2 ctrl={c2} deck={len(deck2)}")
+            f"game_start: P1 ctrl={c1!r} deck={len(deck1)}  "
+            f"P2 ctrl={c2!r} deck={len(deck2)}")
         if not deck1 or not deck2:
             self._log.error("game_start with empty deck(s) — ignoring")
             return
-        # Assign controllers (deferred LLM spawn happens at PlayRound).
+        # Assign controllers ONLY when explicitly carried in the message;
+        # otherwise the retained controller topic assignments stand.
         if self.llm_player_manager is not None:
             try:
-                self.llm_player_manager.assign("P1", c1)
-                self.llm_player_manager.assign("P2", c2)
+                if c1 is not None:
+                    self.llm_player_manager.assign("P1", c1)
+                if c2 is not None:
+                    self.llm_player_manager.assign("P2", c2)
             except Exception as e:
                 self._log.exception(f"game_start assign failed: {e}")
         # Clear menus and deal.

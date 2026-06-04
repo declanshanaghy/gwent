@@ -31,6 +31,7 @@ import gwent.game.decks as gdecks
 from gwent_tui import matchup_announcer, tts
 from gwent_tui.card_images import resolve_card_image
 from gwent_tui.emoji import faction_emoji, FACTION_COLOR
+from gwent_tui.game_state import P1, P2
 
 log = logging.getLogger("gwent_tui.stages.wizard")
 
@@ -59,8 +60,30 @@ def _proposal(app) -> dict:
     return getattr(app, "_wizard_proposal", None) or {}
 
 
+def _controller_info(app, side: str) -> tuple[str, str]:
+    """(controller_id, display_label) for a side, read from the retained
+    `gwent/players/controller/PLAYER.*` topic via app state — the single
+    source of truth for who drives each side."""
+    state = getattr(app, "state", None)
+    player = P1 if side == "p1" else P2
+    controller = "human"
+    label = ""
+    if state is not None:
+        controller = state.controllers.get(player, "human") or "human"
+        # controller_labels is owned by the controller topic alone — unlike
+        # player_names it can't be stomped back to "Player N" by snapshots.
+        label = (getattr(state, "controller_labels", {}) or {}).get(player, "")
+    if controller == "human":
+        return "human", "Human (RFID / touch)"
+    return controller, label or controller
+
+
 class _SideInfo(Static):
-    """Faction · player/controller · leader · approx power for one side."""
+    """Faction · player/controller · leader · approx power for one side.
+
+    The controller line renders live from the retained controller topic, so
+    picks made via the assign modal (tap a player half) show up immediately
+    and survive START."""
 
     def __init__(self, side: str, **kwargs):
         super().__init__("", **kwargs)
@@ -71,18 +94,17 @@ class _SideInfo(Static):
         faction = s.get("faction", "")
         color = FACTION_COLOR.get(faction, "white")
         e0, e1 = faction_emoji(faction)
-        is_p1 = self.side == "p1"
-        who = "you · RFID / touch" if is_p1 else "AI opponent"
-        player = "Player 1" if is_p1 else "Player 2"
+        controller, ctrl_label = _controller_info(self.app, self.side)
         leader = s.get("leader") or "—"
         strength = s.get("strength")
+        icon = "🃏" if controller == "human" else "🤖"
+        # The controller name IS the player identity — no redundant
+        # "Player 1"/"Player 2" header line.
         lines = [
-            f"[bold]{player}[/] [dim]({who})[/]",
+            f"{icon} [bold]{ctrl_label}[/]",
             f"{e0}{e1}  [{color}]{faction or '—'}[/]",
+            f"👑 {leader}",
         ]
-        if not is_p1:
-            lines.append(f"🤖 [bold]{s.get('controller_label', '—')}[/]")
-        lines.append(f"👑 {leader}")
         if strength is not None:
             lines.append(f"⚔ [bold yellow]≈ {strength}[/] power")
         return Text.from_markup("\n".join(lines), justify="center")
@@ -164,33 +186,34 @@ class WizardStage(Container):
                 log.error("wizard: no matchup available")
                 return
             s1, s2 = matchup
-            s1["controller"] = "human"
-            s1["controller_label"] = "You (RFID / touch)"
             prop["p1"] = s1
-            # keep existing p2 model across a sides re-roll
-            prev_model = (prop.get("p2") or {}).get("controller")
-            prev_label = (prop.get("p2") or {}).get("controller_label")
-            s2["controller"] = prev_model or "human"
-            s2["controller_label"] = prev_label or "Human"
             prop["p2"] = s2
-        if model or not (prop.get("p2") or {}).get("controller") or \
-                (prop["p2"]["controller"] == "human"):
-            self._assign_random_model(prop)
+        if model:
+            self._roll_model()
         self.app._wizard_proposal = prop
         self._refresh_sides()
         if announce:
             self._announce(prop)
 
-    def _assign_random_model(self, prop: dict) -> None:
+    def _roll_model(self) -> None:
+        """Pick a random LLM for P2 and publish it via the assign-p2 menu.
+
+        The server assigns it and republishes the retained controller topic
+        (`gwent/players/controller/PLAYER.TWO`), which is what this screen —
+        and everything else — renders controller info from. Controller state
+        never lives in the local proposal."""
         models = _llm_models()
-        p2 = prop.setdefault("p2", {})
+        subscriber = getattr(self.app, "_subscriber", None)
         if not models:
-            p2["controller"] = "human"
-            p2["controller_label"] = "Human"
+            log.error("wizard: no llm models available — P2 stays as-is")
+            return
+        if subscriber is None:
+            log.error("wizard: no _subscriber — cannot publish P2 model roll")
             return
         m = random.choice(models)
-        p2["controller"] = m.get("id")
-        p2["controller_label"] = m.get("label", m.get("id"))
+        log.info("wizard rolled P2 model %s — publishing assign-p2 choose",
+                 m.get("id"))
+        subscriber.publish_choose("assign-p2", m.get("id"))
 
     def _announce(self, prop: dict) -> None:
         p1f = (prop.get("p1") or {}).get("faction")
@@ -236,10 +259,14 @@ class WizardStage(Container):
         if subscriber is None:
             log.error("no _subscriber — cannot start game")
             return
-        log.info("WizardStage START: P1=%s/%s P2=%s/%s",
-                 p1.get("faction"), p1.get("controller"),
-                 p2.get("faction"), p2.get("controller"))
+        # Controllers are NOT sent — they're already assigned (retained
+        # gwent/players/controller/PLAYER.*) via the assign-pN menus, so
+        # picks made on this screen stay in effect after START.
+        c1, _ = _controller_info(self.app, "p1")
+        c2, _ = _controller_info(self.app, "p2")
+        log.info("WizardStage START: P1=%s (ctrl=%s) P2=%s (ctrl=%s)",
+                 p1.get("faction"), c1, p2.get("faction"), c2)
         subscriber.publish_game_start(
-            {"controller": p1.get("controller", "human"), "deck": p1["deck"]},
-            {"controller": p2.get("controller", "human"), "deck": p2["deck"]},
+            {"deck": p1["deck"]},
+            {"deck": p2["deck"]},
         )

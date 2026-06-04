@@ -170,14 +170,24 @@ class AnnouncementSync:
         self._expected_sources = {"gwent"}  # server always expected
         self._pending_ids = set()  # content_ids we're waiting for
         self._completed_ids = set()  # content_ids that have completed
+        # client_id MUST be unique per process: the server spawns one
+        # game-loop per LLM side, and duplicate ids make the broker kick the
+        # other process's session (~1/s takeover storm), silently killing its
+        # subscriptions. Seen live 2026-06-04 — 2300+ takeovers in one game.
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
-                                   client_id='llm-vs-sync',
+                                   client_id=f'llm-vs-sync-{os.getpid()}',
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
         self._client.on_message = self._on_message
+        # Subscribe in on_connect so a broker reconnect re-establishes the
+        # subscription (paho does NOT resubscribe clean sessions itself).
+        self._client.on_connect = self._on_connect
         self._client.connect(_mqtt_host, 1883)
-        self._client.subscribe('gwent/sfx/complete')
         self._client.loop_start()
+
+    def _on_connect(self, client, userdata, flags, reason_code, properties=None):
+        log_debug(f"AnnouncementSync connected (rc={reason_code}); subscribing")
+        client.subscribe('gwent/sfx/complete')
 
     def set_expected_sources(self, sources):
         """Set which TTS sources to wait for (e.g. {'gwent', 'gwent-tui'})."""
@@ -415,9 +425,11 @@ def board_summary(board):
 _commentary_enabled = True
 
 
-def mqpub(topic, payload):
-    subprocess.run(_mq_base() + ['-t', topic, '-m', payload],
-                   check=True, capture_output=True)
+def mqpub(topic, payload, retain=False):
+    cmd = _mq_base() + ['-t', topic, '-m', payload]
+    if retain:
+        cmd.append('-r')
+    subprocess.run(cmd, check=True, capture_output=True)
     time.sleep(0.6)
 
 
@@ -443,28 +455,69 @@ def announce(text, faction=None):
     mqpub('gwent/sfx', json.dumps(msg))
 
 
+CONTROLLER_TOPIC_PREFIX = 'gwent/players/controller/'
+
+
 class StateCache:
     """Cache the server's full game-state snapshot from retained MQTT.
 
     Subscribes to `gwent/server/state` (retained, QoS 1) so the latest snapshot
     is delivered instantly on connect and on every change. Replaces the old HTTP
     `GET /state` polling — fetch()/poll/wait read from here.
+
+    Also subscribes to the retained per-side controller topics
+    `gwent/players/controller/PLAYER.*` — the live source of truth for which
+    controller (human / model id) drives each side. The game loop re-reads
+    this every turn, so players, models and labels can be swapped at any
+    moment (before game start, mid-game, mid-round) from the TUI.
     """
 
     def __init__(self):
         self._lock = threading.Lock()
         self._snapshot = None
+        self._controllers = {}  # 'PLAYER.ONE' -> {'controller':…, 'label':…}
         self._event = threading.Event()
+        # client_id MUST be unique per process — see AnnouncementSync note
+        # (duplicate ids caused a broker session-takeover storm between the
+        # per-side game-loops, freezing this cache mid-game).
         self._client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2,
-                                   client_id='llm-vs-state',
+                                   client_id=f'llm-vs-state-{os.getpid()}',
                                    protocol=mqtt.MQTTv311)
         self._client.username_pw_set('geralt', 'gwent')
         self._client.on_message = self._on_message
+        # Subscribe in on_connect so reconnects re-establish subscriptions.
+        self._client.on_connect = self._on_connect
         self._client.connect(_mqtt_host, 1883)
-        self._client.subscribe('gwent/server/state', qos=1)
         self._client.loop_start()
 
+    def _on_connect(self, client, userdata, flags, reason_code, properties=None):
+        log_debug(f"StateCache connected (rc={reason_code}); subscribing")
+        # Controller topics first: their retained payloads land before the
+        # (much larger) state snapshot, so once fetch() returns the
+        # controller cache is already warm.
+        client.subscribe(CONTROLLER_TOPIC_PREFIX + '+', qos=1)
+        client.subscribe('gwent/server/state', qos=1)
+
     def _on_message(self, client, userdata, msg):
+        if msg.topic.startswith(CONTROLLER_TOPIC_PREFIX):
+            player = msg.topic[len(CONTROLLER_TOPIC_PREFIX):]
+            if not msg.payload:
+                with self._lock:
+                    self._controllers.pop(player, None)
+                log_debug(f"controller topic cleared for {player}")
+                return
+            try:
+                d = json.loads(msg.payload)
+            except Exception:
+                log_debug(f"bad controller payload on {msg.topic}: "
+                          f"{msg.payload[:100]!r}")
+                return
+            with self._lock:
+                self._controllers[player] = d
+            log_debug(f"controller update {player}: "
+                      f"{d.get('controller')!r} (label={d.get('label')!r})")
+            self._event.set()
+            return
         if not msg.payload:
             return
         try:
@@ -474,6 +527,13 @@ class StateCache:
         with self._lock:
             self._snapshot = d
         self._event.set()
+
+    def controller_info(self, player):
+        """Latest retained controller payload for 'PLAYER.ONE'/'PLAYER.TWO'.
+
+        Returns {} when nothing has been published for that side."""
+        with self._lock:
+            return dict(self._controllers.get(player) or {})
 
     def get(self, timeout=10):
         """Latest snapshot dict, blocking up to `timeout` for the first one."""
@@ -821,6 +881,7 @@ MODEL_ALIASES = {
     # software/data/llm-models.json.
     "anthropic/claude-sonnet-4-6":  "anthropic/claude-sonnet-4-6",
     "anthropic/claude-opus-4-7":    "anthropic/claude-opus-4-7",
+    "anthropic/claude-haiku-4-5":   "anthropic/claude-haiku-4-5",
     # OpenAI
     "openai/gpt4o":                 "openai/gpt-4o",
     "openai/gpt-4o-mini":           "openai/gpt-4o-mini",
@@ -881,6 +942,54 @@ def _resolve_model(model):
     if resolved != model:
         log(f"  Resolved alias '{model}' → '{resolved}'")
     return resolved
+
+
+def _resolve_model_quiet(model):
+    """Alias resolution without logging — safe to call every turn."""
+    return MODEL_ALIASES.get(model, model)
+
+
+def _side_model(args, player):
+    """Live model for a side ('PLAYER.ONE'/'PLAYER.TWO').
+
+    The retained `gwent/players/controller/PLAYER.*` topic wins; the CLI
+    --model-pN args are only the fallback when nothing has been published.
+    Returns None when the side is human-controlled (observe, don't act)."""
+    info = _state_cache.controller_info(player) if _state_cache else {}
+    c = (info.get('controller') or '').strip()
+    if c == 'human':
+        return None
+    if c:
+        return _resolve_model_quiet(c)
+    return args.model_p1 if player == 'PLAYER.ONE' else args.model_p2
+
+
+def _side_label(player, model):
+    """Display/TTS name for a side: topic label, else short model name."""
+    info = _state_cache.controller_info(player) if _state_cache else {}
+    label = info.get('label')
+    if label and label not in ('human', info.get('controller')):
+        return label
+    return _short_model_name(model) if model else 'Human'
+
+
+def _publish_controller_state(player, controller, label):
+    """Announce a controller change on the retained per-side topic.
+
+    Every controller change — including in-process provider fallback —
+    publishes here so the TUI, the server's LLMPlayerManager and any other
+    game-loop all see the same live controller info."""
+    payload = json.dumps({
+        'player': player,
+        'controller': controller,
+        'label': label,
+        'source': 'game-loop',
+    })
+    try:
+        mqpub(CONTROLLER_TOPIC_PREFIX + player, payload, retain=True)
+        log(f"  📡 controller topic: {player} -> {controller} ({label})")
+    except Exception as e:
+        log(f"  ⚠ failed to publish controller topic for {player}: {e}")
 
 
 def _provider(model):
@@ -1426,6 +1535,36 @@ def game_loop(args, board, sync):
         faction = board['factions'][cur]
         plab = f"P{pnum} ({faction})"
 
+        # --- Live controller resolution ------------------------------------
+        # The retained gwent/players/controller/PLAYER.* topic is re-read on
+        # EVERY turn, so the model driving a side can be swapped at any time
+        # (TUI assign menu, server fallback…) without restarting this loop.
+        player_model = _side_model(args, cur)
+        if player_model is None:
+            log_debug(f"{cur} is human-controlled (controller topic) — "
+                      "observing, waiting for turn advance")
+            wait_for_turn_advance(args.game_url, cur)
+            continue
+        prev_model = args.model_p1 if pnum == '1' else args.model_p2
+        if player_model != prev_model:
+            new_label = _side_label(cur, player_model)
+            log(f"  🔄 {cur} controller swapped live: "
+                f"{prev_model} → {player_model} ({new_label})")
+            _assign_gender(player_model)
+            announce(f"{_short_model_name(prev_model)} steps aside — "
+                     f"{new_label} takes over!", faction=faction)
+            if pnum == '1':
+                args.model_p1 = player_model
+            else:
+                args.model_p2 = player_model
+            # Keep the server-side display name in sync with the new model.
+            try:
+                mqpub('gwent/ctrl/players',
+                      json.dumps({cur: {"name": new_label,
+                                        "pronoun": _pn(player_model)["he"]}}))
+            except Exception as e:
+                log_debug(f"failed to update player name after swap: {e}")
+
         # --- Pause checkpoint ---
         _write_status(board, cur, turn)
         if _auto_pause:
@@ -1564,12 +1703,15 @@ def game_loop(args, board, sync):
                     _assign_gender(player_model)
                     log(f"  \u26a0 {err_name}: {old_model} unavailable, falling back to {player_model}")
                     announce(f"{_short_model_name(old_model)} is overwhelmed! {short_model} takes over!", faction=faction)
+                    # Publish the fallback on the retained controller topic \u2014
+                    # the per-turn topic read would otherwise revert us to the
+                    # failed model next turn (and the TUI would mislabel us).
+                    _publish_controller_state(cur, player_model, short_model)
                     # Update player name on server
                     try:
-                        pkey = "PLAYER.ONE" if pnum == "1" else "PLAYER.TWO"
                         g = _pn(player_model).get("he", "they")
                         mqpub('gwent/ctrl/players',
-                              json.dumps({pkey: {"name": short_model, "pronoun": g}}))
+                              json.dumps({cur: {"name": short_model, "pronoun": g}}))
                     except Exception:
                         pass
                     if pnum == "1":
@@ -1880,12 +2022,28 @@ def main():
 
     log(f"Game ready: stage={stage}")
 
+    # 3a. Sync the retained controller topic for the sides this process
+    # drives. CLI args are the freshest intent at LAUNCH, so they win now and
+    # get published; from here on the topic wins (re-read every turn), so
+    # models can be hot-swapped from the TUI mid-game. When the server's
+    # LLMPlayerManager spawned us the topic already matches — we skip the
+    # publish and keep its prettier label from llm-models.json.
+    for player, model in (('PLAYER.ONE', args.model_p1),
+                          ('PLAYER.TWO', args.model_p2)):
+        if args.only_side and args.only_side != ('P1' if player == 'PLAYER.ONE' else 'P2'):
+            continue  # not our side — don't clobber its controller state
+        topic_model = (_state_cache.controller_info(player) or {}).get('controller', '')
+        if _resolve_model_quiet(topic_model) == model:
+            log_debug(f"controller topic already matches for {player}: {topic_model}")
+            continue
+        _publish_controller_state(player, model, _short_model_name(model))
+
     # 3b. Assign random genders and set player names + pronouns on the server.
     # When restricted to one side (--only-side, e.g. spawned per-controller by
     # the server), set ONLY that side's name — model_p2 defaults to model_p1, so
     # publishing both would clobber the other slot's real controller name.
-    short_p1 = _short_model_name(args.model_p1)
-    short_p2 = _short_model_name(args.model_p2)
+    short_p1 = _side_label('PLAYER.ONE', args.model_p1)
+    short_p2 = _side_label('PLAYER.TWO', args.model_p2)
     g1 = _assign_gender(args.model_p1)
     g2 = _assign_gender(args.model_p2)
     log(f"Players: {short_p1} ({g1}) vs {short_p2} ({g2})")
