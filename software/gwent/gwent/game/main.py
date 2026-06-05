@@ -14,6 +14,7 @@ from gwent_shared.topics import PRESENCE
 import gwent.game.constants
 import gwent.game.cards
 import gwent.game.controller
+import gwent.game.camera_client
 import gwent.game.llm_player
 import gwent.game.menu_publisher
 import gwent.game.mfd
@@ -291,6 +292,16 @@ class Gwent:
             self.pubsub, controller)
         self._menu_publisher.llm_player_manager = self._llm_player_manager
         self.components.append(self._llm_player_manager)
+        # CameraClient — MQTT bridge to the gwent-camera service: game
+        # recording start/stop, Game Over save prompt, saved-recordings
+        # eviction prompt, in-game-menu reset discard. Fail-soft when the
+        # service is down. (Camera/live-view toggles live in the TUI's
+        # hamburger menu and publish gwent/camera/ctrl directly.)
+        self._camera_client = gwent.game.camera_client.CameraClient(self.pubsub)
+        self._menu_publisher.camera_client = self._camera_client
+        controller.camera_client = self._camera_client
+        controller.game_over.camera_client = self._camera_client
+        self.components.append(self._camera_client)
 
         # Per-session config (player names/pronouns + connected-client TTS).
         # Shared by the StatePublisher (reads into the snapshot), the MQTT

@@ -29,53 +29,53 @@ flowchart LR
 
     subgraph hw["🔧 Hardware"]
         rfid["📡 RFID Reader"]
-        oled["📱 OLED Display"]
         matrix["🔢 LED Matrices"]
-        rotary["🎛️ Rotary Encoder"]
+        touch["🖐️ 7\" Touchscreen"]
+        camhw["📷 NoIR Camera"]
     end
 
     subgraph server["💻 Game Server"]
         gwent["🎮 gwent service"]
-        api["🌐 REST API"]
         mqtt_pub["📨 MQTT Publisher"]
     end
 
+    camsvc["📷 gwent-camera\n+ nginx :80"]
     broker["📡 MQTT Broker\nMosquitto"]
 
-    subgraph clients["👁️ Observers & Drivers"]
-        tui["📊 gwent-tui"]
+    subgraph clients["👁️ Kiosk & Drivers"]
+        tui["📊 gwent-tui\n(touchscreen kiosk)"]
         loop["🤖 game-loop.py"]
     end
 
     cards -.- rfid
     rfid --- gwent
-    oled --- gwent
     matrix --- gwent
-    rotary --- gwent
-    gwent --- api
     gwent --- mqtt_pub
     mqtt_pub --> broker
-    broker --> tui
-    broker --> loop
-    api <--> loop
+    broker <--> tui
+    broker <--> loop
+    tui --- touch
+    camsvc --> camhw
+    tui -.->|"/camera/*"| camsvc
 
     classDef hardware fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
     classDef software fill:#BCAAA4,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-weight:bold
     classDef data fill:#D7CCC8,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New',font-style:italic
 
     class cards,mat data
-    class rfid,oled,matrix,rotary hardware
-    class gwent,api,mqtt_pub,broker,tui,loop software
+    class rfid,matrix,touch,camhw hardware
+    class gwent,mqtt_pub,broker,tui,loop,camsvc software
 ```
 
 ## How It Works
 
-1. The `gwent` system service runs on a Raspberry Pi, managing game state and driving all hardware
-2. Players scan RFID-tagged cards on the reader to register decks, deal hands, and play cards
-3. The server publishes every game state change over MQTT topics
-4. An HTTP REST API exposes game state for polling and control
-5. The **gwent-tui** terminal dashboard subscribes to MQTT and renders a live view of the game
-6. The **game-loop.py** orchestrator pits two LLM models against each other by driving moves through the REST API
+1. The `gwent` system service runs on a Raspberry Pi, managing game state and driving all hardware. It always has a game in progress — a fresh random game is dealt at startup and after every Game Over
+2. Players scan RFID-tagged cards on the reader to play cards; the 7" touchscreen runs the `gwent-tui` kiosk for assignment, menus, and live view
+3. The server publishes every game state change over MQTT, including a retained full-state snapshot on `gwent/server/state`
+4. Clients consume that retained snapshot — there is no HTTP API on the game server; all command and control is over MQTT (`gwent/ctrl/*` in)
+5. The **gwent-tui** terminal dashboard subscribes to MQTT and renders a live view of the game on the touchscreen
+6. The **game-loop.py** orchestrator pits two LLM models against each other by reading the retained snapshot and publishing moves over MQTT
+7. A separate **gwent-camera** service drives a Pi NoIR camera and serves stills, an MJPEG stream, and game recordings over HTTP (nginx `/camera/*`)
 
 ## Components
 
@@ -83,18 +83,22 @@ flowchart LR
 
 The core Python service. Runs as a systemd unit (`gwent`).
 
-- **Game stages state machine** -- MainMenu, RegisterLeaders, RegisterDecks, DealCards, PlayRound, RoundEnd, GameOver
-- **MQTT command & control** -- all events and full game state are published to `gwent/` topics via a Mosquitto broker. State is a retained snapshot on `gwent/server/state`; commands (players, client-tts, save) come in on `gwent/ctrl/*`. No HTTP.
-- **Hardware abstraction layer** -- SPI (RFID RC522, SSD1306 OLED), I2C (TCA9548A mux, IS31FL3731 LED matrices), GPIO (rotary encoder)
+- **Game stages state machine** -- DealCards, PlayRound, RoundEnd, GameOver (auto-dealt; there is no main menu)
+- **MQTT command & control** -- all events and full game state are published to `gwent/` topics via a Mosquitto broker. State is a retained snapshot on `gwent/server/state`; commands (players, client-tts) come in on `gwent/ctrl/*`. No HTTP.
+- **Hardware abstraction layer** -- SPI (RFID RC522), I2C (TCA9548A mux, IS31FL3731 LED matrices). The legacy SSD1306 OLED + rotary-encoder MFD drivers remain in the tree but are disabled (`GWENT_DISABLE_MFD=true`) and physically removed
 - **Audio system** -- sound effects and TTS announcements (multiple providers: gTTS, ElevenLabs, OpenAI, Piper, macOS `say`)
 
 ### Terminal Dashboard (`software/gwent-tui/`)
 
-A [Textual](https://textual.textualize.io/)-based Rich terminal app that renders a live game dashboard. Subscribes to MQTT topics and polls the REST API for full state snapshots. Stage-specific widgets mirror the server's state machine.
+A [Textual](https://textual.textualize.io/)-based Rich terminal app that renders a live game dashboard, running as the touchscreen kiosk (greetd → cage → kitty → gwent-tui, with a `gwent-touch` evdev bridge). Subscribes to MQTT — including the retained `gwent/server/state` snapshot — and provides hamburger-menu controls (player assignment, camera on/off, live view) plus a floating camera live-view panel. Stage-specific widgets mirror the server's state machine.
 
 ### LLM-vs-LLM Orchestrator (`.claude/skills/llm-vs/scripts/game-loop.py`)
 
-Drives fully automated games between two LLM models. Supports multiple providers (Anthropic, OpenAI, Google Gemini, Ollama) with model aliases. Reads game state from the REST API, constructs prompts with full board context, and submits moves via MQTT.
+Drives fully automated games between two LLM models. Supports multiple providers (Anthropic, OpenAI, Google Gemini, Ollama) with model aliases. Reads game state from the retained `gwent/server/state` MQTT snapshot, constructs prompts with full board context, and submits moves via MQTT.
+
+### Camera Service (`scripts/camera-server.py`)
+
+A standalone `gwent-camera` systemd service (system Python + picamera2) owns the Pi NoIR camera and exposes stills, an MJPEG stream, and game recordings via nginx on port 80 (`/camera/{still,stream,recordings/}`). It is also an MQTT client (`gwent/camera/ctrl` in, retained `gwent/camera/state` out) and records each game to H.264 with a 10 GiB disk budget.
 
 ### Shared Utilities (`software/gwent-shared/`)
 
@@ -105,11 +109,11 @@ TTS provider abstractions shared between server and TUI. No hardware dependencie
 | Bus | Device | Purpose |
 |-----|--------|---------|
 | SPI CE0 | MFRC522 | RFID card reader |
-| SPI CE1 | SSD1306 | 128x64 OLED display |
 | I2C (via TCA9548A mux) | IS31FL3731 Ch 0 | Gem display (lives) |
 | I2C (via TCA9548A mux) | IS31FL3731 Ch 1 | Player 1 score |
 | I2C (via TCA9548A mux) | IS31FL3731 Ch 2 | Player 2 score |
-| GPIO | Rotary encoder + button | Menu navigation and selection |
+| DSI / USB | 7" Touchscreen | Kiosk UI (gwent-tui) + speakers |
+| CSI | Pi NoIR Camera (IMX219) | Table view, stills/stream, game recordings |
 
 ## Card Data
 
@@ -135,8 +139,8 @@ Five factions: **Monsters**, **Nilfgaardian**, **Northern Realms**, **Scoiatael*
 # Start the dev server
 bash scripts/dev-server.sh gwent start
 
-# Dump current game state
-kill -USR1 $(pgrep -f gwent-venv/bin/gwent)
+# Dump current game state (retained snapshot)
+mosquitto_sub -h localhost -u geralt -P gwent -t gwent/server/state -C 1
 
 # Run the TUI
 gwent-tui

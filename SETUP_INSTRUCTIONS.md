@@ -4,10 +4,10 @@ This document provides instructions for setting up a Raspberry Pi development en
 
 ## Prerequisites
 
-- Raspberry Pi 3 Model B (or newer) with at least 2GB RAM
+- Raspberry Pi 4 (or newer) with at least 2GB RAM
 - Raspberry Pi OS (64-bit) installed
 - Internet connection
-- Connected hardware components (RFID reader, OLED display, rotary encoder, etc.)
+- Connected hardware components (RFID reader, LED matrices, 7" touchscreen, Pi NoIR camera)
 
 ## Hardware Components
 
@@ -15,23 +15,25 @@ The Gwent project uses the following hardware components:
 
 1. **RFID Reader (RFID-RC522)**
    - Used for reading RFID-enabled Gwent cards
-   - Connected via SPI interface
+   - Connected via SPI interface (CE0)
 
-2. **OLED Display (SSD1306)**
-   - Used for menu display and user interface
-   - Connected via SPI interface
+2. **LED Matrix Displays (IS31FL3731)**
+   - Three displays: gem/lives + two player scores
+   - Connected via I2C interface through a TCA9548A multiplexer
 
-3. **LED Matrix Displays (IS31FL3731)**
-   - Used for score display
-   - Connected via I2C interface through a multiplexer
-
-4. **I2C Multiplexer (TCA9548A)**
-   - Used to manage multiple I2C devices
+3. **I2C Multiplexer (TCA9548A)**
+   - Used to manage the three LED matrix displays
    - Connected via I2C interface
 
-5. **Rotary Encoder (PEC11 Series)**
-   - Used for user input and menu navigation
-   - Connected via GPIO pins
+4. **7" Touchscreen + speakers**
+   - Runs the `gwent-tui` kiosk (greetd → cage → kitty → gwent-tui, with a `gwent-touch` evdev bridge)
+   - All player interaction (assignment, menus, live view) happens here
+
+5. **Pi NoIR Camera (IMX219, CSI)**
+   - Owned by the standalone `gwent-camera` service, served over nginx (`/camera/*`)
+   - Provides stills, MJPEG stream, and game recordings
+
+> The legacy SSD1306 OLED and rotary encoder have been removed from the build. Their HAL drivers remain in the tree but are disabled (`GWENT_DISABLE_MFD=true`).
 
 ## GPIO Pin Connections
 
@@ -44,16 +46,8 @@ Based on the implementation in the `software/gwent/gwent/hal` directory, here ar
 | RFID-RC522 MOSI | GPIO10 | Pin 19 | SPI MOSI |
 | RFID-RC522 MISO | GPIO9 | Pin 21 | SPI MISO |
 | RFID-RC522 RST | GPIO25 | Pin 22 | Reset |
-| Rotary Encoder A | GPIO17 | Pin 11 | Encoder A input |
-| Rotary Encoder B | GPIO22 | Pin 15 | Encoder B input |
-| Rotary Encoder SW | GPIO27 | Pin 13 | Encoder push button |
 | I2C SDA | GPIO2 | Pin 3 | I2C data |
 | I2C SCL | GPIO3 | Pin 5 | I2C clock |
-| OLED DC | GPIO24 | Pin 18 | OLED data/command |
-| OLED CLK | GPIO11 | Pin 23 | SPI clock |
-| OLED MOSI | GPIO10 | Pin 19 | SPI MOSI |
-| OLED CS | GPIO7 | Pin 26 | SPI chip select (CE1) |
-| OLED RESET | GPIO25 | Pin 22 | OLED reset |
 
 ### Raspberry Pi GPIO Pinout Diagram
 
@@ -96,9 +90,9 @@ graph TB
         p3 --- p5["5: GPIO3/SCL"]:::i2c
         p5 --- p7["7: GPIO4"]:::gpio
         p7 --- p9["9: GND"]:::ground
-        p9 --- p11["11: GPIO17"]:::rotary
-        p11 --- p13["13: GPIO27"]:::rotary
-        p13 --- p15["15: GPIO22"]:::rotary
+        p9 --- p11["11: GPIO17"]:::gpio
+        p11 --- p13["13: GPIO27"]:::gpio
+        p13 --- p15["15: GPIO22"]:::gpio
         p15 --- p17["17: 3.3V"]:::power
         p17 --- p19["19: GPIO10/MOSI"]:::spi
         p19 --- p21["21: GPIO9/MISO"]:::spi
@@ -120,11 +114,11 @@ graph TB
         p10 --- p12["12: GPIO18"]:::gpio
         p12 --- p14["14: GND"]:::ground
         p14 --- p16["16: GPIO23"]:::gpio
-        p16 --- p18["18: GPIO24"]:::oled
+        p16 --- p18["18: GPIO24"]:::gpio
         p18 --- p20["20: GND"]:::ground
-        p20 --- p22["22: GPIO25"]:::oled
+        p20 --- p22["22: GPIO25"]:::rfid
         p22 --- p24["24: GPIO8/CE0"]:::rfid
-        p24 --- p26["26: GPIO7/CE1"]:::oled
+        p24 --- p26["26: GPIO7/CE1"]:::gpio
         p26 --- p28["28: ID_SC"]:::i2c
         p28 --- p30["30: GND"]:::ground
         p30 --- p32["32: GPIO12"]:::gpio
@@ -135,20 +129,6 @@ graph TB
     end
     
     %% Component groupings
-    subgraph rotary_encoder["Rotary Encoder"]
-        rotary_a["A: GPIO17 (Pin 11)"]:::rotary
-        rotary_b["B: GPIO22 (Pin 15)"]:::rotary
-        rotary_sw["SW: GPIO27 (Pin 13)"]:::rotary
-    end
-    
-    subgraph oled_display["OLED Display (SSD1306)"]
-        oled_dc["DC: GPIO24 (Pin 18)"]:::oled
-        oled_reset["RESET: GPIO25 (Pin 22)"]:::oled
-        oled_cs["CS: GPIO7 (Pin 26)"]:::oled
-        oled_mosi["MOSI: GPIO10 (Pin 19)"]:::spi
-        oled_sck["SCK: GPIO11 (Pin 23)"]:::spi
-    end
-    
     subgraph rfid_reader["RFID Reader (RC522)"]
         rfid_sda["SDA: GPIO8 (Pin 24)"]:::rfid
         rfid_miso["MISO: GPIO9 (Pin 21)"]:::spi
@@ -169,16 +149,6 @@ graph TB
     end
     
     %% Connect components to pins
-    rotary_a --- p11
-    rotary_b --- p15
-    rotary_sw --- p13
-    
-    oled_dc --- p18
-    oled_reset --- p22
-    oled_cs --- p26
-    oled_mosi --- p19
-    oled_sck --- p23
-    
     rfid_sda --- p24
     rfid_miso --- p21
     rfid_mosi --- p19
@@ -193,24 +163,13 @@ graph TB
     matrix_multiplexer --- i2c_scl
     matrix_display1 --- matrix_multiplexer
     matrix_display2 --- matrix_multiplexer
-    
-    %% Shared connections callouts
-    shared1["Shared: GPIO25 (OLED RESET & RFID RST)"]
-    shared2["Shared: GPIO10/MOSI (OLED & RFID)"]
-    shared3["Shared: GPIO11/SCLK (OLED & RFID)"]
-    
-    shared1 --- p22
-    shared2 --- p19
-    shared3 --- p23
 ```
 
 ![Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
 
-**Note:** The following GPIO pins are shared between components:
-- GPIO25 is shared between RFID-RC522 RST and OLED RESET
-- SPI bus (GPIO10/MOSI, GPIO11/SCLK) is shared between RFID reader and OLED display
-- I2C bus (GPIO2/SDA, GPIO3/SCL) is shared between the I2C Multiplexer and other I2C devices
-- The LED Matrix Displays are connected to the I2C Multiplexer (TCA9548A) to allow multiple displays on the same I2C bus
+**Note:**
+- The RFID reader is the only SPI device on the current build (CE0). GPIO17/22/27 (formerly the rotary encoder) and GPIO7/24 + CE1 (formerly the SSD1306 OLED) are now free.
+- I2C bus (GPIO2/SDA, GPIO3/SCL) carries the TCA9548A multiplexer, which fans out to the three IS31FL3731 LED Matrix Displays (gems + two player scores).
 
 For a detailed visual reference of the Raspberry Pi GPIO pinout, you can also refer to this image:
 [Raspberry Pi GPIO Pinout](https://i0.wp.com/randomnerdtutorials.com/wp-content/uploads/2023/03/Raspberry-Pi-Pinout-Random-Nerd-Tutorials.png?quality=100&strip=all&ssl=1)
@@ -271,8 +230,8 @@ The `make install` command runs the installation scripts that perform the follow
 - Adds the user to required groups
 - Creates a Python virtual environment
 - Installs Python packages
-- Configures services (MQTT)
-- Creates a hardware test script
+- Configures services (MQTT, gwent, gwent-camera, kiosk)
+- Sets up the touchscreen kiosk (greetd/cage/kitty) and camera service (nginx + picamera2)
 - Creates a convenience script to activate the virtual environment
 
 You can also run specific installation steps:
@@ -295,22 +254,19 @@ After rebooting, activate the virtual environment:
 source ./activate_gwent.sh
 ```
 
-### 6. Test the Hardware
+### 6. Validate the Install
 
-Run the hardware test script to verify that all components are working correctly:
+Run the validation script to verify the install and services:
 
 ```bash
-python ./test_hardware.py
+bash scripts/validate-gwent.sh
 ```
 
-The test script will check:
-- GPIO functionality
-- SPI interface
-- I2C interface
-- RFID reader
-- OLED display
-- Rotary encoder
-- MQTT broker
+Other useful checks:
+- `bash scripts/test-touch.sh` — touchscreen / evdev bridge
+- `python scripts/test-volume-mixer.py` — audio mixer
+- RFID + LED matrices: start the `gwent` service and scan a card; scores light up on the IS31FL3731 matrices
+- MQTT broker: `sudo systemctl status mosquitto`
 
 ### 7. Run the Gwent Game
 
@@ -341,20 +297,22 @@ software/gwent/
 │   ├── game/
 │   │   ├── __init__.py
 │   │   ├── main.py
-│   │   └── card_tools.py
+│   │   └── stages/          # DealCards, PlayRound, RoundEnd, GameOver
 │   ├── hal/
 │   │   ├── __init__.py
-│   │   ├── display.py
-│   │   ├── rfid.py
-│   │   └── rotary.py
-│   └── utils/
-│       └── __init__.py
+│   │   ├── matrix.py        # IS31FL3731 via TCA9548A mux
+│   │   ├── rfid.py          # MFRC522 reader/writer
+│   │   ├── audio.py / sfx.py
+│   │   └── tts/
+│   └── messaging/
 └── setup.py
 ```
 
-- `game/`: Contains the game logic
-- `hal/`: Hardware Abstraction Layer for interfacing with hardware components
-- `utils/`: Utility functions and helpers
+- `game/`: Game logic and the stage state machine
+- `hal/`: Hardware Abstraction Layer (RFID, LED matrices, audio/TTS). Legacy `oled_ssd1306.py`/`rotary*.py`/`mfd*.py` drivers remain but are disabled
+- `messaging/`: MQTT message types
+
+For dev iteration without the full kiosk: `bash scripts/dev-server.sh gwent start`.
 
 ## Troubleshooting
 
@@ -380,9 +338,9 @@ Then log out and log back in for the changes to take effect.
 
 ### Hardware Connection Issues
 
-If the hardware test script reports issues with specific components:
+If a component is not responding:
 1. Check the physical connections
-2. Verify the GPIO pin assignments
+2. Verify the GPIO/I2C pin assignments
 3. Check for conflicting GPIO pin usage
 
 ### Service Issues
@@ -405,4 +363,3 @@ sudo systemctl start mosquitto
 - [SPI Documentation](https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#spi-overview)
 - [I2C Documentation](https://www.raspberrypi.org/documentation/hardware/raspberrypi/i2c/README.md)
 - [MFRC522 Python Library](https://github.com/declanshanaghy/MFRC522-python/tree/handle_all_sectors)
-- [Luma.OLED Documentation](https://luma-oled.readthedocs.io/)

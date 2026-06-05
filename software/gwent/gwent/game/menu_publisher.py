@@ -57,6 +57,9 @@ class MenuPublisher(PubSubComponent):
         # LLMPlayerManager handles assign-pN dispatch + game-loop subprocesses.
         # Wired by gwent.game.main.create_components() after construction.
         self.llm_player_manager = None
+        # CameraClient — used by the in-game-menu reset path to stop+discard
+        # an in-flight recording. Wired by gwent.game.main.create_components().
+        self.camera_client = None
         # Startup-wizard pending selection (P1 human side + P2 AI side).
         # Rolled whenever we (re)enter the main menu; the TUI renders it as
         # the full-screen new-game screen and re-rolls/starts via menu/choose.
@@ -142,36 +145,14 @@ class MenuPublisher(PubSubComponent):
     # ------------------------------------------------------------------------
 
     def publish_main_menu(self):
-        """Build + publish (retained) the main menu: random + fresh.
-
-        Recordings/snapshots are no longer used — the game only ever deals
-        freshly generated decks."""
-        choices = []
-
-        # Built-in options
-        choices.append(gwent.messaging.menu.Choice(
-            id="random", text="Two Random Decks", icon="🎲",
-            description="Pick two random factions and start a fresh game",
-        ))
-        choices.append(gwent.messaging.menu.Choice(
-            id="fresh", text="Fresh Game (RFID / touch)", icon="🃏",
-            description="Register leaders & decks via scan or touch",
-        ))
-
-        msg = gwent.messaging.menu.Message.with_choices(
-            menu_id=gwent.messaging.menu.MENU_MAIN,
-            choices=choices,
-            prompt="Choose a game",
-        )
-        topic = ch_menu_present(gwent.messaging.menu.MENU_MAIN)
-        self.publish(topic, msg, retain=True)
-        self._published_menus.add(gwent.messaging.menu.MENU_MAIN)
-        self._log.info("published main menu: random + fresh (recordings disabled)")
-
-        # The New Game wizard is now client-side: the TUI builds the matchup
-        # proposal locally and sends both decks via gwent/game/start on START.
-        # Clear any stale retained server wizard so it doesn't compete.
+        """The main-menu choice screen is GONE — startup (and every return
+        path) deals a fresh random game directly. This now only clears any
+        stale retained menus so old TUIs don't render a ghost menu. Camera
+        and live-view toggles live in the TUI's in-game hamburger menu and
+        talk to gwent/camera/ctrl directly."""
+        self.clear_menu(gwent.messaging.menu.MENU_MAIN)
         self.clear_menu(gwent.messaging.menu.MENU_WIZARD)
+        self._log.info("main menu disabled — cleared retained menu slots")
 
     # ------------------------------------------------------------------------
     # Startup wizard (1-player: P1 human, P2 AI)
@@ -286,36 +267,13 @@ class MenuPublisher(PubSubComponent):
         choice_id = message.selected_id
         self._log.info(f"received choose menu_id={menu_id!r} id={choice_id!r}")
 
-        if menu_id == gwent.messaging.menu.MENU_MAIN:
-            self._handle_main_choose(choice_id)
-        elif menu_id == gwent.messaging.menu.MENU_IN_GAME:
+        if menu_id == gwent.messaging.menu.MENU_IN_GAME:
             self._handle_in_game_choose(choice_id)
         elif menu_id in (gwent.messaging.menu.MENU_ASSIGN_P1,
                          gwent.messaging.menu.MENU_ASSIGN_P2):
             self._handle_assign_choose(menu_id, choice_id)
         else:
             self._log.warning(f"unknown menu_id {menu_id!r} — ignoring")
-
-    def _handle_main_choose(self, choice_id: str):
-        if not choice_id:
-            self._log.warning("main choose with no id")
-            return
-
-        # Clear the main menu — we're about to start something.
-        self.clear_menu(gwent.messaging.menu.MENU_MAIN)
-
-        if choice_id == "random":
-            self._log.info("main -> random decks")
-            self._controller.start_game_from_decks()
-            return
-
-        if choice_id == "fresh":
-            self._log.info("main -> fresh game (register leaders)")
-            self._controller.start_register_leaders()
-            return
-
-        self._log.warning(f"unknown main choice: {choice_id!r}")
-        self.publish_main_menu()
 
     def _handle_wizard_choose(self, choice_id: str):
         """reroll-sides / reroll-model re-roll & republish; start launches."""
@@ -393,6 +351,12 @@ class MenuPublisher(PubSubComponent):
                     self.llm_player_manager.reset_game()
                 except Exception as e:
                     self._log.error(f"reset_game failed: {e}", exc_info=True)
+            # A reset game never reaches GameOver's save prompt — stop any
+            # in-flight recording and leave it unconfirmed (evictable).
+            if self.camera_client is not None:
+                rec_id = self.camera_client.finish_recording()
+                if rec_id:
+                    self.camera_client.discard_recording(rec_id)
             self.clear_menu(gwent.messaging.menu.MENU_IN_GAME)
             self._controller.start_main_menu()
             self.publish_main_menu()

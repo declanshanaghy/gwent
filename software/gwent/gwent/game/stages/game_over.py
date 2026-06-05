@@ -149,14 +149,43 @@ class GameOver(gwent.game.stages.base.GameStage):
         else:
             winner_faction = None
 
-        self.publish_prompt(
-            f"Game Over! {msg}",
-            ok=True, cancel=False, clear_choices=True,
-            ok_text="Main Menu", faction=winner_faction)
+        # Stop any in-flight game recording; if one exists the Game Over
+        # prompt doubles as the save-or-discard question. CameraClient is
+        # wired by main.py (None when the camera subsystem is absent).
+        cc = getattr(self, 'camera_client', None)
+        self._recording_game_id = cc.finish_recording() if cc else None
+        if self._recording_game_id:
+            self._log.info({
+                'action': 'game_over_recording_prompt',
+                'game_id': self._recording_game_id,
+            })
+            self.publish_prompt(
+                f"Game Over! {msg} Save the game recording?",
+                ok=True, cancel=True, clear_choices=True,
+                ok_text="Save Recording", faction=winner_faction)
+        else:
+            self.publish_prompt(
+                f"Game Over! {msg}",
+                ok=True, cancel=False, clear_choices=True,
+                ok_text="Main Menu", faction=winner_faction)
 
     def process_choice(self, choice: gwent.messaging.choice.Message):
         super().process_choice(choice)
+        cc = getattr(self, 'camera_client', None)
+        rec_id = getattr(self, '_recording_game_id', None)
         if choice.id == 'y':
+            if cc and rec_id:
+                self._log.info(f"game over -> save recording {rec_id}")
+                cc.save_recording(rec_id)
+                self._recording_game_id = None
+            self.complete()
+        elif choice.id == 'n' and rec_id:
+            # Discard: recording stays in unconfirmed/ (evicted under
+            # space pressure), then back to the main menu as usual.
+            self._log.info(f"game over -> discard recording {rec_id}")
+            if cc:
+                cc.discard_recording(rec_id)
+            self._recording_game_id = None
             self.complete()
 
     def process_card(self, card: gwent.messaging.card.Message):

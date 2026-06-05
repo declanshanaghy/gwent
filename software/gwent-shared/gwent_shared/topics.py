@@ -64,6 +64,13 @@ MENU_CHOOSE = f'{MENU}/choose'
 # Client-initiated game start (New Game wizard sends both decks here).
 GAME_START = f'{MAIN}/game/start'
 
+# Camera control plane (free-form JSON, like gwent/ctrl/*) — handled by the
+# standalone gwent-camera service (scripts/camera-server.py), NOT the game
+# server. State is retained so clients get camera/recording status instantly.
+CAMERA = f'{MAIN}/camera'
+CAMERA_CTRL = f'{CAMERA}/ctrl'      # in: on/off/record-start/record-stop/save/discard/evict-saved
+CAMERA_STATE = f'{CAMERA}/state'    # out, retained: camera_on/recording/recordings/budget
+
 
 def menu_present_topic(menu_id: str) -> str:
     """Per-menu present topic. e.g. menu_present_topic("main") -> gwent/menu/present/main"""

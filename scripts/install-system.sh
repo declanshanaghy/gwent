@@ -140,6 +140,50 @@ else
   echo "ALSA config already exists at ${ASOUNDRC}"
 fi
 
+echo "Installing camera tooling (scripts/camera.sh)..."
+# rpicam-apps: CLI capture/stream from the CSI camera module (rpicam-still/-vid)
+# chafa:       best-in-class terminal image viewer; auto-detects kitty graphics
+#              protocol / sixel / unicode symbols — renders --still inline
+# mpv:         video player with terminal video outputs (--vo=kitty / --vo=tct)
+#              — renders the --stream live feed in the console
+sudo apt-get install -y rpicam-apps chafa mpv
+
+echo "Installing camera HTTP server (nginx + picamera2)..."
+# python3-picamera2: libcamera Python bindings — camera-server.py owns the
+#                    camera and serves /still + /stream on 127.0.0.1:8081
+# python3-paho-mqtt: MQTT control plane (gwent/camera/ctrl + retained state)
+# nginx-light:       reverse proxy exposing it at 0.0.0.0:80/camera/{still,stream}
+#                    and serving recordings at /camera/recordings/
+sudo apt-get install -y nginx-light python3-picamera2 python3-paho-mqtt
+
+# nginx site: replaces the stock default site (both claim default_server :80)
+sudo cp ${DIR}/nginx-camera.conf /etc/nginx/sites-available/gwent-camera
+sudo ln -sf ../sites-available/gwent-camera /etc/nginx/sites-enabled/gwent-camera
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t
+sudo systemctl enable nginx
+sudo systemctl restart nginx
+
+# Recordings tree (world-readable so nginx can serve downloads)
+mkdir -p ${DIR}/../tmp/recordings/unconfirmed ${DIR}/../tmp/recordings/saved
+chmod 755 ${DIR}/../tmp ${DIR}/../tmp/recordings \
+  ${DIR}/../tmp/recordings/unconfirmed ${DIR}/../tmp/recordings/saved
+# ${HOME} is 700; grant ONLY www-data traverse rights (no world access) so
+# nginx can reach the recordings dir for /camera/recordings/ downloads
+sudo setfacl -m u:www-data:x "${HOME}"
+
+# Recordings budget janitor: hourly cron deleting oldest unconfirmed
+# recordings once usage exceeds the 10GB cap (never touches saved/)
+echo "Installing camera recordings cleanup cron..."
+sudo cp ${DIR}/gwent-camera-cron /etc/cron.d/gwent-camera
+sudo chmod 644 /etc/cron.d/gwent-camera
+
+# gwent-camera systemd service (picamera2 HTTP server)
+sudo cp ${DIR}/gwent-camera.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable gwent-camera
+sudo systemctl restart gwent-camera
+
 echo "Installing GPIO libraries for rotary encoder support..."
 sudo apt-get install -y \
   pigpio-tools python3-pigpio \
@@ -247,5 +291,7 @@ for model in "${PIPER_MODELS[@]}"; do
 done
 
 echo "System installation complete."
-echo "  mosquitto: $(systemctl is-active mosquitto)"
-echo "  pigpiod:   $(systemctl is-active pigpiod)"
+echo "  mosquitto:    $(systemctl is-active mosquitto)"
+echo "  pigpiod:      $(systemctl is-active pigpiod)"
+echo "  nginx:        $(systemctl is-active nginx)"
+echo "  gwent-camera: $(systemctl is-active gwent-camera)"

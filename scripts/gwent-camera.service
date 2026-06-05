@@ -1,0 +1,21 @@
+[Unit]
+Description=Gwent Camera HTTP Server (picamera2)
+After=network.target
+
+[Service]
+Type=simple
+User=dshanaghy
+# /dev/video* + /dev/media* access for libcamera
+SupplementaryGroups=video
+WorkingDirectory=/home/dshanaghy/src/github.com/declanshanaghy/gwent
+Environment=PYTHONUNBUFFERED=1
+# System python3: picamera2 is a system apt package (python3-picamera2),
+# not installed in the gwent venv.
+ExecStart=/usr/bin/python3 /home/dshanaghy/src/github.com/declanshanaghy/gwent/scripts/camera-server.py
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

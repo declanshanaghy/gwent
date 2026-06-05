@@ -22,13 +22,12 @@ flowchart LR
     subgraph Hardware["🔧 Artisanal Hardware Components"]
         rfidReader["📡 RFID Reader\n(MFRC522)"]
         rfidWriter["✍️ RFID Writer\nFair-Trade Data Inscriber"]
-        display["📱 Display\nOLED Canvas"]
-        rotaryBtn["🎛️ Rotary Button\nVintage Interface"]
+        touchscreen["🖐️ 7\" Touchscreen\nReclaimed Glass Canvas"]
     end
 
     %% Software Components
     subgraph Software["💻 Craft Software"]
-        mfd["🖥️ MFD\nMulti-Function Display"]
+        tui["🖥️ gwent-tui\nTouchscreen Kiosk"]
         pubsub["☕ Pub/Sub System\nFair-Trade Message Broker"]
         gameControl["🎮 Game Control\nOrganic Game Logic"]
         sfx["🎵 SFX\n(pygame)"]
@@ -70,11 +69,12 @@ flowchart LR
 
     %% Connections with Artisanal Flow
     rfidReader ==> rawTopic
-    rawTopic ==> mfd
-    mfd ==> mfdTopic
-    mfdTopic ==> pubsub
+    rawTopic ==> pubsub
     
-    rotaryBtn ==> choosepresentTopic
+    gameControl ==> mfdTopic
+    mfdTopic ==> tui
+    
+    tui ==> choosepresentTopic
     choosepresentTopic ==> pubsub
     
     pubsub ==> cardsTopic
@@ -87,14 +87,15 @@ flowchart LR
     sfxctrlTopic ==> sfx
     
     gameControl ==> menus
-    menus ==> display
+    menus ==> tui
     
     pubsub ==> readwriteTopic
     readwriteTopic ==> rfidWriter
     
     gameControl ==> GameStates
     
-    display ==> DisplayComponents
+    tui ==> DisplayComponents
+    tui --- touchscreen
     
     %% Hipster Styling
     classDef hardware fill:#A1887F,stroke:#5D4037,stroke-width:2px,color:#fff,font-family:'Courier New',font-weight:bold
@@ -103,8 +104,8 @@ flowchart LR
     classDef gameState fill:#EFEBE9,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
     classDef display fill:#F5F5F5,stroke:#5D4037,stroke-width:2px,color:#3E2723,font-family:'Courier New'
     
-    class rfidReader,rfidWriter,display,rotaryBtn hardware
-    class mfd,pubsub,gameControl,sfx,menus software
+    class rfidReader,rfidWriter,touchscreen hardware
+    class tui,pubsub,gameControl,sfx,menus software
     class mfdTopic,choosepresentTopic,cardsTopic,rawTopic,readwriteTopic,playTopic,sfxctrlTopic topic
     class registerLeaders,registerDecks,dealCards,playRound,playLeader,roundEnd,gameEnd gameState
     class boardHand,grave,deck,player,close,range,siegeTot display
@@ -115,19 +116,18 @@ flowchart LR
 ### 🔧 Handcrafted Hardware Components
 - **📡 RFID Reader (MFRC522)**: Locally-sourced RFID tag reader for cards, with sustainable power consumption
 - **✍️ RFID Writer**: Data reader/writer for RFID tags, crafted with care
-- **📱 Display**: Small-batch OLED canvas for displaying game information and menus
-- **🎛️ Rotary Button**: Vintage-inspired analog interface for navigation and selection, with authentic tactile feedback
+- **🖐️ 7" Touchscreen**: Small-batch reclaimed-glass canvas that hosts the `gwent-tui` kiosk — all game info, menus, and the camera live view. (Supersedes the deprecated OLED + rotary encoder, since composted.)
 
 ### 💻 Craft Software Components
-- **🖥️ MFD**: Multi-Function Display controller, coded in a Brooklyn warehouse
+- **🖥️ gwent-tui**: Touchscreen kiosk (greetd → cage → kitty → gwent-tui), coded in a Brooklyn warehouse. Renders the interactive-pick flow (`mfd/present`) and menus as on-screen popups and replies over MQTT — no OLED, no rotary
 - **☕ Pub/Sub System**: Fair-trade message broker for component communication, with zero waste architecture
 - **🎮 Game Control**: Organic game logic controller with gluten-free algorithms
 - **🎵 SFX (pygame)**: Sound effects and audio system, mixed on vinyl
 - **📋 Menus**: Hand-crafted menu system with locally-sourced UI elements
 
 ### 📨 Message Topics
-- **mfd**: Display control messages
-- **choosepresent**: User input selection messages
+- **mfd**: Interactive-pick content (`mfd/present`) — rendered by the TUI as an on-screen popup, no longer an OLED
+- **choosepresent**: Pick replies (`mfd/choose`) — sent by the TUI tap (was the rotary)
 - **cards**: Card data messages
 - **raw**: Raw RFID data
 - **readwrite**: RFID write commands
@@ -135,8 +135,10 @@ flowchart LR
 - **sfxctrl**: Sound effect control messages
 
 ### 💿 Vinyl Collection Game States
-- **🎵 Register Leaders**: Leader card registration phase, pressed on 180g vinyl
-- **🎵 Register Decks**: Deck registration phase, limited edition pressing
+> Deep cuts: the server now auto-deals a random game at startup and after every Game Over, so **Register Leaders** and **Register Decks** are rare B-sides — still pressed in code, never on the active turntable.
+
+- **🎵 Register Leaders**: Leader card registration phase, pressed on 180g vinyl (no longer reachable)
+- **🎵 Register Decks**: Deck registration phase, limited edition pressing (no longer reachable)
 - **🎵 Deal Cards**: Card dealing phase, with analog warmth
 - **🎵 Play Round**: Round gameplay phase, remastered from original tapes
 - **🎵 Play Leader**: Leader card play phase, collector's edition

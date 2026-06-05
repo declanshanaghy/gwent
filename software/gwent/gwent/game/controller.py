@@ -24,7 +24,6 @@ class Controller(gwent.game.PubSubComponent):
 
     def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
-        self.main_menu = gwent.game.stages.all.MainMenu(pubsub)
         self.register_leaders = gwent.game.stages.all.RegisterLeaders(pubsub)
         self.register_decks = gwent.game.stages.all.RegisterDecks(pubsub)
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
@@ -35,7 +34,6 @@ class Controller(gwent.game.PubSubComponent):
     def init(self):
         super().init()
         # Initialize all stages so they subscribe to sfx/complete
-        self.main_menu.init()
         self.register_leaders.init()
         self.register_decks.init()
         self.deal_cards.init()
@@ -72,19 +70,12 @@ class Controller(gwent.game.PubSubComponent):
         self.publish_music()  # random track from software/data/music/
 
     def start_main_menu(self):
-        self._log.info('Starting main menu stage')
+        """There is no choice screen — go straight into a fresh random deal.
 
-        def complete(choice):
-            self._log.info(f'main menu completed with choice: {choice}')
-            if choice == 'player_deal':
-                self.start_register_leaders()
-            else:
-                self.start_game_from_decks()
-
-        def cancel():
-            self._log.error("main menu can't be canceled")
-
-        self.set_active_stage(self.main_menu, complete, cancel)
+        Kept under the old name so every caller (startup, GameOver complete,
+        in-game-menu reset) lands here unchanged."""
+        self._log.info('start_main_menu: auto-starting a random deal')
+        self.start_game_from_decks()
 
     def start_game_from_decks(self):
         self._log.info('Starting game from saved decks')
@@ -92,11 +83,12 @@ class Controller(gwent.game.PubSubComponent):
         result = gwent.game.decks.pick_two_random_decks(
             owner_filter=getattr(self, '_owner_filter', None))
         if result is None:
+            # Do NOT call start_main_menu() here — it now routes straight
+            # back into this method and would recurse forever.
             self._log.error('Not enough saved decks with different factions')
             self.publish_error(
                 "Need 2+ factions with cards. "
                 "Use write_next to chip cards first.")
-            self.start_main_menu()
             return
 
         deck1_data, deck2_data = result
@@ -158,6 +150,13 @@ class Controller(gwent.game.PubSubComponent):
             'deck1_size': len(deck1),
             'deck2_size': len(deck2),
         })
+
+        # Single choke point for every game-start route (random, fresh,
+        # wizard, LLM): record the game when the camera is on. Fail-soft —
+        # never blocks or breaks the deal.
+        cc = getattr(self, 'camera_client', None)
+        if cc is not None:
+            cc.try_start_recording()
 
         def complete(deck1, hand1, deck2, hand2):
             self._log.info({
@@ -244,5 +243,10 @@ class Controller(gwent.game.PubSubComponent):
             self.active_stage.process_card(message)
 
     def process_choice(self, message: gwent.messaging.choice.Message):
+        # A pending camera eviction prompt gets first dibs on y/n answers
+        # (rare: only when saved recordings fill the storage budget).
+        cc = getattr(self, 'camera_client', None)
+        if cc is not None and cc.process_choice(message):
+            return
         if self.active_stage:
             self.active_stage.process_choice(message)

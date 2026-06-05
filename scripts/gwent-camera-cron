@@ -1,0 +1,5 @@
+# Gwent camera recordings janitor — enforces the 10 GiB recordings budget by
+# deleting the oldest unconfirmed recordings (never saved/) once per hour.
+# Installed to /etc/cron.d/gwent-camera by scripts/install-system.sh.
+# m h dom mon dow user command
+17 * * * * dshanaghy /home/dshanaghy/src/github.com/declanshanaghy/gwent/scripts/camera-recordings-cleanup.sh >/dev/null 2>&1

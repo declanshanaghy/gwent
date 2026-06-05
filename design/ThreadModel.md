@@ -35,8 +35,12 @@ flowchart TD
         playerOne["👤 Player One\nPlayer Management Thread"]
         playerTwo["👤 Player Two\nPlayer Management Thread"]
         reader["📡 Reader\nCard Reader Thread"]
-        mfd["🖥️ MFD\nMulti-Function Display Thread"]
         sfx["🎵 SFX\nSound Effects Thread"]
+        statePub["📤 StatePublisher\nRetained Snapshot Thread"]
+        menuPub["📋 MenuPublisher\nMenu Mirror Thread"]
+        srvCmd["⚙️ ServerCommandHandler\ngwent/ctrl/* Thread"]
+        llmMgr["🤖 LLMPlayerManager\nAI Driver Thread"]
+        camClient["📷 CameraClient\nRecording Bridge Thread"]
     end
 
     %% MQTT Topics
@@ -57,12 +61,16 @@ flowchart TD
     gwent ==> playerOne
     gwent ==> playerTwo
     gwent ==> reader
-    gwent ==> mfd
     gwent ==> sfx
+    gwent ==> statePub
+    gwent ==> menuPub
+    gwent ==> srvCmd
+    gwent ==> llmMgr
+    gwent ==> camClient
 
     %% MQTT Publish Relationships (solid lines)
     reader -- "Publishes" --> rawTopic
-    mfd -- "Publishes" --> mfdTopic
+    controller -- "Publishes" --> mfdTopic
     controller -- "Publishes" --> playTopic
     controller -- "Publishes" --> readwriteTopic
     controller -- "Publishes" --> sfxctrlTopic
@@ -71,8 +79,8 @@ flowchart TD
     playerTwo -- "Publishes" --> playTopic
 
     %% MQTT Subscribe Relationships (dashed lines)
-    rawTopic -. "Subscribes" .-> mfd
-    mfdTopic -. "Subscribes" .-> controller
+    rawTopic -. "Subscribes" .-> controller
+    mfdTopic -. "Subscribes (TUI)" .-> menuPub
     choosepresentTopic -. "Subscribes" .-> controller
     cardsTopic -. "Subscribes" .-> playerOne
     cardsTopic -. "Subscribes" .-> playerTwo
@@ -90,7 +98,7 @@ flowchart TD
     
     class gwent mainThread
     class mqttClient mqttThread
-    class controller,roundKeeper,playerOne,playerTwo,reader,mfd,sfx componentThread
+    class controller,roundKeeper,playerOne,playerTwo,reader,sfx,statePub,menuPub,srvCmd,llmMgr,camClient componentThread
     class mfdTopic,choosepresentTopic,cardsTopic,rawTopic,readwriteTopic,playTopic,sfxctrlTopic topic
 ```
 
@@ -107,14 +115,20 @@ flowchart TD
 - **⏱️ RoundKeeper**: Round management thread that tracks round state and scores. Small-batch processed for maximum flavor.
 - **👤 Player One/Two**: Player management threads that handle player-specific game state. Free-range and ethically sourced.
 - **📡 Reader**: Card reader thread that processes RFID card data. Harvested at peak ripeness.
-- **🖥️ MFD**: Multi-Function Display thread that manages the visual interface. Hand-crafted in a Brooklyn warehouse.
 - **🎵 SFX**: Sound effects thread that handles audio feedback. Mixed on vinyl for that authentic analog warmth.
+- **📤 StatePublisher**: Mirrors the full game-state snapshot to the retained `gwent/server/state` topic. Single source of truth, cold-pressed.
+- **📋 MenuPublisher**: Publishes the retained TUI menu mirror and the interactive-pick (`mfd/present`) popups. The touchscreen renders them — no OLED in this warehouse anymore.
+- **⚙️ ServerCommandHandler**: Handles `gwent/ctrl/*` commands (player names/pronouns, client-TTS). The full command-and-control plane is MQTT; there is no HTTP.
+- **🤖 LLMPlayerManager**: Drives AI-controlled sides when a player is assigned to an LLM. Locally-sourced inference.
+- **📷 CameraClient**: Fail-soft bridge to the standalone `gwent-camera` service — toggles recording on game start/over. If the camera service is down, games proceed unrecorded.
+
+> The legacy **🖥️ MFD** thread (OLED + rotary encoder) is no longer created — `GWENT_DISABLE_MFD=true` in `gwent.service` skips it, since that hardware was composted. The interactive-pick flow now lives in the touchscreen TUI.
 
 ### 📨 Handcrafted Message Topics
-- **mfd**: Display control messages published by MFD, subscribed by Controller
-- **choosepresent**: User input selection messages subscribed by Controller
+- **mfd**: Interactive-pick content (`mfd/present`) published by the server, rendered by the touchscreen TUI as a popup
+- **choosepresent**: Pick replies (`mfd/choose`) from the TUI tap, subscribed by Controller (was the rotary)
 - **cards**: Card data messages published by Controller, subscribed by Players and RoundKeeper
-- **raw**: Raw RFID data published by Reader, subscribed by MFD
+- **raw**: Raw RFID data published by Reader, subscribed by Controller
 - **readwrite**: RFID write commands published by Controller, subscribed by Reader
 - **play**: Game play actions published by Controller and Players, subscribed by RoundKeeper and Controller
 - **sfxctrl**: Sound effect control messages published by Controller, subscribed by SFX

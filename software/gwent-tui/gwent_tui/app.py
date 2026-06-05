@@ -17,6 +17,7 @@ from gwent_tui.widgets.header import HeaderWidget
 from gwent_tui.widgets.footer import FooterWidget
 from gwent_tui.widgets.timers import TimersWidget
 from gwent_tui.stages import STAGE_WIDGETS, UnknownStage, OfflineStage
+from gwent_tui.widgets.camera_view import CameraView
 from gwent_tui.widgets.card_overlay import CardImageOverlay
 
 log = logging.getLogger("gwent_tui.app")
@@ -171,6 +172,7 @@ class GwentTUI(App):
             yield TimersWidget(id="timers")
         yield CardImageOverlay(id="card-overlay")
         yield MenuCorner(id="menu-corner")
+        yield CameraView(id="camera-view")
         log.debug("compose() done")
 
     # --- profuse input logging (per feedback_profuse_logging) ----------------
@@ -285,6 +287,11 @@ class GwentTUI(App):
             self.query_one("#card-overlay", CardImageOverlay).check_and_update()
         except Exception as e:
             log.error("Card overlay error: %s", e, exc_info=True)
+        # Camera live view — show/hide + REC indicator from gwent/camera/state
+        try:
+            self.query_one("#camera-view", CameraView).check_and_update()
+        except Exception as e:
+            log.error("Camera view error: %s", e, exc_info=True)
         # Interactive MFD pick popup (agile row / leader weather pick, …) —
         # pop when a numeric-id choice set is pending, keep its title fresh,
         # and auto-close if the pick resolves elsewhere (rotary, LLM loop).

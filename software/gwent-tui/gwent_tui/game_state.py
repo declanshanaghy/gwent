@@ -130,6 +130,14 @@ class GameState:
         # toast widget pops the oldest after its display duration.
         self.toasts: list[dict] = []
 
+        # Camera subsystem — retained `gwent/camera/state` from the
+        # gwent-camera service. `camera` holds the raw payload; the booleans
+        # drive the live-view panel + REC indicator.
+        self.camera: dict | None = None
+        self.camera_on = False
+        self.camera_live_view = False
+        self.camera_recording = False
+
         # Deal tracking (cards dealt in real-time via MQTT)
         self.dealt_cards = {P1: [], P2: []}
 
@@ -817,6 +825,24 @@ class GameState:
                 self.menus[menu_id] = payload
                 log.info("menu cached: %s (%d choices)",
                          menu_id, len(payload.get("choices", [])))
+
+    def on_camera(self, payload: dict | None) -> None:
+        """Handle retained `gwent/camera/state` (None = cleared/empty).
+
+        The camera service marks itself online/offline; both booleans are
+        False whenever the service is gone so the live view closes itself.
+        """
+        self.game_log.write("camera", "state", payload or {})
+        with self.lock:
+            self.camera = payload
+            online = bool(payload and payload.get("online"))
+            self.camera_on = bool(online and payload.get("camera_on"))
+            self.camera_live_view = bool(online and payload.get("live_view"))
+            self.camera_recording = bool(online and payload.get("recording"))
+            log.info("camera state: online=%s on=%s view=%s recording=%s "
+                     "used=%.2fGB", online, self.camera_on,
+                     self.camera_live_view, self.camera_recording,
+                     (payload or {}).get("bytes_used", 0) / 1e9)
 
     def on_mfd(self, data):
         """Handle gwent/mfd/present."""

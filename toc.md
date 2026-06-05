@@ -32,7 +32,6 @@ Welcome to the documentation for the Gwent Companion project, a Raspberry Pi-bas
 - [PRD-006](design/006-audio-tts-system.md): Audio and TTS system
 - [PRD-007](design/007-card-data-system.md): Card data system
 - [PRD-008](design/008-deck-management.md): Deck management
-- [PRD-009](design/009-game-recordings.md): Game recordings and replay
 - [PRD-010](design/010-llm-game-orchestration.md): LLM game orchestration
 - [PRD-011](design/011-card-capture-rfid.md): Card capture and RFID programming
 
@@ -48,7 +47,6 @@ Welcome to the documentation for the Gwent Companion project, a Raspberry Pi-bas
 - [ADR-008](design/ADR/008-multi-provider-tts.md): Multi-provider TTS with faction voices
 - [ADR-009](design/ADR/009-card-json-ownership-model.md): Card JSON ownership model
 - [ADR-010](design/ADR/010-llm-orchestration-architecture.md): LLM orchestration via HTTP + MQTT
-- [ADR-011](design/ADR/011-game-recordings-replay.md): Game recordings and replay
 - [ADR-012](design/ADR/012-rfid-card-capture-pipeline.md): RFID card capture pipeline
 
 ## Style Guidelines

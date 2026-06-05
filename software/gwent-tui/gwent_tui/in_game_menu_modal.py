@@ -279,6 +279,8 @@ class InGameMenuModal(_BaseMenuModal):
     ACTIONS = [
         ("assign-p1", "Assign Player 1 controller", "🎮"),
         ("assign-p2", "Assign Player 2 controller", "🤖"),
+        ("camera",    "Camera On/Off",              "🎥"),
+        ("live-view", "Live View Show/Hide",        "👁"),
         ("quit",      "Quit Game",                  "🚪"),
         ("server",    "Server",                     "🖥"),
         ("debugging", "Debugging",                  "🐞"),
@@ -293,8 +295,21 @@ class InGameMenuModal(_BaseMenuModal):
             return _controller_desc(state, P1)
         if action_id == "assign-p2":
             return _controller_desc(state, P2)
+        if action_id == "camera":
+            if getattr(state, "camera_on", False):
+                rec = getattr(state, "camera_recording", False)
+                return ("Currently: ON — recording this game" if rec
+                        else "Currently: ON — games are recorded")
+            return "Currently: OFF — games are not recorded"
+        if action_id == "live-view":
+            if not getattr(state, "camera_on", False):
+                return "Camera is off — turn it on first"
+            return ("Currently: SHOWN — drag it anywhere; hiding never stops "
+                    "recording"
+                    if getattr(state, "camera_live_view", False)
+                    else "Currently: HIDDEN — recording is unaffected")
         if action_id == "quit":
-            return "Back to the New Game screen"
+            return "Start a new random game"
         return None
 
     def _handle(self, action_id: str) -> None:
@@ -304,6 +319,36 @@ class InGameMenuModal(_BaseMenuModal):
             self.dismiss()
             from gwent_tui.assign_controller_modal import AssignControllerModal
             app.push_screen(AssignControllerModal(side))
+            return
+        if action_id == "camera":
+            state = getattr(app, "state", None)
+            subscriber = getattr(app, "_subscriber", None)
+            if subscriber is None:
+                log.error("no _subscriber on app — cannot toggle camera")
+                self.dismiss()
+                return
+            cam_on = bool(state and getattr(state, "camera_on", False))
+            action = "off" if cam_on else "on"
+            log.info("InGameMenuModal: camera toggle -> %s", action)
+            subscriber.publish_camera_ctrl(action)
+            self.dismiss()
+            return
+        if action_id == "live-view":
+            state = getattr(app, "state", None)
+            subscriber = getattr(app, "_subscriber", None)
+            if subscriber is None:
+                log.error("no _subscriber on app — cannot toggle live view")
+                self.dismiss()
+                return
+            if not (state and getattr(state, "camera_on", False)):
+                log.info("InGameMenuModal: live-view tapped but camera is off")
+                self.dismiss()
+                return
+            view = bool(getattr(state, "camera_live_view", False))
+            action = "view-off" if view else "view-on"
+            log.info("InGameMenuModal: live view toggle -> %s", action)
+            subscriber.publish_camera_ctrl(action)
+            self.dismiss()
             return
         if action_id == "quit":
             log.info("InGameMenuModal: quit game via menu/choose reset")

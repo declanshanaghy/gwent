@@ -22,6 +22,7 @@ from gwent_shared.topics import (
     CTRL_CLIENT_TTS,
     MENU_PRESENT_PREFIX, MENU_PRESENT_WILDCARD, MENU_CHOOSE,
     GAME_START,
+    CAMERA_STATE,
 )
 
 # Per-side retained controller state — Phase 3.
@@ -42,6 +43,7 @@ TOPICS = [
     (MENU_PRESENT_WILDCARD, 0),   # retained: TUI menu mirror (per menu_id)
     (PLAYERS_CONTROLLER_WILDCARD, 0),  # retained: which controller drives each side
     (TOAST, 0),                   # transient: failover / status banners + save acks
+    (CAMERA_STATE, 1),            # retained: camera on/recording/recordings status
 ]
 
 
@@ -209,6 +211,25 @@ class MqttSubscriber:
         except Exception as e:
             log.exception("publish_mfd_choose failed: %s", e)
 
+    def publish_camera_ctrl(self, action: str) -> None:
+        """Publish a `gwent/camera/ctrl` command (on/off/view-on/view-off…)
+        straight to the gwent-camera service. The retained gwent/camera/state
+        reply updates GameState (and any menu labels) automatically."""
+        from datetime import datetime
+        payload = json.dumps({
+            "action": action,
+            "timestamp": datetime.now().astimezone().isoformat(
+                timespec="seconds"),
+        })
+        log.info("publish_camera_ctrl action=%s", action)
+        try:
+            from gwent_shared.topics import CAMERA_CTRL
+            result = self.client.publish(CAMERA_CTRL, payload, qos=1)
+            log.debug("publish_camera_ctrl result rc=%s mid=%s",
+                      result.rc, result.mid)
+        except Exception as e:
+            log.exception("publish_camera_ctrl failed: %s", e)
+
     def publish_choose(self, menu_id: str, choice_id: str) -> None:
         """Publish a `gwent/menu/choose` selection. Profuse logging per
         feedback_profuse_logging — every selection should be inspectable
@@ -340,6 +361,19 @@ class MqttSubscriber:
                 log.warning("Bad server state payload")
                 return
             self.state.load_snapshot(data)
+            return
+
+        # Camera service status — retained; empty payload = cleared slot.
+        if topic == CAMERA_STATE:
+            if not msg.payload:
+                self.state.on_camera(None)
+                return
+            try:
+                data = json.loads(msg.payload.decode("utf-8"))
+            except (json.JSONDecodeError, UnicodeDecodeError):
+                log.warning("Bad camera state payload")
+                return
+            self.state.on_camera(data)
             return
 
         # Transient toast — Phase 3.

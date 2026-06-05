@@ -47,6 +47,12 @@ CH_MUSIC_COMPLETE = CH_SEP.join((CH_MUSIC, 'complete'))
 CH_MUSIC_CTRL = CH_SEP.join((CH_MUSIC, 'ctrl'))
 CH_GAME_START = CH_SEP.join((MAIN_CHANNEL, 'game', 'start'))
 
+# Camera control plane — owned by the standalone gwent-camera service.
+# Free-form JSON (not the messaging envelope). See gwent_shared.topics.CAMERA_*.
+CH_CAMERA = CH_SEP.join((MAIN_CHANNEL, 'camera'))
+CH_CAMERA_CTRL = CH_SEP.join((CH_CAMERA, 'ctrl'))
+CH_CAMERA_STATE = CH_SEP.join((CH_CAMERA, 'state'))
+
 DEFAULT_YIELD_TIME = 0.5
 DEFAULT_ERROR_TIME = 3.0
 LOG_FREQ_SECS = 5
