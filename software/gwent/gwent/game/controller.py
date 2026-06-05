@@ -24,16 +24,20 @@ class Controller(gwent.game.PubSubComponent):
 
     def __init__(self, pubsub: mqtt.Client):
         super().__init__(pubsub)
+        self.main_menu = gwent.game.stages.all.MainMenu(pubsub)
         self.register_leaders = gwent.game.stages.all.RegisterLeaders(pubsub)
         self.register_decks = gwent.game.stages.all.RegisterDecks(pubsub)
         self.deal_cards = gwent.game.stages.all.DealCards(pubsub)
         self.play_round = gwent.game.stages.all.PlayRound(pubsub)
         self.round_end = gwent.game.stages.all.RoundEnd(pubsub)
         self.game_over = gwent.game.stages.all.GameOver(pubsub)
+        # Wired by main.py after MenuPublisher is created.
+        self.menu_publisher = None
 
     def init(self):
         super().init()
         # Initialize all stages so they subscribe to sfx/complete
+        self.main_menu.init()
         self.register_leaders.init()
         self.register_decks.init()
         self.deal_cards.init()
@@ -70,12 +74,22 @@ class Controller(gwent.game.PubSubComponent):
         self.publish_music()  # random track from software/data/music/
 
     def start_main_menu(self):
-        """There is no choice screen — go straight into a fresh random deal.
+        """Enter the MainMenu stage so the TUI shows the New Game wizard.
 
-        Kept under the old name so every caller (startup, GameOver complete,
-        in-game-menu reset) lands here unchanged."""
-        self._log.info('start_main_menu: auto-starting a random deal')
-        self.start_game_from_decks()
+        The wizard is fully client-side; the game starts when the TUI publishes
+        gwent/game/start, handled by MenuPublisher._on_game_start()."""
+        self._log.info('start_main_menu: entering wizard')
+
+        def complete():
+            pass  # game-start comes via MenuPublisher._on_game_start
+
+        def cancel():
+            self.start_main_menu()
+
+        self.set_active_stage(self.main_menu, complete, cancel)
+        mp = getattr(self, 'menu_publisher', None)
+        if mp is not None:
+            mp.publish_main_menu()
 
     def start_game_from_decks(self):
         self._log.info('Starting game from saved decks')

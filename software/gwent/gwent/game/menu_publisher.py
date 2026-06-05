@@ -145,14 +145,12 @@ class MenuPublisher(PubSubComponent):
     # ------------------------------------------------------------------------
 
     def publish_main_menu(self):
-        """The main-menu choice screen is GONE — startup (and every return
-        path) deals a fresh random game directly. This now only clears any
-        stale retained menus so old TUIs don't render a ghost menu. Camera
-        and live-view toggles live in the TUI's in-game hamburger menu and
-        talk to gwent/camera/ctrl directly."""
+        """Roll a fresh matchup and publish the New Game wizard to retained
+        gwent/menu/present/wizard so the TUI shows it immediately."""
         self.clear_menu(gwent.messaging.menu.MENU_MAIN)
-        self.clear_menu(gwent.messaging.menu.MENU_WIZARD)
-        self._log.info("main menu disabled — cleared retained menu slots")
+        self.roll_wizard()
+        self.publish_wizard()
+        self._log.info("publish_main_menu: wizard rolled and published")
 
     # ------------------------------------------------------------------------
     # Startup wizard (1-player: P1 human, P2 AI)
@@ -359,7 +357,6 @@ class MenuPublisher(PubSubComponent):
                     self.camera_client.discard_recording(rec_id)
             self.clear_menu(gwent.messaging.menu.MENU_IN_GAME)
             self._controller.start_main_menu()
-            self.publish_main_menu()
         else:
             self._log.info(f"in-game-menu choice deferred to Phase 4: {choice_id}")
 

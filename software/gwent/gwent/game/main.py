@@ -285,6 +285,7 @@ class Gwent:
         self.components.append(gwent.game.sfx.SFX(self.pubsub, tts_provider=getattr(self, '_tts_provider', 'gtts')))
         # MenuPublisher — TUI menu mirror (retained menu broadcasts + choice dispatch)
         self._menu_publisher = gwent.game.menu_publisher.MenuPublisher(self.pubsub, controller)
+        controller.menu_publisher = self._menu_publisher
         self.components.append(self._menu_publisher)
         # LLMPlayerManager — spawns game-loop.py subprocesses per LLM side
         # and handles assign-pN dispatch from the TUI controller picker.

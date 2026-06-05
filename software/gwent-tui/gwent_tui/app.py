@@ -37,6 +37,33 @@ def _configure_logging():
     root.addHandler(fh)
 
 
+class RecDot(Static):
+    """Red eye — floats above MenuCorner whenever the camera is recording."""
+
+    _W = 3
+    _H = 1
+
+    def render(self):
+        self._reposition()
+        return "[bold red]👁[/bold red]"
+
+    def on_mount(self) -> None:
+        self._reposition()
+
+    def on_resize(self, event) -> None:
+        self._reposition()
+
+    def _reposition(self) -> None:
+        try:
+            sw = self.app.size.width
+            offset = ((sw - self._W) // 2, 1)
+            if getattr(self, "_last_offset", None) != offset:
+                self._last_offset = offset
+                self.styles.offset = offset
+        except Exception as e:
+            log.debug("rec-dot reposition failed: %s", e)
+
+
 class MenuCorner(Static):
     """Floating affordance that opens the in-game menu.
 
@@ -128,6 +155,14 @@ class GwentTUI(App):
     #footer { width: 3fr; height: 100%; }
     #timers { width: 1fr; height: 100%; }
     #card-overlay { layer: overlay; }
+    #rec-dot {
+        layer: corner;
+        width: 3;
+        height: 1;
+        background: transparent;
+        content-align: center middle;
+        display: none;
+    }
     """
 
     ENABLE_COMMAND_PALETTE = False
@@ -171,6 +206,7 @@ class GwentTUI(App):
             yield FooterWidget(id="footer")
             yield TimersWidget(id="timers")
         yield CardImageOverlay(id="card-overlay")
+        yield RecDot(id="rec-dot")
         yield MenuCorner(id="menu-corner")
         yield CameraView(id="camera-view")
         log.debug("compose() done")
@@ -292,6 +328,12 @@ class GwentTUI(App):
             self.query_one("#camera-view", CameraView).check_and_update()
         except Exception as e:
             log.error("Camera view error: %s", e, exc_info=True)
+        # Recording eye — visible whenever the camera is recording
+        try:
+            rec = getattr(self.state, "camera_recording", False)
+            self.query_one("#rec-dot").display = bool(rec)
+        except Exception as e:
+            log.debug("rec-dot update failed: %s", e)
         # Interactive MFD pick popup (agile row / leader weather pick, …) —
         # pop when a numeric-id choice set is pending, keep its title fresh,
         # and auto-close if the pick resolves elsewhere (rotary, LLM loop).
