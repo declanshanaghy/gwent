@@ -37,6 +37,12 @@ _tts_volume = 100   # TTS announcements
 # Current music track path (for dedup)
 _music_current_path: str = ""
 
+# Generation counter — incremented on every play_music(); stale monitor
+# threads compare their captured generation before firing the callback so
+# only the most-recent monitor ever calls it (prevents the N-callback storm
+# that occurs when accumulated threads all wake up during a track crossfade).
+_music_monitor_generation: int = 0
+
 # Lazy mixer reference
 _mixer = None
 
@@ -331,6 +337,10 @@ def play_music(path: str, seek_seconds: float = 0):
 
 def _start_music_monitor():
     """Start a thread that watches for music completion."""
+    global _music_monitor_generation
+    _music_monitor_generation += 1
+    my_gen = _music_monitor_generation
+
     def _monitor():
         import time as _time
         mixer = _get_mixer()
@@ -340,6 +350,9 @@ def _start_music_monitor():
             _time.sleep(0.5)
         # Small delay for crossfade overlap
         _time.sleep(0.5)
+        if _music_monitor_generation != my_gen:
+            log.debug("Music monitor gen %d stale (current=%d), skipping callback", my_gen, _music_monitor_generation)
+            return
         if _on_music_complete_callback:
             log.debug("Music track finished, firing completion")
             _on_music_complete_callback()

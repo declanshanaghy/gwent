@@ -169,13 +169,6 @@ class WizardStage(Container):
                 yield Button("🤖 Re-select Model", id="wiz-reroll-model")
                 yield Button("▶ START", id="wiz-start", variant="success")
 
-    def on_mount(self) -> None:
-        log.info("WizardStage mounted")
-        if not _proposal(self.app):
-            self._generate(sides=True, model=True)
-        else:
-            self._refresh_sides()
-
     # --- proposal generation (client-side) ---
 
     def _generate(self, sides=True, model=True, announce=True) -> None:
@@ -238,6 +231,13 @@ class WizardStage(Container):
                     pass
 
     # --- buttons ---
+
+    def on_mount(self) -> None:
+        log.info("WizardStage mounted")
+        if not _proposal(self.app):
+            self._generate(sides=True, model=True)
+        else:
+            self._refresh_sides()
 
     def on_button_pressed(self, event: Button.Pressed) -> None:
         bid = event.button.id or ""

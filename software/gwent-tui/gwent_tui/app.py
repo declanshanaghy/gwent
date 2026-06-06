@@ -56,7 +56,10 @@ class RecDot(Static):
     def _reposition(self) -> None:
         try:
             sw = self.app.size.width
-            offset = ((sw - self._W) // 2, 1)
+            # Centre within the left 1fr column (same column as the
+            # PlayRound hamburger), not the full-screen centre.
+            left_col_w = sw // 2
+            offset = (max(0, (left_col_w - self._W) // 2), 1)
             if getattr(self, "_last_offset", None) != offset:
                 self._last_offset = offset
                 self.styles.offset = offset
@@ -328,10 +331,10 @@ class GwentTUI(App):
             self.query_one("#camera-view", CameraView).check_and_update()
         except Exception as e:
             log.error("Camera view error: %s", e, exc_info=True)
-        # Recording eye — visible whenever the camera is recording
+        # Recording eye — visible whenever the camera is on
         try:
-            rec = getattr(self.state, "camera_recording", False)
-            self.query_one("#rec-dot").display = bool(rec)
+            cam_on = getattr(self.state, "camera_on", False)
+            self.query_one("#rec-dot").display = bool(cam_on)
         except Exception as e:
             log.debug("rec-dot update failed: %s", e)
         # Interactive MFD pick popup (agile row / leader weather pick, …) —

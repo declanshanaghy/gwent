@@ -279,6 +279,7 @@ class InGameMenuModal(_BaseMenuModal):
     ACTIONS = [
         ("assign-p1", "Assign Player 1 controller", "🎮"),
         ("assign-p2", "Assign Player 2 controller", "🤖"),
+        ("volume",    "Volume Mixer",               "🔊"),
         ("camera",    "Camera On/Off",              "🎥"),
         ("live-view", "Live View Show/Hide",        "👁"),
         ("quit",      "Quit Game",                  "🚪"),
@@ -319,6 +320,11 @@ class InGameMenuModal(_BaseMenuModal):
             self.dismiss()
             from gwent_tui.assign_controller_modal import AssignControllerModal
             app.push_screen(AssignControllerModal(side))
+            return
+        if action_id == "volume":
+            self.dismiss()
+            from gwent_tui.volume_mixer import VolumeMixerModal
+            app.push_screen(VolumeMixerModal())
             return
         if action_id == "camera":
             state = getattr(app, "state", None)
