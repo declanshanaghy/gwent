@@ -56,10 +56,14 @@ class RecDot(Static):
     def _reposition(self) -> None:
         try:
             sw = self.app.size.width
-            # Centre within the left 1fr column (same column as the
-            # PlayRound hamburger), not the full-screen centre.
-            left_col_w = sw // 2
-            offset = (max(0, (left_col_w - self._W) // 2), 1)
+            stage = getattr(self.app, "_current_stage_name", None)
+            if stage == "PlayRound":
+                # Centre within the left 1fr column (same column as the hamburger).
+                col_w = sw // 2
+                x = max(0, (col_w - self._W) // 2)
+            else:
+                x = max(0, (sw - self._W) // 2)
+            offset = (x, 1)
             if getattr(self, "_last_offset", None) != offset:
                 self._last_offset = offset
                 self.styles.offset = offset
@@ -428,6 +432,10 @@ class GwentTUI(App):
             log.error("Failed to mount stage %s: %s", stage_name, e)
 
         log.info("Switched to stage: %s (%s)", stage_name, stage_cls.__name__)
+        try:
+            self.query_one("#rec-dot", RecDot)._reposition()
+        except Exception:
+            pass
 
     async def _refresh_all(self):
         """Refresh all visible widgets and switch stage if needed."""
