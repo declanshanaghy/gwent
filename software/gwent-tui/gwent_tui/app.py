@@ -335,12 +335,6 @@ class GwentTUI(App):
             self.query_one("#camera-view", CameraView).check_and_update()
         except Exception as e:
             log.error("Camera view error: %s", e, exc_info=True)
-        # Recording eye — visible whenever the camera is on
-        try:
-            cam_on = getattr(self.state, "camera_on", False)
-            self.query_one("#rec-dot").display = bool(cam_on)
-        except Exception as e:
-            log.debug("rec-dot update failed: %s", e)
         # Interactive MFD pick popup (agile row / leader weather pick, …) —
         # pop when a numeric-id choice set is pending, keep its title fresh,
         # and auto-close if the pick resolves elsewhere (rotary, LLM loop).
@@ -384,6 +378,8 @@ class GwentTUI(App):
                     "RegisterLeaders", "RegisterDecks", "DealCards")
             )
             self.query_one("#menu-corner").display = not hide
+            cam_on = getattr(self.state, "camera_on", False)
+            self.query_one("#rec-dot").display = bool(cam_on) and not hide
         except Exception as e:
             log.debug("menu-corner visibility toggle failed: %s", e)
 
